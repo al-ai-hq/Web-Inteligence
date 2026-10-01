@@ -1,0 +1,16 @@
+{
+  "rows": [
+    {
+      "fidelity_label": "assessed",
+      "evidence_state": "inferred"
+    },
+    {
+      "fidelity_label": "observed",
+      "evidence_state": "verified"
+    },
+    {
+      "fidelity_label": "computed",
+      "evidence_state": "verified"
+    }
+  ]
+}
