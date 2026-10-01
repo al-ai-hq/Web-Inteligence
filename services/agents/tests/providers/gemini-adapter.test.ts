@@ -78,4 +78,60 @@ describe("GeminiAdapter", () => {
     const adapter = new GeminiAdapter("test-api-key");
     expect(adapter.name).toBe("gemini");
   });
+
+  it("reports unavailable when circuit breaker is open", async () => {
+    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    // Force 3 consecutive failures to open the breaker
+    __mockGenerateContent.mockRejectedValue(new Error("API down"));
+
+    for (let i = 0; i < 3; i++) {
+      await adapter.complete({
+        model: "gemini-2.0-flash",
+        systemPrompt: "test",
+        userPrompt: "test",
+      }).catch(() => {});
+    }
+
+    expect(adapter.isAvailable()).toBe(false);
+  });
+
+  it("maps MAX_TOKENS finish reason to max_tokens", async () => {
+    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    __mockGenerateContent.mockResolvedValueOnce({
+      text: "Partial response",
+      candidates: [{ finishReason: "MAX_TOKENS" }],
+      usageMetadata: {
+        promptTokenCount: 10,
+        candidatesTokenCount: 5,
+      },
+    });
+
+    const result = await adapter.complete({
+      model: "gemini-2.0-flash",
+      systemPrompt: "You are helpful.",
+      userPrompt: "Say hello.",
+    });
+
+    expect(result.finishReason).toBe("max_tokens");
+  });
+
+  it("maps non-STOP finish reason to error", async () => {
+    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    __mockGenerateContent.mockResolvedValueOnce({
+      text: "",
+      candidates: [{ finishReason: "SAFETY" }],
+      usageMetadata: {
+        promptTokenCount: 10,
+        candidatesTokenCount: 0,
+      },
+    });
+
+    const result = await adapter.complete({
+      model: "gemini-2.0-flash",
+      systemPrompt: "You are helpful.",
+      userPrompt: "Say hello.",
+    });
+
+    expect(result.finishReason).toBe("error");
+  });
 });
