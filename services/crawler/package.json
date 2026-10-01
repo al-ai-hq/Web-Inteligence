@@ -6,5 +6,16 @@
   "scripts": {
     "build": "tsc --build",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@wpi/security": "workspace:*",
+    "cheerio": "^1.0.0",
+    "zod": "^3.23.8",
+    "yaml": "^2.5.1",
+    "@google-cloud/storage": "^7.12.1",
+    "undici": "^6.19.2"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.1"
   }
 }

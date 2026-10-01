@@ -1,0 +1,20 @@
+{
+  "name": "@wpi/render-job",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@wpi/security": "workspace:*",
+    "playwright": "^1.47.0",
+    "zod": "^3.23.8",
+    "yaml": "^2.5.1",
+    "@google-cloud/storage": "^7.12.1"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.1"
+  }
+}
