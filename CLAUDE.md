@@ -4,7 +4,7 @@ Bilingual (Arabic/English) platform that audits websites for SEO, AEO and GEO, o
 
 ## Status
 
-Start-ready repository: specifications, configuration, schemas, governance docs and Claude Code tooling exist. There is no application code yet. The first milestone is M0A (`intent/INT-00-m0a-repository-bootstrap/intent.md`), then M0B (`intent/INT-01-m0b-contracts-threat-model-cost-proof/intent.md`).
+M0A complete (2026-10-01): pnpm workspace, strict TypeScript, ESLint/Prettier, Vitest, Playwright, skeleton packages and services, bilingual placeholder page. Governance toolchain (schemas, config, hooks) is operational. Release draft in `intent/INT-00-m0a-repository-bootstrap/release.md`. M0B is next (`intent/INT-01-m0b-contracts-threat-model-cost-proof/intent.md`); it does not start automatically.
 
 ## Read before any change
 
@@ -24,7 +24,16 @@ Governance checks (work now):
 - Config checks: `python3 scripts/check_config.py`
 - Setup once per machine: Python 3 on PATH as `python3` (the hooks run with it) and `pip install pyyaml jsonschema`. `check_schemas.py` fails if `jsonschema` is missing.
 
-Application commands are created at M0A. ASSUMPTION (pnpm, confirm at M0A): `pnpm install`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `pnpm test:ssrf`; infrastructure `make tf-plan ENV=dev`. Never apply production infrastructure locally. Update this section when M0A lands.
+Application commands (M0A scaffolding in place; product logic arrives at M0B+):
+
+- Install: `nvm use && corepack enable && pnpm install --frozen-lockfile`
+- Lint: `pnpm lint`
+- Type-check: `pnpm typecheck`
+- Unit tests: `pnpm test`
+- SSRF-adjacent tests: `pnpm test:ssrf`
+- Format check: `pnpm format:check`
+- Format fix: `pnpm format`
+- Dev server: `pnpm --filter @wpi/web dev`
 
 ## How work proceeds
 
@@ -33,12 +42,15 @@ Application commands are created at M0A. ASSUMPTION (pnpm, confirm at M0A): `pnp
 - Append to `docs/decisions.md`, `docs/assumptions.md`, `docs/open-items.md` and `docs/sources.md`. Never rewrite earlier entries.
 - When the implementation departs from `plan.md`, update `plan.md` in the same commit.
 
-## Planned layout (created at M0A)
+## Layout
 
 - `apps/web`: Next.js UI and API on Cloud Run.
 - `services/crawler`: crawl and render jobs; crawl project only; no database or secrets access.
 - `services/agents`: runtime AI agents; tool allowlists come from `config/agents/*.yaml`.
-- `services/connectors`: the only code with CMS or Git write credentials.
+- `services/connectors`: the only code with CMS or Git write credentials (split-trust boundary).
+- `packages/contracts`: TypeScript types generated from `schemas/` (M0B).
+- `packages/config-loaders`: runtime YAML loaders for `config/` (M0B).
+- `packages/test-utils`: shared test utilities.
 - `infra/terraform/{dev,staging,prod}`.
 
 ## Conventions

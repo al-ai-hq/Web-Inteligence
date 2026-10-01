@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Spec | `intent/INT-00-m0a-repository-bootstrap/spec.md` (status: approved) |
-| Status | approved |
+| Status | done |
 | Author | Qoder agent session 7ad412ff-ada7-4dd7-a092-b42da4ea0df7, 2026-10-01 |
 | Engineer approval | Ibrahim Abedrabboh, 2026-10-01 (approved in conversation, recorded here per `.claude/skills/intent-spec-plan/SKILL.md`) |
 | Tech lead approval | Ibrahim Abedrabboh, 2026-10-01 (same conversation; both roles held per D-020) |
@@ -110,4 +110,8 @@ No product UI beyond the placeholder page: one screenshot each of the Arabic and
 
 ## Departures from the plan
 
-None yet. Dated entries go here in the same commit as any departing code.
+1. **Validator tests combined**: Plan called for separate `scripts/tests/test_check_config.py` and `scripts/tests/test_check_schemas.py`; implemented as one `scripts/tests/test_validators.py` with three test classes. Rationale: the tests are small and share setup logic; one file is simpler to maintain.
+2. **CI actions not pinned to SHAs**: Plan called for pinning all `uses:` to full commit SHAs; CI uses version tags (`@v4`, `@v5`, `@v2`). Rationale: exact SHAs not verifiable without network access; OI-021 records SHA pinning as a follow-up at the next security review. CI will function correctly with version tags.
+3. **Clean-checkout proof not run**: Plan called for `git clone` into a temp directory and running all pnpm commands; not possible because (a) the repository is local-only with no remote, and (b) Node 22 is not installed on the dev machine (Node 24 present). Governance checks (Python validators, hook tests) run locally with venv. pnpm commands will be validated by CI on GitHub Actions.
+4. **Test-lock ritual not performed**: Plan called for creating `.claude/state/test-lock` before writing failing tests, then removing it after the fix. The validator fixes were performed in a prior session before this plan was written; the ritual was not retroactively applied. The fixes are verified by the regression tests in `scripts/tests/test_validators.py`.
+5. **requirements-dev.txt not created**: Plan step 2 mentioned `pip install -r requirements-dev.txt`; the file already existed in the V5 baseline with `pyyaml` and `jsonschema`. CI governance job installs from it.

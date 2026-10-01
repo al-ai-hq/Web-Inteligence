@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/contracts" },
+    { "path": "packages/config-loaders" },
+    { "path": "packages/test-utils" },
+    { "path": "services/crawler" },
+    { "path": "services/agents" },
+    { "path": "services/connectors" },
+    { "path": "apps/web" }
+  ]
+}

@@ -2,7 +2,7 @@
 
 Status: living register  
 Owner role: Tech lead (SEO sources: SEO lead)  
-Last updated: 2026-09-30
+Last updated: 2026-10-01
 
 Every external fact the product or its build depends on is listed here with the date it was checked. External product and platform facts also live in `config/policy-facts.yaml` with review and expiry dates. Recheck a source before relying on it in code or client-facing guidance, and add a new row with the new date.
 
@@ -30,3 +30,20 @@ Every external fact the product or its build depends on is listed here with the 
 ## Search, platform and standards sources
 
 The full list of Google Search, Google Cloud, search-data, connector, standards and provider references, with checked dates, is in `docs/spec/08-REFERENCE-LIBRARY.md` ("Sources checked" section). Facts from those pages that the product relies on are in `config/policy-facts.yaml`.
+
+## M0A toolchain dependency versions (chosen 2026-10-01)
+
+| Package | Version | Notes |
+| --- | --- | --- |
+| pnpm | 9.12.0 | `packageManager` field in root `package.json`; committed lockfile |
+| Node.js | >=22.0.0 | LTS per D-021; `.nvmrc` pins `22`; CI reads from `.nvmrc` |
+| TypeScript | ~5.6.0 | Strict mode; `tsconfig.base.json` shared across workspace |
+| ESLint | ^9.14.0 | Flat config (`eslint.config.mjs`) with `typescript-eslint` strict type-checked |
+| `@eslint/js` | ^9.14.0 | Core rules |
+| `typescript-eslint` | ^8.15.0 | Strict type-checked config |
+| Prettier | ^3.3.0 | `.prettierrc.json`; format hook assumes Prettier |
+| Vitest | ^2.1.0 | Unit tests; workspace projects in `vitest.config.ts` |
+| `@playwright/test` | ^1.48.0 | Browser and SSRF-adjacent tests; `playwright.config.ts` |
+| Next.js | ^15.1.0 | `apps/web`; React 19 |
+| React | ^19.0.0 | `apps/web` |
+| Python (CI) | 3.12 | Governance checks in CI; local dev uses 3.14 with venv |

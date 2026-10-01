@@ -201,7 +201,7 @@ def lint_schema(path: Path, doc, docs_by_file: dict, common_enums: dict, report:
         if isinstance(node.get("required"), list) and isinstance(props, dict):
             missing = [name for name in node["required"] if name not in props]
             # Partial overlays inside if/then may require properties defined at the parent level.
-            if missing and node.get("type") == "object":
+            if missing:
                 report.error(at, f"required names not in properties: {missing}")
         if (pointer and node.get("type") == "object" and isinstance(props, dict)
                 and "additionalProperties" not in node):

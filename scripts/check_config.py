@@ -310,6 +310,8 @@ def check_rules(docs, caps) -> dict[str, int]:
                 check(key in rule, f"{where}: missing key {key!r}")
             check(isinstance(rid, str) and re.match(r"^[A-Z0-9]+-\d{3}$", rid or "") is not None,
                   f"{where}: invalid rule id")
+            if not isinstance(rid, str):
+                continue
             check(rid not in seen, f"{where}: duplicate rule id (also in {seen.get(rid)})")
             seen[rid] = rel(path)
             ids_in_file.append(rid)
@@ -435,7 +437,7 @@ def check_budgets(docs) -> None:
 
     check(data.get("currency") == "USD", "budgets.yaml: currency must be USD")
     monthly = data.get("monthly") or {}
-    check(dec(monthly.get("hard_cap")) == Decimal("150"), "budgets.yaml: monthly.hard_cap must be the decimal string '150.00' (D-005)")
+    check(dec(monthly.get("hard_cap")) == Decimal("150.00"), "budgets.yaml: monthly.hard_cap must be the decimal string '150.00' (D-005)")
     check(monthly.get("scope") == "combined_hosting_and_paid_calls", "budgets.yaml: the cap covers hosting and paid calls (D-005)")
     per = data.get("per_audit") or {}
     soft, hard = dec(per.get("soft_cap")), dec(per.get("hard_cap"))
