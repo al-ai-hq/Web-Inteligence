@@ -1,0 +1,681 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 2076cd3..b12d2b7 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -6,7 +6,7 @@
+ # intent/INT-00-m0a-repository-bootstrap/intent.md.
+ #
+ # Jobs:
+-#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness
++#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access
+ #   secrets    - gitleaks over the full history
+ #   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
+ name: ci
+@@ -44,6 +44,8 @@ jobs:
+         run: python3 scripts/check_schemas.py
+       - name: Config check
+         run: python3 scripts/check_config.py
++      - name: M3 access
++        run: python3 scripts/check_m3_access.py
+       - name: M2 readiness
+         run: python3 scripts/check_m2_readiness.py
+       - name: Action pins
+diff --git a/evals/m3/access-private.json b/evals/m3/access-private.json
+new file mode 100644
+index 0000000..778d01d
+--- /dev/null
++++ b/evals/m3/access-private.json
+@@ -0,0 +1,4 @@
++{
++  "public_gallery": false,
++  "noindex": true
++}
+diff --git a/evals/m3/deny-anonymous.json b/evals/m3/deny-anonymous.json
+new file mode 100644
+index 0000000..46edc61
+--- /dev/null
++++ b/evals/m3/deny-anonymous.json
+@@ -0,0 +1,60 @@
++{
++  "requests": [
++    {
++      "format": "pdf",
++      "access_class": "anonymous",
++      "decision": "denied",
++      "denial_reason": "anonymous_export_prohibited",
++      "artifact": null,
++      "signed_url": null
++    },
++    {
++      "format": "document",
++      "access_class": "anonymous",
++      "decision": "denied",
++      "denial_reason": "anonymous_export_prohibited",
++      "artifact": null,
++      "signed_url": null
++    },
++    {
++      "format": "csv",
++      "access_class": "anonymous",
++      "decision": "denied",
++      "denial_reason": "anonymous_export_prohibited",
++      "artifact": null,
++      "signed_url": null
++    },
++    {
++      "format": "json",
++      "access_class": "anonymous",
++      "decision": "denied",
++      "denial_reason": "anonymous_export_prohibited",
++      "artifact": null,
++      "signed_url": null
++    },
++    {
++      "format": "evidence_bundle",
++      "access_class": "anonymous",
++      "decision": "denied",
++      "denial_reason": "anonymous_export_prohibited",
++      "artifact": null,
++      "signed_url": null
++    },
++    {
++      "format": "task_export",
++      "access_class": "anonymous",
++      "decision": "denied",
++      "denial_reason": "anonymous_export_prohibited",
++      "artifact": null,
++      "signed_url": null
++    },
++    {
++      "format": "full_report_copy",
++      "access_class": "anonymous",
++      "decision": "denied",
++      "denial_reason": "anonymous_export_prohibited",
++      "artifact": null,
++      "signed_url": null
++    }
++  ]
++}
+diff --git a/intent/INT-04-m3-anonymous-report-access/intent.md b/intent/INT-04-m3-anonymous-report-access/intent.md
+new file mode 100644
+index 0000000..204be8d
+--- /dev/null
++++ b/intent/INT-04-m3-anonymous-report-access/intent.md
+@@ -0,0 +1,82 @@
++# Intent: M3 anonymous report access
++
++Status: draft.
++
++| Field | Value |
++| --- | --- |
++| ID | INT-04 |
++| Status | draft |
++| Author (originator) | <DECIDE_AT_M0: product owner name> |
++| Product owner | <DECIDE_AT_M0: name> |
++| Tech lead | <DECIDE_AT_M0: name> |
++| Milestone | M3 (05-PROJECT-PLAN §5) |
++| Ticket | none |
++| Created | 2026-10-01 |
++| Drafted from | Ibrahim, 2026-10-01. He confirmed the first slice is only a local check: an anonymous request for PDF, document, CSV, JSON, evidence, or a task export is denied, with no artifact and no signed URL; stored report access is private and noindex (`public_gallery` false and `noindex` true); there is no screen; product spend stays `0.00` USD. |
++| Text accepted | Ibrahim, 2026-10-01, by the message "I accept this INT-04 text." The status word stays `draft` because that message also says not to set `accepted`. |
++| Depends on | `origin/main` at `d8d3e18`, which merges pull request 3 and includes M0A, M0B, the local M1 SSRF suite, and the local M2 Presence Readiness check. That fact does not reopen those milestones and does not authorize a further merge. |
++| Risk class | standard for this slice. A later slice that serves a live anonymous link, a cookie, or a screen is high-risk. This slice does not. |
++
++Status values: `draft`, `accepted`, `rejected`, `superseded`. Ibrahim accepted this text on 2026-10-01. This session does not set `accepted`.
++
++## Problem
++
++M0B can deny one anonymous CSV export. That proof does not show that the other anonymous downloads are denied, and it does not show that the stored report is private and `noindex`. A later screen can still offer a PDF, a document, JSON, an evidence bundle, or a task export, or it can mark the report as public. `schemas/report-model.schema.json` already has `noindex` and `public_gallery`. Nobody has yet shown, in a local check, that every anonymous export in D-002 is denied with no artifact and that the stored access stays private and non-indexed.
++
++## Proposed outcome
++
++A local check, with no screen, shows all of these:
++
++- An anonymous request for a PDF, a document, a CSV, JSON, an evidence export, or a task export is denied. The denial creates no artifact and no signed URL.
++- The stored report access has `public_gallery` false and `noindex` true.
++- Product spend stays `0.00` USD. There is no deploy and no public report link.
++
++Cursor sessions run this milestone under `AGENTS.md` and `.cursor/`. `.claude/` remains the policy source. `opusplan` at high in `docs/spec/06-MODEL-PLAN.md` §3 is a Claude Code alias, not a Cursor picker value. The session records the model name it shows (D-020). This draft was written in a session that showed Grok 4.7.
++
++## Affected users and systems
++
++Anonymous report readers, the privacy owner, and the security engineer. No service is deployed. `scripts/check_m0b_proofs.py` is not edited.
++
++## Constraints
++
++- D-002: anonymous reports stay in-app. PDF, document, CSV, JSON, evidence, and task downloads are denied server-side. The link is private and unguessable. `noindex` is required. The report is deletable and expires within 7 days. This slice does not build the link, the deletion path, or the expiry clock.
++- D-012: Presence Readiness, Experience Effectiveness, AI visibility, and search performance stay separate. This slice has no headline screen.
++- D-014: a stored report still belongs to its project through the lineage already required.
++- D-020: record the model the session shows.
++- `docs/test-strategy.md` §6.2: the full anonymous catalogue also covers expired secrets, deletion, log canaries, and a registered export that succeeds. Those cases are not this slice.
++- `pnpm test:e2e` stays recorded as not run. There is no screen, so Arabic copy, RTL layout, and WCAG evidence are not produced.
++- Do not import `.claude/skills/marketing-seo-agent/scripts`.
++
++## Out of scope
++
++- Reopening M0A, M0B, M1, or M2. Starting M4. Merging any pull request.
++- Closing OI-021. The secrets job on pull request 3 failed because organization `al-ai-hq` has no `GITLEAKS_LICENSE`. That is not a secret in the diff.
++- The bilingual in-app report, comparison views, the action board, the 30/60/90 roadmap, charts, and download controls.
++- Eligibility tiers, expiry enforcement, deletion across stores, claim, cookies, and a registered export that is allowed to succeed (OI-039, OI-036, OI-056, A-032, A-033).
++- Editing `scripts/check_m0b_proofs.py`, changing weights, or bumping `methodology_version`.
++- Deploy, Terraform apply, a live provider call, a client-site fetch, and product spend.
++
++## Exit gate
++
++From 05-PROJECT-PLAN §5, this first slice shows locally:
++
++1. one denial for each anonymous export format named above, with no artifact and no signed URL;
++2. stored access with `public_gallery` false and `noindex` true.
++
++The later M3 exit, a bilingual in-app report with comparison tests and Arabic accessibility evidence, is not this slice. `pnpm test:e2e` stays recorded as not run.
++
++## Open questions
++
++These stay open. They do not block this draft. They block a later screen or a live link.
++
++- Launch sequencing for public anonymous traffic (OI-005, A-012). Owner: product owner. The name remains `<DECIDE_AT_M0: name>` (OI-002).
++- Backup retention versus the 7-day anonymous limit (OI-036). Owner: counsel and privacy owner.
++- Eligibility thresholds (OI-039). Owner: product owner and security engineer.
++- Whether a site owner can delete someone else's anonymous audit, and whether links may be shared (OI-056). Owner: counsel and product owner.
++- Screen-reader and browser matrix (`<DECIDE_AT_M3>` in `docs/test-strategy.md`). Owner: frontend lead.
++
++## Links
++
++- Spec: `intent/INT-04-m3-anonymous-report-access/spec.md` (after acceptance)
++- Plan: `intent/INT-04-m3-anonymous-report-access/plan.md` (after spec approval)
++- Release: `intent/INT-04-m3-anonymous-report-access/release.md` (after implementation)
+diff --git a/intent/INT-04-m3-anonymous-report-access/plan.md b/intent/INT-04-m3-anonymous-report-access/plan.md
+new file mode 100644
+index 0000000..8be0669
+--- /dev/null
++++ b/intent/INT-04-m3-anonymous-report-access/plan.md
+@@ -0,0 +1,96 @@
++# Plan: M3 local anonymous export denial
++
++| Field | Value |
++| --- | --- |
++| Spec | `intent/INT-04-m3-anonymous-report-access/spec.md` (status: approved) |
++| Status | done |
++| Author | Cursor session (Grok 4.7), 2026-10-01. Written in Plan mode. The local check was added after Ibrahim approved this plan. |
++| Engineer approval | Ibrahim, 2026-10-01, by the message "I approve plan.md". |
++| Tech lead approval | not required. This slice does not add a live auth path, a cookie, tenant isolation code, SSRF, the cost guard, rule weights, or production infrastructure. |
++| Branch | `m3-anonymous-report-access`, cut from `origin/main` at `d8d3e18`. Not pushed. It does not track `origin/main`. |
++
++Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Only a human sets `approved`.
++
++## Scope of this slice
++
++Add one local command that denies an anonymous export and checks the stored access label. Product spend stays `0.00` USD.
++
++An anonymous request for `pdf`, `document`, `csv`, `json`, `evidence_bundle`, `task_export`, or `full_report_copy` is denied with reason `anonymous_export_prohibited`, no artifact, and no signed URL. `web_interactive` is not an export. Stored access has `public_gallery` false and `noindex` true.
++
++There is no screen. `scripts/check_m0b_proofs.py` is not edited. OI-021 stays open. M4 does not start.
++
++## Files
++
++| Path | Change | Why |
++| --- | --- | --- |
++| `evals/m3/deny-anonymous.json` | Create | Seven anonymous export requests, one per format above, each stored as denied with `anonymous_export_prohibited` and no artifact or signed URL. |
++| `evals/m3/access-private.json` | Create | Stored access with `public_gallery` false and `noindex` true. |
++| `scripts/check_m3_access.py` | Create | Local command. Python standard library only. Does not import `scripts/check_m0b_proofs.py`. |
++| `.github/workflows/ci.yml` | One governance step | Run `python3 scripts/check_m3_access.py` after the existing config check. No new action SHA. |
++| `intent/INT-04-m3-anonymous-report-access/spec.md` | Sign-off already recorded | Ibrahim approved it on 2026-10-01. |
++
++In-memory copies cover a denial that is authorized, a denial that carries an artifact or a signed URL, `public_gallery` true, and `noindex` false. The command fails if any of those copies is accepted. It also fails if `web_interactive` is treated as an export denial.
++
++Do not edit `scripts/check_m0b_proofs.py`, `config/`, schemas, or `package.json`. Do not add a workflow action. Do not close OI-021. Leave the untracked Icon file out. `pnpm test:e2e` stays not run. `pnpm test:ssrf` is not this exit.
++
++## Order of work
++
++Do not start this list until the plan is approved.
++
++1. Add the two fixtures under `evals/m3/`. Synthetic values only. No secrets, customer URLs, or page text.
++2. Add `scripts/check_m3_access.py` so it exits 0 only when the seven denials and the access label pass, and the in-memory failures are refused. Do not set `.claude/state/test-lock`. This is not a bug fix.
++3. Add the CI step. Run the proof commands below and paste the output. Record `pnpm test:e2e` as not run.
++4. Save `intent/INT-04-m3-anonymous-report-access/review.diff`. Run `security-reviewer` and `verifier`. They do not approve, merge, or spawn subagents. Fill `release.md` from the template. Stop. Do not start M4.
++
++## Behaviour the command must pin
++
++- Deny anonymous `pdf`, `document`, `csv`, `json`, `evidence_bundle`, `task_export`, and `full_report_copy`.
++- Each denial is `decision` `denied` and `denial_reason` `anonymous_export_prohibited`, with no artifact and no signed URL.
++- Refuse a copy that sets `decision` to `authorized`, or that adds an artifact or a signed URL.
++- Pass `public_gallery` false and `noindex` true. Refuse `public_gallery` true and `noindex` false.
++- Do not classify `web_interactive` as an export denial.
++- Print `product spend 0.00 USD`. No network, no provider call, and no client-site fetch.
++
++## Risks
++
++| Risk | Likelihood | Mitigation | Owner |
++| --- | --- | --- | --- |
++| The new command edits the M0B proof | Low | `scripts/check_m0b_proofs.py` is not in the file list. | Engineer |
++| One export format is left authorized | Medium | The seven formats are listed in the fixture and the command fails if any is missing or authorized. | Security engineer |
++| `web_interactive` is denied as a download | Low | The command fails if that projection is treated as an export denial. | Security engineer |
++| The check is treated as the full M3 exit | Medium | The screen, comparison views, action board, expiry, and deletion stay out. `pnpm test:e2e` stays not run. | Product owner |
++
++## Proof
++
++Run from the repository root after implementation. Paste the output. Do not claim a command passed unless it was run.
++
++```bash
++python3 scripts/check_m3_access.py
++python3 scripts/check_schemas.py
++python3 scripts/check_config.py
++python3 -m unittest discover -s .claude/hooks/tests
++python3 -m unittest discover -s .cursor/hooks/tests
++```
++
++`check_m3_access.py` uses the standard library, so `python3` does not need PyYAML. If `python3 scripts/check_schemas.py` fails because `jsonschema` is missing, rerun the schema and config checks with `./.venv/bin/python` and record that departure. `pnpm test:e2e` is not an exit command. Record it as not run. `pnpm test:ssrf` is the M1 suite and is not this exit.
++
++No Arabic or WCAG run. There is no screen.
++
++## Security, privacy, cost, Arabic/accessibility review
++
++- `security-reviewer`: anonymous exports are denied with no artifact and no signed URL; access is private and `noindex`; fixtures have no secrets.
++- `verifier`: the diff matches this plan and the approved spec, and the pasted command output is real.
++- Arabic and accessibility review is not run.
++- Cost review is not a separate subagent. The diff must show no paid call, no hosting resource, and no new dependency. Product spend `0.00` USD.
++
++Reviewers do not approve, merge, or spawn subagents.
++
++## Rollback
++
++No production path. After a commit, rollback is `git revert` of that commit. Removing `scripts/check_m3_access.py`, `evals/m3/`, and the CI step returns the tree to `origin/main` at `d8d3e18`. Staging rehearsal is not part of this slice.
++
++## Departures from the plan
++
++- 2026-10-01: The branch `m3-anonymous-report-access` was created at `d8d3e18` and its upstream was removed so it does not track `origin/main`. It was not pushed.
++- 2026-10-01: `python3 scripts/check_schemas.py` and `python3 scripts/check_config.py` failed on `/opt/homebrew/bin/python3` because `jsonschema` and PyYAML are not installed for that interpreter. Those checks passed with `./.venv/bin/python`. `python3 scripts/check_m3_access.py` passed on `/opt/homebrew/bin/python3` because that command uses the standard library only. No package was added.
++- 2026-10-01: The security review found the first script only compared the fixture to itself. `export_decision` now computes the denial for an anonymous export. The stored row must match that decision. The check was run again and exited 0.
+diff --git a/intent/INT-04-m3-anonymous-report-access/release.md b/intent/INT-04-m3-anonymous-report-access/release.md
+new file mode 100644
+index 0000000..e0aaf00
+--- /dev/null
++++ b/intent/INT-04-m3-anonymous-report-access/release.md
+@@ -0,0 +1,116 @@
++# Release: M3 local anonymous export denial
++
++| Field | Value |
++| --- | --- |
++| Intent / spec / plan | `intent/INT-04-m3-anonymous-report-access/` |
++| Milestone | M3, first local slice only |
++| Status | draft |
++| Environment | none. No deploy, no staging, no production. |
++| Release approver | pending `<DECIDE_AT_M0: release manager name>` |
++| Release time (UTC) | 2026-10-01 (record date for this local session, not a deploy) |
++| Change ticket (prod) | not prod |
++
++Status values: `draft`, `authorized`, `released`, `rolled_back`, `abandoned`. Only the release approver sets `authorized`.
++
++## Outcome and acceptance status
++
++Ibrahim accepted the local M3 exit gate on 2026-10-01. This file stays a draft. It does not authorize a release, a deploy, or a merge.
++
++`python3 scripts/check_m3_access.py` exited 0. An anonymous `pdf`, `document`, `csv`, `json`, `evidence_bundle`, `task_export`, or `full_report_copy` is denied by `export_decision` with reason `anonymous_export_prohibited`, no artifact, and no signed URL. `web_interactive` is not an export. Stored access has `public_gallery` false and `noindex` true. Product spend is `0.00` USD.
++
++The branch `m3-anonymous-report-access` was cut from `origin/main` at `d8d3e18`. It was not pushed. OI-021 stays open. M4 has not started.
++
++## Artifact versions
++
++- Commit SHA: this commit on `m3-anonymous-report-access`, cut from `origin/main` at `d8d3e18`. Not pushed.
++- Image digest: none.
++- Schema versions: unchanged. 87 schema files, 13 examples, 22 negative examples.
++- `methodology_version`: unchanged, `0.1.0-draft`.
++- Python for the passing M3 check: `/opt/homebrew/bin/python3`. Schema and config checks passed with `./.venv/bin/python`.
++- Product spend: `0.00` USD.
++
++## Migrations
++
++None.
++
++## Files changed
++
++No pull request for this slice. The path list is in `intent/INT-04-m3-anonymous-report-access/review.diff`, saved after the `export_decision` fix and before this file. New files are `scripts/check_m3_access.py` and `evals/m3/`. One `run` step was added to `.github/workflows/ci.yml`. No new action SHA. `scripts/check_m0b_proofs.py` is not in the diff.
++
++## Commands and checks actually run
++
++Lead session, 2026-10-01. The reviewers did not run these commands.
++
++| Command | Result |
++| --- | --- |
++| `python3 scripts/check_m3_access.py` | Passed. Exit 0, including after `export_decision` was added. Output below. |
++| `python3 scripts/check_schemas.py` | Failed, not a pass. `/opt/homebrew/bin/python3` has no `jsonschema`. |
++| `python3 scripts/check_config.py` | Failed, not a pass. `/opt/homebrew/bin/python3` has no PyYAML. |
++| `./.venv/bin/python scripts/check_schemas.py` | Passed. 87 schema files, 13 examples, 22 negative examples. |
++| `./.venv/bin/python scripts/check_config.py` | Passed. 3627 checks. |
++| `./.venv/bin/python -m unittest discover -s .claude/hooks/tests` | Passed. 72 tests. |
++| `./.venv/bin/python -m unittest discover -s .cursor/hooks/tests` | Passed. 15 tests. |
++| `./.venv/bin/python scripts/check_m0b_proofs.py` | Passed. Exit 0, including `product spend 0.00 USD`. The file was not edited. |
++| `./.venv/bin/python scripts/check_action_pins.py` | Passed. 1 workflow file. No new action SHA. |
++| `pnpm test:e2e` | Not run. |
++| `pnpm test:ssrf` | Not run. It is the M1 suite and is not this exit. |
++
++```text
++OK: deny anonymous exports
++OK: web_interactive is not an export
++OK: access public_gallery false noindex true
++product spend 0.00 USD
++```
++
++## Tests and evals
++
++| Suite | Passed | Failed | Not run | Notes |
++| --- | --- | --- | --- | --- |
++| Hook tests | yes | | | 72 Claude hook tests and 15 Cursor hook tests |
++| Unit / integration | | | yes | No Vitest run in this slice |
++| SSRF suite | | | yes | M1 suite. Not this exit |
++| M3 access | yes | | | Local command above |
++| M0B proofs | yes | | | Unchanged script, re-run |
++| Golden files | | | yes | Not this slice |
++| Product-agent evals | | | yes | |
++| Build-agent evals | | | yes | |
++| `pnpm test:e2e` | | | yes | Placeholder stays not run |
++
++## Security, privacy and cost review
++
++No fetch, no secret, and no customer URL in the fixtures. No paid call and no hosting. Product spend `0.00` USD. The USD 150 cap stays an unconfirmed assumption (D-005, OI-001).
++
++`security-reviewer` (`d089776d-8e44-40c7-aa87-cb1614cb206d`) read the first script and did not run a command. It did not pass the slice. The high finding was that the script only restated the fixture. `export_decision` was added after that review, the check was run again, and `review.diff` was saved again. That reviewer did not see the final script. Medium findings left open: the fixture is not an `ExportAuthorization` record and does not assert `download`; print routes, signed-URL issuance, and an audit-log entry are not in this slice; `link_id` and `secret_hash` are not in the access fixture. The low finding about naming the failing field was fixed in the same edit.
++
++`verifier` (`337d2358-9563-4c58-948e-240d61350b07`) compared the pre-fix diff with the plan and did not run commands. It found the scheduled files present and the forbidden files absent. It did not see `export_decision` or this file.
++
++A second `security-reviewer` pass (`0a060f07-66dd-4239-985a-b7e3744143a5`) read the final `review.diff` and `export_decision`. It found no high issue. It did not run a command. The medium gaps stay open: no `ExportAuthorization` record, print route, audit log, `link_id`, or `secret_hash`.
++
++Reviewers do not approve, merge, or spawn subagents.
++
++## Arabic and accessibility evidence
++
++No screen. No Arabic or accessibility review.
++
++## Unresolved risks
++
++- The security reviewer's medium findings above stay open.
++- OI-021, OI-005, OI-036, OI-039, and OI-056 stay open.
++- This slice is not the full M3 exit. There is no bilingual report, comparison view, or action board.
++- The branch is not pushed.
++
++## Rollback
++
++No production path. Rollback of a later commit is `git revert` of that commit. Removing `scripts/check_m3_access.py`, `evals/m3/`, and the CI step returns the tree to `origin/main` at `d8d3e18`. Staging rehearsal was not run.
++
++## Monitoring
++
++None. Nothing was deployed.
++
++## Post-release verification
++
++Not run. Nothing was released.
++
++## Decisions, assumptions and open items
++
++No new row in `docs/decisions.md`, `docs/assumptions.md`, `docs/open-items.md`, or `docs/sources.md`. OI-021 was not closed.
+diff --git a/intent/INT-04-m3-anonymous-report-access/spec.md b/intent/INT-04-m3-anonymous-report-access/spec.md
+new file mode 100644
+index 0000000..b4c3cb3
+--- /dev/null
++++ b/intent/INT-04-m3-anonymous-report-access/spec.md
+@@ -0,0 +1,112 @@
++# Spec: M3 local anonymous export denial
++
++| Field | Value |
++| --- | --- |
++| Intent | `intent/INT-04-m3-anonymous-report-access/intent.md` (status word: draft; text accepted by Ibrahim on 2026-10-01) |
++| Status | approved |
++| Author | Cursor session (Grok 4.7), 2026-10-01 |
++| Product owner sign-off | Ibrahim, 2026-10-01, by the message "I approve spec.md". The product-owner role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Policy owner sign-offs | pending: security engineer (security-baseline). Arabic review has no screen to sign. |
++| Spec prompt version | `.claude/skills/intent-spec-plan/SKILL.md` stage 2, skill version 0.1.0 |
++| Skill versions | intent-spec-plan 0.1.0; security-baseline 0.1.0; arabic-rtl-a11y 0.1.0 |
++| Source sections read | accepted INT-04 text; `docs/spec/05-PROJECT-PLAN.md` §1.1, §5; `docs/decisions.md` D-002, D-012, D-014, D-020; `docs/test-strategy.md` §6.2; `schemas/report-model.schema.json`; `schemas/export-authorization.schema.json`; `schemas/common.schema.json` `report_projection`; `scripts/check_m0b_proofs.py` `deny_export` |
++
++Status values: `draft`, `changes_requested`, `approved`, `superseded`. Only the product owner sets `approved`.
++
++## Summary
++
++This spec defines a local check that denies an anonymous export and labels the stored report private and `noindex`. The denied formats are PDF, document, CSV, JSON, evidence, and task export. Each denial has no artifact and no signed URL. `public_gallery` is false and `noindex` is true.
++
++The check does not add a screen, a route, or a download. It does not edit `scripts/check_m0b_proofs.py`. Product spend stays `0.00` USD.
++
++Cursor runs the work beside Claude Code. `.claude/` remains the policy source. `opusplan` at high is not a Cursor picker value. This spec was written in a session that showed Grok 4.7 (D-020).
++
++## Requirements
++
++### Functional
++
++1. A local command exits 0 only when every denial and the access label pass. Any failure exits non-zero. Source: accepted INT-04 text; `docs/spec/05-PROJECT-PLAN.md` §5.
++2. An anonymous request for each of `pdf`, `document`, `csv`, `json`, `evidence_bundle`, and `task_export` is denied. Those names are the export values in `schemas/common.schema.json` `report_projection`, excluding `web_interactive`. The in-app web view is not an export. Source: accepted INT-04 text; D-002; `schemas/export-authorization.schema.json`.
++3. The same denial applies to `full_report_copy`. It is the remaining export value in that enum, and `docs/spec/05-PROJECT-PLAN.md` §1.1 forbids a full-report download for an anonymous user. Source: D-002; `schemas/common.schema.json`.
++4. Each denial is `decision` `denied`, `denial_reason` `anonymous_export_prohibited`, with no artifact and no signed URL. A result that creates an artifact or a signed URL fails the check. Source: accepted INT-04 text; D-002; the same denial reason as `scripts/check_m0b_proofs.py` `deny_export`. This spec does not change that command.
++5. One stored report access has `public_gallery` false and `noindex` true. A record with `public_gallery` true, or `noindex` false, fails the check. Source: accepted INT-04 text; `schemas/report-model.schema.json` `access`.
++6. `web_interactive` is not denied as an export. The check does not treat the in-app projection as a download. Source: `schemas/export-authorization.schema.json` format description.
++7. No schema file and no `config/` file is added or changed. `scripts/check_m0b_proofs.py` stays unchanged. Source: accepted INT-04 text.
++
++### Non-functional
++
++1. The check runs on this machine. It does not deploy, apply Terraform, call a provider, or fetch a client site. It does not create a public report link or a download. Product spend is `0.00` USD. Source: accepted INT-04 text; security-baseline skill.
++2. Fixtures are synthetic. They contain no secrets, customer URLs, or live page text. Source: security-baseline skill.
++3. There is no screen. Arabic copy, RTL layout, and WCAG evidence are not produced. Source: arabic-rtl-a11y skill; accepted INT-04 text.
++4. `pnpm test:e2e` stays the placeholder recorded as not run. `pnpm test:ssrf` is not this exit. Source: accepted INT-04 text.
++5. Expiry, deletion, eligibility, cookies, and a registered export that succeeds stay out of this check. Source: `docs/test-strategy.md` §6.2; accepted INT-04 text.
++
++## Design
++
++### Components and boundaries
++
++The check is a local command beside `scripts/check_m0b_proofs.py`. It reads fixtures. It does not serve a route and does not write a schema. An export request is data. The command denies the anonymous request and compares the stored access labels. It does not issue a URL.
++
++`scripts/check_m0b_proofs.py` stays the M0B proof. This command is separate so M3 does not reopen that file.
++
++### Data contracts
++
++No schema is added or changed. The denial and the access labels are suite fixtures. They use the existing fields `decision`, `denial_reason`, `format`, `noindex`, and `public_gallery`. `web_interactive` stays the only anonymous projection.
++
++### State transitions
++
++No workflow state is added. A denied export ends as `denied` and does not create an artifact.
++
++### Configuration
++
++No `config/` file is edited.
++
++### UI (if any)
++
++None.
++
++## Policy conformance
++
++| Policy skill | Applies? | How the design complies | Concern for owner |
++| --- | --- | --- | --- |
++| google-search-guidance | no | No search behavior is added. | None for this spec. |
++| security-baseline | yes | Anonymous exports are denied with no artifact and no signed URL. Access is `noindex` and not a public gallery. | Security engineer: expiry, deletion, and the live link stay later. |
++| arabic-rtl-a11y | no | No screen and no download control. | Native review stays with the later screen. |
++| data-integrity | no | No score is computed. | D-012 still applies when a screen exists. |
++| cost-guard | yes | No paid call and no hosting. Spend is `0.00` USD. | None for this spec. |
++| connector-safety | no | No write tool and no connector. | None for this spec. |
++
++## Areas of concern
++
++1. Ibrahim approved this spec on 2026-10-01. The INT-04 status word stays `draft` because the acceptance message says not to set `accepted`. The security-engineer sign-off in the table above is still pending.
++2. M0B already denies one anonymous CSV. This check adds the other export formats and the private/`noindex` label. It must not be treated as the full M3 exit in `docs/spec/05-PROJECT-PLAN.md` §5.
++3. `docs/test-strategy.md` §6.2 also requires denial after expiry or deletion, a log canary, and a registered export that succeeds. Those cases are out of this spec.
++4. OI-021 stays open. This spec does not close it.
++5. Pull request 3 is already merged at `origin/main` `d8d3e18`. This spec does not merge anything else.
++
++## Test and eval plan
++
++The local command covers:
++
++- denial of `pdf`, `document`, `csv`, `json`, `evidence_bundle`, `task_export`, and `full_report_copy` for an anonymous caller;
++- each denial has reason `anonymous_export_prohibited`, no artifact, and no signed URL;
++- failure when any of those formats is authorized or carries an artifact or a signed URL;
++- pass when `public_gallery` is false and `noindex` is true;
++- failure when `public_gallery` is true or `noindex` is false;
++- `web_interactive` is not classified as an export denial.
++
++No browser journey, no golden-file eval, and no product-agent eval. `pnpm test:e2e` is not run.
++
++## Rollout and rollback
++
++No feature flag and no environment. Rollback is reverting the commit that adds the command and fixtures. No staging rehearsal is in this spec.
++
++## Cost
++
++Paid calls added: none. Hosting added: none. Product spend: `0.00` USD. The USD 150 cap stays an unconfirmed assumption (D-005, OI-001).
++
++## Assumptions and open items
++
++- No new assumption row. The denial reason is the existing `anonymous_export_prohibited` value.
++- Leave OI-005, OI-021, OI-036, OI-039, and OI-056 open.
++- No new decision row.
+diff --git a/scripts/check_m3_access.py b/scripts/check_m3_access.py
+new file mode 100644
+index 0000000..5ba0816
+--- /dev/null
++++ b/scripts/check_m3_access.py
+@@ -0,0 +1,147 @@
++#!/usr/bin/env python3
++"""Deny anonymous report exports and require a private noindex label.
++
++No network, no provider call, no client-site fetch. Product spend is 0.00 USD.
++Does not import scripts/check_m0b_proofs.py. Standard library only.
++"""
++
++from __future__ import annotations
++
++import copy
++import json
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++FIXTURE_DIR = ROOT / "evals" / "m3"
++
++EXPORT_FORMATS = (
++    "pdf",
++    "document",
++    "csv",
++    "json",
++    "evidence_bundle",
++    "task_export",
++    "full_report_copy",
++)
++WEB_INTERACTIVE = "web_interactive"
++
++
++def fail(message: str) -> None:
++    print(f"FAIL: {message}")
++    raise SystemExit(1)
++
++
++def load_json(path: Path):
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def is_export(fmt: str) -> bool:
++    return fmt in EXPORT_FORMATS
++
++
++def export_decision(request: dict) -> dict:
++    fmt = request.get("format")
++    if fmt == WEB_INTERACTIVE or not is_export(fmt):
++        return {
++            "decision": "refused",
++            "denial_reason": "not_an_export",
++            "artifact": None,
++            "signed_url": None,
++        }
++    if request.get("access_class") == "anonymous":
++        return {
++            "decision": "denied",
++            "denial_reason": "anonymous_export_prohibited",
++            "artifact": None,
++            "signed_url": None,
++        }
++    return {
++        "decision": "undecided",
++        "denial_reason": None,
++        "artifact": None,
++        "signed_url": None,
++    }
++
++
++def denial_errors(row: dict) -> list[str]:
++    decided = export_decision({"format": row.get("format"), "access_class": row.get("access_class")})
++    errors = []
++    if decided["denial_reason"] == "not_an_export":
++        errors.append("not_an_export")
++    if row.get("decision") != decided["decision"]:
++        errors.append("decision")
++    if row.get("denial_reason") != decided["denial_reason"]:
++        errors.append("denial_reason")
++    if row.get("artifact") != decided["artifact"]:
++        errors.append("artifact")
++    if row.get("signed_url") != decided["signed_url"]:
++        errors.append("signed_url")
++    return errors
++
++
++def access_errors(access: dict) -> list[str]:
++    errors = []
++    if access.get("public_gallery") is not False:
++        errors.append("public_gallery")
++    if access.get("noindex") is not True:
++        errors.append("noindex")
++    return errors
++
++
++def check_denials() -> None:
++    fixture = load_json(FIXTURE_DIR / "deny-anonymous.json")
++    rows = fixture["requests"]
++    formats = [row["format"] for row in rows]
++    if formats != list(EXPORT_FORMATS):
++        fail(f"export formats are {formats}")
++    if WEB_INTERACTIVE in formats:
++        fail("web_interactive was treated as an export")
++    for row in rows:
++        errors = denial_errors(row)
++        if errors:
++            fail(f"{row['format']} denial failed: {errors}")
++    sample = copy.deepcopy(rows[0])
++    sample["decision"] = "authorized"
++    if "decision" not in denial_errors(sample):
++        fail("an authorized anonymous export was accepted")
++    with_artifact = copy.deepcopy(rows[0])
++    with_artifact["artifact"] = "object"
++    if "artifact" not in denial_errors(with_artifact):
++        fail("an artifact was accepted")
++    with_url = copy.deepcopy(rows[0])
++    with_url["signed_url"] = "https://example.invalid/export"
++    if "signed_url" not in denial_errors(with_url):
++        fail("a signed URL was accepted")
++    web = copy.deepcopy(rows[0])
++    web["format"] = WEB_INTERACTIVE
++    if "not_an_export" not in denial_errors(web):
++        fail("web_interactive was treated as an export denial")
++    print("OK: deny anonymous exports")
++    print("OK: web_interactive is not an export")
++
++
++def check_access() -> None:
++    access = load_json(FIXTURE_DIR / "access-private.json")
++    if access_errors(access):
++        fail("private noindex access was refused")
++    public = copy.deepcopy(access)
++    public["public_gallery"] = True
++    if "public_gallery" not in access_errors(public):
++        fail("public_gallery true was accepted")
++    indexed = copy.deepcopy(access)
++    indexed["noindex"] = False
++    if "noindex" not in access_errors(indexed):
++        fail("noindex false was accepted")
++    print("OK: access public_gallery false noindex true")
++
++
++def main() -> int:
++    check_denials()
++    check_access()
++    print("product spend 0.00 USD")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())

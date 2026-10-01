@@ -1,0 +1,60 @@
+{
+  "requests": [
+    {
+      "format": "pdf",
+      "access_class": "anonymous",
+      "decision": "denied",
+      "denial_reason": "anonymous_export_prohibited",
+      "artifact": null,
+      "signed_url": null
+    },
+    {
+      "format": "document",
+      "access_class": "anonymous",
+      "decision": "denied",
+      "denial_reason": "anonymous_export_prohibited",
+      "artifact": null,
+      "signed_url": null
+    },
+    {
+      "format": "csv",
+      "access_class": "anonymous",
+      "decision": "denied",
+      "denial_reason": "anonymous_export_prohibited",
+      "artifact": null,
+      "signed_url": null
+    },
+    {
+      "format": "json",
+      "access_class": "anonymous",
+      "decision": "denied",
+      "denial_reason": "anonymous_export_prohibited",
+      "artifact": null,
+      "signed_url": null
+    },
+    {
+      "format": "evidence_bundle",
+      "access_class": "anonymous",
+      "decision": "denied",
+      "denial_reason": "anonymous_export_prohibited",
+      "artifact": null,
+      "signed_url": null
+    },
+    {
+      "format": "task_export",
+      "access_class": "anonymous",
+      "decision": "denied",
+      "denial_reason": "anonymous_export_prohibited",
+      "artifact": null,
+      "signed_url": null
+    },
+    {
+      "format": "full_report_copy",
+      "access_class": "anonymous",
+      "decision": "denied",
+      "denial_reason": "anonymous_export_prohibited",
+      "artifact": null,
+      "signed_url": null
+    }
+  ]
+}
