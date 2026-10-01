@@ -35,10 +35,13 @@ export async function fetchUrl(
 
   const redirectChain: string[] = [url];
   let currentUrl = url;
+  let currentIp = initialValidation.pinnedIp;
   let redirectCount = 0;
 
   while (true) {
-    const response = await request(currentUrl, {
+    // Connect to pinned IP to prevent DNS rebinding (TOCTOU fix)
+    const targetUrl = currentIp ? rewriteToIp(currentUrl, currentIp) : currentUrl;
+    const response = await request(targetUrl, {
       method: "GET",
       maxRedirections: 0,
       headersTimeout: config.request_timeout_seconds * 1000,
@@ -76,23 +79,25 @@ export async function fetchUrl(
 
       redirectChain.push(redirectUrl);
       currentUrl = redirectUrl;
+      currentIp = redirectValidation.pinnedIp;
       continue;
     }
 
     // Non-redirect response — read the body
     const body = await response.body.text();
 
-    // Check decompressed body size
-    if (body.length > config.max_decompressed_size_bytes) {
+    // Check decompressed body size (use Buffer.byteLength for accurate byte count)
+    const bodyByteLength = Buffer.byteLength(body, "utf-8");
+    if (bodyByteLength > config.max_decompressed_size_bytes) {
       throw new Error(
-        `Decompressed response too large: ${body.length} bytes exceeds limit of ${config.max_decompressed_size_bytes} bytes`
+        `Decompressed response too large: ${bodyByteLength} bytes exceeds limit of ${config.max_decompressed_size_bytes} bytes`
       );
     }
 
     // Check response body size against max_response_size_bytes
-    if (body.length > config.max_response_size_bytes) {
+    if (bodyByteLength > config.max_response_size_bytes) {
       throw new Error(
-        `Response too large: ${body.length} bytes exceeds limit of ${config.max_response_size_bytes} bytes`
+        `Response too large: ${bodyByteLength} bytes exceeds limit of ${config.max_response_size_bytes} bytes`
       );
     }
 
@@ -114,4 +119,21 @@ export async function fetchUrl(
       contentType: contentType ?? undefined,
     };
   }
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Rewrite URL to connect to pinned IP instead of hostname.
+ * This prevents DNS rebinding attacks by ensuring we connect to the IP
+ * that was validated, not a potentially different IP resolved later.
+ */
+function rewriteToIp(url: string, ip: string): string {
+  const parsed = new URL(url);
+  // For IPv6, wrap in brackets
+  const host = ip.includes(":") ? `[${ip}]` : ip;
+  parsed.hostname = host;
+  return parsed.toString();
 }

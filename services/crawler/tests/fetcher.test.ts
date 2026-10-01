@@ -198,7 +198,7 @@ describe("fetchUrl", () => {
     await fetchUrl("https://example.com/", defaultConfig({ request_timeout_seconds: 15 }));
 
     expect(mockRequest).toHaveBeenCalledWith(
-      "https://example.com/",
+      "https://93.184.216.34/",
       expect.objectContaining({
         headersTimeout: 15_000,
         bodyTimeout: 15_000,

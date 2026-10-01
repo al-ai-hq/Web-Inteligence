@@ -8,6 +8,7 @@ import { DEFAULT_CRAWL_CONFIG } from "./config/defaults.js";
 import { planUrls, type SamplingMode } from "./url-planner.js";
 import { fetchUrl } from "./fetcher.js";
 import { extractContent } from "./extractor.js";
+import { validateUrl } from "@wpi/security";
 import {
   createManifest,
   addToManifest,
@@ -102,12 +103,17 @@ export async function runCrawlJob(): Promise<CrawlResult> {
   // 2. Load config
   const config = loadConfig();
 
-  // 3. Fetch sitemap XML if SITEMAP_URL provided
+  // 3. Fetch sitemap XML if SITEMAP_URL provided (with SSRF validation)
   let sitemapXml: string | undefined;
   if (sitemapUrl) {
     try {
-      const response = await fetch(sitemapUrl);
-      sitemapXml = await response.text();
+      const validation = await validateUrl(sitemapUrl);
+      if (!validation.valid) {
+        console.warn(`Warning: Sitemap URL failed SSRF validation: ${validation.reason}`);
+      } else {
+        const response = await fetch(sitemapUrl);
+        sitemapXml = await response.text();
+      }
     } catch {
       console.warn(`Warning: Failed to fetch sitemap from ${sitemapUrl}, continuing without sitemap`);
     }

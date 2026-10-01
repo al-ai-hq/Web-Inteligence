@@ -88,9 +88,8 @@ export function extractContent(html: string, baseUrl?: string): ExtractedContent
   });
 
   // --- Text content byte length ---
-  const $clone = cheerio.load(html);
-  $clone("script, style, noscript").remove();
-  const visibleText = $clone.text();
+  $("script, style, noscript").remove();
+  const visibleText = $.text();
   const textByteLength = Buffer.byteLength(visibleText, "utf-8");
 
   return {

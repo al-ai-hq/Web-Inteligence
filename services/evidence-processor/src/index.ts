@@ -96,10 +96,13 @@ export async function runEvidenceProcessor(): Promise<EvidenceProcessorResult> {
       continue;
     }
 
-    // 4. Hash verification (M1: format validated above; verifyHash called for pipeline completeness)
-    // In a real deployment with raw HTTP bodies, this would detect tampering.
+    // 4. Hash verification — detect tampering
     const storedHash = raw.contentHash.replace(/^sha256:/, "");
-    verifyHash(rawString, storedHash);
+    if (!verifyHash(rawString, storedHash)) {
+      console.warn(`tampering detected: contentHash mismatch in ${rawFile}`);
+      evidenceSkipped++;
+      continue;
+    }
 
     // 5. Detect injection on serialized body content
     const bodyContent = JSON.stringify({
