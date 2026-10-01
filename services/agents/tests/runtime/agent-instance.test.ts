@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { executeAgent } from "../../src/runtime/agent-instance.js";
+import { getModelPricing } from "../../src/providers/model-resolver.js";
 import type { AgentJob } from "../../src/runtime/types.js";
 import type { Tool, ToolContext, ToolResult } from "../../src/tools/types.js";
 import type { ProviderAdapter, CompletionResponse } from "../../src/providers/types.js";
@@ -160,5 +161,44 @@ describe("executeAgent", () => {
 
     expect(result.findings).toHaveLength(1);
     expect(result.findings[0]!.finding_id).toBe("f-1");
+  });
+
+  it("returns a pricing-derived non-zero cost when max iterations reached", async () => {
+    const provider: ProviderAdapter = {
+      name: "gemini",
+      complete() {
+        return Promise.resolve({
+          content: "",
+          toolCalls: [{ name: "get_evidence", arguments: {} }],
+          usage: { tokens_in: 1000, tokens_out: 500 },
+          finishReason: "tool_use",
+        });
+      },
+      isAvailable() {
+        return true;
+      },
+    };
+
+    const job = makeJob();
+    const result = await executeAgent({
+      agentName: "auditor",
+      allowedTools: ["get_evidence"],
+      job,
+      provider,
+      tools: [makeTool("get_evidence")],
+      systemPrompt: "You are an auditor.",
+      userPrompt: "Analyze this evidence.",
+      toolContext: { audit_id: "audit-1", project_id: "proj-1", evidence_bucket: "bucket" } as AgentToolContext,
+      model: "gemini-2.0-flash",
+      maxIterations: 1,
+    });
+
+    expect(result.result_state).toBe("unavailable");
+    expect(result.cost.tokens_in).toBe(1000);
+    expect(result.cost.tokens_out).toBe(500);
+    const pricing = getModelPricing("gemini-2.0-flash");
+    const expected = (1000 / 1000) * pricing.inputPer1k + (500 / 1000) * pricing.outputPer1k;
+    expect(result.cost.usd).toBeGreaterThan(0);
+    expect(result.cost.usd).toBeCloseTo(expected);
   });
 });

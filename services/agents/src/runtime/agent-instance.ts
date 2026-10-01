@@ -1,6 +1,7 @@
 import type { AgentJob, AgentResult, Finding } from "./types.js";
 import type { Tool, ToolContext as ToolRuntimeContext } from "../tools/types.js";
 import type { ProviderAdapter, ToolDefinition } from "../providers/types.js";
+import { getModelPricing } from "../providers/model-resolver.js";
 
 export interface ToolContext {
   audit_id: string;
@@ -47,7 +48,7 @@ export async function executeAgent(params: ExecuteAgentParams): Promise<AgentRes
     inputSchema: t.inputSchema,
   }));
 
-  let currentSystemPrompt = systemPrompt;
+  const currentSystemPrompt = systemPrompt;
   let currentUserPrompt = userPrompt;
 
   for (let i = 0; i < maxIterations; i++) {
@@ -62,7 +63,7 @@ export async function executeAgent(params: ExecuteAgentParams): Promise<AgentRes
     totalTokensOut += response.usage.tokens_out;
 
     if (response.finishReason === "stop" || !response.toolCalls || response.toolCalls.length === 0) {
-      const parsed = parseAgentOutput(response.content, job, agentName, provider.name, totalTokensIn, totalTokensOut, startTime);
+      const parsed = parseAgentOutput(response.content, job, agentName, provider.name, totalTokensIn, totalTokensOut, startTime, model);
       return parsed;
     }
 
@@ -102,7 +103,7 @@ export async function executeAgent(params: ExecuteAgentParams): Promise<AgentRes
       engine: provider.name,
       tokens_in: totalTokensIn,
       tokens_out: totalTokensOut,
-      usd: 0,
+      usd: estimateCost(totalTokensIn, totalTokensOut, model),
     },
     duration_ms: performance.now() - startTime,
   };
@@ -116,33 +117,34 @@ function parseAgentOutput(
   tokensIn: number,
   tokensOut: number,
   startTime: number,
+  model: string,
 ): AgentResult {
   try {
-    const parsed = JSON.parse(content);
-    const findings: Finding[] = (parsed.findings ?? []).map((f: Record<string, unknown>) => ({
+    const parsed = JSON.parse(content) as Record<string, unknown>;
+    const findings: Finding[] = ((parsed["findings"] as Array<Record<string, unknown>> | undefined) ?? []).map((f: Record<string, unknown>) => ({
       finding_id: String(f["finding_id"]),
       rule_id: f["rule_id"] as string | undefined,
       page_url: f["page_url"] as string | undefined,
-      result_state: (f["result_state"] as Finding["result_state"]) ?? "inferred",
-      confidence: (f["confidence"] as Finding["confidence"]) ?? "medium",
-      evidence_ids: (f["evidence_ids"] as string[]) ?? [],
-      data: (f["data"] as Record<string, unknown>) ?? {},
-      limitations: (f["limitations"] as string[]) ?? [],
+      result_state: (f["result_state"] as Finding["result_state"] | undefined) ?? "inferred",
+      confidence: (f["confidence"] as Finding["confidence"] | undefined) ?? "medium",
+      evidence_ids: (f["evidence_ids"] as string[] | undefined) ?? [],
+      data: (f["data"] as Record<string, unknown> | undefined) ?? {},
+      limitations: (f["limitations"] as string[] | undefined) ?? [],
     }));
 
     return {
       job_id: job.job_id,
       agent_name: agentName,
       audit_id: job.audit_id,
-      output_evidence_ids: parsed.output_evidence_ids ?? [],
-      result_state: parsed.result_state ?? "inferred",
+      output_evidence_ids: (parsed["output_evidence_ids"] as string[] | undefined) ?? [],
+      result_state: (parsed["result_state"] as AgentResult["result_state"] | undefined) ?? "inferred",
       findings,
-      limitations: parsed.limitations ?? [],
+      limitations: (parsed["limitations"] as string[] | undefined) ?? [],
       cost: {
         engine,
         tokens_in: tokensIn,
         tokens_out: tokensOut,
-        usd: estimateCost(tokensIn, tokensOut),
+        usd: estimateCost(tokensIn, tokensOut, model),
       },
       duration_ms: performance.now() - startTime,
     };
@@ -159,15 +161,14 @@ function parseAgentOutput(
         engine,
         tokens_in: tokensIn,
         tokens_out: tokensOut,
-        usd: estimateCost(tokensIn, tokensOut),
+        usd: estimateCost(tokensIn, tokensOut, model),
       },
       duration_ms: performance.now() - startTime,
     };
   }
 }
 
-function estimateCost(tokensIn: number, tokensOut: number): number {
-  const INPUT_COST_PER_1K = 0.000075;
-  const OUTPUT_COST_PER_1K = 0.0003;
-  return (tokensIn / 1000) * INPUT_COST_PER_1K + (tokensOut / 1000) * OUTPUT_COST_PER_1K;
+function estimateCost(tokensIn: number, tokensOut: number, model: string): number {
+  const pricing = getModelPricing(model);
+  return (tokensIn / 1000) * pricing.inputPer1k + (tokensOut / 1000) * pricing.outputPer1k;
 }

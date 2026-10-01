@@ -3,6 +3,8 @@ import { agentJobSchema, agentResultSchema, type AgentJob, type AgentResult } fr
 interface TaskHandlerDeps {
   executeAgent: (job: AgentJob) => Promise<AgentResult>;
   publishResult: (result: AgentResult) => Promise<void>;
+  canProceed?: () => boolean;
+  recordCost?: (cost: AgentResult["cost"]) => void;
 }
 
 interface TaskResult {
@@ -20,6 +22,10 @@ export async function handleAgentTask(
     return { status: 400, error: `Invalid payload: ${parsed.error.message}` };
   }
 
+  if (deps.canProceed !== undefined && !deps.canProceed()) {
+    return { status: 429, error: "Budget cap reached" };
+  }
+
   try {
     const result = await deps.executeAgent(parsed.data);
     const validated = agentResultSchema.safeParse(result);
@@ -27,6 +33,7 @@ export async function handleAgentTask(
       return { status: 500, error: "Agent result failed schema validation" };
     }
     await deps.publishResult(validated.data);
+    deps.recordCost?.(validated.data.cost);
     return { status: 200, body: validated.data };
   } catch (error) {
     return { status: 500, error: `Agent execution failed: ${String(error)}` };

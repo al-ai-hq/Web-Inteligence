@@ -11,3 +11,19 @@ export function resolveModel(tier: string): string {
   }
   return model;
 }
+
+export interface ModelPricing {
+  inputPer1k: number;
+  outputPer1k: number;
+}
+
+const FLASH_PRICING: ModelPricing = { inputPer1k: 0.000075, outputPer1k: 0.0003 };
+
+const MODEL_PRICING: Record<string, ModelPricing> = {
+  "gemini-2.0-flash": FLASH_PRICING,
+  "gemini-2.5-pro": { inputPer1k: 0.00125, outputPer1k: 0.01 },
+};
+
+export function getModelPricing(model: string): ModelPricing {
+  return MODEL_PRICING[model] ?? FLASH_PRICING;
+}
