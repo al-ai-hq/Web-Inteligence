@@ -38,10 +38,18 @@ None required.
 ## Verification
 
 - `pnpm proofs`: 5/5 passed. Exit gate: OPEN.
-- `pnpm lint`: pass
-- `pnpm typecheck`: pass
-- `pnpm test`: pass (1/1 test)
-- `pnpm format:check`: fail (21 pre-existing files with formatting issues, none introduced by M0B)
+  ```
+  PASS: score reproduced — pre_cap=77.50, stored=77.5
+  PASS: SSRF URL rejected, invalid fidelity_label rejected (1 schema error(s))
+  PASS: all 2 report numbers trace to evidence
+  PASS: anonymous export denied, self-approval detected and blocked
+  PASS: cost guard blocked call — month_to_date 142.00 >= paid_calls_stop_at 140.00; projected 151.00 > monthly_cap 150.00; estimate 9.00 > per_audit_hard 4.00
+  5/5 passed. Exit gate: OPEN.
+  ```
+- `pnpm lint`: pass (eslint . --max-warnings 0)
+- `pnpm typecheck`: pass (tsc --build)
+- `pnpm test`: pass (1/1 test — packages/test-utils/src/index.test.ts)
+- `pnpm format:check`: fail (23 pre-existing files with formatting issues, none introduced by M0B)
 
 ## Reviewer
 
