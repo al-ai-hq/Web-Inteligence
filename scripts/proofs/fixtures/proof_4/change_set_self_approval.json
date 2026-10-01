@@ -1,0 +1,38 @@
+{
+  "change_set_id": "d4d4d4d4-5555-4ccc-bbbb-000000000001",
+  "project_id": "d4d4d4d4-5555-4aaa-bbbb-000000000099",
+  "site_id": "d4d4d4d4-5555-4aaa-bbbb-000000000098",
+  "connector": "shopify",
+  "environment": "production",
+  "operations": [
+    {
+      "op_id": "d4d4d4d4-5555-4a00-bbbb-000000000001",
+      "resource_type": "product",
+      "resource_id": "product/12345",
+      "url": "https://example.myshopify.com/products/12345",
+      "field": "title",
+      "field_class": "title",
+      "current_value": "Old Title",
+      "proposed_value": "New Title",
+      "before_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "risk_tier": 1,
+      "rationale": "Updating product title to match vendor branding guidelines",
+      "evidence_ids": [
+        "d4d4d4d4-5555-4aaa-bbbb-000000000010"
+      ],
+      "idempotency_key": "op-self-approval-test-001",
+      "status": "pending"
+    }
+  ],
+  "requested_by_user_id": "d4d4d4d4-5555-4a11-bbbb-000000000001",
+  "approvals": [],
+  "required_approvals": 2,
+  "max_risk_tier": 3,
+  "mode": "edit_only",
+  "snapshot_id": null,
+  "status": "AWAITING_APPROVAL",
+  "auto_rollback_authorized": false,
+  "idempotency_key": "self-approval-test-key-001",
+  "created_at": "2026-10-01T10:00:00Z",
+  "updated_at": "2026-10-01T10:00:00Z"
+}

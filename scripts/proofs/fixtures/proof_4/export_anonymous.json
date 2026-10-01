@@ -1,0 +1,18 @@
+{
+  "authorization_id": "d4d4d4d4-4444-4eee-bbbb-000000000001",
+  "report_id": "d4d4d4d4-4444-4aab-bbbb-000000000001",
+  "audit_id": "d4d4d4d4-4444-4aaa-bbbb-000000000001",
+  "requested_at": "2026-10-01T10:00:00Z",
+  "requester": {
+    "access_class": "anonymous",
+    "user_id": null,
+    "project_id": null
+  },
+  "format": "pdf",
+  "decision": "denied",
+  "denial_reason": "anonymous_export_prohibited",
+  "state": "DENIED",
+  "decided_at": "2026-10-01T10:00:01Z",
+  "decided_by": "export_policy_service",
+  "download": null
+}
