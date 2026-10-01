@@ -1,14 +1,14 @@
 # Intent: M0A repository and governance bootstrap
 
-Status: draft for review.
+Status: accepted (recorded in-session; no pull request in this local-only repository).
 
 | Field | Value |
 | --- | --- |
 | ID | INT-00 |
-| Status | draft |
-| Author (originator) | <DECIDE_AT_M0: product owner name> |
-| Product owner | <DECIDE_AT_M0: name> |
-| Tech lead | <DECIDE_AT_M0: name> |
+| Status | accepted — by Ibrahim Abedrabboh, product owner, in conversation on 2026-10-01 (per `.claude/skills/intent-spec-plan/SKILL.md`: human approved in conversation, recorded here) |
+| Author (originator) | Ibrahim Abedrabboh (product owner) |
+| Product owner | Ibrahim Abedrabboh (D-020: holds all owner roles until others are named) |
+| Tech lead | Ibrahim Abedrabboh (D-020) |
 | Milestone | M0A (05-PROJECT-PLAN §11) |
 | Ticket | <tracker ID, or "none"> |
 | Created | 2026-09-30 |
@@ -64,3 +64,5 @@ The wider M0 exit also applies once M0A and M0B are done (05 §5): one harmless 
 - Branch protection, code owners and required checks on `main`. Owner: tech lead.
 - Change-ticket system and key format for `WPI_CHANGE_TICKET` (the hook expects `^[A-Z]+-[0-9]+$`). Owner: release manager.
 - Named owners for product, methodology, security, privacy, data integrity, Arabic editorial quality, cloud billing, provider policy, connectors, content approval, production publishing, accessibility and incident response (07-SKILLS-AND-AGENTS §8).
+
+Resolution status at acceptance (2026-10-01): the toolchain questions (pnpm, Node 22 LTS, Prettier + ESLint, Vitest + Playwright, workspace layout, ADK agents in TypeScript) are answered by D-021; the named-owners question is answered by D-020 (product owner holds all roles for now). The remaining questions (gitleaks route and licence, managed-settings deployment, branch protection, `WPI_CHANGE_TICKET` format) move into `spec.md` as open items for the engineer who approves the plan.

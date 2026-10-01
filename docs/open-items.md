@@ -2,7 +2,7 @@
 
 Status: living register  
 Owner role: Product owner  
-Last updated: 2026-09-30
+Last updated: 2026-10-01
 
 Every item names what it blocks and who decides. Close an item by adding the decision to `docs/decisions.md` and writing `closed by D-xxx` here. Placeholders in files use `<DECIDE_AT_M0: ...>` (or the milestone that needs the answer); search for them with `grep -rn "DECIDE_AT" .`.
 
@@ -10,11 +10,11 @@ Every item names what it blocks and who decides. Close an item by adding the dec
 
 | ID | Item | Blocks | Decides | Where |
 | --- | --- | --- | --- | --- |
-| OI-001 | Confirm D-005: is USD 150 one combined monthly cap for hosting and paid calls? If hosting is budgeted separately, the anonymous rich audit becomes much more affordable. | M0B cost proof; `config/budgets.yaml`; `docs/cost-model.md` | Product owner, cloud billing owner | D-005 |
-| OI-002 | Name the accountable owners: product, methodology, security, privacy, data integrity, Arabic editorial, cloud billing, provider policy, connectors, content approval, production publishing, accessibility, incident response. One person may hold several roles, but proposer, approver and executor stay separate for consequential changes. | Every human gate | Product owner | 07 §8; 05 §17 |
-| OI-003 | Claude Code access route (Anthropic plan or Google Cloud Agent Platform), whether Fable is enabled, and pinned model IDs if routing through Google Cloud. | M0A | Tech lead | 06-MODEL-PLAN §1, §5 |
-| OI-004 | Add the r2 version of the marketing-seo-agent skill (site architecture, backlinks, comparison pages, programmatic SEO, change monitoring, `crawl_diff.py`) and the e-commerce, local, entity, platform and migration references, if you have them. Reconcile them with the fixes in the vendored 30 Sep version. | Golden files for M8A-M8C; change-monitoring fixtures | SEO lead | 07 §7; 08; `evals/golden/README.md` |
-| OI-005 | Launch sequencing: the first anonymous audit in 01 §5.0 needs capabilities built at M5-M7. Choose: public launch after M7, or an invited readiness-only pilot after M3 (ASSUMPTION in 05 §15). | Release planning | Product owner | 05 §15 |
+| OI-001 | Confirm D-005: is USD 150 one combined monthly cap for hosting and paid calls? If hosting is budgeted separately, the anonymous rich audit becomes much more affordable. **Closed by D-020, 2026-10-01: one combined cap confirmed.** | M0B cost proof; `config/budgets.yaml`; `docs/cost-model.md` | Product owner, cloud billing owner | D-005 |
+| OI-002 | Name the accountable owners: product, methodology, security, privacy, data integrity, Arabic editorial, cloud billing, provider policy, connectors, content approval, production publishing, accessibility, incident response. One person may hold several roles, but proposer, approver and executor stay separate for consequential changes. **Closed by D-020, 2026-10-01: all roles held by the product owner (Ibrahim Abedrabboh) until others are named; consequential changes wait for a second named person at the gate.** | Every human gate | Product owner | 07 §8; 05 §17 |
+| OI-003 | Claude Code access route (Anthropic plan or Google Cloud Agent Platform), whether Fable is enabled, and pinned model IDs if routing through Google Cloud. **Closed by D-020, 2026-10-01: direct Anthropic plan, no pinned model IDs; Fable fallback per 06-MODEL-PLAN if not enabled.** | M0A | Tech lead | 06-MODEL-PLAN §1, §5 |
+| OI-004 | Add the r2 version of the marketing-seo-agent skill (site architecture, backlinks, comparison pages, programmatic SEO, change monitoring, `crawl_diff.py`) and the e-commerce, local, entity, platform and migration references, if you have them. Reconcile them with the fixes in the vendored 30 Sep version. **Closed by D-020, 2026-10-01: 30 Sep snapshot is the baseline; r2 references not available; reconcile via a new decision if they arrive.** | Golden files for M8A-M8C; change-monitoring fixtures | SEO lead | 07 §7; 08; `evals/golden/README.md` |
+| OI-005 | Launch sequencing: the first anonymous audit in 01 §5.0 needs capabilities built at M5-M7. Choose: public launch after M7, or an invited readiness-only pilot after M3 (ASSUMPTION in 05 §15). **Closed by D-020, 2026-10-01: invited readiness-only pilot after M3; no public anonymous traffic before M7 (A-012).** | Release planning | Product owner | 05 §15 |
 
 ## M0 decisions
 
@@ -31,7 +31,7 @@ Every item names what it blocks and who decides. Close an item by adding the dec
 
 | ID | Item | Blocks | Decides | Where |
 | --- | --- | --- | --- | --- |
-| OI-020 | Toolchain: confirm pnpm, choose the Node version, formatter and linter (the format hook assumes Prettier), test runners, Playwright for browser tests. | App commands in `CLAUDE.md` and CI | Tech lead | D-008; `intent/INT-00-m0a-repository-bootstrap/intent.md` |
+| OI-020 | Toolchain: confirm pnpm, choose the Node version, formatter and linter (the format hook assumes Prettier), test runners, Playwright for browser tests. **Closed by D-021, 2026-10-01: pnpm, Node 22 LTS, Prettier + ESLint, Vitest, Playwright.** | App commands in `CLAUDE.md` and CI | Tech lead | D-008; `intent/INT-00-m0a-repository-bootstrap/intent.md` |
 | OI-021 | Pin GitHub Actions to commit SHAs; choose gitleaks action or pinned CLI (the action may need a licence for organization repositories). | CI hardening | Tech lead | `.github/workflows/ci.yml` |
 | OI-022 | Confirm D-017 (GitHub Actions for PR checks, Cloud Build and Cloud Deploy for build and promotion). | Pipeline | Tech lead | D-017 |
 | OI-023 | Change-ticket system and key format (the production-infra hook expects `^[A-Z]+-[0-9]+$` in `WPI_CHANGE_TICKET`). | Production infrastructure edits | Tech lead | `.claude/hooks/protect_prod_infra.py` |
