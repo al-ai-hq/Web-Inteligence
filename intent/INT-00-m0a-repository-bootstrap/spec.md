@@ -3,10 +3,10 @@
 | Field | Value |
 | --- | --- |
 | Intent | `intent/INT-00-m0a-repository-bootstrap/intent.md` (status: accepted, 2026-10-01) |
-| Status | draft |
+| Status | approved |
 | Author | Qoder agent session 7ad412ff-ada7-4dd7-a092-b42da4ea0df7, 2026-10-01 |
-| Product owner sign-off | pending |
-| Policy owner sign-offs | security engineer: security-baseline (pending); cloud billing owner: cost-guard (pending); data engineer: data-integrity (pending). All roles held by the product owner per D-020; sign-offs recorded per role. |
+| Product owner sign-off | approved by Ibrahim Abedrabboh (product owner, D-020), 2026-10-01 |
+| Policy owner sign-offs | security engineer: security-baseline approved, 2026-10-01; cloud billing owner: cost-guard approved, 2026-10-01; data engineer: data-integrity approved, 2026-10-01. All roles held by the product owner per D-020; sign-offs recorded per role. |
 | Spec prompt version | Stage 2 prompt shape in `.claude/skills/intent-spec-plan/SKILL.md` v0.1.0 |
 | Skill versions | intent-spec-plan 0.1.0; security-baseline 0.1.0; cost-guard 0.1.0; data-integrity 0.1.0. Assessed and not applied: google-search-guidance, arabic-rtl-a11y, connector-safety, marketing-seo-agent (see Policy conformance). |
 | Source sections read | docs/spec/00-READ-ME-FIRST; 01 §9, §14; 02 §12, §13, §17, §18; 03-PRODUCTION-CONTRACTS ("Agent tool boundaries", "Workflow states"); 04-CLAUDE-CODE-BUILD-PROMPT §24; 05-PROJECT-PLAN §5, §9, §11, §12; 06-MODEL-PLAN §1, §5; 07-SKILLS-AND-AGENTS §8; 09-MERGE-DECISIONS; `docs/decisions.md` D-001–D-021; `docs/open-items.md`; `docs/assumptions.md`; `docs/threat-model.md`; `docs/cost-model.md`; `docs/test-strategy.md`; `docs/environments.md`; `.claude/hooks/README.md`; `.claude/settings.json`; `.github/workflows/ci.yml`; `scripts/check_schemas.py`; `scripts/check_config.py` |
