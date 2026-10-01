@@ -154,7 +154,7 @@ This table is the operational store for this milestone; the canonical audit reco
 
 Assembly must produce a record valid against `schemas/report-model.schema.json` (required fields: report_id, audit_id, version, access_class, languages, allowed_projections, access, tone, content, lineage_coverage, status, needs_native_review, retention_days, created_at, expires_at). Fixed values for this milestone:
 
-- `access_class: "anonymous_private"`, `languages: ["en","ar"]`, `allowed_projections: []` (structural export denial), `retention_days: 7`, `expires_at = created_at + 7 days`.
+- `access_class: "anonymous"`, `languages: ["en","ar"]`, `allowed_projections: ["web_interactive"]` (schema-required single projection; structural export denial is enforced by the catch-all 403 handler, not by an empty list), `retention_days: 7`, `expires_at = created_at + 7 days`.
 - `tone` follows templates/style-guide-ar.md (MSA) and templates/style-guide-en.md (answer-first); `access` reflects signed-secret delivery. Exact enum literals come from the schema and are asserted in tests.
 - `needs_native_review`: this milestone composes from natively authored bilingual templates ⇒ `false`; the native-speaker copy review happens at the release gate, not per-report.
 
