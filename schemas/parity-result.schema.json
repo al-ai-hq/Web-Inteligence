@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:parity-result:0.1.0",
+  "title": "ParityResult",
+  "description": "One staging or production parity check against the baseline for one URL pair and one dimension.",
+  "type": "object",
+  "required": [
+    "result_id",
+    "baseline_id",
+    "source_url",
+    "target_url",
+    "environment",
+    "dimension",
+    "outcome",
+    "severity",
+    "evidence_ids",
+    "lineage"
+  ],
+  "properties": {
+    "result_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "baseline_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "source_url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "target_url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "environment": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/environment"
+        },
+        {
+          "enum": [
+            "staging",
+            "production"
+          ]
+        }
+      ]
+    },
+    "dimension": {
+      "type": "string",
+      "enum": [
+        "status",
+        "title",
+        "meta_description",
+        "h1",
+        "canonical",
+        "hreflang",
+        "robots",
+        "structured_data",
+        "content_hash",
+        "internal_links",
+        "language_direction",
+        "analytics_tag",
+        "consent",
+        "feed"
+      ]
+    },
+    "expected": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observed": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "match",
+        "mismatch",
+        "missing",
+        "not_applicable",
+        "unavailable"
+      ]
+    },
+    "severity": {
+      "$ref": "common.schema.json#/$defs/severity"
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

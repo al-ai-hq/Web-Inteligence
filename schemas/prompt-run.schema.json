@@ -1,0 +1,520 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:prompt-run:0.1.0",
+  "title": "PromptRun",
+  "description": "One observation: one prompt, one engine, one repeat, with the analyzed outcome. Folds the build prompt's PanelRun, the provider adapter return (v1-baseline §12.5) and the VISIBILITY TESTER output. Failed or skipped runs never count in a denominator and are never shown as 0%. API observations are not consumer-app reproductions.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "panel_run_id",
+    "audit_id",
+    "prompt_set_id",
+    "prompt_id",
+    "prompt_family",
+    "final_prompt",
+    "repeat_index",
+    "engine",
+    "mode",
+    "model_id",
+    "market",
+    "language",
+    "location",
+    "authentication_state",
+    "started_at",
+    "completed_at",
+    "status",
+    "error_class",
+    "counted_in_denominator",
+    "response_evidence_id",
+    "brand_mentioned",
+    "mention_spans",
+    "recommended",
+    "brand_url_cited",
+    "match_confidence",
+    "competitors_mentioned",
+    "cited_urls",
+    "citation_ids",
+    "accuracy_issue_ids",
+    "injection_suspected",
+    "analysis_method",
+    "lineage"
+  ],
+  "properties": {
+    "run_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "panel_run_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "PromptPanelRun ID. Null for the anonymous audit's observations."
+    },
+    "audit_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "prompt_set_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "prompt_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "prompt_family": {
+      "$ref": "common.schema.json#/$defs/prompt_family"
+    },
+    "final_prompt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "Exact final prompt sent."
+    },
+    "repeat_index": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "engine": {
+      "$ref": "common.schema.json#/$defs/config_key",
+      "description": "Engine key from config/providers.yaml."
+    },
+    "mode": {
+      "$ref": "common.schema.json#/$defs/config_key",
+      "description": "Engine mode key, e.g. web search enabled."
+    },
+    "model_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Model identifier as reported by the provider response, when exposed. Never hard-coded (D-010)."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "location": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "authentication_state": {
+      "type": "string",
+      "enum": [
+        "api",
+        "governed_product_account"
+      ],
+      "description": "Never a customer's personal browser session."
+    },
+    "started_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "valid",
+        "error",
+        "timeout",
+        "refused",
+        "skipped_budget",
+        "skipped_breaker"
+      ]
+    },
+    "error_class": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/error_class"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "counted_in_denominator": {
+      "type": "boolean",
+      "description": "True only for valid runs."
+    },
+    "response_evidence_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "EvidenceObject holding the raw answer (retention per D-002/D-003 and provider terms)."
+    },
+    "search_executed": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "search_call_count": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "brand_mentioned": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "A name that appears only in the prompt is not a mention."
+    },
+    "mention_spans": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "start",
+          "end"
+        ],
+        "properties": {
+          "start": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "recommended": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Null for branded, brand_facts and citation prompts. A name in a source list is not a recommendation."
+    },
+    "brand_url_cited": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "match_confidence": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/match_confidence"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "competitors_mentioned": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/label"
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "cited_urls": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/url"
+      },
+      "minItems": 0,
+      "maxItems": 100,
+      "description": "Only URLs the API returned. Never invented."
+    },
+    "citation_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "accuracy_issue_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "injection_suspected": {
+      "type": "boolean"
+    },
+    "analysis_method": {
+      "$ref": "common.schema.json#/$defs/evaluation_method"
+    },
+    "grounding_suggestions_present": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "True when the answer carries search suggestions that must be displayed unchanged (02-DETAILED-SPECIFICATION §17)."
+    },
+    "token_usage": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "input_tokens",
+            "output_tokens"
+          ],
+          "properties": {
+            "input_tokens": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "output_tokens": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "provider_request_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cost_ledger_entry_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Cost is recorded on the CostLedgerEntry, not here."
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "valid"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "response_evidence_id",
+          "brand_mentioned"
+        ],
+        "properties": {
+          "counted_in_denominator": {
+            "const": true
+          },
+          "response_evidence_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "brand_mentioned": {
+            "type": "boolean"
+          },
+          "completed_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "not": {
+              "const": "valid"
+            }
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "counted_in_denominator": {
+            "const": false
+          },
+          "brand_mentioned": {
+            "type": "null"
+          },
+          "recommended": {
+            "type": "null"
+          },
+          "brand_url_cited": {
+            "type": "null"
+          },
+          "match_confidence": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "prompt_family": {
+            "enum": [
+              "branded",
+              "brand_facts",
+              "citation"
+            ]
+          }
+        },
+        "required": [
+          "prompt_family"
+        ]
+      },
+      "then": {
+        "properties": {
+          "recommended": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts) (PanelRun)",
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix A (runtime agent instructions) (VISIBILITY TESTER)",
+    "v1-baseline §8, §12.5",
+    "01-PRODUCT-REQUIREMENTS §16"
+  ],
+  "x-source-fields": [
+    "run_id",
+    "panel_run_id",
+    "prompt_id",
+    "prompt_family",
+    "engine",
+    "mode",
+    "location",
+    "language",
+    "started_at",
+    "brand_mentioned",
+    "brand_url_cited",
+    "competitors_mentioned",
+    "cited_urls",
+    "accuracy_issue_ids",
+    "status",
+    "model_id",
+    "completed_at",
+    "search_executed",
+    "citation_ids",
+    "provider_request_id",
+    "error_class",
+    "mention_spans",
+    "recommended",
+    "match_confidence",
+    "token_usage"
+  ],
+  "x-added-fields": [
+    "audit_id",
+    "prompt_set_id",
+    "final_prompt",
+    "repeat_index",
+    "market",
+    "authentication_state",
+    "counted_in_denominator",
+    "response_evidence_id",
+    "search_call_count",
+    "injection_suspected",
+    "analysis_method",
+    "grounding_suggestions_present",
+    "cost_ledger_entry_id",
+    "lineage"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md",
+  "x-field-mapping": {
+    "panel_id": "panel_run_id",
+    "category": "prompt_family",
+    "run_at": "started_at",
+    "accuracy_issues": "accuracy_issue_ids",
+    "citations": "citation_ids",
+    "search_usage": "search_call_count",
+    "response_text": "response_evidence_id",
+    "estimated_cost": "cost_ledger_entry_id",
+    "provider": "engine",
+    "mentioned": "brand_mentioned",
+    "target_domain_cited": "brand_url_cited",
+    "other_organizations": "competitors_mentioned"
+  }
+}

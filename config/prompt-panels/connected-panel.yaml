@@ -1,0 +1,99 @@
+# Purpose: The connected (registered, private-source) AI-visibility prompt panel: categories, size, repeats,
+#          run record fields, metrics, lost-prompt analysis and re-run rules.
+# Owner role: SEO lead (prompt-panel methodologist), with the AI engineer and the cloud billing owner
+# Source sections: 02-DETAILED-SPECIFICATION §6 (Prompt panels), §11, §18; 01-PRODUCT-REQUIREMENTS §5.8, §14, §15;
+#                  04-CLAUDE-CODE-BUILD-PROMPT §10, §23; 05-PROJECT-PLAN §10; 09-MERGE-DECISIONS;
+#                  docs/decisions.md D-006, D-011
+# Status: draft for review
+#
+# Sizes are ASSUMPTION defaults (D-006); prompt-panel size, repeats, markets and cost allocation need approval
+# (01-PRODUCT-REQUIREMENTS §14). A run needs approved scope and budget before it starts (05-PROJECT-PLAN §10).
+
+panel_id: connected-panel
+version: "0.1.0-draft"
+applies_to: "Registered projects with the prompt-panel capability (connected tier)."
+
+size:
+  prompts_per_market_and_language: {min: 20, max: 40}
+  runs_per_prompt: 3
+  runs_note: "At least 3 runs per prompt, or runs on 3 different days, with a fixed location and language."
+  status: "ASSUMPTION (D-006, from 02-DETAILED-SPECIFICATION §6)"
+  cost_note: "A full panel of 40 prompts, 5 providers and 3 runs is 600 paid observations per run (02-DETAILED-SPECIFICATION §18)."
+  budget_ref: "config/budgets.yaml#per_project_connected"
+
+cadence:
+  default: monthly
+  status: "ASSUMPTION (02-DETAILED-SPECIFICATION §11)"
+  rerun_after_fixes: "Re-run the same panel 4-6 weeks after fixes ship (02-DETAILED-SPECIFICATION §6)."
+  approval: "APPROVE SCOPE/BUDGET before each run (05-PROJECT-PLAN §10)."
+
+# 02-DETAILED-SPECIFICATION §6 six categories. Brand-free prompts test visibility; brand prompts test accuracy.
+categories:
+  recommendation: {branded: false, purpose: visibility, counts_toward_recommendation_rate: true}
+  comparison: {branded: false, purpose: visibility, counts_toward_recommendation_rate: true}
+  how_to_choose: {branded: false, purpose: visibility, counts_toward_recommendation_rate: true}
+  price: {branded: false, purpose: visibility, counts_toward_recommendation_rate: true}
+  local: {branded: false, purpose: visibility, counts_toward_recommendation_rate: true}
+  brand_facts: {branded: true, purpose: accuracy, counts_toward_recommendation_rate: false}
+
+# 04-CLAUDE-CODE-BUILD-PROMPT §10 lists more families. Disabled until the M6 spec decides (conflict noted).
+additional_families_v4:
+  enabled_by_default: false
+  families: [problem, selection, use_case, trust_proof]
+  decision: "<DECIDE_AT_M0: whether to add the V4 families to the six 02-DETAILED-SPECIFICATION §6 categories>"
+
+prompt_design:
+  seeding: "Build prompts from priority keyword clusters, observed queries, customer questions, site facts, intent, funnel stage, language and market (02-DETAILED-SPECIFICATION §6; 01-PRODUCT-REQUIREMENTS §16)."
+  wording: "Written the way customers ask, in the dialect they use; Arabic prompts are flagged for native review."
+  prompt_fields: [prompt_id, category, intent, funnel_stage, market, language, text, branded, version]
+  seed_templates:
+    en: "config/prompt-panels/templates/en.yaml"
+    ar: "config/prompt-panels/templates/ar.yaml"
+  rules:
+    - "Brand-free prompts never contain the brand or competitor names."
+    - "Prompts explicitly request organizations or providers."
+    - "Keep location and language fixed across runs."
+    - "Use supported APIs or governed product accounts, never customer personal browser sessions (01-PRODUCT-REQUIREMENTS §16)."
+
+engines:
+  source: "Enabled providers in config/providers.yaml"
+  omissions: "Explain every omitted default engine (config/providers.yaml omitted_default_engines)."
+
+run_record_fields:
+  source_reference: "02-DETAILED-SPECIFICATION §6; 01-PRODUCT-REQUIREMENTS §16"
+  fields:
+    - run_id
+    - prompt_id
+    - run_at
+    - engine
+    - mode
+    - model_id_where_exposed
+    - location
+    - language
+    - authentication_state
+    - repeat_index
+    - brand_mentioned
+    - brand_url_cited
+    - competitors_mentioned
+    - cited_urls
+    - accuracy_issues
+    - response_outcome
+    - error_class
+    - cost
+
+metrics:
+  source_reference: "v1-baseline §6.7; 02-DETAILED-SPECIFICATION §6"
+  list: [mention_rate, recommendation_rate, domain_citation_rate, provider_coverage, share_of_observed_mentions, accuracy_issue_count]
+  small_cell_rule: "Cells with fewer than 10 runs show counts, not percentages."
+  denominators: "Provider failures are excluded from valid denominators; show numerator and denominator beside every rate."
+  accuracy_issues: "Each quotes the wrong statement and the fact ID it contradicts (brand_facts prompts only)."
+
+lost_prompt_analysis:
+  source_reference: "02-DETAILED-SPECIFICATION §6"
+  steps:
+    - "List prompts where competitors appear and the brand does not."
+    - "Fetch the cited URLs through the product's sandboxed crawler (D-009)."
+    - "Note what the cited pages have that the brand's pages lack."
+    - "Tie fixes to those prompts and re-run the same panel after 4-6 weeks."
+
+separation: "Panel results are observed AI visibility and are never blended into Presence Readiness (D-012)."

@@ -1,0 +1,11 @@
+{
+  "description": "02-DETAILED-SPECIFICATION §7: volume_source is required when a volume is given.",
+  "base_example": "keyword-upload.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/volume_source",
+      "value": ""
+    }
+  ]
+}

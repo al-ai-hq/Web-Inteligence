@@ -1,0 +1,19 @@
+{
+  "authorization_id": "e36f81a2-ce40-4b6d-9f81-a2ce406d8f13",
+  "report_id": "d25e7091-bd3f-4a5c-8e70-91bd3f5c7e02",
+  "audit_id": "0f5a2c6e-3b1d-4c8a-9e7f-2a6b8c0d1e21",
+  "requested_at": "2026-09-30T10:31:02Z",
+  "requester": {
+    "access_class": "anonymous",
+    "user_id": null,
+    "project_id": null
+  },
+  "format": "pdf",
+  "decision": "denied",
+  "denial_reason": "anonymous_export_prohibited",
+  "state": "DENIED",
+  "decided_at": "2026-09-30T10:31:02Z",
+  "decided_by": "export_policy_service",
+  "download": null,
+  "audit_event_id": "f4708b13-df51-4c7e-8a92-b3df517e9a24"
+}

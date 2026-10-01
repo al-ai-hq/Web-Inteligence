@@ -1,0 +1,421 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:fact-sheet:0.1.0",
+  "title": "FactSheet",
+  "description": "The client's brand fact sheet: the only source of facts the change planner and brief writer may insert, together with the FactRegister it seeds. Business contact data only; no personal data beyond what the client publishes.",
+  "type": "object",
+  "required": [
+    "fact_sheet_id",
+    "project_id",
+    "version",
+    "legal_names",
+    "brand_names",
+    "aliases",
+    "canonical_domain",
+    "official_profiles",
+    "addresses",
+    "contacts",
+    "approved_claims",
+    "status",
+    "fidelity_label",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "fact_sheet_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "legal_names": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "language",
+          "value"
+        ],
+        "properties": {
+          "language": {
+            "$ref": "common.schema.json#/$defs/language"
+          },
+          "value": {
+            "$ref": "common.schema.json#/$defs/label"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 4
+    },
+    "brand_names": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "language",
+          "value"
+        ],
+        "properties": {
+          "language": {
+            "$ref": "common.schema.json#/$defs/language"
+          },
+          "value": {
+            "$ref": "common.schema.json#/$defs/label"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 10
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "value",
+          "language",
+          "kind"
+        ],
+        "properties": {
+          "value": {
+            "$ref": "common.schema.json#/$defs/label"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/language"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "alias",
+              "misspelling",
+              "transliteration",
+              "abbreviation"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "logo_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "canonical_domain": {
+      "$ref": "common.schema.json#/$defs/hostname"
+    },
+    "official_profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "platform",
+          "url"
+        ],
+        "properties": {
+          "platform": {
+            "$ref": "common.schema.json#/$defs/label"
+          },
+          "url": {
+            "$ref": "common.schema.json#/$defs/url"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "addresses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "language",
+          "lines",
+          "locality",
+          "region",
+          "postal_code",
+          "country"
+        ],
+        "properties": {
+          "language": {
+            "$ref": "common.schema.json#/$defs/language"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/label"
+            },
+            "minItems": 1,
+            "maxItems": 4
+          },
+          "locality": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/label"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "region": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/label"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "postal_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "pattern": "^[A-Z]{2}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "contacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "value",
+          "purpose"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "phone",
+              "email",
+              "whatsapp",
+              "contact_form_url"
+            ]
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 320
+          },
+          "purpose": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/label"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "approved_claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "language",
+          "text",
+          "evidence_urls",
+          "regulated",
+          "approved_by_user_id",
+          "approved_on",
+          "review_on"
+        ],
+        "properties": {
+          "claim_id": {
+            "$ref": "common.schema.json#/$defs/uuid",
+            "description": "Referenced as fact_id by agents."
+          },
+          "language": {
+            "$ref": "common.schema.json#/$defs/language"
+          },
+          "text": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "evidence_urls": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/url"
+            },
+            "minItems": 1,
+            "maxItems": 20,
+            "uniqueItems": true
+          },
+          "regulated": {
+            "type": "boolean"
+          },
+          "approved_by_user_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "approved_on": {
+            "$ref": "common.schema.json#/$defs/date"
+          },
+          "review_on": {
+            "$ref": "common.schema.json#/$defs/date"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 500
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "confirmed",
+        "superseded"
+      ]
+    },
+    "confirmed_by_user_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid",
+          "description": "Project owner who confirmed the sheet."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "confirmed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fidelity_label": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/fidelity_label"
+        },
+        {
+          "enum": [
+            "attested",
+            "user_supplied"
+          ]
+        }
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "updated_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "confirmed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "confirmed_by_user_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "confirmed_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          },
+          "fidelity_label": {
+            "const": "attested"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "02-DETAILED-SPECIFICATION §16",
+    "03-PRODUCTION-CONTRACTS: Required configuration",
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix A (runtime agent instructions) (SHARED CORE rule 2)"
+  ],
+  "x-source-fields": [
+    "legal_names",
+    "aliases",
+    "logo_url",
+    "official_profiles",
+    "addresses",
+    "contacts",
+    "approved_claims"
+  ],
+  "x-added-fields": [
+    "fact_sheet_id",
+    "project_id",
+    "version",
+    "brand_names",
+    "canonical_domain",
+    "status",
+    "confirmed_by_user_id",
+    "confirmed_at",
+    "fidelity_label",
+    "created_at",
+    "updated_at"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md",
+  "x-field-mapping": {
+    "legal name": "legal_names",
+    "contact": "contacts",
+    "logo": "logo_url"
+  }
+}

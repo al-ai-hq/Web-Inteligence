@@ -1,0 +1,11 @@
+{
+  "description": "Evidence objects are immutable.",
+  "base_example": "evidence-object.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/immutable",
+      "value": false
+    }
+  ]
+}

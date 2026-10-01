@@ -1,0 +1,24 @@
+{
+  "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+  "plan_item_id": "9a1c3e5f-7b9d-4f1a-8c3e-5a7c9e1b3d57",
+  "resource_type": "page",
+  "resource_id": "1042",
+  "url": "https://example.com/ar/services/web-design",
+  "field": "seo.meta_description",
+  "field_class": "meta_description",
+  "language": "ar",
+  "current_value": null,
+  "proposed_value": "خدمات تصميم مواقع الشركات باللغتين العربية والإنجليزية، من التخطيط إلى الإطلاق.",
+  "before_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "after_hash": "sha256:974e9bfef6d56b4c7865a916d402357faf2f068804aaf06dc5522b26606fccc4",
+  "risk_tier": 1,
+  "rationale": "SEO-002 partial: this page has no meta description.",
+  "evidence_ids": [
+    "8d4fab52-6e3c-4071-9b2f-ac5d3e7f1f24"
+  ],
+  "rule_ids": [
+    "SEO-002"
+  ],
+  "idempotency_key": "chg:c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68:op:d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+  "status": "pending"
+}

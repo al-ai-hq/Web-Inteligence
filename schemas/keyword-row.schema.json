@@ -1,0 +1,321 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:keyword-row:0.1.0",
+  "title": "KeywordRow",
+  "description": "A validated, stored keyword row from an upload, typed intake or approved provider. The original text is kept; the normalized copy is used only for matching. An unknown volume stays null, never 0 (02-DETAILED-SPECIFICATION §7).",
+  "type": "object",
+  "required": [
+    "row_id",
+    "upload_id",
+    "origin",
+    "keyword",
+    "keyword_normalized",
+    "market",
+    "language",
+    "avg_monthly_volume",
+    "volume_state",
+    "volume_source",
+    "volume_period",
+    "intent",
+    "target_url",
+    "priority",
+    "fidelity_label",
+    "validation_errors",
+    "created_at",
+    "lineage"
+  ],
+  "properties": {
+    "row_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "upload_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Null when the row did not come from a file upload."
+    },
+    "origin": {
+      "type": "string",
+      "enum": [
+        "csv_upload",
+        "typed_intake",
+        "search_console",
+        "keyword_planner",
+        "licensed_provider"
+      ]
+    },
+    "keyword": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "Original text exactly as supplied. ASSUMPTION: 300 characters."
+    },
+    "keyword_normalized": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "Matching key only (Arabic diacritics and tatweel removed, alef forms unified, ta marbuta -> ha, alef maqsura -> ya, hamza seats -> waw/ya, Arabic-Indic digits -> 0-9). Never shown to users."
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "avg_monthly_volume": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Average monthly searches from volume_source. Null means unknown; never store 0 for unknown."
+    },
+    "volume_state": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/integrity_state"
+        },
+        {
+          "enum": [
+            "valid",
+            "not_supplied",
+            "supplied_invalid",
+            "missing_field"
+          ]
+        }
+      ],
+      "description": "State of the volume value. missing_field: volume given without source or period, so it was dropped to unknown."
+    },
+    "volume_source": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label",
+          "description": "Named source, e.g. Google Keyword Planner or a licensed provider."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "volume_period": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/month_range"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "intent": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/keyword_intent"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "target_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url",
+          "description": "Absolute URL on the audited site."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "priority": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Client's own weighting."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fidelity_label": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/fidelity_label"
+        },
+        {
+          "enum": [
+            "observed",
+            "user_supplied",
+            "estimated",
+            "unavailable"
+          ]
+        }
+      ],
+      "description": "Label of the volume: user_supplied for CSV, estimated for Keyword Planner or licensed data, observed for Search Console, unavailable when unknown."
+    },
+    "validation_errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code",
+          "field",
+          "message_key"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "missing_required_field",
+              "invalid_market",
+              "invalid_language",
+              "invalid_volume",
+              "volume_missing_source_or_period",
+              "invalid_volume_period",
+              "invalid_intent",
+              "target_url_off_site",
+              "invalid_target_url",
+              "invalid_priority",
+              "duplicate_merged"
+            ]
+          },
+          "field": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-z_]{1,64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message_key": {
+            "$ref": "common.schema.json#/$defs/message_key"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 20,
+      "description": "Non-fatal issues recorded on an accepted row. Rows missing required fields are rejected, not stored."
+    },
+    "merged_row_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list",
+      "description": "Duplicates merged on normalized keyword + market + language."
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "avg_monthly_volume": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "avg_monthly_volume"
+        ]
+      },
+      "then": {
+        "properties": {
+          "volume_source": {
+            "$ref": "common.schema.json#/$defs/label"
+          },
+          "volume_period": {
+            "$ref": "common.schema.json#/$defs/month_range"
+          },
+          "volume_state": {
+            "const": "valid"
+          },
+          "fidelity_label": {
+            "enum": [
+              "observed",
+              "user_supplied",
+              "estimated"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "avg_monthly_volume": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "avg_monthly_volume"
+        ]
+      },
+      "then": {
+        "properties": {
+          "volume_state": {
+            "enum": [
+              "not_supplied",
+              "supplied_invalid",
+              "missing_field"
+            ]
+          },
+          "fidelity_label": {
+            "const": "unavailable"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "02-DETAILED-SPECIFICATION §7"
+  ],
+  "x-source-fields": [
+    "row_id",
+    "upload_id",
+    "keyword",
+    "keyword_normalized",
+    "market",
+    "language",
+    "avg_monthly_volume",
+    "volume_source",
+    "volume_period",
+    "intent",
+    "target_url",
+    "priority",
+    "fidelity_label",
+    "validation_errors"
+  ],
+  "x-added-fields": [
+    "origin",
+    "volume_state",
+    "merged_row_ids",
+    "created_at",
+    "lineage"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

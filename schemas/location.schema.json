@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:location:0.1.0",
+  "title": "Location",
+  "description": "A business location or service area (storefront, service-area or hybrid), including seasonal hour exceptions.",
+  "type": "object",
+  "required": [
+    "location_id",
+    "project_id",
+    "business_model",
+    "names",
+    "status",
+    "fact_ids"
+  ],
+  "properties": {
+    "location_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "business_model": {
+      "type": "string",
+      "enum": [
+        "storefront",
+        "service_area",
+        "hybrid"
+      ]
+    },
+    "names": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "language",
+          "value"
+        ],
+        "properties": {
+          "language": {
+            "$ref": "common.schema.json#/$defs/language"
+          },
+          "value": {
+            "$ref": "common.schema.json#/$defs/label"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 10
+    },
+    "address": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "lines",
+            "locality",
+            "region",
+            "postal_code",
+            "country"
+          ],
+          "properties": {
+            "lines": {
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/label"
+              },
+              "minItems": 1,
+              "maxItems": 4
+            },
+            "locality": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/label"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "region": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/label"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "postal_code": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "country": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2,
+              "pattern": "^[A-Z]{2}$"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Null for service-area businesses that hide their address."
+    },
+    "service_areas": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/label"
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "phone": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 20,
+          "pattern": "^\\+[1-9][0-9]{3,14}$",
+          "description": "E.164 phone number. ASSUMPTION: E.164 storage format."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "hours": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "day",
+          "opens",
+          "closes"
+        ],
+        "properties": {
+          "day": {
+            "$ref": "common.schema.json#/$defs/day_of_week"
+          },
+          "opens": {
+            "$ref": "common.schema.json#/$defs/local_time"
+          },
+          "closes": {
+            "$ref": "common.schema.json#/$defs/local_time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 21
+    },
+    "hour_exceptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "date_range",
+          "closed",
+          "opens",
+          "closes",
+          "reason"
+        ],
+        "properties": {
+          "date_range": {
+            "$ref": "common.schema.json#/$defs/date_range"
+          },
+          "closed": {
+            "type": "boolean"
+          },
+          "opens": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/local_time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "closes": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/local_time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/label",
+                "description": "e.g. Ramadan hours, national day."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "location_page_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "temporarily_closed",
+        "closed"
+      ]
+    },
+    "fact_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "business_model": {
+            "const": "storefront"
+          }
+        },
+        "required": [
+          "business_model"
+        ]
+      },
+      "then": {
+        "properties": {
+          "address": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23",
+    "01-PRODUCT-REQUIREMENTS §16"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

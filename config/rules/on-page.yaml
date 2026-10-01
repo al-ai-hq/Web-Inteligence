@@ -1,0 +1,238 @@
+# Purpose: Rule definitions for the On-page technical SEO category (weight 15) of Presence Readiness,
+#          including the keyword-data rules SEO-011 and SEO-012 and the SPAM-001 critical flag.
+# Owner role: Methodology owner (SEO lead)
+# Source sections: v1-baseline §6.3, §7, §7.2; 02-DETAILED-SPECIFICATION §6, §7, §8;
+#                  08-REFERENCE-LIBRARY (SEO Starter Guide, Spam policies)
+# Status: draft for review
+#
+# Field notes: see config/rules/crawlability.yaml. Unscored rules have importance_weight 0.
+# SPAM-001 placement in this category is an ASSUMPTION: 02-DETAILED-SPECIFICATION §6 assigns it no
+# category; it sits next to SEO-008 (duplicate content indicators). It has no weight and acts only
+# through its critical cap in config/scoring.yaml.
+
+methodology_version: "0.1.0-draft"
+category: on_page
+category_title: "On-page technical SEO"
+category_weight: 15
+
+rules:
+  - id: SEO-001
+    title: "Unique page title"
+    category: on_page
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "Important pages in the audited sample."
+    standards:
+      pass: "Important pages have descriptive, unique titles."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.2 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.2", "https://developers.google.com/search/docs/fundamentals/seo-starter-guide"]
+
+  - id: SEO-002
+    title: "Meta description"
+    category: on_page
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Important pages in the audited sample."
+    standards:
+      pass: "Important pages have useful, non-duplicated descriptions."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.2 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.2"]
+
+  - id: SEO-003
+    title: "Single descriptive H1"
+    category: on_page
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "Important pages in the audited sample."
+    standards:
+      pass: "Each important page has a clear primary heading."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.2 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.2"]
+
+  - id: SEO-004
+    title: "Heading hierarchy"
+    category: on_page
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Important pages in the audited sample."
+    standards:
+      pass: "Headings form an understandable hierarchy without major skips."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.2 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.2"]
+
+  - id: SEO-005
+    title: "Internal linking"
+    category: on_page
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Important pages are linked contextually and through navigation."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.2 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.2"]
+
+  - id: SEO-006
+    title: "Descriptive anchors"
+    category: on_page
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Links explain their destination outside isolated UI context."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.2 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.2"]
+
+  - id: SEO-007
+    title: "Image alternatives"
+    category: on_page
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Pages in the sample that contain images."
+    standards:
+      pass: "Informative images have useful alt text; decorative images are empty-alt."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.2 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.2"]
+
+  - id: SEO-008
+    title: "Duplicate content indicators"
+    category: on_page
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Important pages do not materially duplicate each other without canonical handling."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.2 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.2"]
+
+  - id: SEO-009
+    title: "Metadata consistency"
+    category: on_page
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Important pages in the audited sample."
+    standards:
+      pass: "Title, H1, description, canonical, and visible topic agree."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.2 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.2"]
+
+  - id: SEO-010
+    title: "Open Graph/social metadata"
+    category: on_page
+    importance_weight: 1
+    scored: true
+    connected_tier_only: false
+    applicability: "Important pages in the audited sample."
+    standards:
+      pass: "Share metadata is complete and consistent."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.2 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.2"]
+
+  - id: SEO-011
+    title: "Keyword cluster mapped to one page"
+    category: on_page
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    requires_data: keyword_data
+    applicability: "Only when validated keyword data and clusters exist; otherwise not_applicable (02-DETAILED-SPECIFICATION §6, §7)."
+    standards:
+      pass: "Each priority keyword cluster maps to one indexable page."
+      partial: "<DECIDE_AT_M0: partial standard; 02-DETAILED-SPECIFICATION §6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: new
+    notes:
+      - "Keyword clustering and page mapping are connected-workspace outputs (02-DETAILED-SPECIFICATION §2, §16), so this rule is normally not_applicable in anonymous audits."
+    source_reference: ["02-DETAILED-SPECIFICATION §6", "02-DETAILED-SPECIFICATION §7"]
+
+  - id: SEO-012
+    title: "No split cluster (cannibalization)"
+    category: on_page
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    requires_data: keyword_data
+    applicability: "Only when validated keyword data with impressions exists; otherwise not_applicable (02-DETAILED-SPECIFICATION §6, §7)."
+    standards:
+      pass: "No two indexable pages split a cluster's impressions without a clear primary page."
+      partial: "<DECIDE_AT_M0: partial standard; 02-DETAILED-SPECIFICATION §6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: new
+    notes:
+      - "Cannibalization thresholds are configuration owned by the keyword-mapping method (02-DETAILED-SPECIFICATION §13); no universal threshold is set here."
+    source_reference: ["02-DETAILED-SPECIFICATION §6", "02-DETAILED-SPECIFICATION §7"]
+
+  - id: SPAM-001
+    title: "Spam-policy screen"
+    category: on_page
+    importance_weight: 0
+    scored: false
+    critical_flag: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "No scaled or templated thin pages, doorway patterns, hidden text or fabricated review markup."
+      fail: "A confirmed finding of scaled or templated thin pages, doorway patterns, hidden text or fabricated review markup."
+    evaluation: deterministic
+    fidelity_label: computed
+    critical_cap: spam_policy_confirmed
+    change: new
+    notes:
+      - "A confirmed failure is a Critical finding and blocks automatic fixes on the affected pages (02-DETAILED-SPECIFICATION §6)."
+      - "ASSUMPTION: overall cap of 50 pending calibration (see config/scoring.yaml critical_caps)."
+      - "<DECIDE_AT_M0: what confirms a SPAM-001 failure; whether screening needs an assessed step for scaled or doorway patterns>"
+    source_reference:
+      - "02-DETAILED-SPECIFICATION §6"
+      - "https://developers.google.com/search/docs/essentials/spam-policies"

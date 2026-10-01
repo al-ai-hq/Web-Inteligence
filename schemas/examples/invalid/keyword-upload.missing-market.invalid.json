@@ -1,0 +1,10 @@
+{
+  "description": "02-DETAILED-SPECIFICATION §7: market is a required column.",
+  "base_example": "keyword-upload.example.json",
+  "patch": [
+    {
+      "op": "remove",
+      "path": "/market"
+    }
+  ]
+}

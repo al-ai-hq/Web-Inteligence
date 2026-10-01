@@ -1,0 +1,77 @@
+{
+  "plan_item_id": "9a1c3e5f-7b9d-4f1a-8c3e-5a7c9e1b3d57",
+  "audit_id": "1a6b3d7f-4c2e-4d9b-8f80-3b7c9d1e2f32",
+  "rule_ids": [
+    "SEO-002"
+  ],
+  "cluster_ids": [],
+  "prompt_ids": [],
+  "affected_urls": [
+    "https://example.com/ar/services/web-design",
+    "https://example.com/ar/services/hosting",
+    "https://example.com/ar/services/maintenance"
+  ],
+  "affected_templates": [
+    "service-page-template"
+  ],
+  "evidence_ids": [
+    "8d4fab52-6e3c-4071-9b2f-ac5d3e7f1f24"
+  ],
+  "problem": "Three of 14 sampled Arabic service pages have no meta description.",
+  "business_relevance": "Service pages are the main enquiry path for Arabic-speaking visitors.",
+  "action": "Write a unique Arabic meta description for each affected service page from its visible content.",
+  "owner_type": "cms",
+  "owner_role": "Content editor",
+  "apply_mode": "connector",
+  "risk_tier": 1,
+  "impact": 2,
+  "reach": 3,
+  "reach_source": {
+    "kind": "pages_affected",
+    "lineage_record_id": null
+  },
+  "effort": 1,
+  "confidence": "high",
+  "priority": 6,
+  "urgency": "planned",
+  "dependencies": [],
+  "expected_effect": "Search results can show a description written for each page instead of an automatic snippet.",
+  "verify_by": {
+    "method": "recrawl",
+    "target": "Re-crawl the affected pages and re-run SEO-002."
+  },
+  "rollback_method": "Restore the previous values from the change-set snapshot.",
+  "observation_window_days": {
+    "min": 7,
+    "max": 28
+  },
+  "group": "quick_win",
+  "horizon": "0-30",
+  "board_rank": 4,
+  "hypothesis": false,
+  "status": "accepted",
+  "created_at": "2026-10-02T09:40:00Z",
+  "lineage": {
+    "record_id": "9a1c3e5f-7b9d-4f1a-8c3e-5a7c9e1b3d57",
+    "project_id": "1c3e5a7b-9d1f-4a3c-8e5a-7b9d1f3a5c80",
+    "site_id": "2d4f6b8c-0e2a-4b4d-9f6b-8c0e2a4b6d91",
+    "source_type": "model_assessment",
+    "source_id": "agent:planner",
+    "source_version": "planner-prompt 0.1.0",
+    "captured_at": "2026-10-02T09:40:00Z",
+    "as_of": "2026-10-02T09:12:00Z",
+    "market": "KW",
+    "language": "ar",
+    "device": "all",
+    "method": "plan_builder",
+    "methodology_version": "0.1.0",
+    "fidelity_label": "assessed",
+    "content_hash": "sha256:4dfe45479f35beff336482bae634d8983bc5d9a92925b770c10736adf64e0201",
+    "parent_ids": [
+      "2b8d4f60-1a3c-4e5b-9d7f-6c0e8a2b4d36",
+      "8d4fab52-6e3c-4071-9b2f-ac5d3e7f1f24"
+    ],
+    "validation_state": "valid",
+    "audit_id": "1a6b3d7f-4c2e-4d9b-8f80-3b7c9d1e2f32"
+  }
+}

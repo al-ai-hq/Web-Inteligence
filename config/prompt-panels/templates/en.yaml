@@ -1,0 +1,143 @@
+# Purpose: English prompt templates for the free AI-visibility panel (the 8 v1 prompts) and seed templates
+#          for the connected panel's six categories. Placeholders are filled from confirmed intake or project values.
+# Owner role: SEO lead
+# Source sections: v1-baseline §8.3, §8.4; 02-DETAILED-SPECIFICATION §6 (Prompt panels);
+#                  config/prompt-panels/free-panel.yaml; config/prompt-panels/connected-panel.yaml
+# Status: draft for review
+#
+# Rules:
+# - Every template id exists in both en.yaml and ar.yaml with the same placeholders.
+# - Unbranded templates never contain {brand} and never name competitors (v1-baseline §8.4).
+# - Templates explicitly ask for organizations or providers (v1-baseline §8.3).
+# - Connected-panel entries are seeds. The real panel is built from keyword clusters and customer questions,
+#   in the wording and dialect customers use (02-DETAILED-SPECIFICATION §6).
+
+language: en
+version: "0.1.0-draft"
+
+placeholders:
+  brand: "Organization name as confirmed at intake (v1-baseline §8.3 [organization])"
+  offering: "Main product or service (v1-baseline [offering])"
+  audience: "Target audience (v1-baseline [audience])"
+  market: "Country, region, city or worldwide market (v1-baseline [market])"
+  use_case: "Customer use case (v1-baseline [use case])"
+  category: "Provider category (v1-baseline [category])"
+  requirement: "Stated customer requirement (v1-baseline [stated requirement])"
+  city: "City from the project's market settings or fact sheet (connected panel only)"
+
+templates:
+  # Free panel: v1-baseline §8.3, prompts 1-8.
+  - id: free-discovery
+    panel: free
+    group: discovery
+    branded: false
+    text: "Which organizations provide {offering} for {audience} in {market}?"
+    placeholders: [offering, audience, market]
+    source_reference: "v1-baseline §8.3 (1 Discovery)"
+  - id: free-shortlist
+    panel: free
+    group: discovery
+    branded: false
+    text: "Recommend reputable providers of {offering} in {market} and explain why."
+    placeholders: [offering, market]
+    source_reference: "v1-baseline §8.3 (2 Shortlist)"
+  - id: free-scenario
+    panel: free
+    group: discovery
+    branded: false
+    text: "I need {offering} for {use_case}. Which providers should I consider?"
+    placeholders: [offering, use_case]
+    source_reference: "v1-baseline §8.3 (3 Scenario)"
+  - id: free-local-global
+    panel: free
+    group: discovery
+    branded: false
+    text: "What are strong options for {offering} available to customers in {market}?"
+    placeholders: [offering, market]
+    source_reference: "v1-baseline §8.3 (4 Local/global discovery)"
+  - id: free-comparison
+    panel: free
+    group: comparison
+    branded: false
+    text: "Compare leading providers of {offering} for {audience} in {market}."
+    placeholders: [offering, audience, market]
+    source_reference: "v1-baseline §8.3 (5 Comparison)"
+  - id: free-selection
+    panel: free
+    group: comparison
+    branded: false
+    text: "Which {category} providers best fit {requirement}?"
+    placeholders: [category, requirement]
+    source_reference: "v1-baseline §8.3 (6 Selection)"
+  - id: free-branded-knowledge
+    panel: free
+    group: branded
+    branded: true
+    text: "What does {brand} do, and who does it serve?"
+    placeholders: [brand]
+    source_reference: "v1-baseline §8.3 (7 Branded knowledge)"
+  - id: free-citation-source
+    panel: free
+    group: citation
+    branded: true
+    text: "What reliable sources explain {brand} and its {offering}?"
+    placeholders: [brand, offering]
+    source_reference: "v1-baseline §8.3 (8 Citation/source)"
+
+  # Connected panel seeds: 02-DETAILED-SPECIFICATION §6 categories.
+  - id: panel-recommendation-city
+    panel: connected
+    category: recommendation
+    branded: false
+    text: "What are the best {offering} providers in {city}?"
+    placeholders: [offering, city]
+    source_reference: "02-DETAILED-SPECIFICATION §6 (recommendation)"
+  - id: panel-recommendation-market
+    panel: connected
+    category: recommendation
+    branded: false
+    text: "Which companies would you recommend for {offering} in {market}?"
+    placeholders: [offering, market]
+    source_reference: "02-DETAILED-SPECIFICATION §6 (recommendation)"
+  - id: panel-comparison
+    panel: connected
+    category: comparison
+    branded: false
+    text: "Compare the main {category} providers for {audience} in {market}."
+    placeholders: [category, audience, market]
+    source_reference: "02-DETAILED-SPECIFICATION §6 (comparison)"
+  - id: panel-how-to-choose
+    panel: connected
+    category: how_to_choose
+    branded: false
+    text: "How do I choose a {category} provider in {market}, and which providers meet those criteria?"
+    placeholders: [category, market]
+    source_reference: "02-DETAILED-SPECIFICATION §6 (how to choose)"
+  - id: panel-price
+    panel: connected
+    category: price
+    branded: false
+    text: "How much does {offering} cost in {market}, and which providers offer good value?"
+    placeholders: [offering, market]
+    source_reference: "02-DETAILED-SPECIFICATION §6 (price)"
+  - id: panel-local
+    panel: connected
+    category: local
+    branded: false
+    text: "Which providers offer {offering} near {city}?"
+    placeholders: [offering, city]
+    source_reference: "02-DETAILED-SPECIFICATION §6 (local)"
+  - id: panel-brand-facts-availability
+    panel: connected
+    category: brand_facts
+    branded: true
+    text: "Does {brand} offer {offering} in {city}?"
+    placeholders: [brand, offering, city]
+    source_reference: "02-DETAILED-SPECIFICATION §6 (brand facts)"
+  - id: panel-brand-facts-overview
+    panel: connected
+    category: brand_facts
+    branded: true
+    text: "What does {brand} offer, and where does it operate?"
+    placeholders: [brand]
+    source_reference: "02-DETAILED-SPECIFICATION §6 (brand facts)"

@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:fact-register:0.1.0",
+  "title": "FactRegister",
+  "description": "The client-confirmed, dated register of brand facts. Agents may insert only facts from this register or the approved fact sheet, cited by fact_id. Seeded from the FactSheet.",
+  "type": "object",
+  "required": [
+    "register_id",
+    "project_id",
+    "version",
+    "facts",
+    "updated_at"
+  ],
+  "properties": {
+    "register_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "fact_sheet_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "FactSheet the register was seeded from."
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "fact_id",
+          "category",
+          "language",
+          "value",
+          "evidence_urls",
+          "source",
+          "fidelity_label",
+          "owner_user_id",
+          "effective_on",
+          "review_on",
+          "status",
+          "regulated"
+        ],
+        "properties": {
+          "fact_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "legal_name",
+              "brand_name",
+              "alias",
+              "transliteration",
+              "founder",
+              "ownership",
+              "relationship",
+              "location",
+              "contact",
+              "hours",
+              "service",
+              "product",
+              "price",
+              "availability",
+              "policy",
+              "licence",
+              "credential",
+              "award",
+              "claim",
+              "profile_url",
+              "other"
+            ]
+          },
+          "language": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/language"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "evidence_urls": {
+            "$ref": "common.schema.json#/$defs/url_list"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "client_confirmed",
+              "owned_page",
+              "public_record",
+              "third_party"
+            ]
+          },
+          "fidelity_label": {
+            "allOf": [
+              {
+                "$ref": "common.schema.json#/$defs/fidelity_label"
+              },
+              {
+                "enum": [
+                  "attested",
+                  "user_supplied",
+                  "observed"
+                ]
+              }
+            ]
+          },
+          "owner_user_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "effective_on": {
+            "$ref": "common.schema.json#/$defs/date"
+          },
+          "review_on": {
+            "$ref": "common.schema.json#/$defs/date"
+          },
+          "expires_on": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "pending_confirmation",
+              "disputed",
+              "retired"
+            ]
+          },
+          "regulated": {
+            "type": "boolean",
+            "description": "Health, finance, legal or other regulated claim needing professional review."
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 2000
+    },
+    "updated_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §11",
+    "01-PRODUCT-REQUIREMENTS §16"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

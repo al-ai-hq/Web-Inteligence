@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:backlink-observation:0.1.0",
+  "title": "BacklinkObservation",
+  "description": "One backlink row from one dated export. Sources stay separate.",
+  "type": "object",
+  "required": [
+    "observation_id",
+    "project_id",
+    "source",
+    "source_name",
+    "export_date",
+    "source_url",
+    "target_url",
+    "lineage"
+  ],
+  "properties": {
+    "observation_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "search_console_export",
+        "bing_webmaster_export",
+        "licensed_tool_export"
+      ],
+      "description": "Dated export source. Sources and indexes are never combined into one total."
+    },
+    "source_name": {
+      "$ref": "common.schema.json#/$defs/label"
+    },
+    "export_date": {
+      "$ref": "common.schema.json#/$defs/date"
+    },
+    "source_url": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 4096,
+      "pattern": "^https?://"
+    },
+    "target_url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "anchor_text": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 500
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "link_attributes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "nofollow",
+          "sponsored",
+          "ugc",
+          "none_declared"
+        ]
+      },
+      "minItems": 0,
+      "maxItems": 4,
+      "uniqueItems": true
+    },
+    "first_seen": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_seen": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "lost": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "vendor_metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "value",
+          "vendor"
+        ],
+        "properties": {
+          "name": {
+            "$ref": "common.schema.json#/$defs/label"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vendor": {
+            "$ref": "common.schema.json#/$defs/label"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 20,
+      "description": "Vendor-specific metrics, labelled as such. Never presented as Google metrics or combined into a synthetic score."
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §17",
+    "04-CLAUDE-CODE-BUILD-PROMPT §25"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

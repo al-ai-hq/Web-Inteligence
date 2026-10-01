@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:capability-manifest:0.1.0",
+  "title": "CapabilityManifest",
+  "description": "What an audit may and may not do: target, markets, languages, enabled modules, available sources with their integrity states, and scope limits. Built by the intake step before any fetch. Inapplicable modules are out of scope, not missing-data warnings (01-PRODUCT-REQUIREMENTS §16).",
+  "type": "object",
+  "required": [
+    "manifest_id",
+    "audit_id",
+    "access_class",
+    "audit_tier",
+    "target_url",
+    "markets",
+    "languages",
+    "modules",
+    "sources",
+    "limits",
+    "methodology_version",
+    "created_at"
+  ],
+  "properties": {
+    "manifest_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "audit_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Null for anonymous audits (D-004)."
+    },
+    "site_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "access_class": {
+      "$ref": "common.schema.json#/$defs/access_class"
+    },
+    "audit_tier": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/audit_tier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Required for anonymous audits; null for registered audits."
+    },
+    "target_url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "markets": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/market"
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/language"
+      },
+      "minItems": 1,
+      "maxItems": 10,
+      "uniqueItems": true
+    },
+    "business_goal": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "module",
+          "state",
+          "reason_key"
+        ],
+        "properties": {
+          "module": {
+            "$ref": "common.schema.json#/$defs/module"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "enabled",
+              "not_applicable",
+              "not_supplied",
+              "permission_denied",
+              "disabled_by_policy",
+              "disabled_by_budget",
+              "not_yet_available"
+            ]
+          },
+          "reason_key": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/message_key"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 40
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_type",
+          "integrity_state",
+          "checked_at"
+        ],
+        "properties": {
+          "source_type": {
+            "$ref": "common.schema.json#/$defs/source_type"
+          },
+          "integrity_state": {
+            "$ref": "common.schema.json#/$defs/integrity_state"
+          },
+          "checked_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "limits": {
+      "type": "object",
+      "required": [
+        "max_pages",
+        "max_depth",
+        "comparison_targets",
+        "ai_prompt_count",
+        "ai_repeats"
+      ],
+      "properties": {
+        "max_pages": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000,
+          "description": "Page cap for this audit. Default comes from config (D-006)."
+        },
+        "max_depth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "comparison_targets": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "ai_prompt_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 200
+        },
+        "ai_repeats": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "per_audit_soft_cap": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "D-007 soft cap, read from config."
+        },
+        "per_audit_hard_cap": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "D-007 hard cap, read from config."
+        }
+      },
+      "additionalProperties": false
+    },
+    "methodology_version": {
+      "$ref": "common.schema.json#/$defs/methodology_version"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "access_class": {
+            "const": "anonymous"
+          }
+        },
+        "required": [
+          "access_class"
+        ]
+      },
+      "then": {
+        "properties": {
+          "audit_tier": {
+            "$ref": "common.schema.json#/$defs/audit_tier"
+          },
+          "project_id": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "07-SKILLS-AND-AGENTS (scope and capability intake)",
+    "D-006"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

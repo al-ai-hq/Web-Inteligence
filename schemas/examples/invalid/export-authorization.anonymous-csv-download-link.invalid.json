@@ -1,0 +1,20 @@
+{
+  "description": "D-002: no download link may exist for an anonymous request, even when the decision field says denied.",
+  "base_example": "export-authorization.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/format",
+      "value": "csv"
+    },
+    {
+      "op": "replace",
+      "path": "/download",
+      "value": {
+        "expires_at": "2026-09-30T11:31:02Z",
+        "max_downloads": 1,
+        "artifact_uri": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "retention_id": "0a81c9d4-e062-4d8f-9ba3-c4e0628fab35",
+  "subject_type": "report",
+  "subject_id": "d25e7091-bd3f-4a5c-8e70-91bd3f5c7e02",
+  "access_class": "anonymous",
+  "policy_basis": "d002_anonymous_max_7_days",
+  "plan_override_ref": null,
+  "retention_days": 7,
+  "starts_at": "2026-09-30T09:58:12Z",
+  "expires_at": "2026-10-07T09:58:12Z",
+  "status": "active",
+  "deletion_request_id": null
+}

@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:keyword-upload:0.1.0",
+  "title": "KeywordUpload",
+  "description": "One row of a keyword CSV upload after header mapping and type coercion (digits in avg_monthly_volume and priority become integers; market is upper-cased; empty cells stay empty). Required columns are marked * in 02-DETAILED-SPECIFICATION §7. A row that fails a required column is rejected with a reason. A row whose volume lacks volume_source or volume_period fails the volume rule below: the importer keeps the row, stores the volume as unknown and records 'volume_missing_source_or_period' (the report shows 'Not available (needs export)').",
+  "type": "object",
+  "required": [
+    "keyword",
+    "market",
+    "language"
+  ],
+  "properties": {
+    "keyword": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "pattern": "\\S",
+      "description": "* Any script; original kept, normalized copy used only for matching. ASSUMPTION: 300 characters."
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market",
+      "description": "* ISO 3166-1 alpha-2 (SA, KW, QA, JO, ...) or 'global'."
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language",
+      "description": "* BCP 47 tag such as ar, ar-SA, en."
+    },
+    "avg_monthly_volume": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "enum": [
+            "",
+            null
+          ],
+          "description": "Empty cell. For avg_monthly_volume, empty means unknown; never 0."
+        }
+      ],
+      "description": "Integer >= 0. Empty means unknown, never 0."
+    },
+    "volume_source": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label"
+        },
+        {
+          "enum": [
+            "",
+            null
+          ],
+          "description": "Empty cell. For avg_monthly_volume, empty means unknown; never 0."
+        }
+      ],
+      "description": "Required when volume is given, e.g. Google Keyword Planner or Ahrefs."
+    },
+    "volume_period": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/month_range"
+        },
+        {
+          "enum": [
+            "",
+            null
+          ],
+          "description": "Empty cell. For avg_monthly_volume, empty means unknown; never 0."
+        }
+      ],
+      "description": "Required when volume is given: YYYY-MM to YYYY-MM."
+    },
+    "intent": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/keyword_intent"
+        },
+        {
+          "enum": [
+            "",
+            null
+          ],
+          "description": "Empty cell. For avg_monthly_volume, empty means unknown; never 0."
+        }
+      ]
+    },
+    "target_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "enum": [
+            "",
+            null
+          ],
+          "description": "Empty cell. For avg_monthly_volume, empty means unknown; never 0."
+        }
+      ],
+      "description": "Absolute URL on the audited site. Same-site is checked by the importer."
+    },
+    "priority": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        {
+          "enum": [
+            "",
+            null
+          ],
+          "description": "Empty cell. For avg_monthly_volume, empty means unknown; never 0."
+        }
+      ],
+      "description": "1-5, the client's own weighting."
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "avg_monthly_volume": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "avg_monthly_volume"
+        ]
+      },
+      "then": {
+        "required": [
+          "volume_source",
+          "volume_period"
+        ],
+        "properties": {
+          "volume_source": {
+            "$ref": "common.schema.json#/$defs/label"
+          },
+          "volume_period": {
+            "$ref": "common.schema.json#/$defs/month_range"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "02-DETAILED-SPECIFICATION §7",
+    "03-PRODUCTION-CONTRACTS: Required configuration"
+  ],
+  "x-source-fields": [
+    "keyword",
+    "market",
+    "language",
+    "avg_monthly_volume",
+    "volume_source",
+    "volume_period",
+    "intent",
+    "target_url",
+    "priority"
+  ],
+  "x-added-fields": [],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md",
+  "x-csv-columns": [
+    "keyword",
+    "market",
+    "language",
+    "avg_monthly_volume",
+    "volume_source",
+    "volume_period",
+    "intent",
+    "target_url",
+    "priority"
+  ],
+  "x-importer-rules": [
+    "Reject rows missing keyword, market or language, with a reason per row.",
+    "Volume without source or period: keep the row, store volume as unknown, record volume_missing_source_or_period.",
+    "Merge duplicates on normalized keyword + market + language.",
+    "Unknown columns fail header validation.",
+    "ASSUMPTION: at most 5,000 rows per upload (02-DETAILED-SPECIFICATION §7).",
+    "Cells are stored as text; any later CSV export escapes leading =, +, -, @ to prevent formula injection."
+  ]
+}

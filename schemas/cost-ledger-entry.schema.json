@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:cost-ledger-entry:0.1.0",
+  "title": "CostLedgerEntry",
+  "description": "One cost line. Hosting (from the Billing export) and paid calls are separate lines against one USD 150 monthly cap (D-005). Paid calls are checked against caps before the call.",
+  "type": "object",
+  "required": [
+    "entry_id",
+    "occurred_at",
+    "line",
+    "entry_type",
+    "amount",
+    "source",
+    "reconciled"
+  ],
+  "properties": {
+    "entry_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "line": {
+      "type": "string",
+      "enum": [
+        "paid_call",
+        "hosting"
+      ]
+    },
+    "entry_type": {
+      "type": "string",
+      "enum": [
+        "estimate",
+        "actual",
+        "credit",
+        "adjustment"
+      ]
+    },
+    "provider": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_key"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "service": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label",
+          "description": "Cloud service name for hosting lines, as in the Billing export."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "model_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "As reported by the provider; never hard-coded (D-010)."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "audit_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "project_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "workflow": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "anonymous_audit",
+            "registered_audit",
+            "prompt_panel",
+            "keyword_sync",
+            "content",
+            "verification",
+            "report",
+            "other"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "tokens": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "input",
+            "output"
+          ],
+          "properties": {
+            "input": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "output": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "search_calls": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "latency_ms": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "price_table_version": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "Version of the price table in config used for the estimate."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "amount": {
+      "$ref": "common.schema.json#/$defs/money"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "pre_call_estimate",
+        "post_call_actual",
+        "billing_export"
+      ]
+    },
+    "cap_check": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "decision",
+            "month_to_date",
+            "checked_at"
+          ],
+          "properties": {
+            "decision": {
+              "type": "string",
+              "enum": [
+                "allowed",
+                "allowed_soft_cap_reached",
+                "denied_audit_hard_cap",
+                "denied_monthly_cap",
+                "denied_breaker_open"
+              ]
+            },
+            "month_to_date": {
+              "$ref": "common.schema.json#/$defs/money"
+            },
+            "checked_at": {
+              "$ref": "common.schema.json#/$defs/timestamp"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reconciled": {
+      "type": "boolean"
+    },
+    "reconciliation_batch_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "line": {
+            "const": "paid_call"
+          }
+        },
+        "required": [
+          "line"
+        ]
+      },
+      "then": {
+        "properties": {
+          "provider": {
+            "$ref": "common.schema.json#/$defs/config_key"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "line": {
+            "const": "hosting"
+          }
+        },
+        "required": [
+          "line"
+        ]
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "const": "billing_export"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "02-DETAILED-SPECIFICATION §18",
+    "D-005",
+    "D-007",
+    "v1-baseline §11"
+  ],
+  "x-source-fields": [
+    "provider",
+    "model_id",
+    "tokens",
+    "search_calls",
+    "latency_ms",
+    "price_table_version"
+  ],
+  "x-added-fields": [
+    "entry_id",
+    "occurred_at",
+    "line",
+    "entry_type",
+    "service",
+    "audit_id",
+    "project_id",
+    "workflow",
+    "amount",
+    "source",
+    "cap_check",
+    "reconciled",
+    "reconciliation_batch_id"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

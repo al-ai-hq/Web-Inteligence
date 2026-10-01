@@ -1,0 +1,235 @@
+# Purpose: Versioned registry of search, AI and training crawler tokens used by CRW-010 (per-crawler access
+#          policy) and CRW-011 (agent parity), and by the report's explanation of crawler effects.
+# Owner role: SEO lead
+# Source sections: 02-DETAILED-SPECIFICATION §6 (AI crawler registry, Rule changes), §13;
+#                  08-REFERENCE-LIBRARY (Google Search guidance; LLM providers and AI crawlers; Sources checked);
+#                  .claude/skills/marketing-seo-agent/references/ai-search-aeo-geo.md (Access layer table)
+# Status: draft for review
+#
+# Rules for this file (D-010):
+# - Crawler tokens are configuration, never code constants.
+# - doc_url is set only where 08-REFERENCE-LIBRARY lists a verified URL for that crawler; otherwise "<confirm>".
+#   candidate_doc_url marks a verified library URL that probably covers the crawler but is not listed for it.
+# - purpose and follows_robots_txt come from 02-DETAILED-SPECIFICATION §6 where it states them, else from the
+#   vendored skill table, which says to recheck vendor pages before quoting it. Entries backed only by the
+#   skill table have verification: needs_review.
+# - last_checked is the date the doc_url was last checked per 08-REFERENCE-LIBRARY; null when there is no
+#   verified doc_url. "2026-09-29" is used where the library gives only its 29-30 Sep 2026 range.
+# - Review monthly (02-DETAILED-SPECIFICATION §6). A registry entry that contradicts current docs is marked
+#   needs_review until the monthly update (02-DETAILED-SPECIFICATION §3).
+#
+# Enums:
+#   purpose: search | training | user_requested | control_token
+#   follows_robots_txt: yes | generally_ignored | may_not_apply | varies | unknown
+#   verification: verified_doc | needs_review
+
+registry_version: "0.1.0-draft"
+review_cadence: monthly
+next_review_by: "2026-10-30"
+
+judging_rule: >-
+  Training and search crawlers are judged separately. Blocking a training crawler is a business choice and
+  is reported, not failed. Blocking a search crawler reduces or removes the site from that engine's answers
+  and is checked against the owner's stated intent (CRW-010).
+
+product_crawler:
+  token: "<DECIDE_AT_M0: the product crawler's declared user-agent token>"
+  info_url: "<DECIDE_AT_M0: public page that explains the product crawler>"
+  note: "Anonymous and free audits compare a browser with this declared crawler; third-party crawler user agents are used only for connected sites (02-DETAILED-SPECIFICATION §6)."
+
+crawlers:
+  - token: Googlebot
+    operator: Google
+    purpose: search
+    follows_robots_txt: "yes"
+    has_user_agent: true
+    effect_of_blocking: "Removes the page from Google Search and its AI features."
+    note: "Google controls AI features in Search through Googlebot rules and snippet controls (02-DETAILED-SPECIFICATION §6)."
+    doc_url: "<confirm>"
+    candidate_doc_url: "https://developers.google.com/crawling/docs/crawlers-fetchers/google-common-crawlers"
+    verification: needs_review
+    last_checked: null
+    used_in_agent_parity: true
+
+  - token: Google-Extended
+    operator: Google
+    purpose: control_token
+    governs: [training, grounding]
+    follows_robots_txt: "yes"
+    has_user_agent: false
+    effect_of_blocking: >-
+      No effect on Google Search. Governs training and grounding in other Google systems; Grounding with Google
+      Search on Agent Platform skips pages that disallow Google-Extended.
+    note: "Control token with no user agent of its own; never appears in logs (02-DETAILED-SPECIFICATION §6)."
+    doc_url: "https://developers.google.com/crawling/docs/crawlers-fetchers/google-common-crawlers"
+    related_urls:
+      - "https://developers.google.com/search/docs/appearance/ai-features"
+      - "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/grounding/grounding-with-google-search"
+    verification: verified_doc
+    last_checked: "2026-09-29"
+    used_in_agent_parity: false
+
+  - token: Google-Agent
+    operator: Google
+    purpose: user_requested
+    follows_robots_txt: generally_ignored
+    has_user_agent: true
+    effect_of_blocking: "Little; handle agent traffic at the server if needed."
+    note: "User-triggered fetcher; generally ignores robots.txt (02-DETAILED-SPECIFICATION §6, §13)."
+    doc_url: "https://developers.google.com/crawling/docs/crawlers-fetchers/google-agent"
+    verification: verified_doc
+    last_checked: "2026-09-30"
+    used_in_agent_parity: false
+
+  - token: Bingbot
+    operator: Microsoft
+    purpose: search
+    follows_robots_txt: "yes"
+    has_user_agent: true
+    effect_of_blocking: "Removes the site from Bing, which Copilot draws on."
+    doc_url: "<confirm>"
+    verification: needs_review
+    last_checked: null
+    used_in_agent_parity: true
+
+  - token: GPTBot
+    operator: OpenAI
+    purpose: training
+    follows_robots_txt: "yes"
+    has_user_agent: true
+    effect_of_blocking: "Training only."
+    doc_url: "https://platform.openai.com/docs/bots"
+    verification: needs_review
+    verification_note: "The library links the OpenAI crawler page; purpose and robots behavior come from the skill table and need a recheck against it."
+    last_checked: "2026-09-29"
+    used_in_agent_parity: false
+
+  - token: OAI-SearchBot
+    operator: OpenAI
+    purpose: search
+    follows_robots_txt: "yes"
+    has_user_agent: true
+    effect_of_blocking: "Not shown in ChatGPT search answers, though it can still appear as a navigational link."
+    doc_url: "https://platform.openai.com/docs/bots"
+    verification: needs_review
+    verification_note: "Purpose and robots behavior come from the skill table; recheck against doc_url."
+    last_checked: "2026-09-29"
+    used_in_agent_parity: true
+
+  - token: ChatGPT-User
+    operator: OpenAI
+    purpose: user_requested
+    follows_robots_txt: may_not_apply
+    has_user_agent: true
+    effect_of_blocking: "Limited; not used for search inclusion."
+    doc_url: "https://platform.openai.com/docs/bots"
+    verification: needs_review
+    verification_note: "Purpose and robots behavior come from the skill table; recheck against doc_url."
+    last_checked: "2026-09-29"
+    used_in_agent_parity: false
+
+  - token: ClaudeBot
+    operator: Anthropic
+    purpose: training
+    follows_robots_txt: "yes"
+    has_user_agent: true
+    effect_of_blocking: "Training only; does not stop Claude-SearchBot or Claude-User."
+    doc_url: "<confirm>"
+    verification: needs_review
+    last_checked: null
+    used_in_agent_parity: false
+
+  - token: Claude-SearchBot
+    operator: Anthropic
+    purpose: search
+    follows_robots_txt: "yes"
+    has_user_agent: true
+    effect_of_blocking: "May reduce visibility in Claude's search results."
+    doc_url: "<confirm>"
+    verification: needs_review
+    last_checked: null
+    used_in_agent_parity: true
+
+  - token: Claude-User
+    operator: Anthropic
+    purpose: user_requested
+    follows_robots_txt: "yes"
+    has_user_agent: true
+    effect_of_blocking: "May reduce visibility for user-directed searches."
+    doc_url: "<confirm>"
+    verification: needs_review
+    last_checked: null
+    used_in_agent_parity: false
+
+  - token: PerplexityBot
+    operator: Perplexity
+    purpose: search
+    follows_robots_txt: "yes"
+    has_user_agent: true
+    effect_of_blocking: "Reduces appearance in Perplexity results."
+    doc_url: "<confirm>"
+    verification: needs_review
+    last_checked: null
+    used_in_agent_parity: true
+
+  - token: Perplexity-User
+    operator: Perplexity
+    purpose: user_requested
+    follows_robots_txt: generally_ignored
+    has_user_agent: true
+    effect_of_blocking: "Limited."
+    doc_url: "<confirm>"
+    verification: needs_review
+    last_checked: null
+    used_in_agent_parity: false
+
+  - token: Applebot-Extended
+    operator: Apple
+    purpose: control_token
+    governs: [training]
+    follows_robots_txt: varies
+    has_user_agent: false
+    effect_of_blocking: "Training only."
+    note: "Control token with no user agent of its own; never appears in logs (02-DETAILED-SPECIFICATION §6)."
+    doc_url: "<confirm>"
+    verification: needs_review
+    last_checked: null
+    used_in_agent_parity: false
+
+  - token: CCBot
+    operator: "Common Crawl"
+    purpose: training
+    follows_robots_txt: varies
+    has_user_agent: true
+    effect_of_blocking: "Training and datasets only."
+    doc_url: "<confirm>"
+    verification: needs_review
+    last_checked: null
+    used_in_agent_parity: false
+
+  - token: Bytespider
+    operator: ByteDance
+    purpose: training
+    follows_robots_txt: varies
+    has_user_agent: true
+    effect_of_blocking: "Training and datasets only."
+    doc_url: "<confirm>"
+    verification: needs_review
+    last_checked: null
+    used_in_agent_parity: false
+
+  - token: meta-externalagent
+    operator: Meta
+    purpose: training
+    follows_robots_txt: varies
+    has_user_agent: true
+    effect_of_blocking: "Training and datasets only."
+    doc_url: "<confirm>"
+    verification: needs_review
+    last_checked: null
+    used_in_agent_parity: false
+
+verification_notes:
+  - "08-REFERENCE-LIBRARY: crawler pages for Anthropic, Perplexity, Apple and Common Crawl change often; confirm each current URL when seeding the registry."
+  - "User agents can be faked. Confirm real bot traffic against each operator's published IP ranges when server or CDN logs are supplied (02-DETAILED-SPECIFICATION §16)."
+  - "used_in_agent_parity is an ASSUMPTION: CRW-011 compares a browser, Googlebot, Bingbot and search AI crawlers; the search-purpose tokens with a user agent are marked."

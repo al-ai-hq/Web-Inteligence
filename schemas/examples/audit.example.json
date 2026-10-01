@@ -1,0 +1,29 @@
+{
+  "audit_id": "0f5a2c6e-3b1d-4c8a-9e7f-2a6b8c0d1e21",
+  "access_class": "anonymous",
+  "project_id": null,
+  "site_id": null,
+  "owner_user_id": null,
+  "mode": "representative_template",
+  "target_url": "https://example.com/ar/",
+  "comparison_target_urls": [
+    "https://example.org/ar/"
+  ],
+  "audit_tier": "rich",
+  "status": "READY_COMPLETE",
+  "anonymous_access_state": "ACTIVE",
+  "scope_id": "4ec50d18-24a6-4bc3-9fe7-0824a6cdef79",
+  "capability_manifest_id": "3db4fc07-1395-4ab2-8ed6-f71395bcde68",
+  "methodology_version": "0.1.0",
+  "noindex": true,
+  "cost_spent": {
+    "amount": "0.84",
+    "currency": "USD"
+  },
+  "created_at": "2026-09-30T09:58:12Z",
+  "updated_at": "2026-09-30T10:24:55Z",
+  "completed_at": "2026-09-30T10:24:55Z",
+  "expires_at": "2026-10-07T09:58:12Z",
+  "claimed_at": null,
+  "claimed_by_user_id": null
+}

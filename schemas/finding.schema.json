@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:finding:0.1.0",
+  "title": "Finding",
+  "description": "A user-facing finding tied to one rule, its evidence and its report tag.",
+  "type": "object",
+  "required": [
+    "finding_id",
+    "audit_id",
+    "rule_id",
+    "result",
+    "method",
+    "affected_urls",
+    "evidence_ids",
+    "severity",
+    "message_key",
+    "methodology_version",
+    "evidence_state",
+    "affected_scope",
+    "created_at",
+    "lineage"
+  ],
+  "properties": {
+    "finding_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "audit_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "rule_id": {
+      "$ref": "common.schema.json#/$defs/rule_id"
+    },
+    "result": {
+      "$ref": "common.schema.json#/$defs/rule_result"
+    },
+    "method": {
+      "$ref": "common.schema.json#/$defs/evaluation_method"
+    },
+    "affected_urls": {
+      "$ref": "common.schema.json#/$defs/url_list"
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    },
+    "severity": {
+      "$ref": "common.schema.json#/$defs/severity"
+    },
+    "message_key": {
+      "$ref": "common.schema.json#/$defs/message_key"
+    },
+    "methodology_version": {
+      "$ref": "common.schema.json#/$defs/methodology_version"
+    },
+    "evidence_state": {
+      "$ref": "common.schema.json#/$defs/evidence_state"
+    },
+    "rule_result_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "template_cluster_key": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_key",
+          "description": "Root-cause cluster (template, component, CMS field, navigation, language binding, deployment config)."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "affected_scope": {
+      "type": "object",
+      "required": [
+        "pages_checked",
+        "pages_affected",
+        "sampled"
+      ],
+      "properties": {
+        "pages_checked": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pages_affected": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sampled": {
+          "type": "boolean",
+          "description": "True when pages_checked is a sample; the report must not present it as a full-site count."
+        }
+      },
+      "additionalProperties": false
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "enum": [
+              "pass",
+              "partial",
+              "fail"
+            ]
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "then": {
+        "properties": {
+          "evidence_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §4, §7.3"
+  ],
+  "x-source-fields": [
+    "finding_id",
+    "audit_id",
+    "rule_id",
+    "result",
+    "method",
+    "affected_urls",
+    "evidence_ids",
+    "severity",
+    "message_key",
+    "methodology_version"
+  ],
+  "x-added-fields": [
+    "evidence_state",
+    "rule_result_ids",
+    "template_cluster_key",
+    "affected_scope",
+    "created_at",
+    "lineage"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,13 @@
+**/*.md
+docs
+config
+schemas
+.claude
+.cursor
+intent
+evals
+templates
+ops
+lessons
+node_modules
+pnpm-lock.yaml

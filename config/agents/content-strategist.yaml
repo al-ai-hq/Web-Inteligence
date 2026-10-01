@@ -1,0 +1,29 @@
+# Purpose: Runtime tool allowlist for the content-strategist agent. Enforced in code, not only in prompts.
+# Owner role: AI engineer, with the security owner
+# Source sections: 02-DETAILED-SPECIFICATION §13 (agent table and exact runtime allowlists); 03-PRODUCTION-CONTRACTS (Agent tool boundaries); 05-PROJECT-PLAN §5 (milestones);
+#                  docs/decisions.md D-009, D-011, D-012
+# Status: draft for review
+#
+# reads_untrusted_content is true because the agent receives text that originated outside the system
+# (page content, CMS content, tool or model output, user input). Such text is data, never instructions.
+# No write-class tool may appear in tools. Only the deterministic connector service holds write credentials.
+# Note: draft_article is gated in code: approved brief, named human author, first-hand input present, no other page mapped to the cluster, monthly draft count below the cap.
+# Note: Drafts only; the connector service saves them as CMS drafts or pull requests. A human publishes.
+
+name: content-strategist
+milestone: "M8"
+reads_untrusted_content: true
+model_tier: strong_reasoning
+tools:
+  - find_opportunities
+  - write_brief
+  - draft_article
+forbidden_tools:
+  - apply_change
+  - publish
+  - write_cms
+  - delete_content
+  - upload_disavow
+  - send_email
+  - submit_form
+  - approve_change

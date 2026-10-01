@@ -1,0 +1,11 @@
+{
+  "description": "A claimed audit becomes a registered audit with a project and claimant (D-004).",
+  "base_example": "audit.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/anonymous_access_state",
+      "value": "CLAIMED"
+    }
+  ]
+}

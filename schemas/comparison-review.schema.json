@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:comparison-review:0.1.0",
+  "title": "ComparisonReview",
+  "description": "A human review of a comparison page against the V4 checks.",
+  "type": "object",
+  "required": [
+    "review_id",
+    "reviewer_user_id",
+    "reviewed_at",
+    "checks",
+    "decision",
+    "claim_ids"
+  ],
+  "properties": {
+    "review_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "page_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "brief_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reviewer_user_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "reviewed_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "check",
+          "outcome",
+          "note"
+        ],
+        "properties": {
+          "check": {
+            "type": "string",
+            "enum": [
+              "audience_fit",
+              "intent_ownership",
+              "factual_claims",
+              "dates",
+              "sources",
+              "balance",
+              "trademark_legal",
+              "language_parity",
+              "structured_data_consistency"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "fail",
+              "needs_legal",
+              "not_applicable"
+            ]
+          },
+          "note": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/text"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 9,
+      "maxItems": 9
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "approve",
+        "revise",
+        "reject",
+        "escalate_legal"
+      ]
+    },
+    "claim_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §25"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

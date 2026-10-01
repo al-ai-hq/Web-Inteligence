@@ -1,0 +1,1009 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:common:0.1.0",
+  "title": "Common",
+  "description": "Shared definitions for all WPI schemas: identifiers, time, market, language, money, canonical vocabulary enums, workflow states and the lineage object. This file is a definitions library; validate records against their own schemas, not against this root. Reference as 'common.schema.json#/$defs/<name>'.",
+  "type": "object",
+  "required": [],
+  "properties": {},
+  "additionalProperties": false,
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "description": "Lower-case UUID string."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+      "description": "RFC 3339 timestamp in UTC (ends with Z)."
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "ISO 8601 calendar date (YYYY-MM-DD) for periods."
+    },
+    "date_range": {
+      "type": "object",
+      "description": "Inclusive ISO 8601 date range. Consumers must check start <= end; state the timezone on the owning record.",
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        "end": {
+          "$ref": "common.schema.json#/$defs/date"
+        }
+      },
+      "additionalProperties": false
+    },
+    "month_range": {
+      "type": "string",
+      "maxLength": 20,
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])(/| to )[0-9]{4}-(0[1-9]|1[0-2])$",
+      "description": "Month range 'YYYY-MM/YYYY-MM' (02-DETAILED-SPECIFICATION §7 writes 'YYYY-MM to YYYY-MM'; both separators accepted; ASSUMPTION: importers store the '/' form)."
+    },
+    "market": {
+      "type": "string",
+      "pattern": "^([A-Z]{2}|global)$",
+      "description": "ISO 3166-1 alpha-2 country code in upper case, or 'global'."
+    },
+    "language": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 35,
+      "pattern": "^[a-zA-Z]{2,3}(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|[0-9]{3}))?(-([a-zA-Z0-9]{5,8}|[0-9][a-zA-Z0-9]{3}))*$",
+      "description": "BCP 47 language tag (simplified: language, optional script, optional region, optional variants). Examples: ar, ar-SA, en, en-GB, zxx."
+    },
+    "currency_code": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "ISO 4217 currency code."
+    },
+    "decimal_amount": {
+      "type": "string",
+      "maxLength": 32,
+      "pattern": "^(0|[1-9][0-9]{0,17})(\\.[0-9]{1,6})?$",
+      "description": "Non-negative decimal as a string. No floats for money."
+    },
+    "money": {
+      "type": "object",
+      "description": "Money as a decimal string plus ISO 4217 currency. Display KWD, JOD and BHD with 3 decimals and SAR, AED and QAR with 2; display rounding happens only at the presentation boundary.",
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "properties": {
+        "amount": {
+          "$ref": "common.schema.json#/$defs/decimal_amount"
+        },
+        "currency": {
+          "$ref": "common.schema.json#/$defs/currency_code"
+        }
+      },
+      "additionalProperties": false
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "Content hash. ASSUMPTION: SHA-256, lower-case hex, 'sha256:' prefix."
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "minLength": 8,
+      "maxLength": 2048,
+      "pattern": "^https?://",
+      "description": "Absolute http or https URL. Keep the original encoding (Arabic paths stay as found). ASSUMPTION: provisional limit chosen for v0.1.0; calibrate at M0B."
+    },
+    "hostname": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 253,
+      "pattern": "^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9-]{2,63}$",
+      "description": "Lower-case host name (IDNs in punycode)."
+    },
+    "storage_uri": {
+      "type": "string",
+      "minLength": 6,
+      "maxLength": 1024,
+      "pattern": "^gs://",
+      "description": "Cloud Storage object URI. Never a signed or public URL."
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Short text. ASSUMPTION: provisional limit chosen for v0.1.0; calibrate at M0B."
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000,
+      "description": "Paragraph-length text. ASSUMPTION: provisional limit chosen for v0.1.0; calibrate at M0B."
+    },
+    "long_text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20000,
+      "description": "Long text. ASSUMPTION: provisional limit chosen for v0.1.0; calibrate at M0B."
+    },
+    "document_body": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200000,
+      "description": "Document body such as an article draft. ASSUMPTION: provisional limit chosen for v0.1.0; calibrate at M0B."
+    },
+    "rule_id": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]{1,4}-[0-9]{3}$",
+      "description": "Rule identifier such as CRW-001, SEO-011, I18N-002, A11Y-001, SPAM-001 (v1-baseline §7; 02-DETAILED-SPECIFICATION §6)."
+    },
+    "semver": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$",
+      "description": "Semantic version MAJOR.MINOR.PATCH with an optional pre-release suffix (for example 0.1.0-draft)."
+    },
+    "methodology_version": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$",
+      "description": "Version of the rule set, scoring method or rubric that produced the value."
+    },
+    "config_key": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_.-]{1,63}$",
+      "description": "Key into a versioned config file (for example a provider, engine or connector entry). Never a hard-coded model ID, price or quota (D-010)."
+    },
+    "method_id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_]{1,63}$",
+      "description": "snake_case name of the capture or computation method, for example raw_http_fetch, rendered_fetch, gsc_search_analytics, csv_import, rules_engine, rubric_assessment."
+    },
+    "message_key": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)+$",
+      "description": "Dotted key into the Arabic and English message catalogs."
+    },
+    "uuid_list": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/uuid"
+      },
+      "uniqueItems": true,
+      "minItems": 0,
+      "maxItems": 1000,
+      "description": "List of UUIDs. ASSUMPTION: provisional limit chosen for v0.1.0; calibrate at M0B."
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/uuid"
+      },
+      "uniqueItems": true,
+      "minItems": 0,
+      "maxItems": 500,
+      "description": "EvidenceObject IDs that support the record. ASSUMPTION: provisional limit chosen for v0.1.0; calibrate at M0B."
+    },
+    "url_list": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/url"
+      },
+      "uniqueItems": true,
+      "minItems": 0,
+      "maxItems": 1000,
+      "description": "List of URLs. ASSUMPTION: provisional limit chosen for v0.1.0; calibrate at M0B."
+    },
+    "checked_of": {
+      "type": "object",
+      "description": "'checked X of Y' disclosure shown beside every score and rate. Consumers must check checked <= of.",
+      "required": [
+        "checked",
+        "of"
+      ],
+      "properties": {
+        "checked": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "of": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "quoted_span": {
+      "type": "object",
+      "description": "A short quote from an evidence object.",
+      "required": [
+        "evidence_id",
+        "text"
+      ],
+      "properties": {
+        "evidence_id": {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "Quoted span, at most 25 words (runtime AUDITOR instruction)."
+        }
+      },
+      "additionalProperties": false
+    },
+    "fidelity_label": {
+      "type": "string",
+      "enum": [
+        "observed",
+        "computed",
+        "assessed",
+        "attested",
+        "user_supplied",
+        "estimated",
+        "unavailable"
+      ],
+      "description": "How a value was obtained (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    },
+    "integrity_state": {
+      "type": "string",
+      "enum": [
+        "not_supplied",
+        "supplied_invalid",
+        "missing_field",
+        "measured_zero",
+        "filter_empty",
+        "valid",
+        "stale",
+        "error",
+        "not_applicable"
+      ],
+      "description": "Input integrity state. Kept separate from the fidelity label (03-PRODUCTION-CONTRACTS)."
+    },
+    "evidence_state": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "inferred",
+        "client_stated",
+        "estimated",
+        "not_verified",
+        "unavailable"
+      ],
+      "description": "User-facing report tag. Mapping: observed/computed -> verified; assessed -> inferred; attested/user_supplied -> client_stated; estimated -> estimated; unavailable -> unavailable; a check that could not complete -> not_verified. The original fidelity label is never erased."
+    },
+    "rule_result": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "partial",
+        "fail",
+        "not_applicable",
+        "unavailable",
+        "error"
+      ],
+      "description": "Rule result. Score values: pass 1.00, partial 0.50, fail 0.00. not_applicable leaves the denominator; unavailable and error leave the score and lower confidence (v1-baseline §6.3)."
+    },
+    "source_tier": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        3
+      ],
+      "description": "External source grade: 1 primary documentation or open standard; 2 independent study with method; 3 vendor claim, usable only as a hypothesis."
+    },
+    "risk_tier": {
+      "enum": [
+        1,
+        2,
+        3,
+        "forbidden"
+      ],
+      "description": "Change risk tier (03-PRODUCTION-CONTRACTS: Change risk baseline). 'forbidden' changes are never approved or applied."
+    },
+    "plan_group": {
+      "type": "string",
+      "enum": [
+        "critical_blocker",
+        "quick_win",
+        "strategic_opportunity",
+        "measurement_fix",
+        "polish"
+      ],
+      "description": "Action-board group (01-PRODUCT-REQUIREMENTS §5.12)."
+    },
+    "audit_tier": {
+      "type": "string",
+      "enum": [
+        "rich",
+        "reduced",
+        "preview",
+        "refused"
+      ],
+      "description": "Anonymous audit eligibility tier (docs/anonymous-eligibility-policy.md)."
+    },
+    "rule_category": {
+      "type": "string",
+      "enum": [
+        "crawlability",
+        "on_page",
+        "structured_data",
+        "aeo",
+        "geo",
+        "i18n_accessibility",
+        "performance_security"
+      ],
+      "description": "Presence Readiness category. Weights (v1-baseline §6.2): crawlability 20, on_page 15, structured_data 10, aeo 20, geo 15, i18n_accessibility 10, performance_security 10.",
+      "x-weights": {
+        "crawlability": 20,
+        "on_page": 15,
+        "structured_data": 10,
+        "aeo": 20,
+        "geo": 15,
+        "i18n_accessibility": 10,
+        "performance_security": 10
+      }
+    },
+    "experience_category": {
+      "type": "string",
+      "enum": [
+        "design_hierarchy",
+        "copy_clarity",
+        "ux_navigation",
+        "trust_proof",
+        "conversion_measurement"
+      ],
+      "description": "Experience Effectiveness category (04-CLAUDE-CODE-BUILD-PROMPT §7.2). Never blended into Presence Readiness (D-012). ASSUMPTION: value names."
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "description": "Evidence confidence (v1-baseline §6.5). Not a statistical probability."
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info"
+      ],
+      "description": "Finding severity. Critical, High, Medium, Low from v1-baseline §6.6; 'info' is an ASSUMPTION for unscored observations."
+    },
+    "keyword_intent": {
+      "type": "string",
+      "enum": [
+        "informational",
+        "commercial",
+        "transactional",
+        "navigational"
+      ],
+      "description": "Search intent (02-DETAILED-SPECIFICATION §7)."
+    },
+    "device": {
+      "type": "string",
+      "enum": [
+        "desktop",
+        "mobile",
+        "tablet",
+        "all",
+        "not_applicable"
+      ],
+      "description": "Device context. ASSUMPTION: value list."
+    },
+    "access_class": {
+      "type": "string",
+      "enum": [
+        "anonymous",
+        "registered"
+      ],
+      "description": "Whether the subject belongs to an anonymous visitor or a registered user (D-002, D-004)."
+    },
+    "actor_type": {
+      "type": "string",
+      "enum": [
+        "anonymous_visitor",
+        "registered_user",
+        "project_owner",
+        "approver",
+        "ai_agent",
+        "deterministic_service",
+        "connector",
+        "scheduler",
+        "operator"
+      ],
+      "description": "Who performed an action. Only 'connector' may write to a client site. ASSUMPTION: value list."
+    },
+    "evaluation_method": {
+      "type": "string",
+      "enum": [
+        "deterministic",
+        "assessed",
+        "attested"
+      ],
+      "description": "How a rule or finding was evaluated (04-CLAUDE-CODE-BUILD-PROMPT Appendix B: Finding.method)."
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "crawler",
+        "renderer",
+        "robots_or_sitemap",
+        "search_console_api",
+        "search_console_export",
+        "analytics_api",
+        "pagespeed_api",
+        "crux_api",
+        "ai_provider_api",
+        "keyword_provider_api",
+        "licensed_data_export",
+        "merchant_center_export",
+        "business_profile",
+        "public_source",
+        "user_upload",
+        "user_entry",
+        "client_attestation",
+        "connector_read",
+        "rules_engine",
+        "computation",
+        "model_assessment",
+        "human_review",
+        "policy_registry",
+        "webhook",
+        "billing_export",
+        "system"
+      ],
+      "description": "Kind of source that produced a value. ASSUMPTION: value list; extend additively."
+    },
+    "horizon": {
+      "type": "string",
+      "enum": [
+        "0-30",
+        "31-60",
+        "61-90"
+      ],
+      "description": "Roadmap horizon in days (02-DETAILED-SPECIFICATION §8)."
+    },
+    "owner_type": {
+      "type": "string",
+      "enum": [
+        "cms",
+        "developer",
+        "content",
+        "off_site"
+      ],
+      "description": "Who implements a plan item (runtime PLANNER instruction)."
+    },
+    "apply_mode": {
+      "type": "string",
+      "enum": [
+        "connector",
+        "pull_request",
+        "manual"
+      ],
+      "description": "How a plan item can be applied (02-DETAILED-SPECIFICATION §8)."
+    },
+    "prompt_family": {
+      "type": "string",
+      "enum": [
+        "discovery",
+        "recommendation",
+        "comparison",
+        "problem",
+        "selection",
+        "how_to_choose",
+        "price",
+        "local",
+        "use_case",
+        "trust_proof",
+        "branded",
+        "brand_facts",
+        "citation"
+      ],
+      "description": "Prompt family. Union of 04-CLAUDE-CODE-BUILD-PROMPT §10, the free-audit groups and the panel categories in 02-DETAILED-SPECIFICATION §6; consolidate at M6 (open item)."
+    },
+    "match_confidence": {
+      "type": "string",
+      "enum": [
+        "exact",
+        "alias",
+        "domain",
+        "fuzzy_candidate"
+      ],
+      "description": "Entity match basis (v1-baseline §8.5). fuzzy_candidate never confirms a mention."
+    },
+    "report_projection": {
+      "type": "string",
+      "enum": [
+        "web_interactive",
+        "pdf",
+        "document",
+        "csv",
+        "json",
+        "evidence_bundle",
+        "task_export",
+        "full_report_copy"
+      ],
+      "description": "Projection of the canonical report model. Anonymous users get web_interactive only (D-002)."
+    },
+    "environment": {
+      "type": "string",
+      "enum": [
+        "development",
+        "staging",
+        "production"
+      ],
+      "description": "Deployment or target environment."
+    },
+    "tone": {
+      "type": "string",
+      "enum": [
+        "professional",
+        "executive",
+        "direct",
+        "teaching",
+        "technical",
+        "light_roast"
+      ],
+      "description": "Presentation tone. Tone never changes facts, scores, severity or priority."
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "shopify",
+        "salla",
+        "zid",
+        "wordpress",
+        "woocommerce",
+        "magento",
+        "adobe_commerce",
+        "webflow",
+        "wix",
+        "contentful",
+        "sanity",
+        "strapi",
+        "custom_headless",
+        "static_git",
+        "other"
+      ],
+      "description": "Website or CMS platform (04-CLAUDE-CODE-BUILD-PROMPT §23; 02-DETAILED-SPECIFICATION §10)."
+    },
+    "error_class": {
+      "type": "string",
+      "enum": [
+        "transient_network",
+        "timeout",
+        "provider_5xx",
+        "rate_limited",
+        "quota_exhausted",
+        "budget_denied",
+        "breaker_open",
+        "policy_refusal",
+        "validation_error",
+        "ssrf_blocked",
+        "robots_disallowed",
+        "auth_error",
+        "not_found",
+        "stale_state_conflict",
+        "signature_invalid",
+        "replay_detected",
+        "internal"
+      ],
+      "description": "Failure classification for stages, attempts and runs. ASSUMPTION: value list."
+    },
+    "audit_state": {
+      "type": "string",
+      "enum": [
+        "QUEUED",
+        "VALIDATING",
+        "CRAWLING",
+        "EXTRACTING",
+        "AUDITING",
+        "ENRICHING_OPTIONAL",
+        "COMPOSING",
+        "READY_PARTIAL",
+        "READY_COMPLETE",
+        "FAILED",
+        "CANCELLED",
+        "EXPIRED",
+        "IMPORTING",
+        "KEYWORD_SYNC",
+        "PERFORMANCE_DIAGNOSIS",
+        "PROMPT_PANEL",
+        "PLANNING"
+      ],
+      "description": "Audit workflow state (03-PRODUCTION-CONTRACTS: Workflow states). The five connected-analysis states apply to registered audits with connected sources only. See docs/state-machines.md."
+    },
+    "connected_analysis_state": {
+      "type": "string",
+      "enum": [
+        "IMPORTING",
+        "KEYWORD_SYNC",
+        "PERFORMANCE_DIAGNOSIS",
+        "PROMPT_PANEL",
+        "PLANNING"
+      ],
+      "description": "States that connected analysis may add to an audit (03-PRODUCTION-CONTRACTS)."
+    },
+    "content_state": {
+      "type": "string",
+      "enum": [
+        "OPPORTUNITY",
+        "BRIEF_DRAFT",
+        "BRIEF_REVIEW",
+        "BRIEF_APPROVED",
+        "DRAFTING",
+        "CONTENT_REVIEW",
+        "CMS_DRAFT",
+        "PR_CREATED",
+        "VALIDATED",
+        "PUBLISHED_BY_HUMAN",
+        "REJECTED"
+      ],
+      "description": "Content workflow state (03-PRODUCTION-CONTRACTS). See docs/state-machines.md."
+    },
+    "change_state": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "VALIDATED",
+        "PREVIEWED",
+        "AWAITING_APPROVAL",
+        "APPROVED",
+        "SNAPSHOTTING",
+        "APPLYING_CANARY",
+        "VERIFYING_CANARY",
+        "APPLYING",
+        "READ_BACK",
+        "PUBLIC_VALIDATION",
+        "VERIFIED",
+        "MISMATCH",
+        "PARTIAL",
+        "ROLLBACK_REQUESTED",
+        "ROLLED_BACK",
+        "HUMAN_REVIEW",
+        "REJECTED",
+        "EXPIRED"
+      ],
+      "description": "Change workflow state (03-PRODUCTION-CONTRACTS). See docs/state-machines.md."
+    },
+    "anonymous_access_state": {
+      "type": "string",
+      "enum": [
+        "ELIGIBILITY_CHECK",
+        "REFUSED",
+        "PENDING",
+        "ACTIVE",
+        "CLAIMED",
+        "DELETION_REQUESTED",
+        "EXPIRED",
+        "DELETED"
+      ],
+      "description": "Anonymous report lifecycle state. ASSUMPTION: designed in docs/state-machines.md from D-002 and D-004."
+    },
+    "prompt_panel_run_state": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "AWAITING_APPROVAL",
+        "APPROVED",
+        "BUILDING_PROMPTS",
+        "RUNNING",
+        "ANALYZING",
+        "COMPLETE",
+        "PARTIAL",
+        "FAILED",
+        "CANCELLED",
+        "EXPIRED"
+      ],
+      "description": "Prompt-panel run state. ASSUMPTION: designed in docs/state-machines.md from 05-PROJECT-PLAN §10."
+    },
+    "deletion_request_state": {
+      "type": "string",
+      "enum": [
+        "RECEIVED",
+        "AUTHORIZED",
+        "DENIED",
+        "ACCESS_REVOKED",
+        "PURGING",
+        "VERIFYING",
+        "COMPLETED",
+        "ESCALATED"
+      ],
+      "description": "Deletion request state. ASSUMPTION: designed in docs/state-machines.md."
+    },
+    "export_authorization_state": {
+      "type": "string",
+      "enum": [
+        "REQUESTED",
+        "EVALUATING",
+        "DENIED",
+        "AUTHORIZED",
+        "GENERATING",
+        "READY",
+        "EXPIRED",
+        "REVOKED",
+        "FAILED"
+      ],
+      "description": "Export authorization state. ASSUMPTION: designed in docs/state-machines.md."
+    },
+    "lineage": {
+      "type": "object",
+      "description": "V4 evidence and lineage fields. Every value that reaches a report, score, plan or change carries them (03-PRODUCTION-CONTRACTS: Evidence and fidelity).",
+      "required": [
+        "record_id",
+        "project_id",
+        "site_id",
+        "source_type",
+        "source_id",
+        "source_version",
+        "captured_at",
+        "as_of",
+        "market",
+        "language",
+        "device",
+        "method",
+        "methodology_version",
+        "fidelity_label",
+        "content_hash",
+        "parent_ids",
+        "validation_state"
+      ],
+      "properties": {
+        "record_id": {
+          "$ref": "common.schema.json#/$defs/uuid",
+          "description": "ID of the record this lineage describes."
+        },
+        "project_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Owning project. Null for an anonymous audit until it is claimed (D-004)."
+        },
+        "site_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Owning site. Null for an anonymous audit until it is claimed (D-004)."
+        },
+        "source_type": {
+          "$ref": "common.schema.json#/$defs/source_type"
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Identifier of the source instance: crawl run, upload ID, provider config key, connector ID, or rule ID."
+        },
+        "source_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Version of the source: API version, crawler version, export format version, or rule-set version."
+        },
+        "captured_at": {
+          "$ref": "common.schema.json#/$defs/timestamp",
+          "description": "When the system captured or computed the value (RFC 3339 UTC)."
+        },
+        "as_of": {
+          "$ref": "common.schema.json#/$defs/timestamp",
+          "description": "The time the value describes. For period data, the end of the period."
+        },
+        "market": {
+          "$ref": "common.schema.json#/$defs/market"
+        },
+        "language": {
+          "$ref": "common.schema.json#/$defs/language",
+          "description": "BCP 47 tag. Use 'zxx' for values with no linguistic content."
+        },
+        "device": {
+          "$ref": "common.schema.json#/$defs/device"
+        },
+        "method": {
+          "$ref": "common.schema.json#/$defs/method_id"
+        },
+        "methodology_version": {
+          "$ref": "common.schema.json#/$defs/methodology_version"
+        },
+        "fidelity_label": {
+          "$ref": "common.schema.json#/$defs/fidelity_label"
+        },
+        "content_hash": {
+          "$ref": "common.schema.json#/$defs/content_hash",
+          "description": "Hash of the evidence content, or of the canonical inputs for computed values."
+        },
+        "parent_ids": {
+          "$ref": "common.schema.json#/$defs/uuid_list",
+          "description": "Record IDs this value was derived from. Empty for primary observations."
+        },
+        "validation_state": {
+          "$ref": "common.schema.json#/$defs/integrity_state"
+        },
+        "audit_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Audit that produced the value, when there is one."
+        }
+      },
+      "additionalProperties": false
+    },
+    "audit_mode": {
+      "type": "string",
+      "enum": [
+        "single_page",
+        "priority_pages",
+        "representative_template",
+        "full_bounded_crawl",
+        "imported_crawl",
+        "dual_url_comparison",
+        "domain_comparison",
+        "staging_comparison",
+        "before_after",
+        "language_parity"
+      ],
+      "description": "Audit mode (04-CLAUDE-CODE-BUILD-PROMPT §5, modes 1-10)."
+    },
+    "module": {
+      "type": "string",
+      "enum": [
+        "presence_readiness",
+        "experience_effectiveness",
+        "template_analysis",
+        "comparison",
+        "keywords",
+        "search_console",
+        "analytics",
+        "ai_visibility",
+        "public_footprint",
+        "brand_truth",
+        "content_studio",
+        "action_plan",
+        "remediation",
+        "commerce",
+        "local",
+        "entity",
+        "platform",
+        "migration",
+        "architecture",
+        "backlinks",
+        "comparison_pages",
+        "programmatic",
+        "change_monitoring"
+      ],
+      "description": "Capability-gated product module. ASSUMPTION: value list derived from 01-PRODUCT-REQUIREMENTS §5 and §15-§17."
+    },
+    "day_of_week": {
+      "type": "string",
+      "enum": [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat",
+        "sun"
+      ],
+      "description": "Day of week."
+    },
+    "local_time": {
+      "type": "string",
+      "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+      "description": "Local time HH:MM (24-hour)."
+    },
+    "availability": {
+      "type": "string",
+      "enum": [
+        "in_stock",
+        "out_of_stock",
+        "preorder",
+        "backorder",
+        "discontinued",
+        "unknown"
+      ],
+      "description": "Product availability. ASSUMPTION: value list."
+    },
+    "field_class": {
+      "type": "string",
+      "enum": [
+        "meta_description",
+        "image_alt",
+        "open_graph",
+        "title",
+        "h1",
+        "json_ld",
+        "internal_link",
+        "content_block",
+        "excerpt",
+        "robots_directive",
+        "robots_txt",
+        "canonical",
+        "redirect",
+        "hreflang",
+        "sitemap",
+        "slug",
+        "template",
+        "theme_code",
+        "site_wide_rule"
+      ],
+      "description": "Class of a changed field. The tier floor for robots, canonical, redirect, hreflang, sitemap, slug, template, theme and site-wide classes is 3 (03-PRODUCTION-CONTRACTS: Change risk baseline). Exact tiers are versioned policy in config."
+    },
+    "plan_risk_tier": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        3
+      ],
+      "description": "Risk tier for planned or approved work. Forbidden tactics are never planned."
+    },
+    "diff_dimension": {
+      "type": "string",
+      "enum": [
+        "status",
+        "redirect",
+        "robots_directive",
+        "canonical",
+        "hreflang",
+        "language_direction",
+        "title",
+        "meta_description",
+        "headings",
+        "structured_data",
+        "content",
+        "links",
+        "sitemap",
+        "agent_parity",
+        "commerce",
+        "accessibility"
+      ],
+      "description": "Crawl-diff dimension (01-PRODUCT-REQUIREMENTS §17)."
+    }
+  },
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-library": true,
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Evidence and fidelity",
+    "03-PRODUCTION-CONTRACTS: Workflow states",
+    "v1-baseline §6",
+    "02-DETAILED-SPECIFICATION §7, §8, §15"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

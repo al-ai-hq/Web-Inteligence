@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:approval:0.1.0",
+  "title": "Approval",
+  "description": "A human decision bound to exact targets, fields, before/after hashes, environment, edit or publish mode, approver and expiry. Edit approval is not publish approval.",
+  "type": "object",
+  "required": [
+    "approval_id",
+    "change_set_id",
+    "approver_user_id",
+    "approver_role",
+    "requester_user_id",
+    "mode",
+    "environment",
+    "op_bindings",
+    "binding_hash",
+    "decision",
+    "decided_at",
+    "expires_at",
+    "auto_rollback_authorized",
+    "mfa_verified"
+  ],
+  "properties": {
+    "approval_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "change_set_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "approver_user_id": {
+      "$ref": "common.schema.json#/$defs/uuid",
+      "description": "Must differ from requester_user_id (checked in code)."
+    },
+    "approver_role": {
+      "type": "string",
+      "enum": [
+        "project_owner",
+        "approver"
+      ],
+      "description": "Advanced roles arrive at M11 (D-004)."
+    },
+    "requester_user_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "edit",
+        "publish"
+      ]
+    },
+    "environment": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/environment"
+        },
+        {
+          "enum": [
+            "staging",
+            "production"
+          ]
+        }
+      ]
+    },
+    "op_bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "op_id",
+          "resource_id",
+          "field",
+          "before_hash",
+          "after_hash"
+        ],
+        "properties": {
+          "op_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "resource_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "field": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "before_hash": {
+            "$ref": "common.schema.json#/$defs/content_hash"
+          },
+          "after_hash": {
+            "$ref": "common.schema.json#/$defs/content_hash"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 200
+    },
+    "binding_hash": {
+      "$ref": "common.schema.json#/$defs/content_hash",
+      "description": "Hash over op_bindings, mode, environment and expires_at; replay with a different binding fails."
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "approved",
+        "rejected"
+      ]
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decided_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "expires_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "auto_rollback_authorized": {
+      "type": "boolean"
+    },
+    "mfa_verified": {
+      "type": "boolean",
+      "description": "Whether step-up MFA was verified. Identity provider is an open decision (D-011)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §15",
+    "02-DETAILED-SPECIFICATION §10, §17"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

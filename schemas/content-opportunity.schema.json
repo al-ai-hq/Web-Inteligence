@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:content-opportunity:0.1.0",
+  "title": "ContentOpportunity",
+  "description": "A content opportunity from an unmapped cluster, a low-CTR or position-beyond-10 query, a lost visibility prompt or an unanswered question. Existing-page-first: ownership is checked before a new page is proposed.",
+  "type": "object",
+  "required": [
+    "opportunity_id",
+    "project_id",
+    "source",
+    "market",
+    "language",
+    "existing_page_check",
+    "status",
+    "evidence_ids",
+    "created_at",
+    "lineage"
+  ],
+  "properties": {
+    "opportunity_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "unmapped_cluster",
+        "low_ctr",
+        "position_beyond_10",
+        "lost_prompt",
+        "unanswered_question",
+        "aeo_failure"
+      ]
+    },
+    "cluster_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "prompt_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "rule_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/rule_id"
+      },
+      "minItems": 0,
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "existing_page_check": {
+      "type": "object",
+      "required": [
+        "checked",
+        "owner_url",
+        "page_ownership_id"
+      ],
+      "properties": {
+        "checked": {
+          "type": "boolean"
+        },
+        "owner_url": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/url"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "page_ownership_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/content_state"
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "02-DETAILED-SPECIFICATION §9",
+    "01-PRODUCT-REQUIREMENTS §5.11"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

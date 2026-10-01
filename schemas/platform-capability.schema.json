@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:platform-capability:0.1.0",
+  "title": "PlatformCapability",
+  "description": "A versioned capability-matrix entry for one platform. Detection is provisional until confirmed; every fix binds to a supported field, template, app/plugin, API or code path.",
+  "type": "object",
+  "required": [
+    "capability_id",
+    "platform",
+    "detection",
+    "capabilities",
+    "matrix_version",
+    "policy_fact_ids",
+    "checked_on",
+    "review_on"
+  ],
+  "properties": {
+    "capability_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "platform": {
+      "$ref": "common.schema.json#/$defs/platform"
+    },
+    "platform_version": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "detection": {
+      "type": "object",
+      "required": [
+        "detected_platform",
+        "confidence",
+        "detected_at",
+        "confirmed",
+        "confirmed_by_user_id"
+      ],
+      "properties": {
+        "detected_platform": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/platform"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "$ref": "common.schema.json#/$defs/confidence_level"
+        },
+        "detected_at": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confirmed": {
+          "type": "boolean"
+        },
+        "confirmed_by_user_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "target",
+          "read",
+          "write",
+          "method",
+          "notes"
+        ],
+        "properties": {
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Field or feature, e.g. product.seo_title."
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "write": {
+            "type": "boolean"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "api",
+              "plugin",
+              "app",
+              "template",
+              "code_path",
+              "manual"
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/text"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 500
+    },
+    "matrix_version": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "policy_fact_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list",
+      "description": "PolicyFacts that support the matrix entries."
+    },
+    "checked_on": {
+      "$ref": "common.schema.json#/$defs/date"
+    },
+    "review_on": {
+      "$ref": "common.schema.json#/$defs/date"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "properties": {
+        "detection": {
+          "if": {
+            "properties": {
+              "confirmed": {
+                "const": true
+              }
+            },
+            "required": [
+              "confirmed"
+            ]
+          },
+          "then": {
+            "properties": {
+              "confirmed_by_user_id": {
+                "$ref": "common.schema.json#/$defs/uuid"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23",
+    "01-PRODUCT-REQUIREMENTS §16"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

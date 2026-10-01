@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:score-result:0.1.0",
+  "title": "ScoreResult",
+  "description": "A Presence Readiness or Experience Effectiveness score, overall or per category. The two scores are never blended with each other or with observed AI visibility or search performance (D-012).",
+  "type": "object",
+  "required": [
+    "score_result_id",
+    "audit_id",
+    "score_kind",
+    "value",
+    "pre_cap_value",
+    "coverage",
+    "checked",
+    "pages_inspected",
+    "confidence",
+    "rule_result_ids",
+    "methodology_version",
+    "computed_at",
+    "lineage"
+  ],
+  "properties": {
+    "score_result_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "audit_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "score_kind": {
+      "type": "string",
+      "enum": [
+        "presence_readiness",
+        "presence_category",
+        "experience_effectiveness",
+        "experience_category"
+      ]
+    },
+    "presence_category": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/rule_category"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "experience_category": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/experience_category"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Full precision. Null when unavailable. Round only at display."
+    },
+    "pre_cap_value": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "applied_cap": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "max_score",
+            "rule_id",
+            "reason_key"
+          ],
+          "properties": {
+            "max_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "rule_id": {
+              "$ref": "common.schema.json#/$defs/rule_id"
+            },
+            "reason_key": {
+              "$ref": "common.schema.json#/$defs/message_key"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "coverage": {
+      "type": "object",
+      "description": "coverage = measurable_applicable_weight / total_expected_applicable_weight (v1-baseline §6.5).",
+      "required": [
+        "measurable_applicable_weight",
+        "total_expected_applicable_weight",
+        "ratio"
+      ],
+      "properties": {
+        "measurable_applicable_weight": {
+          "type": "number",
+          "minimum": 0
+        },
+        "total_expected_applicable_weight": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ratio": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "checked": {
+      "$ref": "common.schema.json#/$defs/checked_of"
+    },
+    "pages_inspected": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_level"
+    },
+    "rule_result_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "methodology_version": {
+      "$ref": "common.schema.json#/$defs/methodology_version"
+    },
+    "computed_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "score_kind": {
+            "const": "presence_category"
+          }
+        },
+        "required": [
+          "score_kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "presence_category"
+        ],
+        "properties": {
+          "presence_category": {
+            "$ref": "common.schema.json#/$defs/rule_category"
+          },
+          "experience_category": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "score_kind": {
+            "const": "experience_category"
+          }
+        },
+        "required": [
+          "score_kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "experience_category"
+        ],
+        "properties": {
+          "experience_category": {
+            "$ref": "common.schema.json#/$defs/experience_category"
+          },
+          "presence_category": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "v1-baseline §6.1-§6.5",
+    "D-012"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

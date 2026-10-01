@@ -1,0 +1,360 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:plan-item:0.1.0",
+  "title": "PlanItem",
+  "description": "One planned action. Impact, reach and effort are judgments shown as High/Medium/Low, not forecasts; expected_effect is qualitative and contains no numbers.",
+  "type": "object",
+  "required": [
+    "plan_item_id",
+    "rule_ids",
+    "cluster_ids",
+    "affected_urls",
+    "evidence_ids",
+    "action",
+    "owner_type",
+    "apply_mode",
+    "risk_tier",
+    "impact",
+    "reach",
+    "reach_source",
+    "effort",
+    "confidence",
+    "priority",
+    "expected_effect",
+    "verify_by",
+    "group",
+    "horizon",
+    "status",
+    "created_at",
+    "lineage"
+  ],
+  "properties": {
+    "plan_item_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "audit_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rule_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/rule_id"
+      },
+      "minItems": 0,
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "cluster_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "prompt_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "affected_urls": {
+      "$ref": "common.schema.json#/$defs/url_list"
+    },
+    "affected_templates": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/config_key"
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "evidence_ids": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/evidence_ids"
+        },
+        {
+          "minItems": 1
+        }
+      ]
+    },
+    "problem": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "business_relevance": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "action": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "Specific, imperative action."
+    },
+    "owner_type": {
+      "$ref": "common.schema.json#/$defs/owner_type"
+    },
+    "owner_role": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "apply_mode": {
+      "$ref": "common.schema.json#/$defs/apply_mode"
+    },
+    "risk_tier": {
+      "$ref": "common.schema.json#/$defs/plan_risk_tier"
+    },
+    "impact": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "reach": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "reach_source": {
+      "type": "object",
+      "required": [
+        "kind",
+        "lineage_record_id"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "keyword_volume",
+            "search_console_impressions",
+            "pages_affected"
+          ]
+        },
+        "lineage_record_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid",
+              "description": "Lineage of the volume or impressions figure; never mixes sources."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "effort": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "1 is easiest."
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_level"
+    },
+    "priority": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 25,
+      "description": "impact x reach x confidence_factor / effort (v1-baseline §6.6); confidence_factor high 1.0, medium 0.75, low 0.5."
+    },
+    "urgency": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "immediate",
+            "soon",
+            "planned"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "dependencies": {
+      "$ref": "common.schema.json#/$defs/uuid_list",
+      "description": "Plan items that must finish first."
+    },
+    "expected_effect": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^[^0-9٠-٩%]*$",
+      "description": "Qualitative expected effect. No digits or percentages: never forecast rankings, traffic or citations."
+    },
+    "verify_by": {
+      "type": "object",
+      "required": [
+        "method",
+        "target"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "query_watch",
+            "recrawl",
+            "url_inspection",
+            "panel_recheck",
+            "manual_check"
+          ]
+        },
+        "target": {
+          "$ref": "common.schema.json#/$defs/text"
+        }
+      },
+      "additionalProperties": false
+    },
+    "rollback_method": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observation_window_days": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "min",
+            "max"
+          ],
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            },
+            "max": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Expected observation window; not a guarantee."
+    },
+    "group": {
+      "$ref": "common.schema.json#/$defs/plan_group"
+    },
+    "horizon": {
+      "$ref": "common.schema.json#/$defs/horizon"
+    },
+    "board_rank": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "description": "Position on the executive 8-12 action board, if selected."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "hypothesis": {
+      "type": "boolean",
+      "description": "True for tactics without published support (label 'hypothesis')."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "accepted",
+        "in_progress",
+        "change_drafted",
+        "done",
+        "verified",
+        "rejected",
+        "deferred"
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix A (runtime agent instructions) (PLANNER)",
+    "02-DETAILED-SPECIFICATION §8",
+    "04-CLAUDE-CODE-BUILD-PROMPT §14"
+  ],
+  "x-source-fields": [
+    "plan_item_id",
+    "rule_ids",
+    "cluster_ids",
+    "affected_urls",
+    "action",
+    "owner_type",
+    "apply_mode",
+    "risk_tier",
+    "impact",
+    "reach",
+    "reach_source",
+    "effort",
+    "confidence",
+    "priority",
+    "expected_effect",
+    "verify_by",
+    "group",
+    "horizon",
+    "status"
+  ],
+  "x-added-fields": [
+    "audit_id",
+    "prompt_ids",
+    "affected_templates",
+    "evidence_ids",
+    "problem",
+    "business_relevance",
+    "owner_role",
+    "urgency",
+    "dependencies",
+    "rollback_method",
+    "observation_window_days",
+    "board_rank",
+    "hypothesis",
+    "created_at",
+    "lineage"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md",
+  "x-conflicts": [
+    "group uses the canonical plan_group enum (critical_blocker, quick_win, strategic_opportunity, measurement_fix, polish); the runtime PLANNER text lists growth_opportunity and tracking_fix, which map to strategic_opportunity and measurement_fix."
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "run_id": "8d0f2b4c-6e8a-4b0d-9f2b-4c6e8a0d2f57",
+  "panel_run_id": "7d0e2b4c-6f8a-4c1e-9a3b-5c7d9e1f3a57",
+  "audit_id": null,
+  "prompt_set_id": "6b8d0f2a-4c6e-4f8b-9d0f-2a4c6e8b0d35",
+  "prompt_id": "7c9e1a3b-5d7f-4a9c-8e1a-3b5d7f9c1e46",
+  "prompt_family": "recommendation",
+  "final_prompt": "ما الشركات التي تقدم خدمات تصميم مواقع للشركات الصغيرة في الكويت؟",
+  "repeat_index": 2,
+  "engine": "example_engine_a",
+  "mode": "web_search",
+  "model_id": null,
+  "market": "KW",
+  "language": "ar-KW",
+  "location": "Kuwait City, KW",
+  "authentication_state": "api",
+  "started_at": "2026-10-05T06:00:14Z",
+  "completed_at": "2026-10-05T06:00:31Z",
+  "status": "valid",
+  "error_class": null,
+  "counted_in_denominator": true,
+  "response_evidence_id": "9e1a3c5d-7f9b-4c1e-8a3c-5d7f9b1e3a68",
+  "search_executed": true,
+  "search_call_count": 1,
+  "brand_mentioned": false,
+  "mention_spans": [],
+  "recommended": false,
+  "brand_url_cited": false,
+  "match_confidence": null,
+  "competitors_mentioned": [
+    "Example Studio A",
+    "Example Studio B"
+  ],
+  "cited_urls": [
+    "https://example.org/ar/web-design",
+    "https://example.net/kuwait/agencies"
+  ],
+  "citation_ids": [
+    "af2b4d6e-8a0c-4d2f-9b4d-6e8a0c2f4b79",
+    "b03c5e7f-9b1d-4e3a-8c5e-7f9b1d3a5c80"
+  ],
+  "accuracy_issue_ids": [],
+  "injection_suspected": false,
+  "analysis_method": "assessed",
+  "grounding_suggestions_present": null,
+  "token_usage": {
+    "input_tokens": 412,
+    "output_tokens": 655
+  },
+  "provider_request_id": "req_example_0001",
+  "cost_ledger_entry_id": "c14d6f80-ac2e-4f4b-9d6f-80ac2e4b6d91",
+  "lineage": {
+    "record_id": "8d0f2b4c-6e8a-4b0d-9f2b-4c6e8a0d2f57",
+    "project_id": "1c3e5a7b-9d1f-4a3c-8e5a-7b9d1f3a5c80",
+    "site_id": "2d4f6b8c-0e2a-4b4d-9f6b-8c0e2a4b6d91",
+    "source_type": "ai_provider_api",
+    "source_id": "example_engine_a",
+    "source_version": "providers.yaml 0.1.0",
+    "captured_at": "2026-10-05T06:00:31Z",
+    "as_of": "2026-10-05T06:00:31Z",
+    "market": "KW",
+    "language": "ar-KW",
+    "device": "not_applicable",
+    "method": "provider_observation",
+    "methodology_version": "0.1.0",
+    "fidelity_label": "observed",
+    "content_hash": "sha256:83f07328609faff17c3638d559fa1e0b4979d9fffe25b195d118bb554d51727b",
+    "parent_ids": [
+      "9e1a3c5d-7f9b-4c1e-8a3c-5d7f9b1e3a68"
+    ],
+    "validation_state": "valid"
+  }
+}

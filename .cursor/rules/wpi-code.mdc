@@ -1,0 +1,11 @@
+---
+description: TypeScript, schema validation, and Arabic UI rules for application files
+globs: "**/*.{ts,tsx,css,scss}"
+alwaysApply: false
+---
+
+# Application code
+
+- Strict TypeScript. Validate untrusted input at every boundary against `schemas/`.
+- Arabic UI uses logical CSS properties. Set `dir` from the locale. Bidi-isolate URLs, code and numbers inside Arabic text.
+- Arabic copy needs native review before it ships.

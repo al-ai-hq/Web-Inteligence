@@ -1,0 +1,15 @@
+{
+  "description": "02-DETAILED-SPECIFICATION §15: a report is ready only when 100% of its numbers carry lineage.",
+  "base_example": "report-model.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/lineage_coverage",
+      "value": {
+        "numbers_total": 42,
+        "numbers_with_lineage": 41,
+        "ratio": 0.976
+      }
+    }
+  ]
+}

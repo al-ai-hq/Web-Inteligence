@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:public-source-observation:0.1.0",
+  "title": "PublicSourceObservation",
+  "description": "One public-footprint observation: a profile, listing, review surface or third-party reference. Review counts and ratings are recorded only as displayed; never estimated.",
+  "type": "object",
+  "required": [
+    "observation_id",
+    "source_kind",
+    "url",
+    "owned",
+    "attributes_observed",
+    "captured_at",
+    "evidence_id",
+    "confidence",
+    "lineage"
+  ],
+  "properties": {
+    "observation_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "audit_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source_kind": {
+      "type": "string",
+      "enum": [
+        "social_profile",
+        "directory",
+        "review_platform",
+        "marketplace",
+        "news",
+        "forum",
+        "wiki",
+        "knowledge_panel",
+        "other"
+      ]
+    },
+    "platform_name": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "owned": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Null when ownership is not confirmed."
+    },
+    "entity_name_observed": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "attributes_observed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "attribute",
+          "value"
+        ],
+        "properties": {
+          "attribute": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]{1,63}$"
+          },
+          "value": {
+            "$ref": "common.schema.json#/$defs/text"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "review_display": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "rating_value",
+            "review_count",
+            "as_displayed"
+          ],
+          "properties": {
+            "rating_value": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "review_count": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "as_displayed": {
+              "const": true
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "captured_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "evidence_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_level"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §5.9",
+    "04-CLAUDE-CODE-BUILD-PROMPT §10"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

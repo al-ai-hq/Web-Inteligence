@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:deletion-request:0.1.0",
+  "title": "DeletionRequest",
+  "description": "A request to delete a subject, from a user or from the retention job. Owns the deletion request state and ends with a DeletionReceipt. Not in the V4 minimum schema set; added so the deletion workflow has an owning record.",
+  "type": "object",
+  "required": [
+    "deletion_request_id",
+    "subject_type",
+    "subject_id",
+    "trigger",
+    "requester",
+    "state",
+    "idempotency_key",
+    "received_at",
+    "updated_at"
+  ],
+  "properties": {
+    "deletion_request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "subject_type": {
+      "type": "string",
+      "enum": [
+        "audit",
+        "report",
+        "project",
+        "user_account",
+        "evidence_object",
+        "export_file",
+        "keyword_upload"
+      ]
+    },
+    "subject_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "user_request",
+        "anonymous_expiry",
+        "registered_retention_expiry",
+        "account_deletion",
+        "operator"
+      ]
+    },
+    "requester": {
+      "type": "object",
+      "required": [
+        "actor",
+        "user_id",
+        "proof"
+      ],
+      "properties": {
+        "actor": {
+          "$ref": "common.schema.json#/$defs/actor_type"
+        },
+        "user_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "proof": {
+          "type": "string",
+          "enum": [
+            "anonymous_link_and_secret",
+            "authenticated_session",
+            "retention_job",
+            "operator_ticket"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "state": {
+      "$ref": "common.schema.json#/$defs/deletion_request_state"
+    },
+    "receipt_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 200
+    },
+    "received_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "updated_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "COMPLETED"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "receipt_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "v1-baseline §9, §10",
+    "01-PRODUCT-REQUIREMENTS §9",
+    "D-002"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md",
+  "x-not-in-v4-minimum-set": true
+}

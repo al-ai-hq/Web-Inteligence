@@ -1,0 +1,288 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:content-draft:0.1.0",
+  "title": "ContentDraft",
+  "description": "An article or page draft. It exists only when every draft gate passed; it is saved as a CMS draft or pull request and published only by a human.",
+  "type": "object",
+  "required": [
+    "draft_id",
+    "brief_id",
+    "language",
+    "body",
+    "fact_ids",
+    "evidence_ids",
+    "unsupported_removed",
+    "status",
+    "author_id",
+    "first_hand_input_evidence_id",
+    "gate_checks",
+    "needs_native_review",
+    "ai_assistance_disclosed",
+    "delivery",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "draft_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "brief_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "body": {
+      "$ref": "common.schema.json#/$defs/document_body"
+    },
+    "fact_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    },
+    "unsupported_removed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "text",
+          "reason"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "no_fact",
+              "no_evidence",
+              "fabrication_risk"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 200,
+      "description": "Sentences removed because no fact or evidence supported them."
+    },
+    "status": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/content_state"
+        },
+        {
+          "enum": [
+            "DRAFTING",
+            "CONTENT_REVIEW",
+            "CMS_DRAFT",
+            "PR_CREATED",
+            "VALIDATED",
+            "PUBLISHED_BY_HUMAN",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    "author_id": {
+      "$ref": "common.schema.json#/$defs/uuid",
+      "description": "Named human author."
+    },
+    "first_hand_input_evidence_id": {
+      "$ref": "common.schema.json#/$defs/uuid",
+      "description": "EvidenceObject holding the client's first-hand input."
+    },
+    "gate_checks": {
+      "type": "object",
+      "description": "Draft gates enforced in code; a draft record cannot exist unless all are true.",
+      "required": [
+        "brief_approved",
+        "author_assigned",
+        "first_hand_input_present",
+        "cluster_not_mapped_to_other_page",
+        "monthly_draft_count",
+        "monthly_draft_cap"
+      ],
+      "properties": {
+        "brief_approved": {
+          "const": true
+        },
+        "author_assigned": {
+          "const": true
+        },
+        "first_hand_input_present": {
+          "const": true
+        },
+        "cluster_not_mapped_to_other_page": {
+          "const": true
+        },
+        "monthly_draft_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "Drafts already created this month for the project; must be below the cap."
+        },
+        "monthly_draft_cap": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "From config. ASSUMPTION default 8 per workspace per month (02-DETAILED-SPECIFICATION §9)."
+        }
+      },
+      "additionalProperties": false
+    },
+    "needs_native_review": {
+      "type": "boolean"
+    },
+    "ai_assistance_disclosed": {
+      "type": "boolean"
+    },
+    "delivery": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "connector",
+            "external_ref"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "cms_draft",
+                "pull_request"
+              ]
+            },
+            "connector": {
+              "$ref": "common.schema.json#/$defs/config_key"
+            },
+            "external_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500,
+              "description": "CMS draft ID or pull request URL returned by the connector."
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "published_by_user_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "updated_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "language": {
+            "pattern": "^ar(-|$)"
+          }
+        },
+        "required": [
+          "language"
+        ]
+      },
+      "then": {
+        "properties": {
+          "needs_native_review": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "CMS_DRAFT",
+              "PR_CREATED",
+              "VALIDATED",
+              "PUBLISHED_BY_HUMAN"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "delivery": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "PUBLISHED_BY_HUMAN"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "published_by_user_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "02-DETAILED-SPECIFICATION §9"
+  ],
+  "x-source-fields": [
+    "draft_id",
+    "brief_id",
+    "language",
+    "body",
+    "fact_ids",
+    "evidence_ids",
+    "unsupported_removed",
+    "status"
+  ],
+  "x-added-fields": [
+    "author_id",
+    "first_hand_input_evidence_id",
+    "gate_checks",
+    "needs_native_review",
+    "ai_assistance_disclosed",
+    "delivery",
+    "published_by_user_id",
+    "created_at",
+    "updated_at"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

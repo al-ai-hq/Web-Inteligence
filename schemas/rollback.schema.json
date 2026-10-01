@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:rollback:0.1.0",
+  "title": "Rollback",
+  "description": "A revert to a stored snapshot. Automatic rollback needs explicit approval authorization, a matching snapshot, reliable connector reversal and an exact tier 1-2 mismatch; tier 3 reverts only on a human decision.",
+  "type": "object",
+  "required": [
+    "rollback_id",
+    "change_set_id",
+    "snapshot_id",
+    "op_ids",
+    "trigger",
+    "max_risk_tier",
+    "authorization",
+    "status",
+    "idempotency_key",
+    "requested_at"
+  ],
+  "properties": {
+    "rollback_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "change_set_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "snapshot_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "op_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/uuid"
+      },
+      "minItems": 1,
+      "maxItems": 200,
+      "uniqueItems": true
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "verifier_mismatch",
+        "human_request",
+        "rollback_trigger_fired"
+      ]
+    },
+    "max_risk_tier": {
+      "$ref": "common.schema.json#/$defs/plan_risk_tier"
+    },
+    "authorization": {
+      "type": "object",
+      "required": [
+        "kind",
+        "approval_id",
+        "user_id"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "approval_auto_rollback",
+            "human_decision"
+          ]
+        },
+        "approval_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "user_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "requested",
+        "applying",
+        "read_back",
+        "completed",
+        "failed",
+        "human_review"
+      ]
+    },
+    "read_back_matches_snapshot": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 200
+    },
+    "requested_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "max_risk_tier": {
+            "const": 3
+          }
+        },
+        "required": [
+          "max_risk_tier"
+        ]
+      },
+      "then": {
+        "properties": {
+          "authorization": {
+            "properties": {
+              "kind": {
+                "const": "human_decision"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "authorization": {
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "human_decision"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "user_id": {
+                    "$ref": "common.schema.json#/$defs/uuid"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "approval_auto_rollback"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "approval_id": {
+                    "$ref": "common.schema.json#/$defs/uuid"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "completed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "read_back_matches_snapshot": {
+            "const": true
+          },
+          "completed_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §15",
+    "02-DETAILED-SPECIFICATION §10"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,21 @@
+{
+  "verification_id": "1b92dae5-f173-4e90-8cb4-d5f1739abc46",
+  "change_set_id": "c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68",
+  "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+  "risk_tier": 1,
+  "fetched_at": "2026-10-03T07:45:10Z",
+  "fetch_evidence_id": "2ca3ebf6-0284-4fa1-9dc5-e60284abcd57",
+  "live_value": "خدمات تصميم مواقع الشركات باللغتين العربية والإنجليزية، من التخطيط إلى الإطلاق.",
+  "status": "verified",
+  "live_on_site": true,
+  "seen_by_google": "not_checked",
+  "rule_deltas": [
+    {
+      "rule_id": "SEO-002",
+      "before": "fail",
+      "after": "pass"
+    }
+  ],
+  "gsc_inspection": null,
+  "recommendation": "keep"
+}

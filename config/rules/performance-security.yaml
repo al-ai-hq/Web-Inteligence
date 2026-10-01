@@ -1,0 +1,156 @@
+# Purpose: Rule definitions for the Performance, security, and delivery quality category (weight 10)
+#          of Presence Readiness.
+# Owner role: Methodology owner (SEO lead), with the security owner for SEC-* rules
+# Source sections: v1-baseline §6.3-§6.4, §7, §7.7; 02-DETAILED-SPECIFICATION §6, §13;
+#                  08-REFERENCE-LIBRARY (PageSpeed Insights API, CrUX API, Web Vitals, JavaScript SEO basics)
+# Status: draft for review
+#
+# Field notes: see config/rules/crawlability.yaml.
+# Field data (CrUX) and lab data (PageSpeed Insights) are labelled separately (02-DETAILED-SPECIFICATION §13).
+
+methodology_version: "0.1.0-draft"
+category: performance_security
+category_title: "Performance, security, and delivery quality"
+category_weight: 10
+
+rules:
+  - id: PRF-001
+    title: "HTTPS"
+    category: performance_security
+    importance_weight: 5
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Valid HTTPS is available and canonical."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.7 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    critical_cap: https_unavailable
+    change: unchanged
+    source_reference: ["v1-baseline §7.7", "v1-baseline §6.4"]
+
+  - id: PRF-002
+    title: "Response timing"
+    category: performance_security
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "Sampled pages."
+    standards:
+      pass: "Sampled response and render measurements fall within disclosed thresholds."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.7 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    notes:
+      - "<DECIDE_AT_M0: disclosed timing thresholds; confirm current definitions on the Web Vitals page before use>"
+    source_reference:
+      - "v1-baseline §7.7"
+      - "https://web.dev/articles/vitals"
+      - "https://developers.google.com/speed/docs/insights/v5/get-started"
+      - "https://developer.chrome.com/docs/crux/api"
+
+  - id: PRF-003
+    title: "Asset efficiency"
+    category: performance_security
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Sampled pages."
+    standards:
+      pass: "No severe image, script, or stylesheet waste in sampled pages."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.7 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.7"]
+
+  - id: PRF-004
+    title: "Layout stability sample"
+    category: performance_security
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Sampled pages."
+    standards:
+      pass: "No major observed layout shift during sampled rendering."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.7 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.7", "https://web.dev/articles/vitals"]
+
+  - id: SEC-001
+    title: "Mixed content"
+    category: performance_security
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "HTTPS pages in the sample."
+    standards:
+      pass: "No active mixed content on HTTPS pages."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.7 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.7"]
+
+  - id: SEC-002
+    title: "Security headers"
+    category: performance_security
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Baseline headers are present or absence is explained without overstating risk."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.7 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    notes:
+      - "<DECIDE_AT_M0: the baseline header list; the sources do not name the headers>"
+    source_reference: ["v1-baseline §7.7"]
+
+  - id: SEC-003
+    title: "Broken resource load"
+    category: performance_security
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Sampled pages."
+    standards:
+      pass: "No material first-party resource failures on sampled pages."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.7 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.7"]
+
+  - id: DEL-001
+    title: "Rendered content parity"
+    category: performance_security
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Core content is available to the configured renderer and not hidden behind failed execution."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.7 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    critical_cap: empty_main_content
+    change: unchanged
+    source_reference:
+      - "v1-baseline §7.7"
+      - "v1-baseline §6.4"
+      - "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics"

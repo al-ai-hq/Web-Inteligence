@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:keyword-cluster:0.1.0",
+  "title": "KeywordCluster",
+  "description": "A meaning-and-intent cluster for one market and language, mapped to one primary page, or marked as a gap or cannibalized. Volumes are never summed across sources or markets.",
+  "type": "object",
+  "required": [
+    "cluster_id",
+    "project_id",
+    "label",
+    "primary_keyword",
+    "keyword_ids",
+    "intent",
+    "market",
+    "language",
+    "primary_url",
+    "candidate_urls",
+    "status",
+    "evidence_ids",
+    "needs_review",
+    "methodology_version",
+    "created_at",
+    "lineage"
+  ],
+  "properties": {
+    "cluster_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "label": {
+      "$ref": "common.schema.json#/$defs/label"
+    },
+    "primary_keyword": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "keyword_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/uuid"
+      },
+      "minItems": 1,
+      "maxItems": 5000,
+      "uniqueItems": true
+    },
+    "intent": {
+      "$ref": "common.schema.json#/$defs/keyword_intent"
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "primary_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "candidate_urls": {
+      "$ref": "common.schema.json#/$defs/url_list"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "mapped",
+        "gap",
+        "cannibalized"
+      ],
+      "description": "mapped: one primary page; gap: no page fits; cannibalized: two indexable pages split impressions without a clear primary."
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    },
+    "needs_review": {
+      "type": "boolean",
+      "description": "True for candidate groups proposed by the article-and-preposition rule; never merged silently."
+    },
+    "methodology_version": {
+      "$ref": "common.schema.json#/$defs/methodology_version"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "mapped"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "primary_url": {
+            "$ref": "common.schema.json#/$defs/url"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "gap"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "primary_url": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "cannibalized"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "candidate_urls": {
+            "minItems": 2
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "02-DETAILED-SPECIFICATION §7",
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix A (runtime agent instructions) (KEYWORD ANALYST)"
+  ],
+  "x-source-fields": [
+    "cluster_id",
+    "label",
+    "primary_keyword",
+    "keyword_ids",
+    "intent",
+    "market",
+    "language",
+    "primary_url",
+    "status",
+    "evidence_ids"
+  ],
+  "x-added-fields": [
+    "project_id",
+    "candidate_urls",
+    "needs_review",
+    "methodology_version",
+    "created_at",
+    "lineage"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

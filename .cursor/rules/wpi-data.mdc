@@ -1,0 +1,14 @@
+---
+description: Fidelity labels, scoring versions, metrics, and money formatting
+alwaysApply: true
+---
+
+# Data and scoring
+
+- Every stored or shown number carries source, as-of time and `fidelity_label`. Reports show `evidence_state`.
+- CTR from totals. Impression-weighted position. Rate changes in percentage points. Zero denominators stay explicit. Never add numbers from different sources.
+- Money is a decimal string plus ISO 4217 currency. KWD, JOD and BHD use 3 decimals. SAR, AED and QAR use 2.
+- Model IDs, prices, quotas and crawler tokens come from `config/` with a source and date (D-010).
+- A weight change bumps `methodology_version` and is recorded in `docs/decisions.md`.
+- A sample is not a full-site count. Readiness is not observed AI visibility. Do not blend Presence Readiness, Experience Effectiveness, AI visibility and search performance.
+- Do not score `llms.txt`, require FAQ blocks, or promise rich results.

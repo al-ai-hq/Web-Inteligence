@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:snapshot:0.1.0",
+  "title": "Snapshot",
+  "description": "Current values read by the connector immediately before a write. Immutable; rollback restores from it.",
+  "type": "object",
+  "required": [
+    "snapshot_id",
+    "change_set_id",
+    "connector",
+    "captured_at",
+    "items",
+    "immutable",
+    "retention_expires_at"
+  ],
+  "properties": {
+    "snapshot_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "change_set_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "connector": {
+      "$ref": "common.schema.json#/$defs/config_key"
+    },
+    "captured_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "op_id",
+          "resource_type",
+          "resource_id",
+          "field",
+          "value",
+          "value_hash"
+        ],
+        "properties": {
+          "op_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "resource_type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "resource_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "field": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 100000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value_hash": {
+            "$ref": "common.schema.json#/$defs/content_hash"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 200
+    },
+    "storage_uri": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/storage_uri"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "immutable": {
+      "const": true
+    },
+    "retention_expires_at": {
+      "$ref": "common.schema.json#/$defs/timestamp",
+      "description": "ASSUMPTION: 12 months, pending legal review (02-DETAILED-SPECIFICATION §16)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "02-DETAILED-SPECIFICATION §10, §16"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

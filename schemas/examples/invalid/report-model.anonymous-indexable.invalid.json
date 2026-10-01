@@ -1,0 +1,11 @@
+{
+  "description": "D-002: anonymous reports are always noindex.",
+  "base_example": "report-model.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/access/noindex",
+      "value": false
+    }
+  ]
+}

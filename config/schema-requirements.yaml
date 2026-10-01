@@ -1,0 +1,133 @@
+# Purpose: schema.org types the product checks (STR-001..STR-008, GEO-008, content briefs and the Fixer),
+#          with the Google documentation to verify against and the property lists the rules engine uses.
+# Owner role: SEO lead
+# Source sections: v1-baseline §7.3; 02-DETAILED-SPECIFICATION §8, §9, §13; 04-CLAUDE-CODE-BUILD-PROMPT §12, §23;
+#                  08-REFERENCE-LIBRARY (Structured data guidelines, feature gallery, FAQPage, Schema.org);
+#                  .claude/skills/marketing-seo-agent/references/site-audit.md, ai-search-aeo-geo.md, content-briefs.md
+# Status: draft for review
+#
+# Rules for this file:
+# - required_properties and recommended_properties are filled only when a source in this repository states
+#   them. None does today, so every type has to_verify_at_m0b: true and empty lists. Fill them at M0B from
+#   Google's current page for the type and record the checked date. Until then STR-003 returns unavailable.
+# - google_doc_url is set only where 08-REFERENCE-LIBRARY lists a type-specific page (FAQPage). Other types
+#   use the general guidance URLs until M0B.
+# - method_checks lists properties the method skill says to look at. They are not Google requirements.
+# - Structured data must match visible, verified content and never promises a rich result.
+
+version: "0.1.0-draft"
+
+general_guidance_urls:
+  structured_data_policies: "https://developers.google.com/search/docs/appearance/structured-data/sd-policies"
+  search_gallery: "https://developers.google.com/search/docs/appearance/structured-data/search-gallery"
+  schema_org: "https://schema.org"
+
+global_constraints:
+  - "Markup claims must match visible page content (STR-005)."
+  - "No fabricated ratings, reviews, prices or irrelevant schema (STR-008; SPAM-001)."
+  - "The Fixer never adds aggregateRating, review, price, availability or offers unless those exact values are visible on the page and in the fact sheet (02-DETAILED-SPECIFICATION §13)."
+  - "Prices and phone numbers in structured data use standard digits 0-9 with '.' as the decimal separator (method skill arabic-market-seo.md)."
+  - "Structured-data text such as name and description uses the page's own language (method skill arabic-market-seo.md; I18N-004)."
+  - "Correct structured data can improve understanding and eligibility but never guarantees a rich result (v1-baseline §7.3)."
+
+types:
+  - type: Organization
+    checked_by: [STR-002, STR-006, GEO-001, GEO-008]
+    google_doc_url: null
+    required_properties: []
+    recommended_properties: []
+    to_verify_at_m0b: true
+    method_checks: [name, url, logo, sameAs, "@id"]
+    method_checks_source: "v1-baseline §7.3 (STR-006: URL, name, logo, @id); method skill site-audit.md (logo and sameAs on the homepage)"
+
+  - type: LocalBusiness
+    checked_by: [STR-002, STR-003, GEO-003, GEO-011]
+    google_doc_url: null
+    required_properties: []
+    recommended_properties: []
+    to_verify_at_m0b: true
+    method_checks: [sameAs]
+    method_checks_source: "method skill ai-search-aeo-geo.md; subtypes allowed for physical locations (site-audit.md)"
+    note: "Local presence module: 01-PRODUCT-REQUIREMENTS §16 (LocalBusiness, NAP)."
+
+  - type: Product
+    checked_by: [STR-002, STR-003, STR-004, STR-005, STR-008]
+    google_doc_url: null
+    required_properties: []
+    recommended_properties: []
+    to_verify_at_m0b: true
+    method_checks: [offers]
+    method_checks_source: "method skill site-audit.md (Product with offers on product pages)"
+    note: "Product and merchant-listing checks belong to the e-commerce module (04-CLAUDE-CODE-BUILD-PROMPT §23)."
+
+  - type: Offer
+    checked_by: [STR-005, STR-008]
+    google_doc_url: null
+    required_properties: []
+    recommended_properties: []
+    to_verify_at_m0b: true
+    method_checks: []
+    note: "Price and availability values must be visible and confirmed; never fabricated."
+
+  - type: Article
+    checked_by: [STR-002, STR-003, GEO-004]
+    google_doc_url: null
+    required_properties: []
+    recommended_properties: []
+    to_verify_at_m0b: true
+    method_checks: [author]
+    method_checks_source: "method skill ai-search-aeo-geo.md (Article with author)"
+
+  - type: BreadcrumbList
+    checked_by: [STR-007]
+    google_doc_url: null
+    required_properties: []
+    recommended_properties: []
+    to_verify_at_m0b: true
+    method_checks: []
+
+  - type: Service
+    checked_by: [STR-002]
+    google_doc_url: null
+    required_properties: []
+    recommended_properties: []
+    to_verify_at_m0b: true
+    method_checks: []
+    method_checks_source: "method skill content-briefs.md (schema candidates for service pages)"
+
+  - type: Review
+    checked_by: [STR-008, SPAM-001]
+    google_doc_url: null
+    required_properties: []
+    recommended_properties: []
+    to_verify_at_m0b: true
+    method_checks: []
+    note: "Checked for fabrication only. The product never drafts review markup without verified, visible reviews."
+
+  - type: AggregateRating
+    checked_by: [STR-008, SPAM-001]
+    google_doc_url: null
+    required_properties: []
+    recommended_properties: []
+    to_verify_at_m0b: true
+    method_checks: []
+    note: "Checked for fabrication only. The product never drafts rating markup without verified, visible ratings."
+
+  - type: FAQPage
+    checked_by: [STR-001, STR-005, AEO-007]
+    google_doc_url: "https://developers.google.com/search/docs/appearance/structured-data/faqpage"
+    doc_checked_on: "2026-09-30"
+    required_properties: []
+    recommended_properties: []
+    to_verify_at_m0b: true
+    rich_result_status: "No FAQ rich result in Google Search since 7 May 2026 (policy fact pf-faq-rich-results-retired)."
+    note: "FAQPage is still a valid schema.org type and existing markup does no harm, but it is not a lever. Never promise a rich result from it; the Planner does not recommend adding it for Google."
+
+  - type: HowTo
+    checked_by: [STR-001, STR-005]
+    google_doc_url: null
+    required_properties: []
+    recommended_properties: []
+    to_verify_at_m0b: true
+    rich_result_status: "Deprecated before FAQ rich results were retired (02-DETAILED-SPECIFICATION §8; policy fact pf-howto-deprecated needs verification)."
+    note: "Never promise a rich result from it."

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": ".cursor/hooks/gate.py"
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": ".cursor/hooks/gate.py"
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/gate.py"
+      }
+    ],
+    "beforeReadFile": [
+      {
+        "command": ".cursor/hooks/gate.py"
+      }
+    ],
+    "beforeTabFileRead": [
+      {
+        "command": ".cursor/hooks/gate.py"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/gate.py"
+      }
+    ]
+  }
+}

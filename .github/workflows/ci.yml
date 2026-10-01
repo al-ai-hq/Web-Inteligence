@@ -1,0 +1,88 @@
+# Status: draft for review. Owner: tech lead.
+#
+# Supply chain: every third-party action is pinned to a full commit SHA.
+# The tag is kept in a trailing comment. SHAs were resolved on 2026-10-01
+# with `gh api repos/<owner>/<repo>/commits/<tag>`. See
+# intent/INT-00-m0a-repository-bootstrap/intent.md.
+#
+# Jobs:
+#   governance - hook tests, schema check, config check, action-pin check
+#   secrets    - gitleaks over the full history
+#   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  governance:
+    name: governance
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Install checker dependencies
+        run: pip install pyyaml jsonschema
+      - name: Hook tests
+        run: python3 -m unittest discover -s .claude/hooks/tests -v
+      - name: Cursor hook gate tests
+        run: python3 -m unittest discover -s .cursor/hooks/tests -v
+      - name: Schema check
+        run: python3 scripts/check_schemas.py
+      - name: Config check
+        run: python3 scripts/check_config.py
+      - name: Action pins
+        run: python3 scripts/check_action_pins.py
+
+  secrets:
+    name: secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      # OI-021 stays open: organization-owned repositories may need a
+      # GITLEAKS_LICENSE secret. The action stays; only its SHA is pinned.
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  app:
+    name: app
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          # engines.node is 22.x (M0A toolchain).
+          node-version-file: package.json
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test
+      - name: SSRF placeholder
+        run: pnpm test:ssrf
+      - name: Browser placeholder
+        run: pnpm test:e2e

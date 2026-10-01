@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:change-operation:0.1.0",
+  "title": "ChangeOperation",
+  "description": "One field-level change inside a change set. Values are structured field values, never raw page HTML. Only the connector service applies operations, with the idempotency key.",
+  "type": "object",
+  "required": [
+    "op_id",
+    "resource_type",
+    "resource_id",
+    "url",
+    "field",
+    "field_class",
+    "current_value",
+    "proposed_value",
+    "before_hash",
+    "risk_tier",
+    "rationale",
+    "evidence_ids",
+    "idempotency_key",
+    "status"
+  ],
+  "properties": {
+    "op_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "plan_item_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "page",
+        "post",
+        "product",
+        "collection",
+        "cms_item",
+        "image",
+        "redirect",
+        "robots_txt",
+        "sitemap",
+        "theme_file",
+        "repository_file",
+        "site_setting"
+      ]
+    },
+    "resource_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Exact resource ID resolved from a live connector read."
+    },
+    "url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "field": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_.:/\\[\\]-]{1,128}$",
+      "description": "Connector field name from config/connectors/<name>.yaml allowed_fields."
+    },
+    "field_class": {
+      "$ref": "common.schema.json#/$defs/field_class"
+    },
+    "language": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/language"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "current_value": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 100000
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "proposed_value": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 100000
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "before_hash": {
+      "$ref": "common.schema.json#/$defs/content_hash",
+      "description": "Hash of current_value at read time; the connector refuses to write when the live hash differs."
+    },
+    "after_hash": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/content_hash"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "risk_tier": {
+      "$ref": "common.schema.json#/$defs/risk_tier"
+    },
+    "rationale": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "evidence_ids": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/evidence_ids"
+        },
+        {
+          "minItems": 1
+        }
+      ]
+    },
+    "rule_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/rule_id"
+      },
+      "minItems": 0,
+      "maxItems": 10,
+      "uniqueItems": true
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 200
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "applied",
+        "read_back_match",
+        "read_back_mismatch",
+        "rolled_back",
+        "failed",
+        "skipped"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "field_class": {
+            "enum": [
+              "robots_directive",
+              "robots_txt",
+              "canonical",
+              "redirect",
+              "hreflang",
+              "sitemap",
+              "slug",
+              "template",
+              "theme_code",
+              "site_wide_rule"
+            ]
+          }
+        },
+        "required": [
+          "field_class"
+        ]
+      },
+      "then": {
+        "properties": {
+          "risk_tier": {
+            "enum": [
+              3,
+              "forbidden"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix A (runtime agent instructions) (FIXER)",
+    "03-PRODUCTION-CONTRACTS: Change risk baseline"
+  ],
+  "x-source-fields": [
+    "op_id",
+    "resource_type",
+    "resource_id",
+    "url",
+    "field",
+    "current_value",
+    "proposed_value",
+    "risk_tier",
+    "rationale",
+    "evidence_ids",
+    "idempotency_key"
+  ],
+  "x-added-fields": [
+    "plan_item_id",
+    "field_class",
+    "language",
+    "before_hash",
+    "after_hash",
+    "rule_ids",
+    "status"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

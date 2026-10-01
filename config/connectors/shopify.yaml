@@ -1,0 +1,113 @@
+# Purpose: Capability and policy config for a Shopify connector: auth, scopes, allowed fields with risk tiers,
+#          publish rules, webhook secret reference, rate-limit notes. Read only by the deterministic connector
+#          service, the only component that holds write credentials.
+# Owner role: Integration engineer
+# Source sections: 02-DETAILED-SPECIFICATION §10, §13, §17, §19; 03-PRODUCTION-CONTRACTS (Change risk baseline);
+#                  04-CLAUDE-CODE-BUILD-PROMPT §15, §23; 07-SKILLS-AND-AGENTS §5, §6; 01-PRODUCT-REQUIREMENTS §5.13, §15;
+#                  09-MERGE-DECISIONS; 08-REFERENCE-LIBRARY (Shopify REST Admin API notice, Admin GraphQL API)
+# Status: draft for review
+#
+# Rules for this file:
+# - status: candidate. The first CMS/Git connector is an open decision (D-011).
+# - Admin GraphQL API only: REST is legacy since 1 October 2024 and new public apps must use GraphQL since
+#   1 April 2025 (policy fact pf-shopify-graphql-required).
+# - Access scopes, GraphQL field names and rate limits are verified at build; none are invented here.
+
+connector_id: shopify
+display_name: "Shopify"
+status: candidate
+milestone: M9
+reference_urls:
+  - "https://shopify.dev/docs/api/admin-graphql"
+  - "https://shopify.dev/docs/api/admin-rest"
+
+auth:
+  method: oauth_app
+  api: "Admin GraphQL API"
+  scopes:
+    - scope: "<confirm: read scopes for products, collections, pages and files>"
+      purpose: "Read current values and snapshot"
+    - scope: "<confirm: write scopes for SEO fields and image alt text on products, collections and pages>"
+      purpose: "Tier 1-2 writes"
+    - scope: "<confirm: write scope for URL redirects>"
+      purpose: "Tier 3 redirects"
+    - scope: "<confirm: theme scope, only if tier 3 theme edits are approved for the pilot>"
+      purpose: "Tier 3 theme edits"
+  credential_secret_ref: "<DECIDE_AT_M0: Secret Manager secret name for the per-store access token>"
+  held_by: connector_service_only
+  rotation: "Rotate; revoke on disconnect; never sent to a model (02-DETAILED-SPECIFICATION §17)."
+
+interface: [capabilities, read_fields, snapshot, apply, publish, rollback, verify_webhook]
+
+allowed_fields:
+  - field: product.seo_title
+    risk_tier: 2
+    api_field: "<verify at build: Admin GraphQL API>"
+  - field: product.seo_description
+    risk_tier: 1
+    api_field: "<verify at build: Admin GraphQL API>"
+  - field: collection.seo_title
+    risk_tier: 2
+    api_field: "<verify at build: Admin GraphQL API>"
+  - field: collection.seo_description
+    risk_tier: 1
+    api_field: "<verify at build: Admin GraphQL API>"
+  - field: page.seo_title
+    risk_tier: 2
+    api_field: "<verify at build: Admin GraphQL API>"
+  - field: page.seo_description
+    risk_tier: 1
+    api_field: "<verify at build: Admin GraphQL API>"
+  - field: image.alt_text
+    risk_tier: 1
+    api_field: "<verify at build: Admin GraphQL API>"
+  - field: url_redirect
+    risk_tier: 3
+    api_field: "<verify at build: Admin GraphQL API>"
+    note: "Create only as part of an approved slug change or migration plan."
+  - field: theme.files
+    risk_tier: 3
+    api_field: "<verify at build: Admin GraphQL API>"
+    note: "Theme edits are tier 3 (02-DETAILED-SPECIFICATION §10); never on the live theme directly <DECIDE_AT_M0: staging path for theme edits>."
+
+forbidden:
+  - delete_content
+  - create_page_without_named_human_author
+  - fabricated_reviews_ratings_prices_or_availability
+  - hidden_text
+  - cloaking
+  - link_schemes
+  - write_outside_approved_target_hash_or_expiry
+
+publish_rules:
+  publish_is_separate_step: true
+  requires_separate_approval: true
+  rule: "Edit approval is not publish approval. Any step that makes a change visible on the storefront is its own approved step <verify at build which fields go live on save>."
+  approval_binding: [target, field, before_hash, after_hash, environment, edit_or_publish_mode, approver, expiry]
+  commerce_note: "Keep price, availability and product facts consistent with visible content and feeds; never estimate revenue or uplift (04-CLAUDE-CODE-BUILD-PROMPT §23)."
+
+rollout:
+  tier_1: "Canary of 1-2 items, read back, then batches of up to 25 (ASSUMPTION in 02-DETAILED-SPECIFICATION §10)."
+  tier_2: "One approver after per-item diff review; item by item."
+  tier_3: "Two approvers; the requester cannot approve; staging; one change at a time in a change window."
+  one_change_set_per_site_at_a_time: true
+
+rollback:
+  automatic: "Only when the approval explicitly authorizes it, the rollback target matches the stored snapshot, the connector supports reliable reversal, and deterministic read-back detects an exact tier 1-2 mismatch (09-MERGE-DECISIONS, Adapted)."
+  otherwise: human_review
+
+webhook:
+  mechanism: "<confirm: Shopify webhook topics and signature method at build>"
+  signature_verification: required
+  replay_protection: "Reject replayed event IDs."
+  secret_ref: "<DECIDE_AT_M0: Secret Manager secret name for the per-store Shopify webhook signing secret>"
+  purpose: "Targeted re-audit of changed URLs (02-DETAILED-SPECIFICATION §11)."
+
+rate_limits:
+  platform_limits: "<confirm: Admin GraphQL API rate-limit model from current documentation>"
+  idempotency_key_required: true
+  never_retry_write_without_idempotency_key: true
+
+contract_tests:
+  sandbox: "A Shopify development store (02-DETAILED-SPECIFICATION §19)."
+  scenarios: [stale_state, conflict, replay, wrong_tenant, denial, partial_failure, read_back_mismatch, slug_redirect, rollback, timeout_mid_write, token_revoked_mid_run, rate_limited, publish_fails_after_write]

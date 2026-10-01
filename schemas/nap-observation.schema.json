@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:nap-observation:0.1.0",
+  "title": "NAPObservation",
+  "description": "Name, address and phone as seen on one source, compared with the confirmed location record.",
+  "type": "object",
+  "required": [
+    "observation_id",
+    "location_id",
+    "source_kind",
+    "source_url",
+    "match",
+    "captured_at",
+    "evidence_id",
+    "lineage"
+  ],
+  "properties": {
+    "observation_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "location_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "source_kind": {
+      "type": "string",
+      "enum": [
+        "owned_site",
+        "business_profile",
+        "directory",
+        "social_profile",
+        "structured_data",
+        "other"
+      ]
+    },
+    "source_url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "name": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "address_text": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "phone": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "match": {
+      "type": "object",
+      "required": [
+        "name",
+        "address",
+        "phone"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "match",
+            "mismatch",
+            "missing",
+            "not_applicable"
+          ]
+        },
+        "address": {
+          "type": "string",
+          "enum": [
+            "match",
+            "mismatch",
+            "missing",
+            "not_applicable"
+          ]
+        },
+        "phone": {
+          "type": "string",
+          "enum": [
+            "match",
+            "mismatch",
+            "missing",
+            "not_applicable"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "captured_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "evidence_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

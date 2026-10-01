@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:rank-snapshot:0.1.0",
+  "title": "RankSnapshot",
+  "description": "A weekly query-page snapshot. CTR is computed from totals; average position is an average across impressions, not a fixed rank. Search Console dates are Pacific Time; the latest 2-3 days are flagged incomplete.",
+  "type": "object",
+  "required": [
+    "snapshot_id",
+    "cluster_id",
+    "query",
+    "url",
+    "date_range",
+    "date_timezone",
+    "clicks",
+    "impressions",
+    "ctr",
+    "avg_position",
+    "source",
+    "market",
+    "device",
+    "incomplete_recent_days",
+    "fetched_at",
+    "lineage"
+  ],
+  "properties": {
+    "snapshot_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "cluster_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "query": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "date_range": {
+      "$ref": "common.schema.json#/$defs/date_range"
+    },
+    "date_timezone": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z_]+(/[A-Za-z0-9_+-]+)*$",
+      "description": "IANA timezone of the dates, e.g. America/Los_Angeles for Search Console."
+    },
+    "clicks": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "impressions": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ctr": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "clicks / impressions from totals. Null when impressions is 0."
+    },
+    "avg_position": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 1
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Impression-weighted average position. Null when impressions is 0."
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "search_console",
+        "licensed_provider"
+      ],
+      "description": "Competitor positions only from a licensed provider; never scraped."
+    },
+    "search_type": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "web",
+            "image",
+            "video",
+            "news"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "device": {
+      "$ref": "common.schema.json#/$defs/device"
+    },
+    "incomplete_recent_days": {
+      "type": "boolean"
+    },
+    "fetched_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "impressions": {
+            "const": 0
+          }
+        },
+        "required": [
+          "impressions"
+        ]
+      },
+      "then": {
+        "properties": {
+          "ctr": {
+            "type": "null"
+          },
+          "avg_position": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "02-DETAILED-SPECIFICATION §7, §15"
+  ],
+  "x-source-fields": [
+    "snapshot_id",
+    "cluster_id",
+    "query",
+    "url",
+    "date_range",
+    "clicks",
+    "impressions",
+    "ctr",
+    "avg_position",
+    "source",
+    "fetched_at"
+  ],
+  "x-added-fields": [
+    "date_timezone",
+    "search_type",
+    "market",
+    "device",
+    "incomplete_recent_days",
+    "lineage"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

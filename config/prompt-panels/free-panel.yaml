@@ -1,0 +1,89 @@
+# Purpose: The free AI-visibility panel for the first ("rich") anonymous audit: prompt groups, sizes,
+#          counting rules and normalization rules. A single-run snapshot shown as counts.
+# Owner role: SEO lead, with the AI engineer
+# Source sections: v1-baseline §5.5, §6.7, §6.8, §8.2-§8.6; 02-DETAILED-SPECIFICATION §6;
+#                  01-PRODUCT-REQUIREMENTS §5.0, §5.8; 04-CLAUDE-CODE-BUILD-PROMPT §3.1; 09-MERGE-DECISIONS;
+#                  docs/decisions.md D-006, D-011
+# Status: draft for review
+#
+# Sizes are ASSUMPTION defaults (D-006). 09-MERGE-DECISIONS makes panel size configurable by purpose,
+# evidence sufficiency, provider terms and budget; fixed high-cost counts are not universal defaults.
+
+panel_id: free-panel
+version: "0.1.0-draft"
+applies_to_tiers: [rich]
+applies_to_tiers_note: "Reduced and preview anonymous audits run no new AI observations (config/anonymous-eligibility.yaml)."
+
+size:
+  prompts: 8
+  providers: "every provider enabled in config/providers.yaml at run time"
+  runs_per_prompt: 1
+  max_observations: "8 x enabled providers"
+  status: "ASSUMPTION (D-006)"
+  budget_behavior: "Subject to config/budgets.yaml caps, breakers and degradation order."
+
+display:
+  mode: counts
+  rule: "Show counts with numerator and denominator, not percentages; a single run is a snapshot and does not measure repeatability (v1-baseline §6.8; D-006)."
+  answers_vary_notice: true
+  disclaimer_en: "These tests use provider APIs configured for web search. They are comparable observations, not exact reproductions of each consumer application."
+  disclaimer_source: "v1-baseline §8.2"
+  disclaimer_ar: "تستخدم هذه الاختبارات واجهات البرمجة لدى مزوّدي النماذج مع تفعيل البحث على الويب، وهي ملاحظات قابلة للمقارنة، وليست نسخًا مطابقة لما يظهر في تطبيق كل مزوّد للمستخدمين."
+  disclaimer_ar_needs_native_review: true
+
+# v1-baseline §6.7 groups and §8.3 prompts. ASSUMPTION: prompts 1-4 of §8.3 form the four discovery
+# prompts and prompts 5-6 the two comparison prompts; §6.7 calls the pair "comparison or shortlist".
+groups:
+  discovery:
+    count: 4
+    template_ids: [free-discovery, free-shortlist, free-scenario, free-local-global]
+    branded: false
+    counts_toward_recommendation_rate: true
+  comparison:
+    count: 2
+    template_ids: [free-comparison, free-selection]
+    branded: false
+    counts_toward_recommendation_rate: true
+  branded:
+    count: 1
+    template_ids: [free-branded-knowledge]
+    branded: true
+    counts_toward_recommendation_rate: false
+  citation:
+    count: 1
+    template_ids: [free-citation-source]
+    branded: true
+    counts_toward_recommendation_rate: false
+
+inputs:
+  source: "Confirmed questionnaire values from intake (v1-baseline §8.3)."
+  placeholders: [brand, offering, audience, market, use_case, category, requirement]
+  language: "The customer language chosen at intake (v1-baseline §8.4)."
+  templates:
+    en: "config/prompt-panels/templates/en.yaml"
+    ar: "config/prompt-panels/templates/ar.yaml"
+
+normalization_rules:
+  source_reference: "v1-baseline §8.4"
+  rules:
+    - "Keep prompt semantics constant across providers."
+    - "Use the chosen customer language."
+    - "Add the same approximate location for every provider where supported."
+    - "Do not insert competitor names into unbranded prompts."
+    - "Do not ask the model to mention the audited organization."
+    - "Prompts explicitly request organizations or providers (v1-baseline §8.3)."
+    - "Store the exact final prompt."
+    - "Use bounded search and tool calls (config/providers.yaml call_defaults)."
+
+counting_rules:
+  source_reference: "v1-baseline §6.7, §8.5, §8.6"
+  rules:
+    - "Zero valid responses produces unavailable, not 0%."
+    - "Provider failures and open breakers leave the valid denominator and show as unavailable."
+    - "Branded and citation prompts do not count toward recommendation rate."
+    - "A mention in a cited source list is not a recommendation."
+    - "A name that appears only in the prompt is not a response mention."
+    - "Positive matching needs an exact normalized name, an approved alias or the exact canonical domain; fuzzy matches are candidates only."
+    - "Never invent a citation or a citation position the API did not return."
+    - "Do not average provider percentages when denominators differ; aggregate compatible counts."
+    - "Never describe results as a universal AI ranking."

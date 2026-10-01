@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:policy-consistency-result:0.1.0",
+  "title": "PolicyConsistencyResult",
+  "description": "Reconciliation of one commerce policy fact (price, currency, availability, seller, shipping, returns, warranty, language) across visible HTML, raw HTML, structured data, feeds, Merchant Center and the fact register.",
+  "type": "object",
+  "required": [
+    "result_id",
+    "project_id",
+    "policy_area",
+    "values",
+    "outcome",
+    "checked_at",
+    "lineage"
+  ],
+  "properties": {
+    "result_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "commerce_item_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "policy_area": {
+      "type": "string",
+      "enum": [
+        "price",
+        "currency",
+        "availability",
+        "seller",
+        "shipping",
+        "returns",
+        "warranty",
+        "language"
+      ]
+    },
+    "values": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "surface",
+          "value",
+          "evidence_id"
+        ],
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "visible_html",
+              "raw_html",
+              "structured_data",
+              "feed",
+              "merchant_center",
+              "marketplace",
+              "fact_register"
+            ]
+          },
+          "value": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/text"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidence_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 10
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "consistent",
+        "inconsistent",
+        "insufficient_data",
+        "not_applicable"
+      ]
+    },
+    "rule_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/rule_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "checked_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

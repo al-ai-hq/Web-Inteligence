@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:implementation-path:0.1.0",
+  "title": "ImplementationPath",
+  "description": "How one plan item can be implemented on the confirmed platform, or why it cannot.",
+  "type": "object",
+  "required": [
+    "path_id",
+    "plan_item_id",
+    "method",
+    "risk_tier",
+    "supported",
+    "evidence_ids"
+  ],
+  "properties": {
+    "path_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "plan_item_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "platform_capability_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "target_resource_type": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "target_field": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "method": {
+      "type": "string",
+      "enum": [
+        "connector_field",
+        "pull_request",
+        "plugin_setting",
+        "app_setting",
+        "template_edit",
+        "manual_instructions"
+      ]
+    },
+    "risk_tier": {
+      "$ref": "common.schema.json#/$defs/risk_tier"
+    },
+    "supported": {
+      "type": "boolean"
+    },
+    "blocking_reason_key": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/message_key"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "instructions_key": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/message_key"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "verified_on": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "supported": {
+            "const": false
+          }
+        },
+        "required": [
+          "supported"
+        ]
+      },
+      "then": {
+        "properties": {
+          "blocking_reason_key": {
+            "$ref": "common.schema.json#/$defs/message_key"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

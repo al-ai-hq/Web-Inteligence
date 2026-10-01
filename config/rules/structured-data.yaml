@@ -1,0 +1,155 @@
+# Purpose: Rule definitions for the Structured data and machine readability category (weight 10)
+#          of Presence Readiness.
+# Owner role: Methodology owner (SEO lead)
+# Source sections: v1-baseline §6.3, §7, §7.3; 02-DETAILED-SPECIFICATION §6, §8, §13;
+#                  08-REFERENCE-LIBRARY (Structured data guidelines, feature gallery, FAQPage, Schema.org)
+# Status: draft for review
+#
+# Field notes: see config/rules/crawlability.yaml.
+# Type-level requirements live in config/schema-requirements.yaml. Correct structured data can improve
+# understanding and eligibility but never guarantees a rich result (v1-baseline §7.3). FAQ rich results
+# no longer appear in Google Search since 7 May 2026 (02-DETAILED-SPECIFICATION §8).
+
+methodology_version: "0.1.0-draft"
+category: structured_data
+category_title: "Structured data and machine readability"
+category_weight: 10
+
+rules:
+  - id: STR-001
+    title: "Parseable structured data"
+    category: structured_data
+    importance_weight: 5
+    scored: true
+    connected_tier_only: false
+    applicability: "Pages in the sample that contain JSON-LD, RDFa or Microdata."
+    standards:
+      pass: "JSON-LD, RDFa, or Microdata parses without syntax errors."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.3 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.3", "https://schema.org"]
+
+  - id: STR-002
+    title: "Appropriate organization/entity type"
+    category: structured_data
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Entity type matches visible organization and page content."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.3 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.3", "https://schema.org"]
+
+  - id: STR-003
+    title: "Required properties"
+    category: structured_data
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "Pages with a Google-supported structured data type listed in config/schema-requirements.yaml."
+    standards:
+      pass: "Applicable Google-supported type contains required properties."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.3 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    notes:
+      - "Required-property lists are to_verify_at_m0b in config/schema-requirements.yaml; until verified this rule returns unavailable, not pass."
+    source_reference:
+      - "v1-baseline §7.3"
+      - "https://developers.google.com/search/docs/appearance/structured-data/search-gallery"
+
+  - id: STR-004
+    title: "Recommended factual properties"
+    category: structured_data
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Pages with a Google-supported structured data type listed in config/schema-requirements.yaml."
+    standards:
+      pass: "Useful confirmed properties are present."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.3 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.3"]
+
+  - id: STR-005
+    title: "Visible-content consistency"
+    category: structured_data
+    importance_weight: 5
+    scored: true
+    connected_tier_only: false
+    applicability: "Pages in the sample that contain structured data."
+    standards:
+      pass: "Markup claims match visible page content."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.3 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference:
+      - "v1-baseline §7.3"
+      - "https://developers.google.com/search/docs/appearance/structured-data/sd-policies"
+
+  - id: STR-006
+    title: "Stable entity identifiers"
+    category: structured_data
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "Sites that declare an organization or entity in structured data."
+    standards:
+      pass: "Entity uses consistent URL, name, logo, and @id where appropriate."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.3 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.3"]
+
+  - id: STR-007
+    title: "Breadcrumb markup"
+    category: structured_data
+    importance_weight: 1
+    scored: true
+    connected_tier_only: false
+    applicability: "Important hierarchical pages where breadcrumbs are useful."
+    standards:
+      pass: "Important hierarchical pages include valid breadcrumbs where useful."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.3 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.3"]
+
+  - id: STR-008
+    title: "Unsupported/spam markup"
+    category: structured_data
+    importance_weight: 5
+    scored: true
+    connected_tier_only: false
+    applicability: "Pages in the sample that contain structured data."
+    standards:
+      pass: "No fabricated ratings, reviews, prices, or irrelevant schema."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.3 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    notes:
+      - "Fabricated review markup is also a SPAM-001 condition (02-DETAILED-SPECIFICATION §6)."
+    source_reference:
+      - "v1-baseline §7.3"
+      - "https://developers.google.com/search/docs/appearance/structured-data/sd-policies"

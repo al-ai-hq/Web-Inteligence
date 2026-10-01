@@ -1,0 +1,11 @@
+{
+  "description": "D-002: anonymous report retention is at most 7 days.",
+  "base_example": "report-model.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/retention_days",
+      "value": 30
+    }
+  ]
+}

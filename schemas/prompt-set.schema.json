@@ -1,0 +1,285 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:prompt-set:0.1.0",
+  "title": "PromptSet",
+  "description": "A versioned set of AI-visibility prompts for one market and language, built from evidence (observed queries, customer questions, site facts). Records engine coverage and the reason for every omitted default engine.",
+  "type": "object",
+  "required": [
+    "prompt_set_id",
+    "version",
+    "purpose",
+    "market",
+    "language",
+    "prompts",
+    "engines",
+    "repeats",
+    "status",
+    "created_at"
+  ],
+  "properties": {
+    "prompt_set_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "project_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Null for an anonymous audit's generated set."
+    },
+    "audit_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "anonymous_audit",
+        "connected_panel",
+        "recheck"
+      ]
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "location": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label",
+          "description": "Approximate location sent to providers where supported."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "prompts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "prompt_id",
+          "family",
+          "text",
+          "branded",
+          "seed_source",
+          "needs_native_review"
+        ],
+        "properties": {
+          "prompt_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "family": {
+            "$ref": "common.schema.json#/$defs/prompt_family"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "funnel_stage": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "awareness",
+                  "consideration",
+                  "decision",
+                  "post_purchase"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "branded": {
+            "type": "boolean"
+          },
+          "seed_source": {
+            "type": "string",
+            "enum": [
+              "keyword_cluster",
+              "search_console_query",
+              "customer_question",
+              "site_fact",
+              "standard_template"
+            ]
+          },
+          "seed_ref": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "needs_native_review": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 60
+    },
+    "engines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "engine",
+          "mode",
+          "included",
+          "omission_reason"
+        ],
+        "properties": {
+          "engine": {
+            "$ref": "common.schema.json#/$defs/config_key",
+            "description": "Engine key from config/providers.yaml."
+          },
+          "mode": {
+            "$ref": "common.schema.json#/$defs/config_key"
+          },
+          "included": {
+            "type": "boolean"
+          },
+          "omission_reason": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/text"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 12
+    },
+    "repeats": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Runs per prompt and engine. D-006 defaults: 1 for the free panel, 3 for connected panels."
+    },
+    "budget_cap": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/money"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "approved_by_user_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "approved_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "approved",
+        "retired"
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "approved"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "approved_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "engines": {
+          "items": {
+            "if": {
+              "properties": {
+                "included": {
+                  "const": false
+                }
+              },
+              "required": [
+                "included"
+              ]
+            },
+            "then": {
+              "properties": {
+                "omission_reason": {
+                  "$ref": "common.schema.json#/$defs/text"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §5.8, §15",
+    "02-DETAILED-SPECIFICATION §6",
+    "D-006"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

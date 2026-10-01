@@ -1,0 +1,28 @@
+# Purpose: Detection bands for maintaining the WPI platform itself. A deterministic,
+#          version-controlled band-check script reads this file; Claude is invoked only
+#          after a breach. Start with one metric that has a stable rolling baseline, then
+#          add others one at a time.
+# Owner role: Service owner (platform), with the release manager
+# Source sections: 05-PROJECT-PLAN §5 (M10), §6 (Monitoring workflow); ops/detection/README.md
+# Status: draft for review
+#
+# Notes:
+# - Changes to client sites never go through this loop; they follow the connector approval
+#   flow (02-DETAILED-SPECIFICATION §10).
+# - Runs triggered by a breach get no production write access. At 3 sigma, proposals go
+#   through a pull request or a pre-approved runbook only.
+# - The metric source, service owner and the read-only identity used for diagnosis are
+#   decided at M0A/M10.
+
+version: 1
+metrics:
+  - metric: post_deploy_5xx_rate
+    description: "Share of HTTP responses with status 5xx served by the web and API service after a deploy."
+    source: "<DECIDE_AT_M0: Cloud Monitoring or log-based metric for Cloud Run 5xx responses>"
+    owner: "<DECIDE_AT_M0: service owner>"
+    baseline: rolling_30d
+    rules: western_electric
+    tiers:
+      1sigma: { action: log }
+      2sigma: { action: diagnose, tools: "Read,Grep,Bash(gcloud logging read *)" }
+      3sigma: { action: propose, routes: [pull_request, "runbook:rollback"] }

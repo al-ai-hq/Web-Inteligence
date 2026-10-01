@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:prompt-panel-run:0.1.0",
+  "title": "PromptPanelRun",
+  "description": "One execution of an approved prompt set across engines and repeats. Owns the prompt-panel run state. Not in the V4 minimum schema set; added so the panel workflow has an owning record.",
+  "type": "object",
+  "required": [
+    "panel_run_id",
+    "prompt_set_id",
+    "state",
+    "budget_cap",
+    "planned_runs",
+    "valid_runs",
+    "failed_runs",
+    "skipped_runs",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "panel_run_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "prompt_set_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "audit_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "recheck_of_panel_run_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid",
+          "description": "Earlier run this identical re-check compares with."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "$ref": "common.schema.json#/$defs/prompt_panel_run_state"
+    },
+    "budget_cap": {
+      "$ref": "common.schema.json#/$defs/money"
+    },
+    "approved_by_user_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "approved_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "planned_runs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "valid_runs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "failed_runs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "skipped_runs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "updated_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "APPROVED",
+              "BUILDING_PROMPTS",
+              "RUNNING",
+              "ANALYZING",
+              "COMPLETE",
+              "PARTIAL"
+            ]
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "approved_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "05-PROJECT-PLAN §10 (prompt panel workflow)",
+    "02-DETAILED-SPECIFICATION §6, §11"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md",
+  "x-not-in-v4-minimum-set": true
+}

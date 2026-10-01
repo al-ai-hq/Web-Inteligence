@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:recommendation:0.1.0",
+  "title": "Recommendation",
+  "description": "An evidence-linked recommendation in the impact ledger (finding -> recommendation -> approval -> change). A recommendation is not approval.",
+  "type": "object",
+  "required": [
+    "recommendation_id",
+    "audit_id",
+    "finding_ids",
+    "summary",
+    "rationale",
+    "evidence_ids",
+    "hypothesis",
+    "status",
+    "created_at",
+    "lineage"
+  ],
+  "properties": {
+    "recommendation_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "audit_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "finding_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "rule_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/rule_id"
+      },
+      "minItems": 0,
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "cluster_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "prompt_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "summary": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "rationale": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "evidence_ids": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/evidence_ids"
+        },
+        {
+          "minItems": 1
+        }
+      ]
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "url",
+          "source_tier"
+        ],
+        "properties": {
+          "url": {
+            "$ref": "common.schema.json#/$defs/url"
+          },
+          "source_tier": {
+            "$ref": "common.schema.json#/$defs/source_tier"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 10
+    },
+    "hypothesis": {
+      "type": "boolean",
+      "description": "True when the tactic rests only on tier-3 sources or lacks published support."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "accepted",
+        "edited",
+        "rejected",
+        "superseded"
+      ]
+    },
+    "decision": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "user_id",
+            "at",
+            "reason_key"
+          ],
+          "properties": {
+            "user_id": {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            "at": {
+              "$ref": "common.schema.json#/$defs/timestamp"
+            },
+            "reason_key": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/message_key"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "plan_item_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "accepted",
+              "edited",
+              "rejected"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §16"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

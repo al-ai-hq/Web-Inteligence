@@ -1,0 +1,307 @@
+# Purpose: Rule definitions for the Crawlability and indexability category (weight 20) of Presence Readiness,
+#          including the v2 rule changes and the connected-tier Search Console rules.
+# Owner role: Methodology owner (SEO lead)
+# Source sections: v1-baseline §6.3-§6.4, §7, §7.1; 02-DETAILED-SPECIFICATION §6, §15;
+#                  08-REFERENCE-LIBRARY (Google Search guidance, Search data APIs, Standards)
+# Status: draft for review
+#
+# Field notes:
+# - importance_weight: integer 1-5 for scored rules; 0 for scored: false (never in a denominator).
+# - standards.pass: quoted from the source. standards.partial: the sources give none, so each is a
+#   <DECIDE_AT_M0> placeholder to calibrate on the labelled site set. standards.fail: the rule fails
+#   when neither the pass nor the partial standard is met.
+# - evaluation: deterministic (rules engine) or assessed (Auditor agent with a rubric, labelled "assessed").
+#   Classification follows v1-baseline §5.4 (deterministic rules) and the semantic-rule list in
+#   02-DETAILED-SPECIFICATION §13; reclassifying a rule bumps methodology_version.
+# - fidelity_label: label of the rule result (computed, assessed, observed, attested).
+# - GSC-* placement in this category is an ASSUMPTION: 02-DETAILED-SPECIFICATION §6 does not assign
+#   categories to new rules; index status and AI-features eligibility are Access-layer checks.
+
+methodology_version: "0.1.0-draft"
+category: crawlability
+category_title: "Crawlability and indexability"
+category_weight: 20
+
+rules:
+  - id: CRW-001
+    title: "Homepage reachable"
+    category: crawlability
+    importance_weight: 5
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Canonical homepage returns usable HTML after safe redirects."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.1 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    critical_cap: homepage_unretrievable
+    change: unchanged
+    source_reference: ["v1-baseline §7.1", "v1-baseline §6.4"]
+
+  - id: CRW-002
+    title: "Important pages reachable"
+    category: crawlability
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits with a selected set of important pages. The result describes the sample, not the whole site."
+    standards:
+      pass: "At least 90% of selected important pages return usable 2xx responses."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.1 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.1"]
+
+  - id: CRW-003
+    title: "Site-wide indexability"
+    category: crawlability
+    importance_weight: 5
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "No unintended site-wide noindex or X-Robots-Tag block."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.1 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    critical_cap: sitewide_noindex
+    change: unchanged
+    source_reference:
+      - "v1-baseline §7.1"
+      - "https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag"
+
+  - id: CRW-004
+    title: "robots.txt availability and syntax"
+    category: crawlability
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "File is reachable or validly absent and contains no unintended general block."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.1 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    critical_cap: robots_blocks_general_search
+    change: unchanged
+    source_reference:
+      - "v1-baseline §7.1"
+      - "https://developers.google.com/crawling/docs/robots-txt/robots-txt-spec"
+      - "https://www.rfc-editor.org/rfc/rfc9309"
+
+  - id: CRW-005
+    title: "XML sitemap"
+    category: crawlability
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Valid sitemap exists and contains canonical indexable URLs."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.1 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.1", "https://www.sitemaps.org/protocol.html"]
+
+  - id: CRW-006
+    title: "Canonical consistency"
+    category: crawlability
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Canonicals are absolute, valid, and consistent with final URLs."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.1 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.1"]
+
+  - id: CRW-007
+    title: "Redirect health"
+    category: crawlability
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "No loops and no chain longer than two redirects for important pages."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.1 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.1"]
+
+  - id: CRW-008
+    title: "Crawlable internal links"
+    category: crawlability
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Important navigation uses resolvable links rather than inaccessible client-only actions."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.1 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.1"]
+
+  - id: CRW-009
+    title: "Status-code integrity"
+    category: crawlability
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "No material soft 404 or important 4xx/5xx pages."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.1 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.1"]
+
+  - id: CRW-010
+    title: "AI/search bot policy visibility"
+    category: crawlability
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits. Uses config/crawler-registry.yaml; training and search crawlers are judged separately."
+    standards:
+      pass: "Each crawler's access matches the owner's stated intent; directives do not conflict. Training-bot blocks are reported, not failed."
+      partial: "<DECIDE_AT_M0: partial standard; 02-DETAILED-SPECIFICATION §6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: modified
+    v1:
+      pass: "Relevant crawler directives are explicit and non-conflicting."
+      importance_weight: 2
+    notes:
+      - "Blocking a training crawler is a business choice, not a defect (02-DETAILED-SPECIFICATION §2)."
+      - "<DECIDE_AT_M0: where the owner's stated intent comes from in an anonymous audit (intake answer or default) and the result when no intent is stated>"
+      - "When a low Gemini visibility result coincides with a Google-Extended block, the report names that cause (02-DETAILED-SPECIFICATION §6)."
+    source_reference:
+      - "02-DETAILED-SPECIFICATION §6 (Rule changes, AI crawler registry)"
+      - "v1-baseline §7.1"
+      - "https://developers.google.com/search/docs/appearance/ai-features"
+
+  - id: CRW-011
+    title: "Agent parity"
+    category: crawlability
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: >-
+      All audits, with a tier-dependent method. Crawler user agents are used only for connected sites,
+      on a few key URLs per agent, and never retried past a block. Free and anonymous audits compare a
+      browser with the platform's own declared crawler.
+    standards:
+      pass: "Key pages return the same status, title, language, word count and structured data to a browser, Googlebot, Bingbot and search AI crawlers, with no bot challenge or 403."
+      partial: "<DECIDE_AT_M0: partial standard; 02-DETAILED-SPECIFICATION §6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: assessed
+    change: new
+    notes:
+      - "Labelled inferred: CDNs may verify real bots by IP, so a user-agent test can differ from what the real crawler sees (02-DETAILED-SPECIFICATION §6, §15)."
+      - "Only the product's sandboxed crawler fetches (D-009)."
+    source_reference: ["02-DETAILED-SPECIFICATION §6", "02-DETAILED-SPECIFICATION §15"]
+
+  - id: CRW-012
+    title: "Snippet eligibility"
+    category: crawlability
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits; evaluated on key pages."
+    standards:
+      pass: "Key pages are indexable and not limited by nosnippet or a restrictive max-snippet, which Google's AI features require."
+      partial: "<DECIDE_AT_M0: partial standard; 02-DETAILED-SPECIFICATION §6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: new
+    notes:
+      - "<DECIDE_AT_M0: which max-snippet values count as restrictive; confirm against the robots meta tag documentation>"
+    source_reference:
+      - "02-DETAILED-SPECIFICATION §6"
+      - "https://developers.google.com/search/docs/appearance/ai-features"
+      - "https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag"
+
+  - id: GSC-001
+    title: "Important pages indexed (URL Inspection)"
+    category: crawlability
+    importance_weight: 5
+    scored: true
+    connected_tier_only: true
+    applicability: "Connected tier only, with a read-only Search Console connection. Samples important pages first within the URL Inspection quota."
+    standards:
+      pass: "URL Inspection shows at least 90% of important pages indexed."
+      partial: "<DECIDE_AT_M0: partial standard; 02-DETAILED-SPECIFICATION §6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: new
+    notes:
+      - "Quota values live in config/policy-facts.yaml (pf-gsc-url-inspection-quota), not in code."
+    source_reference:
+      - "02-DETAILED-SPECIFICATION §6"
+      - "https://developers.google.com/search/blog/2022/01/url-inspection-api"
+
+  - id: GSC-002
+    title: "Included in generative AI features (Search Console setting)"
+    category: crawlability
+    importance_weight: 5
+    scored: true
+    connected_tier_only: true
+    applicability: "Connected tier only."
+    standards:
+      pass: "Site is included in generative AI features in Search Console; Google requires this for eligibility."
+      partial: "<DECIDE_AT_M0: partial standard; 02-DETAILED-SPECIFICATION §6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    fidelity_label_fallback: attested
+    change: new
+    notes:
+      - "Attested when the setting cannot be read through an API; the Owner confirms it in the checklist (02-DETAILED-SPECIFICATION §6)."
+    source_reference:
+      - "02-DETAILED-SPECIFICATION §6"
+      - "https://developers.google.com/search/docs/fundamentals/ai-optimization-guide"
+      - "https://blog.google/products-and-platforms/products/search/new-controls-website-owners/"
+
+  - id: GSC-003
+    title: "Generative AI impressions (imported export)"
+    category: crawlability
+    importance_weight: 0
+    scored: false
+    connected_tier_only: true
+    applicability: "Connected tier only, when the Owner uploads a Search Console generative AI performance export."
+    standards:
+      report: "Generative AI impressions imported from a Search Console export, shown by page, country, date and device. Observational, unscored."
+    evaluation: deterministic
+    fidelity_label: observed
+    change: new
+    notes:
+      - "Observed presence, reported beside Presence Readiness and never inside it (D-012)."
+      - "The report is UI-only; independent 2026 checks found it absent from the Search Analytics API. Impressions only; never compute a CTR from it."
+    source_reference:
+      - "02-DETAILED-SPECIFICATION §6"
+      - "https://support.google.com/webmasters/answer/16984139"
+      - "https://developers.google.com/search/blog/2026/06/gen-ai-performance-reports"

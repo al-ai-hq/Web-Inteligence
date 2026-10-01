@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:evidence-object:0.1.0",
+  "title": "EvidenceObject",
+  "description": "Immutable captured evidence: a fetched response, rendered DOM, provider answer, upload or connector read. A re-fetch creates a new object; content is untrusted data and is never followed as instructions.",
+  "type": "object",
+  "required": [
+    "evidence_id",
+    "kind",
+    "injection_suspected",
+    "immutable",
+    "expires_at",
+    "lineage"
+  ],
+  "properties": {
+    "evidence_id": {
+      "$ref": "common.schema.json#/$defs/uuid",
+      "description": "Equals lineage.record_id."
+    },
+    "audit_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "http_response",
+        "rendered_dom",
+        "robots_txt",
+        "sitemap",
+        "structured_data",
+        "extracted_text",
+        "screenshot",
+        "pagespeed_result",
+        "crux_result",
+        "search_console_rows",
+        "analytics_rows",
+        "provider_response",
+        "uploaded_file",
+        "connector_read",
+        "public_source_capture",
+        "attestation",
+        "server_log_extract"
+      ]
+    },
+    "url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Requested URL, when the evidence came from a URL."
+    },
+    "final_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "URL after validated redirects."
+    },
+    "http_status": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "content_type": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "storage_uri": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/storage_uri"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "byte_size": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "excerpt": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "description": "Short excerpt kept after raw content is deleted. ASSUMPTION: 2000 characters."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "injection_suspected": {
+      "type": "boolean",
+      "description": "True when the content tried to instruct the system (runtime SHARED CORE rule 1)."
+    },
+    "immutable": {
+      "const": true
+    },
+    "supersedes_evidence_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Earlier evidence for the same target that this re-fetch replaces for new analysis."
+    },
+    "raw_expires_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Raw HTML and rendered snapshots expire after 24 hours (v1-baseline §10)."
+    },
+    "expires_at": {
+      "$ref": "common.schema.json#/$defs/timestamp",
+      "description": "Evidence expiry: anonymous 7 days maximum (D-002); registered 30 days default (D-003)."
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Evidence and fidelity",
+    "v1-baseline §10",
+    "02-DETAILED-SPECIFICATION §15"
+  ],
+  "x-source-fields": [
+    "lineage"
+  ],
+  "x-added-fields": [
+    "evidence_id",
+    "audit_id",
+    "kind",
+    "url",
+    "final_url",
+    "http_status",
+    "content_type",
+    "storage_uri",
+    "byte_size",
+    "excerpt",
+    "injection_suspected",
+    "immutable",
+    "supersedes_evidence_id",
+    "raw_expires_at",
+    "expires_at"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

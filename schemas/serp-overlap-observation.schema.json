@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:serp-overlap-observation:0.1.0",
+  "title": "SERPOverlapObservation",
+  "description": "Result overlap between two queries from a supplied or approved source, with market, language, device and date. Never scraped. No universal overlap threshold becomes a rule without calibration.",
+  "type": "object",
+  "required": [
+    "observation_id",
+    "project_id",
+    "query_a",
+    "query_b",
+    "market",
+    "language",
+    "device",
+    "observed_on",
+    "source",
+    "source_name",
+    "top_n",
+    "shared_url_count",
+    "lineage"
+  ],
+  "properties": {
+    "observation_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "query_a": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "query_b": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "device": {
+      "$ref": "common.schema.json#/$defs/device"
+    },
+    "observed_on": {
+      "$ref": "common.schema.json#/$defs/date"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "licensed_provider_export",
+        "approved_api",
+        "user_upload"
+      ]
+    },
+    "source_name": {
+      "$ref": "common.schema.json#/$defs/label"
+    },
+    "top_n": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+    },
+    "shared_url_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §17",
+    "05-PROJECT-PLAN M8C"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

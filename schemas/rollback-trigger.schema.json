@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:rollback-trigger:0.1.0",
+  "title": "RollbackTrigger",
+  "description": "A pre-agreed signal that pauses or rolls back a migration or release. Firing a trigger never acts on a client site by itself; a human decides.",
+  "type": "object",
+  "required": [
+    "trigger_id",
+    "signal",
+    "condition",
+    "owner_user_id",
+    "action",
+    "automatic",
+    "status"
+  ],
+  "properties": {
+    "trigger_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "baseline_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "change_set_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "signal": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "What is watched, e.g. share of critical URLs not returning 200."
+    },
+    "condition": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "Condition that fires the trigger. Thresholds are set per migration; no universal values."
+    },
+    "owner_user_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "pause",
+        "rollback",
+        "human_review"
+      ]
+    },
+    "automatic": {
+      "const": false,
+      "description": "No production launch action is automatic (05-PROJECT-PLAN M8B)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "armed",
+        "fired",
+        "disarmed"
+      ]
+    },
+    "fired_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23",
+    "05-PROJECT-PLAN M8B"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:programmatic-record:0.1.0",
+  "title": "ProgrammaticRecord",
+  "description": "One dataset record for a programmatic template, with completeness.",
+  "type": "object",
+  "required": [
+    "record_id",
+    "template_id",
+    "stable_id",
+    "fields_present",
+    "fields_missing",
+    "completeness",
+    "language",
+    "market",
+    "source_row_hash",
+    "status",
+    "lineage"
+  ],
+  "properties": {
+    "record_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "template_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "stable_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "fields_present": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "minItems": 0,
+      "maxItems": 200,
+      "uniqueItems": true
+    },
+    "fields_missing": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "minItems": 0,
+      "maxItems": 200,
+      "uniqueItems": true
+    },
+    "completeness": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "source_row_hash": {
+      "$ref": "common.schema.json#/$defs/content_hash"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "eligible",
+        "incomplete",
+        "duplicate_suspected",
+        "excluded"
+      ]
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §17"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

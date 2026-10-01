@@ -1,0 +1,15 @@
+---
+description: Security boundaries for secrets, production, crawlers, and agent write tools
+alwaysApply: true
+---
+
+# Safety
+
+- Do not deploy, publish, spend, connect production accounts, or write to a client system without explicit human authorization and verified target IDs.
+- Do not disable or edit hooks to get around a block. Do not edit tests while `.claude/state/test-lock` exists.
+- No secrets in code, logs, prompts, fixtures or client bundles. Reference Secret Manager or use a placeholder.
+- No write-class tool in `config/agents/*.yaml`. Only the connector service writes.
+- Do not call Google Autocomplete or scrape search-result pages (D-009).
+- Do not import `.claude/skills/marketing-seo-agent/scripts` into product code.
+- Do not run `terraform apply` or `terraform destroy` locally. Production infra edits need `WPI_CHANGE_TICKET`.
+- Every record is scoped to its project (D-014). Anonymous reports stay in-app, noindex, unguessable, and expire within 7 days (D-002).

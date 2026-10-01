@@ -1,0 +1,56 @@
+{
+  "finding_id": "2b8d4f60-1a3c-4e5b-9d7f-6c0e8a2b4d35",
+  "audit_id": "0f5a2c6e-3b1d-4c8a-9e7f-2a6b8c0d1e21",
+  "rule_id": "SEO-002",
+  "result": "partial",
+  "method": "deterministic",
+  "affected_urls": [
+    "https://example.com/ar/services/web-design",
+    "https://example.com/ar/services/hosting",
+    "https://example.com/ar/services/maintenance"
+  ],
+  "evidence_ids": [
+    "7c3e9a41-5d2b-4f60-8a1e-9b4c2d6f0e13",
+    "7c3e9a41-5d2b-4f60-8a1e-9b4c2d6f0e14",
+    "7c3e9a41-5d2b-4f60-8a1e-9b4c2d6f0e15"
+  ],
+  "severity": "medium",
+  "message_key": "finding.seo_002.meta_description_missing",
+  "methodology_version": "0.1.0",
+  "evidence_state": "verified",
+  "rule_result_ids": [
+    "4e6a8c0d-2f4b-4d6e-8a0c-1e3b5d7f9a42"
+  ],
+  "template_cluster_key": "service-page-template",
+  "affected_scope": {
+    "pages_checked": 14,
+    "pages_affected": 3,
+    "sampled": true
+  },
+  "created_at": "2026-09-30T10:21:40Z",
+  "lineage": {
+    "record_id": "2b8d4f60-1a3c-4e5b-9d7f-6c0e8a2b4d35",
+    "project_id": null,
+    "site_id": null,
+    "source_type": "rules_engine",
+    "source_id": "rule:SEO-002",
+    "source_version": "rules 0.1.0",
+    "captured_at": "2026-09-30T10:21:40Z",
+    "as_of": "2026-09-30T10:15:04Z",
+    "market": "KW",
+    "language": "ar",
+    "device": "mobile",
+    "method": "rules_engine",
+    "methodology_version": "0.1.0",
+    "fidelity_label": "computed",
+    "content_hash": "sha256:25715210cc4399170ef883143705e948a1c05fe1ef62365739d23433932be5fe",
+    "parent_ids": [
+      "7c3e9a41-5d2b-4f60-8a1e-9b4c2d6f0e13",
+      "7c3e9a41-5d2b-4f60-8a1e-9b4c2d6f0e14",
+      "7c3e9a41-5d2b-4f60-8a1e-9b4c2d6f0e15",
+      "4e6a8c0d-2f4b-4d6e-8a0c-1e3b5d7f9a42"
+    ],
+    "validation_state": "valid",
+    "audit_id": "0f5a2c6e-3b1d-4c8a-9e7f-2a6b8c0d1e21"
+  }
+}

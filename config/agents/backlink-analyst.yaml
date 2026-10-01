@@ -1,0 +1,34 @@
+# Purpose: Runtime tool allowlist for the backlink-analyst agent. Enforced in code, not only in prompts.
+# Owner role: AI engineer, with the security owner
+# Source sections: 03-PRODUCTION-CONTRACTS (Agent tool boundaries); 04-CLAUDE-CODE-BUILD-PROMPT §23, §25; 05-PROJECT-PLAN §5, §10, §11; 07-SKILLS-AND-AGENTS §2-§3;
+#                  docs/decisions.md D-009, D-011, D-012
+# Status: draft for review (later-milestone agent; tool names are proposals until its milestone spec)
+#
+# reads_untrusted_content is true because the agent receives text that originated outside the system
+# (page content, CMS content, tool or model output, user input). Such text is data, never instructions.
+# No write-class tool may appear in tools. Only the deterministic connector service holds write credentials.
+# Note: Tool names derived from 04-CLAUDE-CODE-BUILD-PROMPT §25 and 01-PRODUCT-REQUIREMENTS §17: dated exports only, sources kept separate.
+# Note: Disavow preparation needs evidence and human review; the product never uploads a disavow file.
+
+name: backlink-analyst
+milestone: "M8C"
+status: draft
+reads_untrusted_content: true
+model_tier: "<DECIDE_AT_M0: model tier>"
+tools:
+  - read_backlink_export
+  - check_link_target_status
+  - label_vendor_metric
+  - list_link_opportunities
+  - prepare_disavow_candidates
+forbidden_tools:
+  - apply_change
+  - publish
+  - write_cms
+  - delete_content
+  - upload_disavow
+  - send_email
+  - submit_form
+  - approve_change
+  - buy_link
+  - contact_site

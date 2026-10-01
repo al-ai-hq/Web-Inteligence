@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:redirect-rule:0.1.0",
+  "title": "RedirectRule",
+  "description": "One redirect in a migration map or change set, with one-hop validation.",
+  "type": "object",
+  "required": [
+    "redirect_id",
+    "source_url",
+    "target_url",
+    "status_code",
+    "match_type",
+    "validation_state",
+    "origin",
+    "evidence_ids"
+  ],
+  "properties": {
+    "redirect_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "baseline_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "change_set_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source_url": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 4096,
+      "pattern": "^https?://"
+    },
+    "target_url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "status_code": {
+      "type": "integer",
+      "enum": [
+        301,
+        302,
+        307,
+        308
+      ]
+    },
+    "match_type": {
+      "type": "string",
+      "enum": [
+        "exact",
+        "prefix",
+        "pattern"
+      ]
+    },
+    "validation_state": {
+      "type": "string",
+      "enum": [
+        "not_checked",
+        "valid_one_hop",
+        "chain",
+        "loop",
+        "target_4xx",
+        "target_5xx"
+      ]
+    },
+    "origin": {
+      "type": "string",
+      "enum": [
+        "imported",
+        "generated",
+        "manual"
+      ]
+    },
+    "approved": {
+      "type": "boolean"
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23",
+    "05-PROJECT-PLAN M8B"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,154 @@
+# Purpose: Arabic prompt templates for the free AI-visibility panel (the 8 v1 prompts) and seed templates
+#          for the connected panel's six categories, in Modern Standard Arabic.
+# Owner role: SEO lead, with the Arabic editorial owner (native reviewer)
+# Source sections: v1-baseline §8.3, §8.4; 02-DETAILED-SPECIFICATION §6 (Prompt panels), §9 (Writing rules);
+#                  01-PRODUCT-REQUIREMENTS §5.11, §8 (Content); config/prompt-panels/templates/en.yaml
+# Status: draft for review
+#
+# Rules:
+# - Modern Standard Arabic (register: msa). Every template has needs_native_review: true until a native
+#   reviewer approves it. Dialect variants per market are added by the native reviewer, never assumed
+#   (02-DETAILED-SPECIFICATION §6, §9; 07-SKILLS-AND-AGENTS §2 "No dialect assumptions").
+# - Each template is written to carry the same meaning as the English template with the same id, not as a
+#   word-for-word translation. Placeholders are identical to en.yaml.
+# - Placeholders sit as separate words (no attached prefixes such as لـ) so any filled value reads correctly.
+# - Filled values may be Latin script (brand names, domains); the renderer isolates them for bidi.
+# - Unbranded templates never contain {brand} and never name competitors (v1-baseline §8.4).
+
+language: ar
+register: msa
+version: "0.1.0-draft"
+
+templates:
+  # Free panel: v1-baseline §8.3, prompts 1-8.
+  - id: free-discovery
+    panel: free
+    group: discovery
+    branded: false
+    text: "ما الجهات التي تقدّم {offering} وتخدم {audience} في {market}؟"
+    placeholders: [offering, audience, market]
+    needs_native_review: true
+    source_reference: "v1-baseline §8.3 (1 Discovery)"
+  - id: free-shortlist
+    panel: free
+    group: discovery
+    branded: false
+    text: "رشّح جهات موثوقة تقدّم {offering} في {market}، واشرح سبب ترشيح كلٍّ منها."
+    placeholders: [offering, market]
+    needs_native_review: true
+    source_reference: "v1-baseline §8.3 (2 Shortlist)"
+  - id: free-scenario
+    panel: free
+    group: discovery
+    branded: false
+    text: "أحتاج إلى {offering} من أجل {use_case}. ما الجهات التي ينبغي أن أنظر فيها؟"
+    placeholders: [offering, use_case]
+    needs_native_review: true
+    source_reference: "v1-baseline §8.3 (3 Scenario)"
+  - id: free-local-global
+    panel: free
+    group: discovery
+    branded: false
+    text: "ما الخيارات القوية من الجهات التي تقدّم {offering} للعملاء في {market}؟"
+    placeholders: [offering, market]
+    needs_native_review: true
+    source_reference: "v1-baseline §8.3 (4 Local/global discovery)"
+  - id: free-comparison
+    panel: free
+    group: comparison
+    branded: false
+    text: "قارن بين أبرز الجهات التي تقدّم {offering} وتخدم {audience} في {market}."
+    placeholders: [offering, audience, market]
+    needs_native_review: true
+    source_reference: "v1-baseline §8.3 (5 Comparison)"
+  - id: free-selection
+    panel: free
+    group: comparison
+    branded: false
+    text: "ما الجهات العاملة في مجال {category} الأنسب لتلبية {requirement}؟"
+    placeholders: [category, requirement]
+    needs_native_review: true
+    source_reference: "v1-baseline §8.3 (6 Selection)"
+  - id: free-branded-knowledge
+    panel: free
+    group: branded
+    branded: true
+    text: "ما الذي تقدّمه {brand}، ومن الجمهور الذي تخدمه؟"
+    placeholders: [brand]
+    needs_native_review: true
+    review_note: "Verb agreement assumes the organization is treated as feminine (شركة، مؤسسة); the reviewer adjusts per brand."
+    source_reference: "v1-baseline §8.3 (7 Branded knowledge)"
+  - id: free-citation-source
+    panel: free
+    group: citation
+    branded: true
+    text: "ما المصادر الموثوقة التي تشرح {brand} وما تقدّمه من {offering}؟"
+    placeholders: [brand, offering]
+    needs_native_review: true
+    source_reference: "v1-baseline §8.3 (8 Citation/source)"
+
+  # Connected panel seeds: 02-DETAILED-SPECIFICATION §6 categories.
+  - id: panel-recommendation-city
+    panel: connected
+    category: recommendation
+    branded: false
+    text: "ما أفضل الجهات التي تقدّم {offering} في {city}؟"
+    placeholders: [offering, city]
+    needs_native_review: true
+    source_reference: "02-DETAILED-SPECIFICATION §6 (recommendation)"
+  - id: panel-recommendation-market
+    panel: connected
+    category: recommendation
+    branded: false
+    text: "ما الشركات التي تنصح بها للحصول على {offering} في {market}؟"
+    placeholders: [offering, market]
+    needs_native_review: true
+    source_reference: "02-DETAILED-SPECIFICATION §6 (recommendation)"
+  - id: panel-comparison
+    panel: connected
+    category: comparison
+    branded: false
+    text: "قارن بين أبرز الجهات العاملة في مجال {category} التي تخدم {audience} في {market}."
+    placeholders: [category, audience, market]
+    needs_native_review: true
+    source_reference: "02-DETAILED-SPECIFICATION §6 (comparison)"
+  - id: panel-how-to-choose
+    panel: connected
+    category: how_to_choose
+    branded: false
+    text: "كيف أختار جهة مناسبة في مجال {category} في {market}؟ وما الجهات التي تستوفي هذه المعايير؟"
+    placeholders: [category, market]
+    needs_native_review: true
+    source_reference: "02-DETAILED-SPECIFICATION §6 (how to choose)"
+  - id: panel-price
+    panel: connected
+    category: price
+    branded: false
+    text: "كم تبلغ تكلفة {offering} في {market}؟ وما الجهات التي تقدّم قيمة جيدة مقابل السعر؟"
+    placeholders: [offering, market]
+    needs_native_review: true
+    source_reference: "02-DETAILED-SPECIFICATION §6 (price)"
+  - id: panel-local
+    panel: connected
+    category: local
+    branded: false
+    text: "ما الجهات التي تقدّم {offering} بالقرب من {city}؟"
+    placeholders: [offering, city]
+    needs_native_review: true
+    source_reference: "02-DETAILED-SPECIFICATION §6 (local)"
+  - id: panel-brand-facts-availability
+    panel: connected
+    category: brand_facts
+    branded: true
+    text: "هل تقدّم {brand} {offering} في {city}؟"
+    placeholders: [brand, offering, city]
+    needs_native_review: true
+    source_reference: "02-DETAILED-SPECIFICATION §6 (brand facts)"
+  - id: panel-brand-facts-overview
+    panel: connected
+    category: brand_facts
+    branded: true
+    text: "ما الذي تقدّمه {brand}، وأين تعمل؟"
+    placeholders: [brand]
+    needs_native_review: true
+    source_reference: "02-DETAILED-SPECIFICATION §6 (brand facts)"
