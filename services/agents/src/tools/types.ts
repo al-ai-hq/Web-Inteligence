@@ -11,7 +11,7 @@ export interface ToolContext {
   audit_id: string;
   project_id: string;
   evidence_bucket: string;
-  db: PoolClient;
+  db?: PoolClient;
 }
 
 export interface ToolResult {
