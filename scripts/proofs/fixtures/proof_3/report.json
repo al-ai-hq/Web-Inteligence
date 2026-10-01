@@ -1,0 +1,35 @@
+{
+  "report_id": "a0000000-3333-4a00-bbbb-000000000001",
+  "audit_id": "c3c3c3c3-3333-4aaa-bbbb-000000000001",
+  "version": 1,
+  "access_class": "registered",
+  "languages": ["ar", "en"],
+  "allowed_projections": ["web_interactive", "pdf"],
+  "access": {
+    "link_id": "abcdefghijklmnopqrstuvwxyz012345",
+    "secret_hash": null,
+    "noindex": false,
+    "public_gallery": false
+  },
+  "tone": "professional",
+  "content": {
+    "summary_bullets": ["Site has crawlability issues", "Structured data needs improvement"],
+    "score_result_ids": ["a0222222-3333-4a00-bbbb-000000000001"],
+    "finding_ids": ["f0222222-3333-4fff-bbbb-000000000001"],
+    "roadmap_id": null,
+    "prompt_run_ids": [],
+    "data_gaps": [],
+    "limitations_keys": [],
+    "sample_disclosure": {"pages_checked": 5, "sampled": false}
+  },
+  "lineage_coverage": {
+    "numbers_total": 2,
+    "numbers_with_lineage": 2,
+    "ratio": 1
+  },
+  "status": "ready",
+  "needs_native_review": false,
+  "retention_days": 30,
+  "created_at": "2026-10-01T10:04:00Z",
+  "expires_at": "2026-10-31T10:04:00Z"
+}

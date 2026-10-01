@@ -1,0 +1,52 @@
+[
+  {
+    "record_id": "a0222222-3333-4a00-bbbb-000000000001",
+    "project_id": "c3c3c3c3-3333-4aaa-bbbb-000000000099",
+    "site_id": "c3c3c3c3-3333-4aaa-bbbb-000000000098",
+    "source_type": "computation",
+    "source_id": "scoring-engine",
+    "source_version": "0.1.0-draft",
+    "captured_at": "2026-10-01T10:03:00Z",
+    "as_of": "2026-10-01T10:00:00Z",
+    "market": "SA",
+    "language": "ar",
+    "device": "desktop",
+    "method": "rules_engine",
+    "methodology_version": "0.1.0-draft",
+    "fidelity_label": "computed",
+    "content_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "parent_ids": ["c3c3c3c3-3333-4eee-bbbb-000000000001"],
+    "validation_state": "valid",
+    "audit_id": "c3c3c3c3-3333-4aaa-bbbb-000000000001",
+    "value_ref": {
+      "entity": "score_result",
+      "entity_id": "a0222222-3333-4a00-bbbb-000000000001",
+      "field": "value"
+    }
+  },
+  {
+    "record_id": "f0222222-3333-4fff-bbbb-000000000001",
+    "project_id": "c3c3c3c3-3333-4aaa-bbbb-000000000099",
+    "site_id": "c3c3c3c3-3333-4aaa-bbbb-000000000098",
+    "source_type": "rules_engine",
+    "source_id": "CRW-001",
+    "source_version": "0.1.0-draft",
+    "captured_at": "2026-10-01T10:02:00Z",
+    "as_of": "2026-10-01T10:00:00Z",
+    "market": "SA",
+    "language": "ar",
+    "device": "desktop",
+    "method": "rules_engine",
+    "methodology_version": "0.1.0-draft",
+    "fidelity_label": "computed",
+    "content_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "parent_ids": ["c3c3c3c3-3333-4eee-bbbb-000000000002"],
+    "validation_state": "valid",
+    "audit_id": "c3c3c3c3-3333-4aaa-bbbb-000000000001",
+    "value_ref": {
+      "entity": "finding",
+      "entity_id": "f0222222-3333-4fff-bbbb-000000000001",
+      "field": "result"
+    }
+  }
+]
