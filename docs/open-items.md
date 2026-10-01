@@ -40,6 +40,8 @@ Every item names what it blocks and who decides. Close an item by adding the dec
 
 M0A toolchain closure, 2026-10-01: pnpm, Node.js 22, Prettier, ESLint, and Vitest are closed by D-021. Playwright is not installed. `pnpm test:e2e` is the placeholder recorded as not run; browser journeys arrive at M3. OI-021's action SHA pin is done. The gitleaks organization-licence question stays open.
 
+M0A close, 2026-10-01: commits `f466a72` and `1f25117` are on `origin/main`. GitHub Actions run `36796058884` passed `governance` (Python 3.12) and `app`. The `secrets` job failed because `gitleaks-action` requires a licence for organization `al-ai-hq`. OI-021 stays open. `.cursorignore` was not changed.
+
 ## M0B (contracts, threat model, cost proof)
 
 | ID | Item | Blocks | Decides | Where |

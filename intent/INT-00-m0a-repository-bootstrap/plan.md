@@ -3,11 +3,11 @@
 | Field | Value |
 | --- | --- |
 | Spec | `intent/INT-00-m0a-repository-bootstrap/spec.md` (status: approved) |
-| Status | approved |
+| Status | done |
 | Author | Cursor session (Grok 4.7), 2026-10-01 |
 | Engineer approval | Ibrahim, 2026-10-01, by approving the M0A implementation plan and asking to implement it. |
 | Tech lead approval | Ibrahim, 2026-10-01, same approval. The named tech-lead role remains `<DECIDE_AT_M0: name>` (OI-002). |
-| Branch | `m0a-repository-bootstrap`, created when implementation starts. The repository has no commits yet, so the branch is created with the first commit. This plan does not create the branch. |
+| Branch | `main`. Commits `f466a72` and `1f25117` are on `origin/main`. |
 
 Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Only a human sets `approved`.
 
@@ -130,3 +130,5 @@ No production path and no deployed revision. After a commit, rollback is `git re
 - 2026-10-01: `pnpm install` resolved TypeScript 7.0.2. `typescript-eslint` 8.71.0 cannot lint that compiler. TypeScript is pinned to the resolved 6.0.3. The other dev dependencies are pinned to the versions `pnpm list` printed on 2026-10-01.
 - 2026-10-01: `.github/workflows/ci.yml` `app` job also runs `pnpm test:e2e`. The approved spec requires that command in the app job. The previous workflow stopped at `pnpm test:ssrf`.
 - 2026-10-01: After security review, the `detect` job was removed so the `app` job cannot be skipped, `scripts/check_action_pins.py` was added to the governance job, and `.gitignore` gained credential filename patterns. `.cursorignore` could not be edited in this session (write denied) and is unchanged.
+- 2026-10-01: The first commit landed on `main`, not on `m0a-repository-bootstrap`. Ibrahim asked to push to `https://github.com/al-ai-hq/Web-Inteligence`.
+- 2026-10-01: Ibrahim asked to close M0A. Plan status is `done`. `release.md` stays `draft` and does not authorize a release. GitHub Actions run `36796058884` passed `governance` and `app` and failed `secrets` on the gitleaks organization licence (OI-021).

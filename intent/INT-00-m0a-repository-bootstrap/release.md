@@ -7,23 +7,23 @@
 | Status | draft |
 | Environment | none. No deploy, no staging, no production. |
 | Release approver | pending `<DECIDE_AT_M0: release manager name>` |
-| Release time (UTC) | 2026-10-01T00:18:00Z (record time for this session, not a deploy) |
+| Release time (UTC) | 2026-10-01T00:18:00Z (local proof). Close recorded 2026-10-01 after the push. Not a deploy. |
 | Change ticket (prod) | not prod |
 
-Status values: `draft`, `authorized`, `released`, `rolled_back`, `abandoned`. Only the release approver sets `authorized`.
+Status values: `draft`, `authorized`, `released`, `rolled_back`, `abandoned`. Only the release approver sets `authorized`. Ibrahim asked to close the M0A record on 2026-10-01. This file stays `draft`.
 
 ## Outcome and acceptance status
 
-The M0A exit gate is met for the commands that were run on this machine. A clean checkout can install from the lockfile and run lint, typecheck, unit tests, schema validation, config validation, secret-scanning configuration, hook tests, and the action-pin check. `pnpm test:ssrf` and `pnpm test:e2e` exit 0 and are recorded as not run. There is no pull request and no commit yet. This record does not authorize a release.
+The M0A exit gate is met for lint, typecheck, unit tests, schema validation, config validation, hook tests, and the action-pin check. Those commands passed locally and again on GitHub Actions for commit `1f25117`. `pnpm test:ssrf` and `pnpm test:e2e` exit 0 and are recorded as not run. Secret scanning is configured and did not pass: the `secrets` job failed because the gitleaks action requires an organization licence (OI-021). That choice stays open. This record does not authorize a release.
 
 ## Artifact versions
 
-- Commit SHA: none. The repository still has no commits.
+- Commit SHAs on `origin/main`: `f466a72` (M0A baseline) and `1f25117` (session bootstrap and two plan drafts). Remote: `https://github.com/al-ai-hq/Web-Inteligence`.
 - Image digest: none.
 - Schema versions: unchanged. 87 schema files.
 - `methodology_version`: unchanged. No rule or weight edit.
 - Toolchain (D-021): pnpm 12.3.4, Node.js engine `22.x`, TypeScript 6.0.3, ESLint 10.11.0, `@eslint/js` 10.0.1, `typescript-eslint` 8.71.0, Prettier 3.9.9, Vitest 5.0.2.
-- Local interpreter for governance checks: Python 3.14.7 (`.venv/bin/python` and `python3`). CI pins Python 3.12. That CI image was not executed here.
+- Local interpreter for governance checks: Python 3.14.7 (`.venv/bin/python` and `python3`). CI pins Python 3.12. The `governance` job on run `36796058884` executed that image and passed.
 
 ## Migrations
 
@@ -50,7 +50,7 @@ Run on 2026-10-01 from the repository root after the review fixes.
 | `pnpm test:ssrf` | Exit 0. Recorded as not run. Printed `pnpm test:ssrf is not run. The SSRF suite arrives at M1.` |
 | `pnpm test:e2e` | Exit 0. Recorded as not run. Printed `pnpm test:e2e is not run. Browser journeys arrive at M3.` |
 | `pnpm install --frozen-lockfile` | Passed after the lockfile was refreshed to the pinned versions. |
-| GitHub Actions on Python 3.12 | Not run. No push and no pull request. |
+| GitHub Actions run `36796058884` on `1f25117` | `governance` passed (Python 3.12). `app` passed, including the two placeholders. `secrets` failed: `[al-ai-hq] is an organization. License key is required.` Run `36796033269` on `f466a72` was cancelled when the next push started. |
 | `make tf-plan` | Not run. Outside the M0A exit. |
 
 `pnpm test` failed once, before `workspace.ts` and the placeholder scripts existed, and passed after they were added.
@@ -68,7 +68,7 @@ Run on 2026-10-01 from the repository root after the review fixes.
 | Golden files | | | yes | No rule or report change |
 | Product-agent evals | | | yes | No product agent change |
 | Build-agent evals | | | yes | No tasks exist (OI-025) |
-| Python 3.12 CI image | | | yes | Local Python is 3.14.7 |
+| Python 3.12 CI image | yes | | | `governance` job on run `36796058884`. Local Python remains 3.14.7 |
 
 ## Security, privacy and cost review
 
@@ -89,16 +89,15 @@ No screen, copy, or document was added. Arabic review and WCAG 2.2 AA evidence a
 
 ## Unresolved risks
 
-- `.cursorignore` does not yet list the extra credential patterns that `.gitignore` now lists. Owner: security engineer. Follow-up: a later intent if the file remains uneditable.
-- OI-021 gitleaks licence for an organization repository. Owner: security engineer.
+- `.cursorignore` does not yet list the extra credential patterns that `.gitignore` now lists. Owner: security engineer. The edit was denied in the implementation session. Follow-up: a later intent if the file remains uneditable.
+- OI-021 gitleaks licence for organization `al-ai-hq`. Confirmed by the failed `secrets` job on run `36796058884`. Owner: security engineer. Choosing a pinned CLI instead of the action is the same open decision.
 - Action SHA comments name the major tag (`v4`, `v5`, `v2`), not an exact release. Owner: tech lead.
-- Python 3.12 in GitHub Actions was not executed. Owner: tech lead, on the first pull request.
 - Named owners remain `<DECIDE_AT_M0: name>` (OI-002).
-- No commit exists, so rollback has not been rehearsed as a revert.
+- Rollback has not been rehearsed as a revert.
 
 ## Rollback
 
-No production path. After a commit, rollback is `git revert` of the M0A commits. Before any commit, delete the created paths and restore the edited files. Hook scripts were not changed. Staging rehearsal: not run (`docs/rollback-plan.md` §9).
+No production path. Rollback of the published baseline is `git revert` of `1f25117` and then `f466a72`, in that order. Hook scripts were not changed. Staging rehearsal: not run (`docs/rollback-plan.md` §9).
 
 ## Monitoring
 
@@ -106,7 +105,7 @@ No service is deployed. No detection band applies. The later signal is a green `
 
 ## Post-release verification
 
-Not run. Nothing was released.
+Nothing was deployed. The close check is the GitHub Actions run above: `governance` and `app` passed; `secrets` failed on the known licence gap.
 
 ## Decisions, assumptions and open items
 
@@ -118,4 +117,8 @@ Appended, without rewriting earlier rows:
 - GitHub Actions pin table in `docs/sources.md`
 - §8 in `docs/spec/06-MODEL-PLAN.md`
 
-Departures recorded in `plan.md`: pnpm 12.3.4, TypeScript 6.0.3, the `test:e2e` CI step, removal of the `detect` job, the action-pin script, the `.gitignore` patterns, and the denied `.cursorignore` edit.
+Departures recorded in `plan.md`: pnpm 12.3.4, TypeScript 6.0.3, the `test:e2e` CI step, removal of the `detect` job, the action-pin script, the `.gitignore` patterns, the denied `.cursorignore` edit, and the commits landing on `main`.
+
+## Close
+
+Ibrahim asked to close M0A on 2026-10-01. The implementation slice is closed. M0B has not started. The smallest human decision still blocking a green `secrets` job is OI-021: store a gitleaks organization licence, or replace the action with a pinned CLI. `.cursorignore` and OI-002 stay open. Proposed next milestone: M0B (`intent/INT-01-m0b-contracts-threat-model-cost-proof/intent.md`), after a Plan-mode review of that draft intent.
