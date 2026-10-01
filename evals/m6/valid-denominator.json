@@ -1,0 +1,16 @@
+{
+  "prompt_count": 8,
+  "providers": [
+    {"slot": "slot_1", "outcome": "valid"},
+    {"slot": "slot_2", "outcome": "valid"},
+    {"slot": "slot_3", "outcome": "valid"},
+    {"slot": "slot_4", "outcome": "failed"},
+    {"slot": "slot_5", "outcome": "failed"}
+  ],
+  "counts": {
+    "prompt_count": 8,
+    "provider_count": 5,
+    "failed_provider_count": 2,
+    "denominator": 24
+  }
+}
