@@ -8,14 +8,16 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@wpi/security": "workspace:*",
     "@google/genai": "^1.0.0",
-    "zod": "^3.23.8",
+    "@wpi/security": "workspace:*",
+    "pg": "^8.23.1",
+    "undici": "^6.19.2",
     "yaml": "^2.5.1",
-    "undici": "^6.19.2"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "vitest": "^2.1.1",
-    "typescript": "^5.5.0"
+    "@types/pg": "^8.23.1",
+    "typescript": "^5.5.0",
+    "vitest": "^2.1.1"
   }
 }
