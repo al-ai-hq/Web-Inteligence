@@ -11,12 +11,6 @@ function runPlaceholder(script: string): string {
 }
 
 describe("placeholders", () => {
-  it("records the SSRF suite as not run", () => {
-    const output = runPlaceholder("scripts/placeholders/ssrf.mjs");
-    expect(output).toContain("not run");
-    expect(output).toContain("M1");
-  });
-
   it("records browser journeys as not run", () => {
     const output = runPlaceholder("scripts/placeholders/e2e.mjs");
     expect(output).toContain("not run");

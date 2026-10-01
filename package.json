@@ -11,7 +11,7 @@
     "lint": "eslint apps/web scripts vitest.config.ts",
     "typecheck": "tsc -p apps/web/tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:ssrf": "node scripts/placeholders/ssrf.mjs",
+    "test:ssrf": "vitest run apps/web/src/ssrf/suite.test.ts",
     "test:e2e": "node scripts/placeholders/e2e.mjs"
   },
   "devDependencies": {

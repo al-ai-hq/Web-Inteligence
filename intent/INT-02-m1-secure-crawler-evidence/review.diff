@@ -1,0 +1,1060 @@
+diff --git a/apps/web/src/placeholders.test.ts b/apps/web/src/placeholders.test.ts
+index d59fbef..92ef3cb 100644
+--- a/apps/web/src/placeholders.test.ts
++++ b/apps/web/src/placeholders.test.ts
+@@ -11,12 +11,6 @@ function runPlaceholder(script: string): string {
+ }
+ 
+ describe("placeholders", () => {
+-  it("records the SSRF suite as not run", () => {
+-    const output = runPlaceholder("scripts/placeholders/ssrf.mjs");
+-    expect(output).toContain("not run");
+-    expect(output).toContain("M1");
+-  });
+-
+   it("records browser journeys as not run", () => {
+     const output = runPlaceholder("scripts/placeholders/e2e.mjs");
+     expect(output).toContain("not run");
+diff --git a/apps/web/src/ssrf/sample.ts b/apps/web/src/ssrf/sample.ts
+new file mode 100644
+index 0000000..0d9a36c
+--- /dev/null
++++ b/apps/web/src/ssrf/sample.ts
+@@ -0,0 +1,21 @@
++export type SampleDisclosure = {
++  coverage: "sample";
++  fetched_count: number;
++  site_wide_count: null;
++};
++
++export function discloseSample(fetchedCount: number): SampleDisclosure {
++  return {
++    coverage: "sample",
++    fetched_count: fetchedCount,
++    site_wide_count: null,
++  };
++}
++
++export function acceptsDisclosure(result: {
++  coverage: string;
++  fetched_count: number;
++  site_wide_count: number | null;
++}): boolean {
++  return result.coverage === "sample" && result.site_wide_count === null;
++}
+diff --git a/apps/web/src/ssrf/suite.test.ts b/apps/web/src/ssrf/suite.test.ts
+new file mode 100644
+index 0000000..4ae47ff
+--- /dev/null
++++ b/apps/web/src/ssrf/suite.test.ts
+@@ -0,0 +1,329 @@
++import { readFileSync, readdirSync } from "node:fs";
++import path from "node:path";
++import { describe, expect, it } from "vitest";
++
++import { discloseSample, acceptsDisclosure } from "./sample.ts";
++import {
++  checkFetch,
++  checkLimits,
++  checkLinkedUrl,
++  type Ceilings,
++  type Connector,
++  type Resolver,
++} from "./validate.ts";
++
++const root = path.resolve(import.meta.dirname, "../../../..");
++const ceilings = JSON.parse(
++  readFileSync(path.join(root, "evals/m1/ceilings.json"), "utf8"),
++) as Ceilings;
++const denylist = JSON.parse(
++  readFileSync(path.join(root, "evals/m1/forbidden-references.json"), "utf8"),
++) as { clients: string[]; write_class_tools: string[] };
++
++const atCeiling = {
++  response_bytes: ceilings.response_bytes,
++  decompressed_bytes: ceilings.decompressed_bytes,
++  pages: ceilings.pages,
++  depth: ceilings.depth,
++  duration_ms: ceilings.duration_ms,
++};
++
++function publicResolver(host: string): Resolver {
++  return (name) => {
++    if (name !== host) {
++      throw new Error(`unexpected lookup ${name}`);
++    }
++    return ["1.2.3.4"];
++  };
++}
++
++function harness(): { connect: Connector; calls: string[] } {
++  const calls: string[] = [];
++  return {
++    calls,
++    connect(pinned: string) {
++      calls.push(pinned);
++    },
++  };
++}
++
++function refused(
++  url: string,
++  resolve: Resolver = () => {
++    throw new Error("resolver must not run");
++  },
++) {
++  const { connect, calls } = harness();
++  const decision = checkFetch({
++    url,
++    ceilings,
++    resolve,
++    connect,
++    observed: atCeiling,
++  });
++  expect(decision).toEqual({ decision: "refused", reason: expect.any(String) });
++  expect(calls).toEqual([]);
++  return decision;
++}
++
++describe("local SSRF suite", () => {
++  it("rejects schemes other than http and https", () => {
++    for (const url of [
++      "file:///tmp/x",
++      "ftp://allowed.example/",
++      "gopher://allowed.example/",
++      "data:text/plain,hi",
++      "javascript:alert(1)",
++      "ws://allowed.example/",
++      "wss://allowed.example/",
++    ]) {
++      expect(refused(url)).toMatchObject({ reason: "scheme" });
++    }
++  });
++
++  it("rejects userinfo and a port other than 80 or 443", () => {
++    expect(refused("https://user:pass@allowed.example/")).toMatchObject({
++      reason: "userinfo",
++    });
++    expect(refused("https://allowed.example:22/")).toMatchObject({
++      reason: "port",
++    });
++  });
++
++  it("rejects one address in each non-public class", () => {
++    for (const host of [
++      "127.0.0.1",
++      "10.0.0.1",
++      "100.64.0.1",
++      "169.254.1.1",
++      "224.0.0.1",
++      "240.0.0.1",
++      "192.0.2.1",
++      "0.0.0.1",
++      "255.255.255.255",
++      "[::1]",
++      "[fc00::1]",
++      "[fe80::1]",
++      "[::ffff:10.0.0.1]",
++    ]) {
++      expect(refused(`http://${host}/`)).toMatchObject({
++        reason: "non_public_address",
++      });
++    }
++  });
++
++  it("rejects obfuscated loopback forms before a connection", () => {
++    for (const url of [
++      "http://2130706433/",
++      "http://0177.0.0.1/",
++      "http://0x7f.0.0.1/",
++      "http://127.1/",
++      "http://127.0.0.1./",
++    ]) {
++      expect(refused(url)).toMatchObject({ reason: "non_public_address" });
++    }
++  });
++
++  it("rejects metadata by name and by address", () => {
++    expect(refused("http://metadata.google.internal/latest")).toMatchObject({
++      reason: "metadata",
++    });
++    expect(refused("http://169.254.169.254/")).toMatchObject({
++      reason: "metadata",
++    });
++  });
++
++  it("allows the stub public address and pins it", () => {
++    const resolve = publicResolver("allowed.example");
++    const { connect, calls } = harness();
++    const decision = checkFetch({
++      url: "https://allowed.example/path",
++      ceilings,
++      resolve,
++      connect,
++      observed: atCeiling,
++    });
++    expect(decision).toEqual({ decision: "allow", pinned: "1.2.3.4" });
++    expect(calls).toEqual(["1.2.3.4"]);
++  });
++
++  it("rejects rebinding and mixed answers", () => {
++    const cases: Resolver[] = [
++      (_host, phase) => (phase === "validation" ? ["1.2.3.4"] : ["10.0.0.1"]),
++      () => ["1.2.3.4", "10.0.0.1"],
++      () => ["1.2.3.4", "fc00::1"],
++    ];
++    for (const resolve of cases) {
++      const { connect, calls } = harness();
++      const decision = checkFetch({
++        url: "https://allowed.example/",
++        ceilings,
++        resolve,
++        connect,
++        observed: atCeiling,
++      });
++      expect(decision).toEqual({ decision: "refused", reason: "rebinding" });
++      expect(calls).toEqual([]);
++    }
++  });
++
++  it("re-checks redirects and enforces the hop ceiling", () => {
++    const resolve = (host: string) =>
++      host.endsWith(".example") ? ["1.2.3.4"] : ["10.0.0.1"];
++    const { connect, calls } = harness();
++    const chain = [
++      "https://allowed.example/",
++      "https://hop1.example/",
++      "https://hop2.example/",
++      "https://hop3.example/",
++    ];
++    const allowed = checkFetch({
++      url: chain[0],
++      ceilings,
++      resolve,
++      connect,
++      observed: atCeiling,
++      redirectTo(url) {
++        const index = chain.indexOf(url);
++        return index >= 0 && index < chain.length - 1 ? chain[index + 1] : null;
++      },
++    });
++    expect(allowed).toEqual({ decision: "allow", pinned: "1.2.3.4" });
++    expect(calls).toEqual(["1.2.3.4"]);
++
++    const privateHop = checkFetch({
++      url: "https://allowed.example/",
++      ceilings,
++      resolve,
++      connect: () => {
++        throw new Error("connector must not run");
++      },
++      redirectTo: () => "http://10.0.0.1/",
++    });
++    expect(privateHop).toEqual({ decision: "refused", reason: "redirect" });
++
++    const fileHop = checkFetch({
++      url: "https://allowed.example/",
++      ceilings,
++      resolve,
++      connect: () => {
++        throw new Error("connector must not run");
++      },
++      redirectTo: () => "file:///tmp/x",
++    });
++    expect(fileHop).toEqual({ decision: "refused", reason: "redirect" });
++
++    const loop = checkFetch({
++      url: "https://allowed.example/a",
++      ceilings,
++      resolve,
++      connect: () => {
++        throw new Error("connector must not run");
++      },
++      redirectTo: () => "https://allowed.example/a",
++    });
++    expect(loop).toEqual({ decision: "refused", reason: "redirect" });
++
++    const fourth = checkFetch({
++      url: "https://a.example/",
++      ceilings,
++      resolve,
++      connect: () => {
++        throw new Error("connector must not run");
++      },
++      redirectTo(url) {
++        const names = ["a", "b", "c", "d", "e"];
++        const current = names.findIndex((name) =>
++          url.startsWith(`https://${name}.example`),
++        );
++        const next = names[current + 1];
++        return next ? `https://${next}.example/` : null;
++      },
++    });
++    expect(fourth).toEqual({ decision: "refused", reason: "redirect" });
++  });
++
++  it("does not fetch a private, metadata, or off-host link", () => {
++    const resolve: Resolver = (host) => {
++      if (host === "other.example") return ["1.2.3.4"];
++      throw new Error(`unexpected lookup ${host}`);
++    };
++    const cases = [
++      ["http://10.0.0.1/map", "non_public_address"],
++      ["http://169.254.169.254/", "metadata"],
++      ["https://other.example/page", "off_host"],
++    ] as const;
++    for (const [url, reason] of cases) {
++      const calls: string[] = [];
++      const decision = checkLinkedUrl({
++        targetHost: "allowed.example",
++        url,
++        resolve,
++        connect(pinned) {
++          calls.push(pinned);
++        },
++      });
++      expect(decision).toEqual({ decision: "refused", reason });
++      expect(calls).toEqual([]);
++    }
++  });
++
++  it("allows a ceiling and refuses one step past it", () => {
++    expect(checkLimits(atCeiling, ceilings)).toEqual({ decision: "allow" });
++    const steps = [
++      ["response_bytes", ceilings.response_bytes + 1],
++      ["decompressed_bytes", ceilings.decompressed_bytes + 1],
++      ["pages", ceilings.pages + 1],
++      ["depth", ceilings.depth + 1],
++      ["duration_ms", ceilings.duration_ms + 1],
++    ] as const;
++    for (const [key, value] of steps) {
++      expect(checkLimits({ ...atCeiling, [key]: value }, ceilings)).toEqual({
++        decision: "refused",
++        reason: "over_limit",
++      });
++    }
++  });
++
++  it("labels a representative result as a sample", () => {
++    expect(discloseSample(2)).toEqual({
++      coverage: "sample",
++      fetched_count: 2,
++      site_wide_count: null,
++    });
++    expect(
++      acceptsDisclosure({
++        coverage: "full",
++        fetched_count: 2,
++        site_wide_count: 2,
++      }),
++    ).toBe(false);
++  });
++
++  it("keeps secret, database, and write-class names off the fetch path", () => {
++    const python = readFileSync(
++      path.join(root, "scripts/check_config.py"),
++      "utf8",
++    );
++    const block = python.match(/WRITE_CLASS_TOOLS = \{([^}]+)\}/);
++    if (!block) {
++      throw new Error("WRITE_CLASS_TOOLS block missing");
++    }
++    const fromPython = new Set(
++      [...block[1].matchAll(/"([^"]+)"/g)].map((match) => match[1]),
++    );
++    expect(new Set(denylist.write_class_tools)).toEqual(fromPython);
++    const needles = [...denylist.clients, ...denylist.write_class_tools];
++    const dir = path.join(root, "apps/web/src/ssrf");
++    const sources = readdirSync(dir).filter(
++      (name) => name.endsWith(".ts") && !name.endsWith(".test.ts"),
++    );
++    expect(sources.length).toBeGreaterThan(0);
++    for (const name of sources) {
++      const text = readFileSync(path.join(dir, name), "utf8");
++      for (const needle of needles) {
++        expect(text.includes(needle), `${name} contains ${needle}`).toBe(false);
++      }
++    }
++  });
++});
+diff --git a/apps/web/src/ssrf/validate.ts b/apps/web/src/ssrf/validate.ts
+new file mode 100644
+index 0000000..25d0f51
+--- /dev/null
++++ b/apps/web/src/ssrf/validate.ts
+@@ -0,0 +1,265 @@
++export type Reason =
++  | "scheme"
++  | "userinfo"
++  | "port"
++  | "non_public_address"
++  | "metadata"
++  | "rebinding"
++  | "redirect"
++  | "off_host"
++  | "over_limit";
++
++export type Decision =
++  | { decision: "allow"; pinned: string }
++  | { decision: "refused"; reason: Reason };
++
++export type Ceilings = {
++  role: "test_ceiling_not_product_limit";
++  redirect_hops: number;
++  response_bytes: number;
++  decompressed_bytes: number;
++  pages: number;
++  depth: number;
++  duration_ms: number;
++};
++
++export type Observed = {
++  response_bytes: number;
++  decompressed_bytes: number;
++  pages: number;
++  depth: number;
++  duration_ms: number;
++};
++
++export type Resolver = (
++  host: string,
++  phase: "validation" | "connection",
++) => readonly string[];
++
++export type Connector = (pinned: string) => void;
++
++export type FetchInput = {
++  url: string;
++  ceilings: Ceilings;
++  resolve: Resolver;
++  connect: Connector;
++  redirectTo?: (url: string) => string | null;
++  observed?: Observed;
++};
++
++const METADATA_NAME = "metadata.google.internal";
++
++function refused(reason: Reason): Decision {
++  return { decision: "refused", reason };
++}
++
++function ip(a: number, b: number, c: number, d: number): number {
++  return ((a * 256 + b) * 256 + c) * 256 + d;
++}
++
++function mask(bits: number): number {
++  if (bits <= 0) return 0;
++  return (0xffffffff << (32 - bits)) >>> 0;
++}
++
++function inBlock(value: number, base: number, bits: number): boolean {
++  const bitsMask = mask(bits);
++  return (value & bitsMask) === (base & bitsMask);
++}
++
++function parseDotted(host: string): number | null {
++  if (!/^\d{1,3}(?:\.\d{1,3}){3}$/.test(host)) return null;
++  const parts = host.split(".").map((part) => Number(part));
++  if (parts.some((part) => part > 255)) return null;
++  return ip(parts[0], parts[1], parts[2], parts[3]);
++}
++
++function addressClass(value: number): "metadata" | "non_public" | "public" {
++  if (value === ip(169, 254, 169, 254)) return "metadata";
++  if (value === 0xffffffff) return "non_public";
++  if (
++    inBlock(value, ip(0, 0, 0, 0), 8) ||
++    inBlock(value, ip(10, 0, 0, 0), 8) ||
++    inBlock(value, ip(100, 64, 0, 0), 10) ||
++    inBlock(value, ip(127, 0, 0, 0), 8) ||
++    inBlock(value, ip(169, 254, 0, 0), 16) ||
++    inBlock(value, ip(172, 16, 0, 0), 12) ||
++    inBlock(value, ip(192, 0, 2, 0), 24) ||
++    inBlock(value, ip(192, 168, 0, 0), 16) ||
++    inBlock(value, ip(198, 51, 100, 0), 24) ||
++    inBlock(value, ip(203, 0, 113, 0), 24) ||
++    inBlock(value, ip(224, 0, 0, 0), 4) ||
++    inBlock(value, ip(240, 0, 0, 0), 4)
++  ) {
++    return "non_public";
++  }
++  return "public";
++}
++
++function expandV6(host: string): number[] | null {
++  const lower = host.toLowerCase();
++  if (!/^[0-9a-f:]+$/.test(lower)) return null;
++  const halves = lower.split("::");
++  if (halves.length > 2) return null;
++  const side = (text: string): number[] | null => {
++    if (text === "") return [];
++    const groups = text.split(":");
++    const numbers = groups.map((group) => Number.parseInt(group, 16));
++    if (
++      numbers.some(
++        (group) => !Number.isInteger(group) || group < 0 || group > 0xffff,
++      )
++    ) {
++      return null;
++    }
++    return numbers;
++  };
++  const head = side(halves[0]);
++  if (!head) return null;
++  if (halves.length === 1) return head.length === 8 ? head : null;
++  const tail = side(halves[1]);
++  if (!tail) return null;
++  const missing = 8 - head.length - tail.length;
++  if (missing < 1) return null;
++  return [...head, ...Array<number>(missing).fill(0), ...tail];
++}
++
++function classifyLiteral(
++  host: string,
++): "metadata" | "non_public" | "public" | null {
++  const dotted = parseDotted(host);
++  if (dotted !== null) return addressClass(dotted);
++  const groups = expandV6(host);
++  if (!groups) return null;
++  if (groups.every((group, index) => group === (index === 7 ? 1 : 0)))
++    return "non_public";
++  const first = groups[0];
++  if ((first & 0xfe00) === 0xfc00) return "non_public";
++  if ((first & 0xffc0) === 0xfe80) return "non_public";
++  if (groups[0] === 0x2001 && groups[1] === 0x0db8) return "non_public";
++  const mapped =
++    groups.slice(0, 5).every((group) => group === 0) && groups[5] === 0xffff;
++  if (mapped) return addressClass(groups[6] * 0x10000 + groups[7]);
++  return "public";
++}
++
++function bareHost(hostname: string): string {
++  const unwrapped =
++    hostname.startsWith("[") && hostname.endsWith("]")
++      ? hostname.slice(1, -1)
++      : hostname;
++  return unwrapped.endsWith(".") ? unwrapped.slice(0, -1) : unwrapped;
++}
++
++function judgeAnswers(
++  answers: readonly string[],
++): { kind: "pin"; pinned: string } | { kind: "stop"; reason: Reason } {
++  if (answers.length === 0)
++    return { kind: "stop", reason: "non_public_address" };
++  const classes = answers.map(
++    (answer) => classifyLiteral(answer) ?? "non_public",
++  );
++  if (classes.includes("metadata")) return { kind: "stop", reason: "metadata" };
++  const publicCount = classes.filter((kind) => kind === "public").length;
++  if (publicCount !== answers.length) {
++    return {
++      kind: "stop",
++      reason: publicCount > 0 ? "rebinding" : "non_public_address",
++    };
++  }
++  if (new Set(answers).size !== 1) return { kind: "stop", reason: "rebinding" };
++  return { kind: "pin", pinned: answers[0] };
++}
++
++function classifyHost(host: string, resolve: Resolver): Decision {
++  const bare = bareHost(host);
++  if (bare.toLowerCase() === METADATA_NAME) return refused("metadata");
++  const literal = classifyLiteral(bare);
++  if (literal === "metadata") return refused("metadata");
++  if (literal === "non_public") return refused("non_public_address");
++  if (literal === "public") return { decision: "allow", pinned: bare };
++  const validation = judgeAnswers(resolve(bare, "validation"));
++  if (validation.kind === "stop") return refused(validation.reason);
++  const connection = resolve(bare, "connection");
++  if (connection.length !== 1 || connection[0] !== validation.pinned) {
++    return refused("rebinding");
++  }
++  return { decision: "allow", pinned: validation.pinned };
++}
++
++function classifyUrl(url: string, resolve: Resolver): Decision {
++  let parsed: URL;
++  try {
++    parsed = new URL(url);
++  } catch {
++    return refused("scheme");
++  }
++  const scheme = parsed.protocol.slice(0, -1);
++  if (scheme !== "http" && scheme !== "https") return refused("scheme");
++  if (parsed.username !== "" || parsed.password !== "")
++    return refused("userinfo");
++  const port =
++    parsed.port === "" ? (scheme === "https" ? 443 : 80) : Number(parsed.port);
++  if (port !== 80 && port !== 443) return refused("port");
++  if (parsed.hostname === "") return refused("non_public_address");
++  return classifyHost(parsed.hostname, resolve);
++}
++
++export function checkLimits(
++  observed: Observed,
++  ceilings: Ceilings,
++): { decision: "allow" } | { decision: "refused"; reason: "over_limit" } {
++  if (
++    observed.response_bytes > ceilings.response_bytes ||
++    observed.decompressed_bytes > ceilings.decompressed_bytes ||
++    observed.pages > ceilings.pages ||
++    observed.depth > ceilings.depth ||
++    observed.duration_ms > ceilings.duration_ms
++  ) {
++    return { decision: "refused", reason: "over_limit" };
++  }
++  return { decision: "allow" };
++}
++
++export function checkFetch(input: FetchInput): Decision {
++  const redirectTo = input.redirectTo ?? (() => null);
++  const seen = new Set<string>();
++  let current = input.url;
++  let followed = false;
++  let hops = 0;
++  for (;;) {
++    if (seen.has(current)) return refused("redirect");
++    seen.add(current);
++    const classified = classifyUrl(current, input.resolve);
++    if (classified.decision === "refused") {
++      return followed ? refused("redirect") : classified;
++    }
++    const next = redirectTo(current);
++    if (next === null) {
++      if (input.observed) {
++        const limited = checkLimits(input.observed, input.ceilings);
++        if (limited.decision === "refused") return limited;
++      }
++      input.connect(classified.pinned);
++      return classified;
++    }
++    followed = true;
++    hops += 1;
++    if (hops > input.ceilings.redirect_hops) return refused("redirect");
++    current = next;
++  }
++}
++
++export function checkLinkedUrl(input: {
++  targetHost: string;
++  url: string;
++  resolve: Resolver;
++  connect: Connector;
++}): Decision {
++  const classified = classifyUrl(input.url, input.resolve);
++  if (classified.decision === "refused") return classified;
++  const host = bareHost(new URL(input.url).hostname).toLowerCase();
++  const target = bareHost(input.targetHost).toLowerCase();
++  if (host !== target) return refused("off_host");
++  return classified;
++}
+diff --git a/evals/m1/ceilings.json b/evals/m1/ceilings.json
+new file mode 100644
+index 0000000..121f185
+--- /dev/null
++++ b/evals/m1/ceilings.json
+@@ -0,0 +1,9 @@
++{
++  "role": "test_ceiling_not_product_limit",
++  "redirect_hops": 3,
++  "response_bytes": 1024,
++  "decompressed_bytes": 2048,
++  "pages": 2,
++  "depth": 1,
++  "duration_ms": 1000
++}
+diff --git a/evals/m1/forbidden-references.json b/evals/m1/forbidden-references.json
+new file mode 100644
+index 0000000..bca1a16
+--- /dev/null
++++ b/evals/m1/forbidden-references.json
+@@ -0,0 +1,22 @@
++{
++  "role": "test_denylist_not_product_config",
++  "clients": [
++    "SecretManagerServiceClient",
++    "@google-cloud/secret-manager",
++    "pg",
++    "mysql2",
++    "mongodb",
++    "prisma",
++    "typeorm",
++    "knex"
++  ],
++  "write_class_tools": [
++    "apply_change",
++    "publish",
++    "write_cms",
++    "delete_content",
++    "upload_disavow",
++    "send_email",
++    "submit_form"
++  ]
++}
+diff --git a/intent/INT-02-m1-secure-crawler-evidence/intent.md b/intent/INT-02-m1-secure-crawler-evidence/intent.md
+new file mode 100644
+index 0000000..c756173
+--- /dev/null
++++ b/intent/INT-02-m1-secure-crawler-evidence/intent.md
+@@ -0,0 +1,88 @@
++# Intent: M1 secure crawler and evidence capture
++
++Status: draft.
++
++| Field | Value |
++| --- | --- |
++| ID | INT-02 |
++| Status | draft |
++| Author (originator) | <DECIDE_AT_M0: product owner name> |
++| Product owner | <DECIDE_AT_M0: name> |
++| Tech lead | <DECIDE_AT_M0: name> |
++| Security engineer | <DECIDE_AT_M0: name> |
++| Milestone | M1 (05-PROJECT-PLAN §5) |
++| Ticket | none |
++| Created | 2026-10-01 |
++| Drafted from | Ibrahim, 2026-10-01, by the message "b", read as the review recommendation "accept with amendments". |
++| Text accepted | Ibrahim, 2026-10-01, by the message "The reading of \"b\" is right. I accept this INT-02 text." The status word stays `draft` because that message also says not to set `accepted`. |
++| Depends on | INT-01 local record, commit `a36d305`. On 2026-10-01, `origin/main` was still `96c0daa` and pull request 1 was open, so that commit was not on `main`. That fact does not reopen M0A or M0B. |
++| Risk class | high-risk: SSRF, crawler isolation, evidence capture |
++
++Status values: `draft`, `accepted`, `rejected`, `superseded`. Ibrahim accepted this text on 2026-10-01. This session does not set `accepted`.
++
++## Problem
++
++The product has no crawler. `pnpm test:ssrf` is a placeholder that prints that the suite is not run and then exits 0. The M0A and M0B release records both say that command is not run. Treating that exit code as a passed SSRF suite would hide the M1 exit. A later milestone that fetches a submitted URL, follows a redirect, or stores a page without this gate can reach an internal or metadata address, or can present a sample as a full-site count.
++
++## Proposed outcome
++
++A local, independent check shows all four of these:
++
++- the SSRF suite passes, and the current placeholder is no longer the suite;
++- no internal or metadata address is reachable through a submitted URL, a redirect, a sitemap entry, or a discovered link;
++- the crawler path cannot read secrets or the application database, and it holds no write tool;
++- a representative crawl is disclosed as a sample and is not a full-site count.
++
++The check uses fixtures on this machine. It does not crawl the public web. Product spend stays `0.00` USD.
++
++Cursor sessions run this milestone under `AGENTS.md` and `.cursor/`. `.claude/` remains the policy source. `fable` at max in `docs/spec/06-MODEL-PLAN.md` §3 is a Claude Code alias, not a Cursor picker value. The session records the model name it shows (D-020). This draft was written in a session that showed Grok 4.7.
++
++## Affected users and systems
++
++Security engineer, tech lead, and the future crawl sandbox. No service is deployed in this intent. Evidence, when captured, belongs to a project (D-014).
++
++## Constraints
++
++- D-002: anonymous evidence stays in-app. No anonymous export. Retention is 7 days maximum.
++- D-008: the later crawl runtime is an isolated job. This intent does not create that project.
++- D-009: only the product crawler fetches. Do not import `.claude/skills/marketing-seo-agent/scripts`. The skill fetcher may seed expected results only. No Google Autocomplete and no search-result scraping.
++- D-014: every stored evidence record is scoped to its project.
++- D-019: measured cost on staging is after M1 and M6. This intent does not run that measurement.
++- D-020: record the model the session shows.
++- Security baseline: allow only `http` and `https`; reject credentials in URLs; reject private, loopback, link-local, metadata, and the other non-public ranges; re-check every redirect. Metadata names are blocked by name (02 §17; `docs/threat-model.md` AC-09 and AC-10).
++- `docs/test-strategy.md` §6.1 is the suite catalogue for the local validator run. The staging network run in that section is not this exit.
++- Port allowlist 80 and 443, and a representative cap of 20 pages, stay assumptions (`docs/threat-model.md` AC-09; 02 §5). OI-053 is not decided here.
++- `methodology_version` stays `0.1.0-draft`. This intent does not change rule weights.
++
++## Out of scope
++
++- Reopening M0A or M0B. Starting M2. Scoring, reports, keywords, and connectors.
++- Deploy, `terraform apply`, a live provider call, a client site, production credentials, and product spend.
++- A Google Cloud crawl project, an egress firewall, and the staging network run. Those wait on region and project ids (OI-010).
++- The Playwright render worker and `pnpm test:e2e`. Renderer blocking is a later M1 slice. Browser journeys stay the M3 placeholder.
++- Region, identity provider, first connector, hosting overrun, the combined-cap question, and the anonymous-backup conflict (OI-010, OI-011, OI-012, OI-001, OI-031, OI-036).
++
++## Exit gate
++
++From 05-PROJECT-PLAN §5, shown locally:
++
++1. an independent SSRF suite passes;
++2. no internal or metadata address is reachable;
++3. secrets and databases are inaccessible to the crawler;
++4. samples are disclosed as samples.
++
++`pnpm test:ssrf` counts only after it runs that suite. Until then it stays recorded as not run. `pnpm test:e2e` stays recorded as not run.
++
++## Open questions
++
++These stay open. They do not block this draft. They block numeric limits and any deployed sandbox in a later spec.
++
++- Crawl-limit numbers beyond the existing assumptions (OI-053). Owner: security engineer and tech lead. Names remain `<DECIDE_AT_M0: name>` (OI-002).
++- Whether a later M1 intent adds the Playwright render worker before or after OI-010. Owner: security engineer.
++- Product domain for the crawler info URL (OI-014). Owner: product owner.
++
++## Links
++
++- Spec: `intent/INT-02-m1-secure-crawler-evidence/spec.md` (after acceptance)
++- Plan: `intent/INT-02-m1-secure-crawler-evidence/plan.md` (after spec approval)
++- Release: `intent/INT-02-m1-secure-crawler-evidence/release.md` (after implementation)
+diff --git a/intent/INT-02-m1-secure-crawler-evidence/plan.md b/intent/INT-02-m1-secure-crawler-evidence/plan.md
+new file mode 100644
+index 0000000..7949d89
+--- /dev/null
++++ b/intent/INT-02-m1-secure-crawler-evidence/plan.md
+@@ -0,0 +1,108 @@
++# Plan: M1 local SSRF suite
++
++| Field | Value |
++| --- | --- |
++| Spec | `intent/INT-02-m1-secure-crawler-evidence/spec.md` (status: approved) |
++| Status | done |
++| Author | Cursor session (Grok 4.7), 2026-10-01. Plan mode was declined, so this file was written in Agent mode. No code was added. |
++| Engineer approval | Ibrahim, 2026-10-01, by the message "I approve plan.md". |
++| Tech lead approval | Ibrahim, 2026-10-01, by the message "I approve plan.md". Required for this high-risk SSRF slice. Role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Branch | `m1-secure-crawler` |
++
++Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Only a human sets `approved`.
++
++## Scope of this slice
++
++Replace the SSRF placeholder with the local suite behind `pnpm test:ssrf`. The suite rejects non-public and metadata targets, re-checks every redirect, sitemap entry, and discovered link, keeps secret clients, database clients, and write tools off the fetch path, and labels a representative result as a sample.
++
++Fixture ceilings stay test values in `evals/m1/ceilings.json`. They are not copied to `config/`. Product spend stays `0.00` USD. No Cloud Run sandbox, no staging network run, no Playwright worker, no public-web crawl, and no live DNS or TCP socket.
++
++## Files
++
++| Path | Change | Why |
++| --- | --- | --- |
++| `apps/web/src/ssrf/validate.ts` | Create | Scheme, userinfo, port, address class, metadata name, redirect, off-host, and ceiling decisions. Injected resolver and connector. No socket. |
++| `apps/web/src/ssrf/sample.ts` | Create | Returns `coverage: "sample"`, `fetched_count`, and `site_wide_count: null`. |
++| `apps/web/src/ssrf/suite.test.ts` | Create first | The failing suite. Vitest already includes `apps/web/src/**/*.test.ts`. |
++| `evals/m1/ceilings.json` | Create | Test ceilings only, with `"role": "test_ceiling_not_product_limit"`. |
++| `evals/m1/forbidden-references.json` | Create | Secret-manager and database client strings, plus the seven write-class names. |
++| `package.json` | Change `test:ssrf` | Point it at `vitest run apps/web/src/ssrf/suite.test.ts`. |
++| `apps/web/src/placeholders.test.ts` | Delete the SSRF case | Spec requirement 2. Keep the `e2e.mjs` case. |
++| `scripts/placeholders/ssrf.mjs` | Delete | The command must no longer be able to print that the suite is not run. |
++| `intent/INT-02-m1-secure-crawler-evidence/spec.md` | Sign-off already recorded | Ibrahim approved it on 2026-10-01. |
++
++Do not add a workflow job. `.github/workflows/ci.yml` already runs `pnpm test:ssrf` in the `app` job. Do not add an npm dependency. Do not edit `config/`, schemas, scoring weights, or `scripts/placeholders/e2e.mjs`.
++
++## Order of work
++
++1. Add `evals/m1/ceilings.json` and `evals/m1/forbidden-references.json`.
++2. Add `apps/web/src/ssrf/suite.test.ts` so it fails because `validate.ts` and `sample.ts` are absent. Do not set `.claude/state/test-lock`. This is not a bug fix.
++3. Add `validate.ts` and `sample.ts` until the suite passes. The connector stub records the address it was given and does not open a socket. The resolver is the stub passed by the test.
++4. Change `package.json` `test:ssrf` to `vitest run apps/web/src/ssrf/suite.test.ts`.
++5. Remove the SSRF case from `placeholders.test.ts`. Delete `scripts/placeholders/ssrf.mjs`.
++6. Run the proof commands below. Paste the output into the later pull request. `pnpm test:e2e` stays recorded as not run.
++7. Stop. Do not start a later M1 slice.
++
++## Behaviour the suite must pin
++
++Reason codes are `scheme`, `userinfo`, `port`, `non_public_address`, `metadata`, `rebinding`, `redirect`, `off_host`, and `over_limit`. A refusal does not call the connector stub.
++
++- Reject `file`, `ftp`, `gopher`, `data`, `javascript`, `ws`, and `wss`. Reject userinfo. Reject a port other than 80 or 443.
++- Reject one address in each class: `127.0.0.1`, `10.0.0.1`, `100.64.0.1`, `169.254.1.1`, `224.0.0.1`, `240.0.0.1`, `192.0.2.1`, `0.0.0.1`, `255.255.255.255`, `::1`, `fc00::1`, `fe80::1`, and `::ffff:10.0.0.1`.
++- Reject a loopback address written as a decimal, octal, hexadecimal, short, or trailing-dot form before any connection.
++- Reject `metadata.google.internal` and `169.254.169.254` with reason `metadata`.
++- The allow case uses the stub name `allowed.example` resolving to `1.2.3.4` on port 443. Requirement 5 rejects documentation ranges, so this is not `192.0.2.1`. The stub does not dial `1.2.3.4`.
++- Rebinding stub: public `1.2.3.4` at validation and `10.0.0.1` at connection; one answer set containing both; public `1.2.3.4` beside private `fc00::1`. All three refuse with `rebinding`. When a check allows a target, the connector receives only the pinned address.
++- Redirects: a public-to-private hop, a hop to `file:`, a loop, and a fourth hop when the ceiling is 3 all refuse with `redirect`. A chain of 3 public hops is allowed. Each hop is classified again.
++- A sitemap entry and a discovered link to `10.0.0.1`, to `169.254.169.254`, or to a host other than the validated target host are not fetched (`off_host` or `non_public_address` or `metadata`). The connector attempt count stays 0.
++- Ceilings in the fixture: redirect hops 3, response bytes 1024, decompressed bytes 2048, pages 2, depth 1, duration milliseconds 1000. One step past each refuses with `over_limit`. A value equal to the ceiling is allowed. These numbers are not product limits (OI-053).
++- `forbidden-references.json` lists `SecretManagerServiceClient`, `@google-cloud/secret-manager`, `pg`, `mysql2`, `mongodb`, `prisma`, `typeorm`, and `knex`, plus the write-class names. The test reads `WRITE_CLASS_TOOLS` in `scripts/check_config.py` and fails if the JSON set differs. It scans `apps/web/src/ssrf/*.ts` except test files.
++- `sample.ts` returns coverage `sample`. The suite fails a result that sets coverage `full`.
++
++## Risks
++
++| Risk | Likelihood | Mitigation | Owner |
++| --- | --- | --- | --- |
++| A test opens a real socket or resolver | Medium | Inject the stub. Assert the connector records no call on refusal. Do not import `node:dns` or `node:net`. | Security engineer |
++| Fixture ceilings get copied into `config/` | Medium | The JSON `role` field says they are test ceilings. No `config/` edit is in this plan. | Tech lead |
++| The source scan misses a new client name | Medium | The denylist is explicit. It does not prove a cloud identity. Say that in `release.md`. | Security engineer |
++| `pnpm test` and `pnpm test:ssrf` disagree | Low | The suite file matches the Vitest include pattern, so `pnpm test` runs it too. `test:ssrf` runs that file alone. | Tech lead |
++| Documentation address used as the allow case | Low | `192.0.2.1` is a rejected documentation address. The allow stub uses `1.2.3.4` and does not contact it. | Security engineer |
++
++## Proof
++
++Run from the repository root after implementation. Paste the output. Do not claim a command passed unless it was run.
++
++```bash
++pnpm test:ssrf
++pnpm test
++pnpm lint
++pnpm typecheck
++python3 -m unittest discover -s .claude/hooks/tests
++python3 -m unittest discover -s .cursor/hooks/tests
++python3 scripts/check_schemas.py
++python3 scripts/check_config.py
++python3 scripts/check_action_pins.py
++```
++
++`pnpm test:e2e` is not an exit command. Record it as not run. `python3 scripts/check_m0b_proofs.py` should still pass and is not part of this slice's new behaviour.
++
++No Arabic or WCAG run. There is no screen.
++
++## Security, privacy, cost, Arabic/accessibility review
++
++- `security-reviewer`: no live fetch, no socket, metadata rejected by name, rebinding uses the stub, write-class names stay out of the fetch path, fixtures have no secrets.
++- `test-writer`: the suite covers the case list above and fails before the implementation exists.
++- `verifier`: the diff matches this plan and the approved spec, and the pasted command output is real.
++- Cost review is not a separate subagent for this slice. The diff must show no paid call, no hosting resource, and no new dependency. Product spend `0.00` USD.
++- Arabic and accessibility review is not run.
++
++Reviewers do not approve, merge, or spawn subagents.
++
++## Rollback
++
++No production path. After a commit, rollback is `git revert` of that commit on `m1-secure-crawler`. Restoring `scripts/placeholders/ssrf.mjs` and the old `test:ssrf` script returns the placeholder. Staging rehearsal is not part of this slice.
++
++## Departures from the plan
++
++- 2026-10-01: `python3 scripts/check_schemas.py` on `/opt/homebrew/bin/python3` failed because `jsonschema` is not installed for that interpreter. The schema, config, action-pin, and M0B proof commands passed with `./.venv/bin/python` (Python 3.14.7). No product dependency was added.
+diff --git a/intent/INT-02-m1-secure-crawler-evidence/spec.md b/intent/INT-02-m1-secure-crawler-evidence/spec.md
+new file mode 100644
+index 0000000..93dc343
+--- /dev/null
++++ b/intent/INT-02-m1-secure-crawler-evidence/spec.md
+@@ -0,0 +1,131 @@
++# Spec: M1 local SSRF suite
++
++| Field | Value |
++| --- | --- |
++| Intent | `intent/INT-02-m1-secure-crawler-evidence/intent.md` (status word: draft; text accepted by Ibrahim on 2026-10-01) |
++| Status | approved |
++| Author | Cursor session (Grok 4.7), 2026-10-01 |
++| Product owner sign-off | Ibrahim, 2026-10-01, by the message "I approve spec.md". The product-owner role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Policy owner sign-offs | pending: security engineer (security-baseline), data engineer (data-integrity), SEO lead (google-search-guidance). Cost, connector, and Arabic owners have no change to sign in this spec. |
++| Spec prompt version | `.claude/skills/intent-spec-plan/SKILL.md` stage 2, skill version 0.1.0 |
++| Skill versions | intent-spec-plan 0.1.0; security-baseline 0.1.0; data-integrity 0.1.0; cost-guard 0.1.0; connector-safety 0.1.0; google-search-guidance 0.1.0; arabic-rtl-a11y 0.1.0; marketing-seo-agent vendored snapshot 2026-09-30 (no version field in its SKILL.md) |
++| Source sections read | accepted INT-02 text; `docs/spec/00-READ-ME-FIRST.md`; `docs/spec/01-PRODUCT-REQUIREMENTS.md` §8 "Crawling", §12; `docs/spec/02-DETAILED-SPECIFICATION.md` §5, §17; `docs/spec/04-CLAUDE-CODE-BUILD-PROMPT.md` §6; `docs/spec/05-PROJECT-PLAN.md` §5; `docs/spec/06-MODEL-PLAN.md` §3, §8; `docs/test-strategy.md` §5, §6.1; `docs/threat-model.md` AC-09, AC-10; `docs/decisions.md` D-002, D-008, D-009, D-014, D-019, D-020, D-021; `schemas/evidence-object.schema.json`; `apps/web/src/placeholders.test.ts`; `scripts/placeholders/ssrf.mjs` |
++
++Status values: `draft`, `changes_requested`, `approved`, `superseded`. Only the product owner sets `approved`.
++
++## Summary
++
++This spec defines the local SSRF suite that replaces the M0A placeholder. `pnpm test:ssrf` runs that suite. It passes only when a submitted URL, a redirect, a sitemap entry, and a discovered link cannot reach an internal or metadata address, when the local fetch path has no secret client, database client, or write tool, and when a representative result is labelled a sample.
++
++The suite runs on this machine against fixtures and an in-process resolver stub. It does not add a Cloud Run sandbox, a staging network run, or a Playwright worker. It does not crawl the public web, call a provider, or spend.
++
++Cursor runs the work beside Claude Code. `.claude/` remains the policy source. `fable` at max is not a Cursor picker value. This spec was written in a session that showed Grok 4.7 (D-020).
++
++## Requirements
++
++### Functional
++
++1. `pnpm test:ssrf` runs the local suite and exits 0 only when every case in this spec passes. Any failed case exits non-zero. The command no longer prints that the suite is not run. Source: accepted INT-02 text; `docs/spec/05-PROJECT-PLAN.md` §5.
++2. `apps/web/src/placeholders.test.ts` stops asserting that the SSRF command prints `not run`. The browser-journey test still asserts that `scripts/placeholders/e2e.mjs` prints `not run` and `M3`. Source: D-021; accepted INT-02 text.
++3. Schemes other than `http` and `https` are rejected before a connection. The suite includes `file`, `ftp`, `gopher`, `data`, `javascript`, `ws`, and `wss`. A URL with userinfo is rejected. Source: `docs/spec/04-CLAUDE-CODE-BUILD-PROMPT.md` §6; `docs/test-strategy.md` §6.1; security-baseline skill.
++4. Ports other than 80 and 443 are rejected. Those two ports stay the assumption already written in `docs/threat-model.md` AC-09. This spec does not choose further product limits. Source: AC-09; OI-053.
++5. Before a connection, and again on every redirect, the suite resolves the name, rejects the target when any answer is non-public, and pins the validated address for that hop. Rejected ranges are loopback, private, shared address space, link-local, multicast, reserved, documentation, "this network", and broadcast for IPv4, plus IPv6 loopback, unique local, link-local, and IPv4-mapped or IPv4-embedded forms that carry a non-public IPv4 address. Decimal, octal, hexadecimal, short, mixed, trailing-dot, case-variant, and internationalized host forms are normalized before the check. Source: 04 §6; `docs/test-strategy.md` §6.1; AC-09; AC-10.
++6. Metadata targets are rejected by name and by address. The suite includes the hostname `metadata.google.internal` and the address `169.254.169.254`. A firewall is not the control under test. Source: 02 §17; AC-09.
++7. DNS rebinding is tested with an in-process stub, not a staging resolver. The stub returns a public address at validation and a private address at connection; a mixed public and private answer; and a private IPv6 answer beside a public IPv4 answer. Each case is rejected. A connection that proceeds uses the pinned validated address. Source: AC-10; `docs/test-strategy.md` §6.1. The staging network run in that section is out of this spec.
++8. Redirects are re-validated on every hop. The suite rejects a public-to-private hop, a hop to a non-HTTP scheme, a loop, and a chain one hop past the fixture ceiling. Sitemap entries and discovered links that point at a private address, a metadata target, or a host other than the validated target host are not fetched. Source: `docs/test-strategy.md` §6.1; accepted INT-02 text.
++9. The local fetch module under test does not reference a Secret Manager client, a database client, or a write-class tool. Write-class names are `apply_change`, `publish`, `write_cms`, `delete_content`, `upload_disavow`, `send_email`, and `submit_form`, the same set `scripts/check_config.py` already guards. This is a source check. It does not prove a cloud identity. Source: accepted INT-02 text; D-009; connector-safety skill; security-baseline skill.
++10. A representative result carries coverage `sample`, the count of fetched pages, and a disclosure that this count is not a site-wide count. A result that marks that same fetch set as full coverage fails the suite. The suite does not adopt a universal page cap. Source: 01 §8 "Crawling"; 01 §12; data-integrity skill. The "up to 20" sentence in 02 §5 stays an assumption and is not a requirement of this suite. 01 says free-audit page counts are not a fixed universal 20-page claim.
++11. Fixture ceilings for redirect hops, response bytes, decompressed bytes, page count, depth, and duration live in the suite fixture, not in `config/`. One case per ceiling is one step past that fixture value and is refused. Those numbers are test values. They are not the product limits in OI-053. Source: OI-053; `docs/test-strategy.md` §6.1.
++12. The suite does not import `.claude/skills/marketing-seo-agent/scripts`. It does not call Google Autocomplete or fetch a search-result page. Source: D-009; google-search-guidance skill.
++13. Existing schemas, scoring weights, `config/budgets.yaml`, agent allowlists, and the M0A toolchain stay unchanged except the SSRF command and the SSRF half of `apps/web/src/placeholders.test.ts`. `methodology_version` stays `0.1.0-draft`. Source: accepted INT-02 text; D-021.
++
++### Non-functional
++
++1. The suite runs locally. It does not deploy, apply Terraform, call a live provider, crawl the public web, or use a production credential. Product spend is `0.00` USD. Source: accepted INT-02 text; D-019; cost-guard skill.
++2. Fixtures use reserved documentation names and synthetic ids. They contain no secrets, tokens, emails, customer URLs, or raw page bodies from a live site. Source: security-baseline skill.
++3. There is no screen. Arabic copy and WCAG evidence are not produced. Source: arabic-rtl-a11y skill.
++4. `pnpm test:e2e` stays the placeholder recorded as not run. Source: accepted INT-02 text.
++5. Evidence captured by a later milestone still needs lineage and a `fidelity_label`. This suite does not store an `EvidenceObject` and does not add a schema. Source: data-integrity skill; `schemas/evidence-object.schema.json`; D-014.
++
++## Design
++
++### Components and boundaries
++
++The trust boundary is the URL and every hop, sitemap entry, and discovered link derived from it. Page text is data. The suite does not follow instructions found in a fixture body.
++
++`pnpm test:ssrf` points at the suite instead of `scripts/placeholders/ssrf.mjs`. The suite is product test code. The skill fetcher in `page_audit.py` is not imported.
++
++The resolver is an in-process stub. No system proxy is used, because a proxy would resolve names itself (AC-10). No Cloud Run job, no VPC firewall, and no browser process are part of this design.
++
++The secret and database check reads the fetch module's source and fails if a forbidden client or write-class name appears. It does not open a network connection to Secret Manager or a database.
++
++### Data contracts
++
++No schema is added or changed. The sample result is a suite fixture with three fields: `coverage` equal to `sample`, `fetched_count` as an integer, and `site_wide_count` null. A fixture that sets `coverage` to `full` fails. Stored evidence, when a later spec adds it, still uses `schemas/evidence-object.schema.json` and carries `project_id` through lineage (D-014).
++
++### State transitions
++
++No workflow state is added. A rejected target ends as `refused` with a reason code from this set: `scheme`, `userinfo`, `port`, `non_public_address`, `metadata`, `rebinding`, `redirect`, `off_host`, `over_limit`. No retry follows a refusal. A refusal does not create an evidence object.
++
++### Configuration
++
++No `config/` file is added. Port 80 and 443 remain the AC-09 assumption, cited by the suite, not copied into a new limits file. Model ids, prices, quotas, and crawler tokens are not introduced (D-010).
++
++### UI (if any)
++
++None.
++
++## Policy conformance
++
++| Policy skill | Applies? | How the design complies | Concern for owner |
++| --- | --- | --- | --- |
++| google-search-guidance | yes | No Autocomplete call, no result-page fetch, no import of the skill scripts. No rule weight change. | SEO lead: robots and the crawler registry are not in this spec. |
++| security-baseline | yes | Local validator covers scheme, userinfo, port, non-public ranges, metadata names, redirects, and an in-process rebinding stub. | Security engineer: this does not prove a cloud identity or a browser subresource. |
++| arabic-rtl-a11y | no | No screen and no user-facing copy. | None for this spec. |
++| data-integrity | yes | A representative result is `sample` and is not a site-wide count. No score is computed. | Data engineer: the disclosure is a suite fixture, not a stored `EvidenceObject`. |
++| cost-guard | yes | No paid call and no hosting resource. Spend is `0.00` USD. | None for this spec. The combined cap stays unconfirmed (OI-001). |
++| connector-safety | yes | The fetch path has no write-class tool. | None for this spec. The first connector stays open. |
++
++## Areas of concern
++
++1. The intent status word is still `draft`. Ibrahim accepted the text and told this session not to set `accepted`.
++2. `docs/test-strategy.md` §6.1 asks for a staging network run and for renderer subresource checks. This spec excludes both, by the accepted intent bound. The four-line exit in 05 §5 is met locally for URL, redirect, sitemap, and discovered-link fetches. It is not met for a browser, and it is not met for a crawl-project identity. A later M1 spec owns those.
++3. Requirement 9 can pass while a future package still reaches Secret Manager. The check is limited to the local fetch module named by the plan.
++4. OI-053 is open. Fixture ceilings are not product limits. A plan that copies them into `config/` would decide OI-053 without the security engineer.
++5. 02 §5 assumes a representative cap of 20 pages. 01 says that is not a fixed universal claim. This spec requires the sample label and does not require the number 20.
++6. M0B commit `a36d305` was not on `origin/main` when this spec was written. This spec does not reopen M0B.
++7. 04 §6 also requires robots, rate limits, and no-bypass. Those are not cases in this suite.
++
++## Test and eval plan
++
++The suite is `pnpm test:ssrf`. Cases, one fixture each unless noted:
++
++- rejected schemes listed in requirement 3, plus one allowed `https` URL on port 443 using a documentation address;
++- userinfo rejected;
++- a port other than 80 or 443 rejected;
++- one address in each rejected IPv4 and IPv6 class in requirement 5;
++- one normalized encoding that hides a loopback address, rejected;
++- `metadata.google.internal` and `169.254.169.254` rejected;
++- three rebinding stub cases in requirement 7;
++- public-to-private redirect, scheme-changing redirect, redirect loop, and one hop over the fixture ceiling;
++- a sitemap entry and a discovered link to a private address, and one link to another host, not fetched;
++- one over-ceiling case each for response bytes, decompressed bytes, page count, depth, and duration;
++- source check for secret client, database client, and write-class names;
++- representative result with `coverage` `sample` passes; the same result with `coverage` `full` fails.
++
++No golden-file eval, product-agent eval, or browser journey. `pnpm test:e2e` is not run.
++
++## Rollout and rollback
++
++No feature flag and no environment. The suite is a local command. Rollback is reverting the commit that replaces the placeholder. No staging rehearsal is in this spec.
++
++## Cost
++
++Paid calls added: none. Hosting added: none. Product spend: `0.00` USD. The USD 150 cap stays an unconfirmed assumption (D-005, OI-001). Hosting overrun stays open (OI-031).
++
++## Assumptions and open items
++
++- ASSUMPTION: ports 80 and 443, already recorded in `docs/threat-model.md` AC-09. Not a new assumption row.
++- ASSUMPTION: fixture ceilings are test values only. Do not copy them to `docs/assumptions.md` as product limits.
++- Leave OI-053 open. Leave OI-001, OI-010, OI-021, and OI-031 open.
++- No new decision row. D-020 already covers the model name. The session model for this spec is Grok 4.7.
+diff --git a/package.json b/package.json
+index a3c8944..d245163 100644
+--- a/package.json
++++ b/package.json
+@@ -11,7 +11,7 @@
+     "lint": "eslint apps/web scripts vitest.config.ts",
+     "typecheck": "tsc -p apps/web/tsconfig.json --noEmit",
+     "test": "vitest run",
+-    "test:ssrf": "node scripts/placeholders/ssrf.mjs",
++    "test:ssrf": "vitest run apps/web/src/ssrf/suite.test.ts",
+     "test:e2e": "node scripts/placeholders/e2e.mjs"
+   },
+   "devDependencies": {
+diff --git a/scripts/placeholders/ssrf.mjs b/scripts/placeholders/ssrf.mjs
+deleted file mode 100644
+index 6fa2504..0000000
+--- a/scripts/placeholders/ssrf.mjs
++++ /dev/null
+@@ -1,3 +0,0 @@
+-process.stdout.write(
+-  "pnpm test:ssrf is not run. The SSRF suite arrives at M1.\n",
+-);

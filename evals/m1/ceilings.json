@@ -1,0 +1,9 @@
+{
+  "role": "test_ceiling_not_product_limit",
+  "redirect_hops": 3,
+  "response_bytes": 1024,
+  "decompressed_bytes": 2048,
+  "pages": 2,
+  "depth": 1,
+  "duration_ms": 1000
+}
