@@ -1,0 +1,33 @@
+{
+  "rule_result_id": "aa111111-2222-4aaa-bbbb-000000000001",
+  "audit_id": "b2b2b2b2-2222-4bbb-aaaa-000000000001",
+  "rule_id": "CRW-001",
+  "methodology_version": "0.1.0-draft",
+  "result": "pass",
+  "method": "deterministic",
+  "scope": "page",
+  "page_url": "https://example.com/",
+  "affected_urls": ["https://example.com/"],
+  "evidence_ids": ["e1e1e1e1-1111-4eee-bbbb-000000000001"],
+  "confidence": "high",
+  "evaluated_at": "2026-10-01T10:02:00Z",
+  "lineage": {
+    "record_id": "aa111111-2222-4aaa-bbbb-000000000001",
+    "project_id": "b2b2b2b2-2222-4bbb-aaaa-000000000099",
+    "site_id": "b2b2b2b2-2222-4bbb-aaaa-000000000098",
+    "source_type": "rules_engine",
+    "source_id": "CRW-001",
+    "source_version": "0.1.0-draft",
+    "captured_at": "2026-10-01T10:02:00Z",
+    "as_of": "2026-10-01T10:00:00Z",
+    "market": "SA",
+    "language": "ar",
+    "device": "desktop",
+    "method": "rules_engine",
+    "methodology_version": "0.1.0-draft",
+    "fidelity_label": "guessed",
+    "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "parent_ids": [],
+    "validation_state": "valid"
+  }
+}
