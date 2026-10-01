@@ -56,6 +56,20 @@ variable "crawl_project_number" {
   type        = string
 }
 
+variable "region" {
+  description = "GCP region for Cloud Run jobs in the crawl project"
+  type        = string
+  default     = "us-central1"
+}
+
+# -----------------------------------------------------------------------------
+# Provider configuration for crawl project
+# -----------------------------------------------------------------------------
+
+provider "google" {
+  alias = "crawl"
+}
+
 # -----------------------------------------------------------------------------
 # IAM Binding: evidence-processor-sa reads from landing bucket
 # -----------------------------------------------------------------------------
@@ -63,7 +77,7 @@ variable "crawl_project_number" {
 # The evidence processor in the app project needs to read raw crawl artifacts
 # from the landing bucket in the crawl project
 resource "google_storage_bucket_iam_member" "evidence_processor_landing_viewer" {
-  provider = google
+  provider = google.crawl
 
   bucket = var.landing_bucket_name
   role   = "roles/storage.objectViewer"
@@ -71,35 +85,26 @@ resource "google_storage_bucket_iam_member" "evidence_processor_landing_viewer" 
 }
 
 # -----------------------------------------------------------------------------
-# IAM Binding: workflow-sa invokes crawl-job in crawl project
+# IAM Binding: workflow-sa invokes crawl-job and render-job in crawl project
 # -----------------------------------------------------------------------------
 
-# The workflow in the app project needs to trigger the crawl-job in the crawl project
-resource "google_project_iam_member" "workflow_crawl_invoker" {
-  project = var.crawl_project
-  role    = "roles/run.invoker"
-  member  = "serviceAccount:${var.workflow_sa_email}"
-}
-
-# -----------------------------------------------------------------------------
-# IAM Binding: workflow-sa invokes render-job in crawl project
-# -----------------------------------------------------------------------------
-
-# The workflow in the app project needs to trigger the render-job in the crawl project
-# Note: roles/run.invoker is granted at the project level above, which covers both
-# crawl-job and render-job. For finer-grained control, use per-job bindings:
+# Per-job IAM bindings for least-privilege access (replaces project-level roles/run.invoker)
 
 resource "google_cloud_run_v2_job_iam_member" "workflow_crawl_job_invoker" {
+  provider = google.crawl
+
   project  = var.crawl_project
-  location = "us-central1"
+  location = var.region
   name     = "crawl-job"
   role     = "roles/run.invoker"
   member   = "serviceAccount:${var.workflow_sa_email}"
 }
 
 resource "google_cloud_run_v2_job_iam_member" "workflow_render_job_invoker" {
+  provider = google.crawl
+
   project  = var.crawl_project
-  location = "us-central1"
+  location = var.region
   name     = "render-job"
   role     = "roles/run.invoker"
   member   = "serviceAccount:${var.workflow_sa_email}"

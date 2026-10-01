@@ -38,6 +38,11 @@ main:
     # -----------------------------------------------------------------------
     # Step 3: Conditionally start render job if manifest exists
     # -----------------------------------------------------------------------
+    - init_render_result:
+        assign:
+          - render_result:
+              status: "SKIPPED"
+
     - check_render_manifest:
         switch:
           - condition: '${crawl_result.render_manifest_exists == true}'
