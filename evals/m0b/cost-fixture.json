@@ -1,0 +1,26 @@
+{
+  "cap_assumption": "unconfirmed",
+  "hosting": {
+    "amount": "25.00",
+    "currency": "USD",
+    "fidelity_label": "estimated"
+  },
+  "hosting_stopped": false,
+  "cases": [
+    {
+      "name": "refuse",
+      "paid_calls_to_date": "140.00",
+      "proposed_call": "0.01"
+    },
+    {
+      "name": "allow",
+      "paid_calls_to_date": "139.99",
+      "proposed_call": "0.01"
+    }
+  ],
+  "on_refuse": {
+    "ai_visibility": "unavailable",
+    "reason": "unavailable due to the monthly limit",
+    "presence_readiness": 100
+  }
+}

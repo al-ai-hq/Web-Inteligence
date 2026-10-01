@@ -1,0 +1,11 @@
+{
+  "rules": [
+    {
+      "rule_id": "SEO-001",
+      "category": "on_page",
+      "importance_weight": 1,
+      "stored_result": "not_applicable",
+      "shown_as": "pass"
+    }
+  ]
+}

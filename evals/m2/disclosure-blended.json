@@ -1,0 +1,55 @@
+{
+  "rules": [
+    {
+      "rule_id": "CRW-001",
+      "category": "crawlability",
+      "importance_weight": 1,
+      "result": "pass"
+    },
+    {
+      "rule_id": "SEO-001",
+      "category": "on_page",
+      "importance_weight": 1,
+      "result": "pass"
+    },
+    {
+      "rule_id": "STR-001",
+      "category": "structured_data",
+      "importance_weight": 1,
+      "result": "pass"
+    },
+    {
+      "rule_id": "AEO-001",
+      "category": "aeo",
+      "importance_weight": 1,
+      "result": "pass"
+    },
+    {
+      "rule_id": "GEO-001",
+      "category": "geo",
+      "importance_weight": 1,
+      "result": "pass"
+    },
+    {
+      "rule_id": "I18N-001",
+      "category": "i18n_accessibility",
+      "importance_weight": 1,
+      "result": "pass"
+    },
+    {
+      "rule_id": "PRF-001",
+      "category": "performance_security",
+      "importance_weight": 1,
+      "result": "pass"
+    }
+  ],
+  "disclosure": {
+    "score_name": "presence_readiness",
+    "methodology_version": "0.1.0-draft",
+    "deterministic": true,
+    "coverage": "sample",
+    "site_wide_count": null,
+    "experience_effectiveness": 100
+  },
+  "applied_cap": null
+}

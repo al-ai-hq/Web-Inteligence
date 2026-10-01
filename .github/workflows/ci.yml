@@ -6,7 +6,7 @@
 # intent/INT-00-m0a-repository-bootstrap/intent.md.
 #
 # Jobs:
-#   governance - hook tests, schema check, config check, action-pin check
+#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness
 #   secrets    - gitleaks over the full history
 #   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
 name: ci
@@ -44,8 +44,12 @@ jobs:
         run: python3 scripts/check_schemas.py
       - name: Config check
         run: python3 scripts/check_config.py
+      - name: M2 readiness
+        run: python3 scripts/check_m2_readiness.py
       - name: Action pins
         run: python3 scripts/check_action_pins.py
+      - name: M0B proofs
+        run: python3 scripts/check_m0b_proofs.py
 
   secrets:
     name: secrets

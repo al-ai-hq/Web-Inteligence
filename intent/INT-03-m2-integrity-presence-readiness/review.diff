@@ -1,0 +1,922 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 8d1eb1e..2076cd3 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -6,7 +6,7 @@
+ # intent/INT-00-m0a-repository-bootstrap/intent.md.
+ #
+ # Jobs:
+-#   governance - hook tests, schema check, config check, action-pin check, M0B proofs
++#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness
+ #   secrets    - gitleaks over the full history
+ #   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
+ name: ci
+@@ -44,6 +44,8 @@ jobs:
+         run: python3 scripts/check_schemas.py
+       - name: Config check
+         run: python3 scripts/check_config.py
++      - name: M2 readiness
++        run: python3 scripts/check_m2_readiness.py
+       - name: Action pins
+         run: python3 scripts/check_action_pins.py
+       - name: M0B proofs
+diff --git a/evals/m2/disclosure-blended.json b/evals/m2/disclosure-blended.json
+new file mode 100644
+index 0000000..be1867f
+--- /dev/null
++++ b/evals/m2/disclosure-blended.json
+@@ -0,0 +1,55 @@
++{
++  "rules": [
++    {
++      "rule_id": "CRW-001",
++      "category": "crawlability",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "SEO-001",
++      "category": "on_page",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "STR-001",
++      "category": "structured_data",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "AEO-001",
++      "category": "aeo",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "GEO-001",
++      "category": "geo",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "I18N-001",
++      "category": "i18n_accessibility",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "PRF-001",
++      "category": "performance_security",
++      "importance_weight": 1,
++      "result": "pass"
++    }
++  ],
++  "disclosure": {
++    "score_name": "presence_readiness",
++    "methodology_version": "0.1.0-draft",
++    "deterministic": true,
++    "coverage": "sample",
++    "site_wide_count": null,
++    "experience_effectiveness": 100
++  },
++  "applied_cap": null
++}
+diff --git a/evals/m2/disclosure-full.json b/evals/m2/disclosure-full.json
+new file mode 100644
+index 0000000..38a78a6
+--- /dev/null
++++ b/evals/m2/disclosure-full.json
+@@ -0,0 +1,54 @@
++{
++  "rules": [
++    {
++      "rule_id": "CRW-001",
++      "category": "crawlability",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "SEO-001",
++      "category": "on_page",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "STR-001",
++      "category": "structured_data",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "AEO-001",
++      "category": "aeo",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "GEO-001",
++      "category": "geo",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "I18N-001",
++      "category": "i18n_accessibility",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "PRF-001",
++      "category": "performance_security",
++      "importance_weight": 1,
++      "result": "pass"
++    }
++  ],
++  "disclosure": {
++    "score_name": "presence_readiness",
++    "methodology_version": "0.1.0-draft",
++    "deterministic": true,
++    "coverage": "full",
++    "site_wide_count": null
++  },
++  "applied_cap": null
++}
+diff --git a/evals/m2/not-applicable-as-pass.json b/evals/m2/not-applicable-as-pass.json
+new file mode 100644
+index 0000000..b2913bb
+--- /dev/null
++++ b/evals/m2/not-applicable-as-pass.json
+@@ -0,0 +1,11 @@
++{
++  "rules": [
++    {
++      "rule_id": "SEO-001",
++      "category": "on_page",
++      "importance_weight": 1,
++      "stored_result": "not_applicable",
++      "shown_as": "pass"
++    }
++  ]
++}
+diff --git a/evals/m2/pass-seven.json b/evals/m2/pass-seven.json
+new file mode 100644
+index 0000000..ef9dc25
+--- /dev/null
++++ b/evals/m2/pass-seven.json
+@@ -0,0 +1,54 @@
++{
++  "rules": [
++    {
++      "rule_id": "CRW-001",
++      "category": "crawlability",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "SEO-001",
++      "category": "on_page",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "STR-001",
++      "category": "structured_data",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "AEO-001",
++      "category": "aeo",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "GEO-001",
++      "category": "geo",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "I18N-001",
++      "category": "i18n_accessibility",
++      "importance_weight": 1,
++      "result": "pass"
++    },
++    {
++      "rule_id": "PRF-001",
++      "category": "performance_security",
++      "importance_weight": 1,
++      "result": "pass"
++    }
++  ],
++  "disclosure": {
++    "score_name": "presence_readiness",
++    "methodology_version": "0.1.0-draft",
++    "deterministic": true,
++    "coverage": "sample",
++    "site_wide_count": null
++  },
++  "applied_cap": null
++}
+diff --git a/evals/m2/unavailable-as-pass.json b/evals/m2/unavailable-as-pass.json
+new file mode 100644
+index 0000000..6034460
+--- /dev/null
++++ b/evals/m2/unavailable-as-pass.json
+@@ -0,0 +1,11 @@
++{
++  "rules": [
++    {
++      "rule_id": "CRW-001",
++      "category": "crawlability",
++      "importance_weight": 1,
++      "stored_result": "unavailable",
++      "shown_as": "pass"
++    }
++  ]
++}
+diff --git a/intent/INT-03-m2-integrity-presence-readiness/intent.md b/intent/INT-03-m2-integrity-presence-readiness/intent.md
+new file mode 100644
+index 0000000..5696256
+--- /dev/null
++++ b/intent/INT-03-m2-integrity-presence-readiness/intent.md
+@@ -0,0 +1,87 @@
++# Intent: M2 integrity and Presence Readiness
++
++Status: accepted.
++
++| Field | Value |
++| --- | --- |
++| ID | INT-03 |
++| Status | accepted |
++| Author (originator) | <DECIDE_AT_M0: product owner name> |
++| Product owner | <DECIDE_AT_M0: name> |
++| Tech lead | <DECIDE_AT_M0: name> |
++| Methodology owner | <DECIDE_AT_M0: name> |
++| Milestone | M2 (05-PROJECT-PLAN §5) |
++| Ticket | none |
++| Created | 2026-10-01 |
++| Drafted from | Ibrahim, 2026-10-01, by the message "Implement the plan as specified" on the M2 intent review. That review recommended accept with amendments. Both bounds in that review are in this text. |
++| Text accepted | Ibrahim, 2026-10-01, by the message "1. Yes, build locally (b)". |
++| Depends on | Local records on `m1-secure-crawler`: M0B proofs, commit `a36d305`, and the local SSRF suite, commit `afa0cdc`. On 2026-10-01, `origin/main` was `96c0daa` and pull request https://github.com/al-ai-hq/Web-Inteligence/pull/2 was open and not merged. That fact does not reopen M0A, M0B, or M1, and it does not authorize a merge. |
++| Risk class | standard for this slice. A later slice that changes rule weights is high-risk. This slice does not. |
++
++Status values: `draft`, `accepted`, `rejected`, `superseded`. Ibrahim accepted this text on 2026-10-01 by the message "1. Yes, build locally (b)".
++
++## Problem
++
++M0B can recompute one Presence Readiness score of 100 from seven passing rule results. That number does not say what it is. A later screen can present it as observed AI visibility, as Experience Effectiveness, as search performance, or as a full-site count taken from a sample. Invalid rule results can also be shown as passes. The rule files and `config/scoring.yaml` exist, and `methodology_version` is `0.1.0-draft`. Nobody has yet shown, in a local check, that one recomputed score stays Presence Readiness and that an `unavailable` or `not_applicable` result is not a pass.
++
++## Proposed outcome
++
++A local check, with no new rules engine, shows all of these:
++
++- One Presence Readiness score is recomputed from stored rule results that already match the current weights in `config/scoring.yaml`. Category weights stay 20, 15, 10, 20, 15, 10, and 10. `methodology_version` stays `0.1.0-draft`.
++- The disclosure names the score Presence Readiness, names `methodology_version`, and says the score is deterministic. The same disclosure says the result is not observed AI visibility, not Experience Effectiveness, and not search performance.
++- A sample count on that result is not presented as a full-site count.
++- One invalid case is refused: a stored result of `unavailable` or `not_applicable` is not shown as `pass`, and it stays out of the score denominator.
++- Product spend stays `0.00` USD. There is no deploy and no crawl of the public web.
++
++Cursor sessions run this milestone under `AGENTS.md` and `.cursor/`. `.claude/` remains the policy source. `opus` at high in `docs/spec/06-MODEL-PLAN.md` §3 is a Claude Code alias, not a Cursor picker value. The session records the model name it shows (D-020). This draft was written in a session that showed Grok 4.7.
++
++## Affected users and systems
++
++Methodology owner, SEO lead, and the future rules engine. No service is deployed. The M0B proof command is not edited.
++
++## Constraints
++
++- D-009: do not import `.claude/skills/marketing-seo-agent/scripts`. No Google Autocomplete and no search-result scraping.
++- D-010: weights, caps, and `methodology_version` stay in `config/`. This intent does not hard-code a new model ID, price, quota, or crawler token.
++- D-012: Presence Readiness and Experience Effectiveness stay separate. Neither is blended with observed AI visibility or search performance.
++- D-014: a stored score still belongs to its project through the lineage already required.
++- D-019: this intent adds no paid call and no hosting. Measured cost stays later.
++- D-020: record the model the session shows.
++- `config/scoring.yaml` `rule_results`: `pass`, `partial`, and `fail` stay in the denominator. `not_applicable`, `unavailable`, and `error` stay out. Do not decide the category score when the denominator is 0. That line remains `<DECIDE_AT_M0>`.
++- Do not score `llms.txt`. Do not require FAQ blocks. Do not promise rich results.
++- `pnpm test:ssrf` is the local M1 suite. It is not this exit. `pnpm test:e2e` stays recorded as not run.
++- The Arabic display name in `config/scoring.yaml` stays as written. This intent has no screen, so native review is not run.
++
++## Out of scope
++
++- Merging pull request 2. Reopening M0A, M0B, or M1. Starting M3.
++- A rules engine that evaluates every category. Template or page classification, recurring-issue clustering, and an evidence viewer.
++- Any weight change, critical-cap change, or `methodology_version` bump.
++- Partial standards, schema-property lists, and rule-key alignment (OI-032, OI-033, OI-034), including SPAM-001 confirmation.
++- Golden-file extraction and the full TS-SCORE catalogue. Labelled sites are not in this repository (OI-055).
++- Deploy, Terraform apply, a live provider call, a client-site fetch, and product spend.
++
++## Exit gate
++
++From 05-PROJECT-PLAN §5, this first slice shows locally:
++
++1. one Presence Readiness score recomputed from stored rule results;
++2. a disclosure that the score is Presence Readiness at `methodology_version` `0.1.0-draft`, not a full-site count and not AI visibility;
++3. one refusal when `unavailable` or `not_applicable` is shown as `pass`.
++
++The later M2 exit, a full rules pass and golden fixtures, is not this slice. `pnpm test:e2e` stays recorded as not run.
++
++## Open questions
++
++These stay open. They do not block this draft. They block a later rules engine.
++
++- The category score when no measurable rule remains (OI-033). Owner: methodology owner. The name remains `<DECIDE_AT_M0: name>` (OI-002).
++- Partial standards and the SPAM-001 cap confirmation (OI-033). Owner: methodology owner.
++- Rule config keys versus `RuleDefinition` (OI-032). Owner: methodology owner and tech lead.
++
++## Links
++
++- Spec: `intent/INT-03-m2-integrity-presence-readiness/spec.md` (after acceptance)
++- Plan: `intent/INT-03-m2-integrity-presence-readiness/plan.md` (after spec approval)
++- Release: `intent/INT-03-m2-integrity-presence-readiness/release.md` (after implementation)
+diff --git a/intent/INT-03-m2-integrity-presence-readiness/plan.md b/intent/INT-03-m2-integrity-presence-readiness/plan.md
+new file mode 100644
+index 0000000..1395de5
+--- /dev/null
++++ b/intent/INT-03-m2-integrity-presence-readiness/plan.md
+@@ -0,0 +1,81 @@
++# Plan: M2 local Presence Readiness disclosure
++
++| Field | Value |
++| --- | --- |
++| Spec | `intent/INT-03-m2-integrity-presence-readiness/spec.md` (status: approved) |
++| Status | done |
++| Author | Cursor session (Grok 4.7), 2026-10-01. This file was written after Ibrahim approved the spec in this chat. The local check was added after Ibrahim approved this plan. |
++| Engineer approval | Ibrahim, 2026-10-01, by the message "I approve plan.md". |
++| Tech lead approval | not required. This slice does not change rule weights, caps, or `methodology_version`. Role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Branch | `m2-presence-readiness`, cut from `m1-secure-crawler` at `afa0cdc` when Ibrahim asked to commit. Not pushed. |
++
++Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Only a human sets `approved`.
++
++## Scope of this slice
++
++Add one local command that recomputes pre-cap Presence Readiness as 100 from seven stored passes, discloses that number as Presence Readiness at `methodology_version` `0.1.0-draft` with coverage `sample`, and refuses an `unavailable` or `not_applicable` result shown as `pass`.
++
++Weights stay 20, 15, 10, 20, 15, 10, and 10. `scripts/check_m0b_proofs.py` is not edited. Pull request 2 is not merged. Product spend stays `0.00` USD. No rules engine, no screen, no deploy, and no client-site fetch.
++
++## Files
++
++| Path | Change | Why |
++| --- | --- | --- |
++| `evals/m2/pass-seven.json` | Create | Seven stored passes, one per category, importance 1. Rule IDs `CRW-001`, `SEO-001`, `STR-001`, `AEO-001`, `GEO-001`, `I18N-001`, `PRF-001`. Disclosure expects `presence_readiness`, `0.1.0-draft`, `deterministic` true, `coverage` `sample`, `site_wide_count` null. |
++| `evals/m2/disclosure-full.json` | Create | Same passes with `coverage` `full`. Must fail. |
++| `evals/m2/disclosure-blended.json` | Create | Same passes plus one of `experience_effectiveness`, `ai_visibility`, or `search_performance`. Must fail. |
++| `evals/m2/unavailable-as-pass.json` | Create | A stored `unavailable` result presented as `pass`. Must fail and stay out of the denominator. |
++| `evals/m2/not-applicable-as-pass.json` | Create | A stored `not_applicable` result presented as `pass`. Must fail and stay out of the denominator. |
++| `scripts/check_m2_readiness.py` | Create | Reads `config/scoring.yaml` and the fixtures. Decimal arithmetic. Standard library plus PyYAML, already installed for `scripts/check_config.py`. No new npm package. No import from `.claude/skills/marketing-seo-agent/scripts`. |
++| `.github/workflows/ci.yml` | One governance step | Run `python3 scripts/check_m2_readiness.py` after the existing config check. Reuse the Python 3.12 setup and the existing `pyyaml` install. Add no action SHA. |
++| `intent/INT-03-m2-integrity-presence-readiness/spec.md` | Sign-off recorded | Ibrahim approved it on 2026-10-01. |
++
++Do not edit `config/scoring.yaml`, `config/rules/`, schemas, `scripts/check_m0b_proofs.py`, or `package.json`. Do not add a workflow action.
++
++## Order of work
++
++Do not start this list until the plan is approved.
++
++1. Add the five fixtures under `evals/m2/`. Synthetic ids only. No secrets, customer URLs, or page text.
++2. Add `scripts/check_m2_readiness.py` so the invalid fixtures fail the check and the valid fixture passes only when the recompute and the disclosure match. Do not set `.claude/state/test-lock`. This is not a bug fix.
++3. Recompute each category score as 100 and pre-cap Presence Readiness as 100. Use `decimal` arithmetic. Apply no critical cap. Leave `not_applicable`, `unavailable`, and `error` out of the denominator. Do not decide a category score when the denominator is 0.
++4. Refuse to run if `methodology_version` is not `0.1.0-draft` or if the seven category weights differ from 20, 15, 10, 20, 15, 10, and 10.
++5. Fail a disclosure whose `coverage` is `full`, or that includes Experience Effectiveness, AI visibility, or search performance. `llms.txt`, an FAQ requirement, and a rich-result promise are not inputs.
++6. Add the CI step. Run the proof commands below and paste the output. Record `pnpm test:e2e` as not run. `pnpm test:ssrf` is the M1 suite and is not this exit.
++7. Save `intent/INT-03-m2-integrity-presence-readiness/review.diff`. Run `seo-method-checker` and `verifier`. They do not approve, merge, or spawn subagents. Fill `release.md` from the template. Stop. Do not start M3.
++
++## Risks
++
++| Risk | Likelihood | Mitigation | Owner |
++| --- | --- | --- | --- |
++| The new command edits the M0B proof or the weights | Low | This plan does not list those files as edits. A weight change is out of scope. | Methodology owner |
++| The score 100 is presented as a full-site count or as AI visibility | Medium | The valid disclosure requires `coverage` `sample` and `site_wide_count` null, and fails if the other measurements are present. | SEO lead |
++| Float rounding changes 100 | Low | Use decimal arithmetic, matching the spec. | Tech lead |
++| Pull request 2 is merged from this slice | Low | This plan does not merge it. The later branch is cut from `m1-secure-crawler`. | Tech lead |
++
++## Proof
++
++Run from the repository root after implementation. Paste the output. Do not claim a command passed unless it was run.
++
++```bash
++python3 scripts/check_m2_readiness.py
++python3 scripts/check_schemas.py
++python3 scripts/check_config.py
++python3 -m unittest discover -s .claude/hooks/tests
++python3 -m unittest discover -s .cursor/hooks/tests
++```
++
++`pnpm test:ssrf` is not this exit. `pnpm test:e2e` stays recorded as not run. Product spend stays `0.00` USD.
++
++## Security, privacy, cost, Arabic/accessibility review
++
++No fetch, no secret, and no customer content. `seo-method-checker` checks that the disclosure does not blend scores and does not score `llms.txt`. `verifier` compares the command output with this plan. There is no screen, so no Arabic or accessibility review. No paid call and no hosting.
++
++## Rollback
++
++Revert the commit that adds `scripts/check_m2_readiness.py`, `evals/m2/`, and the CI step. No deploy and no staging rehearsal.
++
++## Departures from the plan
++
++- 2026-10-01: `python3 scripts/check_m2_readiness.py` on `/opt/homebrew/bin/python3` failed because PyYAML is not installed for that interpreter. That invocation stays recorded as failed, not run. The readiness, schema, config, action-pin, M0B proof, and hook commands passed with `./.venv/bin/python` (Python 3.14.7). No package was added. The CI step still runs `python3` after the existing `pip install pyyaml jsonschema` step.
++- 2026-10-01: Ibrahim accepted the local exit and asked to commit on `m2-presence-readiness`. The branch was created from `m1-secure-crawler` at `afa0cdc`. It was not pushed. Pull request 2 was not merged.
+diff --git a/intent/INT-03-m2-integrity-presence-readiness/release.md b/intent/INT-03-m2-integrity-presence-readiness/release.md
+new file mode 100644
+index 0000000..11ad2b8
+--- /dev/null
++++ b/intent/INT-03-m2-integrity-presence-readiness/release.md
+@@ -0,0 +1,119 @@
++# Release: M2 local Presence Readiness disclosure
++
++| Field | Value |
++| --- | --- |
++| Intent / spec / plan | `intent/INT-03-m2-integrity-presence-readiness/` |
++| Milestone | M2, first local slice only |
++| Status | draft |
++| Environment | none. No deploy, no staging, no production. |
++| Release approver | pending `<DECIDE_AT_M0: release manager name>` |
++| Release time (UTC) | 2026-10-01 (record date for this local session, not a deploy) |
++| Change ticket (prod) | not prod |
++
++Status values: `draft`, `authorized`, `released`, `rolled_back`, `abandoned`. Only the release approver sets `authorized`.
++
++## Outcome and acceptance status
++
++Ibrahim accepted the local M2 exit gate on 2026-10-01. This file stays a draft. It does not authorize a release, a deploy, or a merge.
++
++`./.venv/bin/python scripts/check_m2_readiness.py` exited 0. It recomputed pre-cap Presence Readiness 100, disclosed `presence_readiness` at `methodology_version` `0.1.0-draft` with coverage `sample`, refused coverage `full`, refused a blended measurement, refused `unavailable` and `not_applicable` shown as `pass`, and left the weights unchanged. Product spend is `0.00` USD.
++
++`/opt/homebrew/bin/python3` failed and is recorded as failed, not run. `pnpm test:ssrf` and `pnpm test:e2e` stay not run.
++
++Pull request https://github.com/al-ai-hq/Web-Inteligence/pull/2 was not merged. M3 has not started.
++
++## Artifact versions
++
++- Commit SHA: this commit on `m2-presence-readiness`, cut from `m1-secure-crawler` at `afa0cdc`. Not pushed.
++- Image digest: none.
++- Schema versions: unchanged. 87 schema files, 13 examples, 22 negative examples.
++- `methodology_version`: unchanged, `0.1.0-draft`.
++- Python for the passing checks: `./.venv/bin/python`, Python 3.14.7. `/opt/homebrew/bin/python3` has no PyYAML.
++- Product spend: `0.00` USD.
++
++## Migrations
++
++None.
++
++## Files changed
++
++No pull request for this slice. The path list is in `intent/INT-03-m2-integrity-presence-readiness/review.diff`, saved before this file. New files are `scripts/check_m2_readiness.py` and `evals/m2/`. One `run` step was added to `.github/workflows/ci.yml`. No new action SHA. `scripts/check_m0b_proofs.py` is not in the diff.
++
++## Commands and checks actually run
++
++Lead session, 2026-10-01. The reviewers did not run these commands.
++
++| Command | Result |
++| --- | --- |
++| `python3 scripts/check_m2_readiness.py` | Failed, not run. `/opt/homebrew/bin/python3` has no PyYAML (`No module named 'yaml'`). This is not a pass. |
++| `./.venv/bin/python scripts/check_m2_readiness.py` | Passed. Exit 0. Output below. |
++| `./.venv/bin/python scripts/check_schemas.py` | Passed. 87 schema files, 13 examples, 22 negative examples. |
++| `./.venv/bin/python scripts/check_config.py` | Passed. 3627 checks. |
++| `./.venv/bin/python -m unittest discover -s .claude/hooks/tests` | Passed. 72 tests. |
++| `./.venv/bin/python -m unittest discover -s .cursor/hooks/tests` | Passed. 15 tests. |
++| `./.venv/bin/python scripts/check_m0b_proofs.py` | Passed. Exit 0, including `product spend 0.00 USD`. The file was not edited. |
++| `./.venv/bin/python scripts/check_action_pins.py` | Passed. 1 workflow file. No new action SHA. |
++| `pnpm test:e2e` | Not run. |
++| `pnpm test:ssrf` | Not run. It is the M1 suite and is not this exit. |
++
++```text
++OK: recompute presence readiness 100
++OK: disclosure presence_readiness 0.1.0-draft sample
++OK: refuse coverage full
++OK: refuse blended measurement
++OK: refuse unavailable shown as pass
++OK: refuse not_applicable shown as pass
++OK: methodology_version and weights unchanged
++product spend 0.00 USD
++```
++
++## Tests and evals
++
++| Suite | Passed | Failed | Not run | Notes |
++| --- | --- | --- | --- | --- |
++| Hook tests | yes | | | 72 Claude hook tests and 15 Cursor hook tests |
++| Unit / integration | | | yes | No Vitest run in this slice |
++| SSRF suite | | | yes | M1 suite. Not this exit |
++| M2 readiness | yes | | | Local command above |
++| M0B proofs | yes | | | Unchanged script, re-run |
++| Golden files | | | yes | OI-055. Not this slice |
++| Product-agent evals | | | yes | |
++| Build-agent evals | | | yes | |
++| `pnpm test:e2e` | | | yes | Placeholder stays not run |
++
++## Security, privacy and cost review
++
++No fetch, no secret, and no customer URL in the fixtures. No paid call and no hosting. Product spend `0.00` USD. The USD 150 cap stays an unconfirmed assumption (D-005, OI-001).
++
++`seo-method-checker` (`d3b29884-b013-4ceb-9f37-859c7762397c`) reported pass from the files. Ask mode blocked its shell. It did not run the readiness command. It found no blend, no `llms.txt` score, no FAQ requirement, and no rich-result promise.
++
++`verifier` (`863f2426-1935-4f8f-ae22-352ac1e7bb4d`) compared the saved diff with the plan and did not run commands. It found the scheduled files present and the forbidden files absent. It noted that `release.md` was not in the diff, which matches this order, and that the OK lines are recorded here rather than pasted into `plan.md`.
++
++Reviewers do not approve, merge, or spawn subagents.
++
++## Arabic and accessibility evidence
++
++No screen. No Arabic or accessibility review. The Arabic display name in `config/scoring.yaml` was not edited.
++
++## Unresolved risks
++
++- OI-032, OI-033, OI-034, and OI-055 stay open. The zero-denominator category score stays `<DECIDE_AT_M0>`.
++- Methodology owner and SEO lead sign-offs on the spec are still pending.
++- This slice is not the full M2 rules-engine exit.
++- Pull request 2 is still open. Merging it is not part of this record.
++
++## Rollback
++
++No production path. Rollback of a later commit is `git revert` of that commit. Removing `scripts/check_m2_readiness.py`, `evals/m2/`, and the CI step returns the tree to the M1 suite plus the M0B proofs. Staging rehearsal was not run.
++
++## Monitoring
++
++None. Nothing was deployed.
++
++## Post-release verification
++
++Not run. Nothing was released.
++
++## Decisions, assumptions and open items
++
++No new row in `docs/decisions.md`, `docs/assumptions.md`, `docs/open-items.md`, or `docs/sources.md`. The spec says this slice adds none.
+diff --git a/intent/INT-03-m2-integrity-presence-readiness/spec.md b/intent/INT-03-m2-integrity-presence-readiness/spec.md
+new file mode 100644
+index 0000000..38e8ddf
+--- /dev/null
++++ b/intent/INT-03-m2-integrity-presence-readiness/spec.md
+@@ -0,0 +1,115 @@
++# Spec: M2 local Presence Readiness disclosure
++
++| Field | Value |
++| --- | --- |
++| Intent | `intent/INT-03-m2-integrity-presence-readiness/intent.md` (status: accepted) |
++| Status | approved |
++| Author | Cursor session (Grok 4.7), 2026-10-01 |
++| Product owner sign-off | Ibrahim, 2026-10-01, by the message "I approve spec.md". The product-owner role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Policy owner sign-offs | pending: methodology owner (data-integrity, scoring), SEO lead (google-search-guidance) |
++| Spec prompt version | `.claude/skills/intent-spec-plan/SKILL.md` stage 2, skill version 0.1.0 |
++| Skill versions | intent-spec-plan 0.1.0; data-integrity 0.1.0; google-search-guidance 0.1.0; security-baseline 0.1.0; cost-guard 0.1.0; connector-safety 0.1.0; arabic-rtl-a11y 0.1.0; marketing-seo-agent vendored snapshot 2026-09-30 (no version field in its SKILL.md) |
++| Source sections read | accepted INT-03 text; `docs/spec/05-PROJECT-PLAN.md` §5; `docs/spec/02-DETAILED-SPECIFICATION.md` §6, §15; `docs/spec/03-PRODUCTION-CONTRACTS.md`; `config/scoring.yaml`; `docs/decisions.md` D-009, D-010, D-012, D-014, D-019, D-020; `docs/open-items.md` OI-032, OI-033, OI-034, OI-055; `docs/test-strategy.md` §5; `scripts/check_m0b_proofs.py` |
++
++Status values: `draft`, `changes_requested`, `approved`, `superseded`. Only the product owner sets `approved`.
++
++## Summary
++
++This spec defines a local check that recomputes one Presence Readiness score from stored rule results and discloses what that number is. The score stays the deterministic pre-cap value from `config/scoring.yaml`. It is not observed AI visibility, not Experience Effectiveness, and not search performance. A sample count is not a full-site count. An `unavailable` or `not_applicable` result is not a pass and stays out of the denominator.
++
++The check does not add a rules engine, does not edit `scripts/check_m0b_proofs.py`, and does not change weights or `methodology_version`. Product spend stays `0.00` USD.
++
++Cursor runs the work beside Claude Code. `.claude/` remains the policy source. `opus` at high is not a Cursor picker value. This spec was written in a session that showed Grok 4.7 (D-020).
++
++## Requirements
++
++### Functional
++
++1. A local command exits 0 only when the recompute, the disclosure, and the invalid-result case all pass. Any failure exits non-zero. Source: accepted INT-03 text; `docs/spec/05-PROJECT-PLAN.md` §5.
++2. The command reads `config/scoring.yaml` and refuses to run if `methodology_version` is not `0.1.0-draft` or if the seven category weights are not 20, 15, 10, 20, 15, 10, and 10 for crawlability, on_page, structured_data, aeo, geo, i18n_accessibility, and performance_security. Source: accepted INT-03 text; D-010; `config/scoring.yaml`.
++3. The valid fixture holds seven stored rule results, one in each category, each `pass` with `importance_weight` 1. Rule IDs are `CRW-001`, `SEO-001`, `STR-001`, `AEO-001`, `GEO-001`, `I18N-001`, and `PRF-001`. The check recomputes each category score as 100 and the pre-cap Presence Readiness as 100. No critical cap is applied. Calculation uses decimal arithmetic. Source: `config/scoring.yaml` `formulas`; the same inputs as `scripts/check_m0b_proofs.py`. This spec does not change that M0B command.
++4. The disclosure on that result is `score_name` `presence_readiness`, `methodology_version` `0.1.0-draft`, `deterministic` true, `coverage` `sample`, and `site_wide_count` null. `experience_effectiveness`, `ai_visibility`, and `search_performance` are absent. A disclosure that sets `coverage` to `full`, or that includes any of those three measurements, fails the check. Source: D-012; accepted INT-03 text; data-integrity skill.
++5. `llms.txt` is not a scored input. The fixture contains no FAQ requirement and no rich-result promise. Source: google-search-guidance skill; accepted INT-03 text.
++6. One invalid fixture stores a rule result of `unavailable`, and another stores `not_applicable`. Each is presented as if it were `pass`. Both presentations fail the check. Those two results stay out of the denominator, matching `config/scoring.yaml` `rule_results`. Source: accepted INT-03 text; data-integrity skill.
++7. The check does not decide the category score when the denominator is 0. The `<DECIDE_AT_M0>` line in `config/scoring.yaml` stays unchanged. Source: OI-033; accepted INT-03 text.
++8. `config/scoring.yaml`, `config/rules/`, schemas, and `scripts/check_m0b_proofs.py` stay unchanged. `methodology_version` stays `0.1.0-draft`. Source: accepted INT-03 text; D-010.
++
++### Non-functional
++
++1. The check runs on this machine. It does not deploy, apply Terraform, call a provider, or fetch a client site. Product spend is `0.00` USD. Source: accepted INT-03 text; D-019; cost-guard skill.
++2. Fixtures are synthetic. They contain no secrets, customer URLs, or live page text. Source: security-baseline skill.
++3. There is no screen. Arabic copy and WCAG evidence are not produced. The Arabic display name in `config/scoring.yaml` is not edited. Source: arabic-rtl-a11y skill.
++4. `pnpm test:e2e` stays the placeholder recorded as not run. `pnpm test:ssrf` is the M1 suite and is not this exit. Source: accepted INT-03 text.
++5. The check does not import `.claude/skills/marketing-seo-agent/scripts`. Source: D-009.
++
++## Design
++
++### Components and boundaries
++
++The check is a local command beside `scripts/check_m0b_proofs.py`. It reads scoring config and fixtures. It does not fetch, score a live site, or write a rule file. Stored rule results are data. The command recomputes the number and compares it with the disclosure. It does not let model prose change a pass or fail.
++
++`scripts/check_m0b_proofs.py` stays the M0B proof. This command is a separate check so M2 does not reopen that file.
++
++### Data contracts
++
++No schema is added or changed. The disclosure is a suite fixture, not a new `ScoreResult` field. A later spec may store it. Until then the fixture carries `score_name`, `methodology_version`, `deterministic`, `coverage`, and `site_wide_count`.
++
++### State transitions
++
++No workflow state is added. A failed disclosure or a false pass ends as `refused`. A refusal does not write a score.
++
++### Configuration
++
++No `config/` file is edited. Weights and `methodology_version` are read, not written (D-010).
++
++### UI (if any)
++
++None.
++
++## Policy conformance
++
++| Policy skill | Applies? | How the design complies | Concern for owner |
++| --- | --- | --- | --- |
++| google-search-guidance | yes | `llms.txt` is not scored. No FAQ requirement. No rich-result promise. No skill-script import. | SEO lead: partial standards and STR-003 stay open (OI-033, OI-034). |
++| security-baseline | yes | No fetch and no secret in fixtures. | None for this spec. |
++| arabic-rtl-a11y | no | No screen. | Native review of the Arabic score name stays later. |
++| data-integrity | yes | The score is recomputed, labelled `computed` in spirit, and kept apart from other measurements. `unavailable` and `not_applicable` leave the denominator. | Data engineer: the disclosure is a fixture, not a stored score row. |
++| cost-guard | yes | No paid call and no hosting. Spend is `0.00` USD. | None for this spec. |
++| connector-safety | no | No write tool and no connector. | None for this spec. |
++
++## Areas of concern
++
++1. Ibrahim approved this spec on 2026-10-01. The methodology owner and SEO lead sign-offs in the table above are still pending.
++2. M0B already recomputes 100 from the same seven passes. This check adds the disclosure and the false-pass refusal. It must not be treated as the full M2 exit in `docs/test-strategy.md` §5.
++3. The zero-denominator category score stays undecided. A fixture that removes every measurable rule is out of this spec.
++4. OI-032, OI-033, and OI-034 stay open. This spec does not align rule keys or fill partial standards.
++5. Pull request 2 is not merged. This spec does not merge it.
++6. D-021 still says `pnpm test:ssrf` is not run. The M1 suite on this branch replaced that placeholder. This spec does not rewrite D-021.
++
++## Test and eval plan
++
++The local command covers:
++
++- recompute of pre-cap Presence Readiness 100 from the seven passing results;
++- disclosure pass for `presence_readiness`, `0.1.0-draft`, `deterministic` true, `coverage` `sample`, and `site_wide_count` null;
++- disclosure fail when `coverage` is `full`;
++- disclosure fail when Experience Effectiveness, AI visibility, or search performance is present;
++- refusal when `unavailable` is shown as `pass`;
++- refusal when `not_applicable` is shown as `pass`;
++- refusal if `methodology_version` or a category weight in `config/scoring.yaml` differs from the values in requirement 2.
++
++No golden-file eval, product-agent eval, or browser journey. `pnpm test:e2e` is not run.
++
++## Rollout and rollback
++
++No feature flag and no environment. Rollback is reverting the commit that adds the command and fixtures. No staging rehearsal is in this spec.
++
++## Cost
++
++Paid calls added: none. Hosting added: none. Product spend: `0.00` USD. The USD 150 cap stays an unconfirmed assumption (D-005, OI-001).
++
++## Assumptions and open items
++
++- No new assumption row. Weights and `methodology_version` are the current config, not a new choice.
++- Leave OI-032, OI-033, OI-034, and OI-055 open.
++- No new decision row. Do not bump `methodology_version`.
+diff --git a/scripts/check_m2_readiness.py b/scripts/check_m2_readiness.py
+new file mode 100644
+index 0000000..3cacd8b
+--- /dev/null
++++ b/scripts/check_m2_readiness.py
+@@ -0,0 +1,253 @@
++#!/usr/bin/env python3
++"""Recompute one local Presence Readiness score and check its disclosure.
++
++No network, no provider call, no client-site fetch. Product spend is 0.00 USD.
++Does not import scripts/check_m0b_proofs.py or the marketing-seo-agent scripts.
++"""
++
++from __future__ import annotations
++
++import copy
++import json
++import sys
++from decimal import Decimal
++from pathlib import Path
++
++import yaml
++
++ROOT = Path(__file__).resolve().parent.parent
++FIXTURE_DIR = ROOT / "evals" / "m2"
++SCORING_PATH = ROOT / "config" / "scoring.yaml"
++
++RULES = (
++    ("CRW-001", "crawlability"),
++    ("SEO-001", "on_page"),
++    ("STR-001", "structured_data"),
++    ("AEO-001", "aeo"),
++    ("GEO-001", "geo"),
++    ("I18N-001", "i18n_accessibility"),
++    ("PRF-001", "performance_security"),
++)
++EXPECTED_WEIGHTS = {
++    "crawlability": 20,
++    "on_page": 15,
++    "structured_data": 10,
++    "aeo": 20,
++    "geo": 15,
++    "i18n_accessibility": 10,
++    "performance_security": 10,
++}
++FORBIDDEN = ("experience_effectiveness", "ai_visibility", "search_performance")
++NON_MEASURED = ("not_applicable", "unavailable", "error")
++BANNED_TEXT = ("llms.txt", "rich result", "rich_result", "faq")
++
++
++def fail(message: str) -> None:
++    print(f"FAIL: {message}")
++    raise SystemExit(1)
++
++
++def load_json(path: Path):
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def scoring_errors(scoring: dict) -> list[str]:
++    errors = []
++    if scoring.get("methodology_version") != "0.1.0-draft":
++        errors.append("methodology_version changed")
++    weights = {name: category["weight"] for name, category in scoring["categories"].items()}
++    if weights != EXPECTED_WEIGHTS:
++        errors.append(f"category weights changed: {weights}")
++    for name in NON_MEASURED:
++        if scoring["rule_results"][name]["in_denominator"] is not False:
++            errors.append(f"{name} is in the denominator")
++    undecided = scoring["formulas"]["category_score_when_no_measurable_rule"]
++    if "DECIDE_AT_M0" not in str(undecided):
++        errors.append("zero-denominator category score was decided")
++    return errors
++
++
++def load_scoring() -> dict:
++    scoring = yaml.safe_load(SCORING_PATH.read_text(encoding="utf-8"))
++    errors = scoring_errors(scoring)
++    if errors:
++        fail("; ".join(errors))
++    return scoring
++
++
++def refuse_mutated_scoring(scoring: dict) -> None:
++    changed_version = copy.deepcopy(scoring)
++    changed_version["methodology_version"] = "9.9.9"
++    if not scoring_errors(changed_version):
++        fail("a changed methodology_version was accepted")
++    changed_weight = copy.deepcopy(scoring)
++    changed_weight["categories"]["crawlability"]["weight"] = 21
++    if not scoring_errors(changed_weight):
++        fail("a changed category weight was accepted")
++
++
++def stored_result(row: dict) -> str:
++    if "stored_result" in row:
++        return row["stored_result"]
++    return row["result"]
++
++
++def in_denominator(scoring: dict, row: dict) -> bool:
++    return bool(scoring["rule_results"][stored_result(row)]["in_denominator"])
++
++
++def category_scores(rules: list[dict], scoring: dict) -> dict[str, Decimal] | None:
++    buckets = {name: [] for name in EXPECTED_WEIGHTS}
++    for row in rules:
++        buckets[row["category"]].append(row)
++    scores = {}
++    for name, rows in buckets.items():
++        numerator = Decimal(0)
++        denominator = Decimal(0)
++        for row in rows:
++            meta = scoring["rule_results"][stored_result(row)]
++            if not meta["in_denominator"]:
++                continue
++            numerator += Decimal(str(meta["value"])) * Decimal(row["importance_weight"])
++            denominator += Decimal(row["importance_weight"])
++        if denominator == 0:
++            return None
++        scores[name] = Decimal(100) * numerator / denominator
++    return scores
++
++
++def readiness(scores: dict[str, Decimal], scoring: dict) -> Decimal:
++    total = Decimal(0)
++    for name, score in scores.items():
++        weight = Decimal(scoring["categories"][name]["weight"])
++        total += score * weight / Decimal(100)
++    return total
++
++
++def disclosure_errors(disclosure: dict) -> list[str]:
++    errors = []
++    if disclosure.get("score_name") != "presence_readiness":
++        errors.append("score_name")
++    if disclosure.get("methodology_version") != "0.1.0-draft":
++        errors.append("methodology_version")
++    if disclosure.get("deterministic") is not True:
++        errors.append("deterministic")
++    if disclosure.get("coverage") != "sample":
++        errors.append("coverage")
++    if "site_wide_count" not in disclosure or disclosure.get("site_wide_count") is not None:
++        errors.append("site_wide_count")
++    for key in FORBIDDEN:
++        if key in disclosure:
++            errors.append(key)
++    return errors
++
++
++def contains_forbidden(value) -> bool:
++    if isinstance(value, dict):
++        for key, item in value.items():
++            if key in FORBIDDEN or contains_forbidden(item):
++                return True
++        return False
++    if isinstance(value, list):
++        return any(contains_forbidden(item) for item in value)
++    return False
++
++
++def false_pass_rows(rules: list[dict]) -> list[dict]:
++    rows = []
++    for row in rules:
++        stored = row.get("stored_result")
++        if stored in ("unavailable", "not_applicable") and row.get("shown_as") == "pass":
++            rows.append(row)
++    return rows
++
++
++def require_clean_text(path: Path) -> None:
++    text = path.read_text(encoding="utf-8").lower()
++    for banned in BANNED_TEXT:
++        if banned in text:
++            fail(f"{path.name} contains {banned}")
++
++
++def require_seven_passes(fixture: dict) -> None:
++    rows = fixture["rules"]
++    if [(row["rule_id"], row["category"]) for row in rows] != list(RULES):
++        fail("rules are not the seven named passes")
++    for row in rows:
++        if row["importance_weight"] != 1 or row["result"] != "pass":
++            fail(f"{row['rule_id']} is not importance 1 and pass")
++        if "shown_as" in row:
++            fail(f"{row['rule_id']} is shown as a different result")
++
++
++def check_pass(scoring: dict) -> None:
++    fixture = load_json(FIXTURE_DIR / "pass-seven.json")
++    require_seven_passes(fixture)
++    if fixture.get("applied_cap") is not None:
++        fail("a critical cap is present")
++    scores = category_scores(fixture["rules"], scoring)
++    if scores is None:
++        fail("a category denominator was zero")
++    if any(score != Decimal(100) for score in scores.values()):
++        fail(f"category scores are not 100: {scores}")
++    if readiness(scores, scoring) != Decimal(100):
++        fail("recomputed readiness is not 100")
++    if disclosure_errors(fixture["disclosure"]):
++        fail("valid disclosure was refused")
++    if contains_forbidden(fixture):
++        fail("a blended measurement is in the valid fixture")
++    print("OK: recompute presence readiness 100")
++    print("OK: disclosure presence_readiness 0.1.0-draft sample")
++
++
++def check_full(scoring: dict) -> None:
++    fixture = load_json(FIXTURE_DIR / "disclosure-full.json")
++    require_seven_passes(fixture)
++    if not disclosure_errors(fixture["disclosure"]):
++        fail("coverage full was accepted")
++    print("OK: refuse coverage full")
++
++
++def check_blended(scoring: dict) -> None:
++    fixture = load_json(FIXTURE_DIR / "disclosure-blended.json")
++    require_seven_passes(fixture)
++    if not contains_forbidden(fixture) or not disclosure_errors(fixture["disclosure"]):
++        fail("a blended measurement was accepted")
++    for key in ("ai_visibility", "search_performance"):
++        mutated = copy.deepcopy(fixture)
++        mutated["disclosure"].pop("experience_effectiveness", None)
++        mutated["disclosure"][key] = 100
++        if not contains_forbidden(mutated) or not disclosure_errors(mutated["disclosure"]):
++            fail(f"{key} was accepted")
++    print("OK: refuse blended measurement")
++
++
++def check_false_pass(scoring: dict, filename: str, stored: str) -> None:
++    fixture = load_json(FIXTURE_DIR / filename)
++    rows = false_pass_rows(fixture["rules"])
++    if len(rows) != 1 or stored_result(rows[0]) != stored:
++        fail(f"{filename} does not present {stored} as pass")
++    if in_denominator(scoring, rows[0]):
++        fail(f"{stored} entered the denominator")
++    if category_scores(fixture["rules"], scoring) is not None:
++        fail(f"{filename} produced a category score")
++    print(f"OK: refuse {stored} shown as pass")
++
++
++def main() -> int:
++    scoring = load_scoring()
++    refuse_mutated_scoring(scoring)
++    for path in sorted(FIXTURE_DIR.glob("*.json")):
++        require_clean_text(path)
++    check_pass(scoring)
++    check_full(scoring)
++    check_blended(scoring)
++    check_false_pass(scoring, "unavailable-as-pass.json", "unavailable")
++    check_false_pass(scoring, "not-applicable-as-pass.json", "not_applicable")
++    print("OK: methodology_version and weights unchanged")
++    print("product spend 0.00 USD")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())

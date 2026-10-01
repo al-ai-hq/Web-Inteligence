@@ -42,6 +42,8 @@ M0A toolchain closure, 2026-10-01: pnpm, Node.js 22, Prettier, ESLint, and Vites
 
 M0A close, 2026-10-01: commits `f466a72` and `1f25117` are on `origin/main`. GitHub Actions run `36796058884` passed `governance` (Python 3.12) and `app`. The `secrets` job failed because `gitleaks-action` requires a licence for organization `al-ai-hq`. OI-021 stays open. `.cursorignore` was not changed.
 
+M0B Stage 1, 2026-10-01: OI-001 stays open. The modelled proof uses the combined-cap assumption and labels it unconfirmed. That assumption does not block the Stage 1 proof.
+
 ## M0B (contracts, threat model, cost proof)
 
 | ID | Item | Blocks | Decides | Where |

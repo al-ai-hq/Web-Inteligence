@@ -1,0 +1,22 @@
+{
+  "role": "test_denylist_not_product_config",
+  "clients": [
+    "SecretManagerServiceClient",
+    "@google-cloud/secret-manager",
+    "pg",
+    "mysql2",
+    "mongodb",
+    "prisma",
+    "typeorm",
+    "knex"
+  ],
+  "write_class_tools": [
+    "apply_change",
+    "publish",
+    "write_cms",
+    "delete_content",
+    "upload_disavow",
+    "send_email",
+    "submit_form"
+  ]
+}
