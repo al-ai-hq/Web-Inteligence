@@ -1,0 +1,18 @@
+{
+  "rows": [
+    {
+      "source": "search_console",
+      "value": 12,
+      "integrity_state": "valid"
+    },
+    {
+      "source": "ga4",
+      "value": 40,
+      "integrity_state": "valid"
+    }
+  ],
+  "totals": {
+    "search_console": 12,
+    "ga4": 40
+  }
+}

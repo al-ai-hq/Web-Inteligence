@@ -1,0 +1,614 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index b12d2b7..792547c 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -6,7 +6,7 @@
+ # intent/INT-00-m0a-repository-bootstrap/intent.md.
+ #
+ # Jobs:
+-#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access
++#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation
+ #   secrets    - gitleaks over the full history
+ #   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
+ name: ci
+@@ -46,6 +46,8 @@ jobs:
+         run: python3 scripts/check_config.py
+       - name: M3 access
+         run: python3 scripts/check_m3_access.py
++      - name: M4 source separation
++        run: python3 scripts/check_m4_sources.py
+       - name: M2 readiness
+         run: python3 scripts/check_m2_readiness.py
+       - name: Action pins
+diff --git a/evals/m4/missing-source.json b/evals/m4/missing-source.json
+new file mode 100644
+index 0000000..31c823b
+--- /dev/null
++++ b/evals/m4/missing-source.json
+@@ -0,0 +1,5 @@
++{
++  "source": "ga4",
++  "value": null,
++  "integrity_state": "not_supplied"
++}
+diff --git a/evals/m4/separate-sources.json b/evals/m4/separate-sources.json
+new file mode 100644
+index 0000000..dd750bd
+--- /dev/null
++++ b/evals/m4/separate-sources.json
+@@ -0,0 +1,18 @@
++{
++  "rows": [
++    {
++      "source": "search_console",
++      "value": 12,
++      "integrity_state": "valid"
++    },
++    {
++      "source": "ga4",
++      "value": 40,
++      "integrity_state": "valid"
++    }
++  ],
++  "totals": {
++    "search_console": 12,
++    "ga4": 40
++  }
++}
+diff --git a/intent/INT-05-m4-source-separation/intent.md b/intent/INT-05-m4-source-separation/intent.md
+new file mode 100644
+index 0000000..3a0f919
+--- /dev/null
++++ b/intent/INT-05-m4-source-separation/intent.md
+@@ -0,0 +1,82 @@
++# Intent: M4 source separation
++
++Status: draft.
++
++| Field | Value |
++| --- | --- |
++| ID | INT-05 |
++| Status | draft |
++| Author (originator) | <DECIDE_AT_M0: product owner name> |
++| Product owner | <DECIDE_AT_M0: name> |
++| Tech lead | <DECIDE_AT_M0: name> |
++| Milestone | M4 (05-PROJECT-PLAN §5) |
++| Ticket | none |
++| Created | 2026-10-01 |
++| Drafted from | Ibrahim, 2026-10-01. He confirmed the first slice is only a local check: it refuses to add a Search Console number to a GA4 number, and it keeps a missing optional source distinct from zero. There is no account and no claim flow. Product spend stays `0.00` USD. |
++| Text accepted | Ibrahim, 2026-10-01, by the message "I accept this INT-05 text." The status word stays `draft` because that message also says not to set `accepted`. |
++| Depends on | `origin/main` at `73d1d4d`, which merges pull request 4 and includes M0A through the local M3 anonymous-export check. That fact does not reopen those milestones and does not authorize a further merge. |
++| Risk class | standard for this slice. A later slice that registers a user, claims an anonymous audit, or connects Search Console or GA4 is high-risk. This slice does not. |
++
++Status values: `draft`, `accepted`, `rejected`, `superseded`. Ibrahim accepted this text on 2026-10-01. This session does not set `accepted`.
++
++## Problem
++
++Search Console and GA4 measure different things. A later screen can add Search Console clicks to GA4 sessions and present the sum as one performance number. A missing optional source can also be stored as zero, so an absent connection looks like a measured empty result. The metric rules already say numbers from different sources are never added, and a missing value is not zero. Nobody has yet shown, in a local check, that a Search Console number stays apart from a GA4 number and that a missing optional source stays distinct from zero.
++
++## Proposed outcome
++
++A local check, with no account and no claim flow, shows all of these:
++
++- A Search Console number and a GA4 number stay in separate totals. Adding one to the other is refused.
++- A missing optional source is not shown as zero.
++- Product spend stays `0.00` USD. There is no Search Console connection, no GA4 connection, and no live query.
++
++Cursor sessions run this milestone under `AGENTS.md` and `.cursor/`. `.claude/` remains the policy source. `opusplan` at high in `docs/spec/06-MODEL-PLAN.md` §3 is a Claude Code alias, not a Cursor picker value. The session records the model name it shows (D-020). This draft was written in a session that showed Grok 4.7.
++
++## Affected users and systems
++
++The data engineer and the SEO lead. No service is deployed. No Google account is connected.
++
++## Constraints
++
++- D-004: claiming an anonymous audit never proves domain ownership. This slice has no claim flow.
++- D-009: do not call Google Autocomplete or scrape search-result pages. Do not import `.claude/skills/marketing-seo-agent/scripts`.
++- D-012: search performance stays apart from Presence Readiness, Experience Effectiveness, and observed AI visibility. This slice does not fold either source into a readiness score.
++- D-014: a stored metric still belongs to its project. This slice does not add a new identity model.
++- D-020: record the model the session shows.
++- Data-integrity skill: aggregate only the same source. `not_supplied` is not `measured_zero`. A blank or missing value is unknown, never 0.
++- Do not compute a CTR from the Search Console generative-AI export. That export has impressions only.
++- `pnpm test:e2e` stays recorded as not run. There is no screen.
++
++## Out of scope
++
++- Reopening M0A, M0B, M1, M2, or M3. Starting M5. Merging any pull request.
++- Closing OI-021. The secrets job fails because organization `al-ai-hq` has no `GITLEAKS_LICENSE`. That is not a secret in the diff.
++- Registration, domain verification, anonymous-audit claiming, and connector ownership.
++- Keyword uploads, Arabic normalization, clusters, cannibalization, striking distance, and golden files.
++- CTR from totals, impression-weighted position, rate changes in percentage points, time zones, and the incomplete recent Search Console days. Those stay in the later expected-value catalogue (`docs/test-strategy.md` §6.3).
++- A live Search Console or GA4 connection, OAuth, and a client-site fetch.
++- Deploy, Terraform apply, a live provider call, and product spend.
++
++## Exit gate
++
++From 05-PROJECT-PLAN §5, this first slice shows locally:
++
++1. one refusal when a Search Console number is added to a GA4 number;
++2. one case where a missing optional source stays distinct from zero.
++
++The later M4 exit, expected-value formulas and a claim that does not grant domain or connector authority, is not this slice. `pnpm test:e2e` stays recorded as not run.
++
++## Open questions
++
++These stay open. They do not block this draft. They block a later connection or a claim flow.
++
++- Launch sequencing for public anonymous traffic (OI-005). Owner: product owner. The name remains `<DECIDE_AT_M0: name>` (OI-002).
++- Arabic query normalization. Owner: methodology owner.
++- The claim flow, and the proof that a claim does not grant domain or connector authority (D-004). Owner: security engineer and tech lead.
++
++## Links
++
++- Spec: `intent/INT-05-m4-source-separation/spec.md` (after acceptance)
++- Plan: `intent/INT-05-m4-source-separation/plan.md` (after spec approval)
++- Release: `intent/INT-05-m4-source-separation/release.md` (after implementation)
+diff --git a/intent/INT-05-m4-source-separation/plan.md b/intent/INT-05-m4-source-separation/plan.md
+new file mode 100644
+index 0000000..e73f775
+--- /dev/null
++++ b/intent/INT-05-m4-source-separation/plan.md
+@@ -0,0 +1,110 @@
++# Plan: M4 local source separation
++
++| Field | Value |
++| --- | --- |
++| Spec | `intent/INT-05-m4-source-separation/spec.md`. Ibrahim approved that spec on 2026-10-01 by the message "I approve spec.md". This plan does not edit `spec.md`, so the status word in that file stays `draft`. |
++| Status | done |
++| Author | Cursor session (Grok 4.7), 2026-10-01 (D-020). Plan stage only. |
++| Engineer approval | Ibrahim, 2026-10-01, by the message "approved". |
++| Tech lead approval | not required. This slice does not add a live auth path, a claim flow, tenant isolation code, SSRF, a cost-guard change, rule weights, a Search Console connection, a GA4 connection, or production infrastructure. |
++| Branch | `m4-source-separation`, cut from `origin/main` at `73d1d4d`. Not pushed. |
++
++Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Only a human sets `approved`.
++
++## Scope of this slice
++
++Add one local command that keeps a Search Console number apart from a GA4 number, and keeps a missing optional source as `not_supplied`. Product spend stays `0.00` USD.
++
++The command exits 0 only when both of these pass:
++
++- Search Console `12` and GA4 `40` stay in separate totals. A result that adds them is refused.
++- The optional GA4 source is `not_supplied` with a missing marker. `not_supplied` is not `measured_zero` and is not the number 0.
++
++The check reads fixtures on this machine. It does not connect Search Console or GA4. It does not add a claim flow. It does not close OI-021. It does not start M5. The later M4 exit in `docs/spec/05-PROJECT-PLAN.md` §5 (expected-value formulas, and a claim that does not grant domain or connector authority) stays out of this slice.
++
++## Files
++
++| Path | Change | Why |
++| --- | --- | --- |
++| `evals/m4/separate-sources.json` | Create | Two synthetic rows: Search Console value `12` with `integrity_state` `valid`, and GA4 value `40` with `integrity_state` `valid`. |
++| `evals/m4/missing-source.json` | Create | One synthetic row: source `ga4`, value `null`, `integrity_state` `not_supplied`. `null` is the missing marker. |
++| `scripts/check_m4_sources.py` | Create | Local command. Python standard library only. It computes the separate totals and the missing-source state. The stored rows must match that computation. |
++| `.github/workflows/ci.yml` | One governance step | Run `python3 scripts/check_m4_sources.py` after the existing M3 access step. No new action SHA. The gitleaks step stays as it is. |
++
++Each row has only `source`, `value`, and `integrity_state`. Search Console and GA4 are the only sources. The passing files have no `ctr` field and no Presence Readiness, Experience Effectiveness, or observed AI visibility field.
++
++In-memory copies cover a combined total of `52`, a missing row stored as `measured_zero`, a missing row stored as `0`, a third source, a CTR on `search_console_generative_ai_export`, and either number written into a readiness, experience, or AI-visibility field. The command fails if any of those copies is accepted.
++
++Do not edit `schemas/`, `config/`, `package.json`, `scripts/check_m0b_proofs.py`, `scripts/check_m2_readiness.py`, or `scripts/check_m3_access.py`. Do not add a workflow action. Do not close OI-021. Leave the untracked Icon file out. `pnpm test:e2e` stays not run. `pnpm test:ssrf` is not this exit.
++
++## Order of work
++
++Do not start this list until the plan is approved.
++
++1. Cut `m4-source-separation` from `origin/main` at `73d1d4d`. Carry only `intent/INT-05-m4-source-separation/`. The current checkout is `m3-anonymous-report-access` at `ad2ad15`, which is the parent of that merge. Do not commit this slice on the M3 branch. Leave the untracked Icon file out.
++2. Add the two fixtures under `evals/m4/`. Synthetic values only. No secrets, customer account ids, or live query text.
++3. Add `scripts/check_m4_sources.py` so it exits 0 only when the separate totals and the missing-source row pass, and the in-memory failures are refused. Do not set `.claude/state/test-lock`. This is not a bug fix.
++4. Add the CI step. Run the proof commands below and paste the output. Record `pnpm test:e2e` as not run.
++5. Save `intent/INT-05-m4-source-separation/review.diff`. Run `security-reviewer` and `verifier`. They do not approve, merge, or spawn subagents. Fill `release.md` from the template. Stop. Do not start M5.
++
++## Behaviour the command must pin
++
++- Keep Search Console `12` and GA4 `40` as separate totals. Refuse a combined total, including `52`.
++- Accept the optional GA4 row only when `integrity_state` is `not_supplied` and `value` is `null`.
++- Refuse that row when `integrity_state` is `measured_zero`.
++- Refuse that row when `value` is `0`, or when `not_supplied` is paired with any number.
++- Refuse a source other than `search_console` or `ga4`.
++- Refuse a CTR computed from `search_console_generative_ai_export`. This command does not compute a CTR.
++- Refuse a copy that writes either number into Presence Readiness, Experience Effectiveness, or observed AI visibility.
++- A fixture that only agrees with itself is not enough. The command computes the result, and the stored row must match it.
++- Print `product spend 0.00 USD`. No network, no provider call, no Google Autocomplete, no search-result scrape, and no client-site fetch.
++- Do not import `.claude/skills/marketing-seo-agent/scripts`.
++
++## Risks
++
++| Risk | Likelihood | Mitigation | Owner |
++| --- | --- | --- | --- |
++| The two numbers are added and the sum is accepted | Medium | The command computes separate totals and fails on a combined total, including `52`. | Data engineer |
++| `not_supplied` is stored as `measured_zero` or as `0` | Medium | The passing row is `null` plus `not_supplied`. Copies that use `measured_zero` or `0` fail the check. | Data engineer |
++| The check is treated as the full M4 exit | Medium | Formulas, time zones, registration, domain verification, and the claim flow stay out. `pnpm test:e2e` stays not run. | Product owner |
++| A live Search Console or GA4 call is added | Low | The file list is the two fixtures, one standard-library script, and one CI step. Product spend stays `0.00` USD. | Engineer |
++| OI-021 is closed while editing CI | Low | The only CI edit is the new step. The gitleaks step and OI-021 stay unchanged. | Tech lead |
++| The script compares a fixture only to itself | Medium | The command computes the totals and the missing-source state. The stored row must match that result. | Engineer |
++
++## Proof
++
++Run from the repository root after implementation. Paste the output. Do not claim a command passed unless it was run.
++
++```bash
++python3 scripts/check_m4_sources.py
++python3 scripts/check_schemas.py
++python3 scripts/check_config.py
++python3 -m unittest discover -s .claude/hooks/tests
++python3 -m unittest discover -s .cursor/hooks/tests
++```
++
++`check_m4_sources.py` uses the standard library, so `python3` does not need PyYAML. If `python3 scripts/check_schemas.py` fails because `jsonschema` is missing, rerun the schema and config checks with `./.venv/bin/python` and record that departure. `pnpm test:e2e` is not an exit command. Record it as not run. `pnpm test:ssrf` is the M1 suite and is not this exit.
++
++No Arabic or WCAG run. There is no screen. No golden-file eval. No live provider call.
++
++## Security, privacy, cost, Arabic/accessibility review
++
++- `security-reviewer`: fixtures are synthetic; the command does not fetch, connect an account, or add a claim flow.
++- `verifier`: the diff matches this plan and the approved spec, the two sources stay apart, `not_supplied` stays distinct from `measured_zero` and from `0`, and the pasted command output is real.
++- Arabic and accessibility review is not run.
++- `seo-method-checker` is not run. This slice does not change keywords, scores, or golden files.
++- Cost review is not a separate subagent. The diff must show no paid call, no hosting resource, and no new dependency. Product spend `0.00` USD.
++
++Reviewers do not approve, merge, or spawn subagents.
++
++No new decision row. No new assumption row. Leave OI-005 and OI-021 open.
++
++## Rollback
++
++No production path. After a commit, rollback is `git revert` of that commit. Removing `scripts/check_m4_sources.py`, `evals/m4/`, and the CI step returns the tree to `origin/main` at `73d1d4d`. Staging rehearsal is not part of this slice.
++
++## Departures from the plan
++
++- 2026-10-01: The branch `m4-source-separation` was created at `73d1d4d`. It was not pushed.
++- 2026-10-01: `python3 scripts/check_schemas.py` and `python3 scripts/check_config.py` failed on `/opt/homebrew/bin/python3` because `jsonschema` and PyYAML are not installed for that interpreter. Those checks passed with `./.venv/bin/python`. `python3 scripts/check_m4_sources.py` passed on `/opt/homebrew/bin/python3` because that command uses the standard library only. No package was added.
++- 2026-10-01: The security review found the pass path copied each row into the result. `separate_totals` now sums rows that share a source. A stored value equal to the Search Console total plus the GA4 total is refused, including `52` stored on `search_console` beside GA4 `40`. The row stays `source`, `value`, and `integrity_state`. `project_id` and `schemas/performance-observation.schema.json` stay out of this slice.
+diff --git a/intent/INT-05-m4-source-separation/spec.md b/intent/INT-05-m4-source-separation/spec.md
+new file mode 100644
+index 0000000..e3e2e1e
+--- /dev/null
++++ b/intent/INT-05-m4-source-separation/spec.md
+@@ -0,0 +1,107 @@
++# Spec: M4 local source separation
++
++| Field | Value |
++| --- | --- |
++| Intent | `intent/INT-05-m4-source-separation/intent.md` (status word: draft; text accepted by Ibrahim on 2026-10-01) |
++| Status | draft |
++| Author | Cursor session (Grok 4.7), 2026-10-01 |
++| Product owner sign-off | pending. Ibrahim accepted the intent text by the message "I accept this INT-05 text". He has not approved this spec. The product-owner role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Policy owner sign-offs | pending: data engineer (data-integrity), SEO lead (google-search-guidance) |
++| Spec prompt version | `.claude/skills/intent-spec-plan/SKILL.md` stage 2, skill version 0.1.0 |
++| Skill versions | intent-spec-plan 0.1.0; data-integrity 0.1.0; google-search-guidance 0.1.0 |
++| Source sections read | accepted INT-05 text; `docs/spec/05-PROJECT-PLAN.md` §5; `docs/decisions.md` D-004, D-009, D-012, D-014, D-020; `docs/test-strategy.md` §6.3; data-integrity skill; google-search-guidance skill |
++
++Status values: `draft`, `changes_requested`, `approved`, `superseded`. Only the product owner sets `approved`.
++
++## Summary
++
++This spec defines a local check that keeps Search Console numbers apart from GA4 numbers and keeps a missing optional source apart from zero. `not_supplied` is not `measured_zero`. There is no account and no claim flow.
++
++The check does not connect Search Console or GA4. Product spend stays `0.00` USD.
++
++Cursor runs the work beside Claude Code. `.claude/` remains the policy source. `opusplan` at high is not a Cursor picker value. This spec was written in a session that showed Grok 4.7 (D-020).
++
++## Requirements
++
++### Functional
++
++1. A local command exits 0 only when the source-separation case and the missing-source case both pass. Any failure exits non-zero. Source: accepted INT-05 text; `docs/spec/05-PROJECT-PLAN.md` §5.
++2. A Search Console number and a GA4 number stay in separate totals. The check refuses a result that adds one to the other. Source: accepted INT-05 text; data-integrity skill.
++3. A missing optional source is `not_supplied`. It is not `measured_zero`, and it is not the number 0. Source: accepted INT-05 text; data-integrity skill.
++4. `not_supplied` and `measured_zero` stay different integrity states. A case that stores `not_supplied` as `measured_zero` fails the check. Source: accepted INT-05 text; data-integrity skill.
++5. The fixture does not fold either source into Presence Readiness, Experience Effectiveness, or observed AI visibility. Source: D-012.
++6. The fixture does not compute a CTR from a Search Console generative-AI export. Source: google-search-guidance skill.
++7. No schema file and no `config/` file is added or changed. Source: accepted INT-05 text.
++
++### Non-functional
++
++1. The check runs on this machine. It does not connect Search Console or GA4, call a provider, or fetch a client site. It does not call Google Autocomplete or scrape a search-result page. Product spend is `0.00` USD. Source: accepted INT-05 text; D-009.
++2. The check does not import `.claude/skills/marketing-seo-agent/scripts`. Source: D-009.
++3. Fixtures are synthetic. They contain no secrets, customer account ids, or live query text. Source: accepted INT-05 text.
++4. There is no account, no claim flow, and no screen. `pnpm test:e2e` stays the placeholder recorded as not run. Source: accepted INT-05 text; D-004.
++5. CTR from totals, impression-weighted position, rate changes in percentage points, time zones, and the incomplete recent Search Console days stay out of this check. Source: accepted INT-05 text; `docs/test-strategy.md` §6.3.
++
++## Design
++
++### Components and boundaries
++
++The check is a local command. It reads fixtures. It does not call Google. Stored rows are data. The command refuses a combined total and refuses a missing source labelled as zero. It does not create a user or a connector.
++
++### Data contracts
++
++No schema is added or changed. The fixture carries a source name, a number or a missing marker, and an integrity state. Search Console and GA4 are the only two sources in this check.
++
++### State transitions
++
++No workflow state is added. A combined total ends as refused. A missing source stays `not_supplied`.
++
++### Configuration
++
++No `config/` file is edited.
++
++### UI (if any)
++
++None.
++
++## Policy conformance
++
++| Policy skill | Applies? | How the design complies | Concern for owner |
++| --- | --- | --- | --- |
++| google-search-guidance | yes | No Autocomplete, no result-page scrape, and no CTR from the generative-AI export. | SEO lead: the later formula catalogue stays open. |
++| security-baseline | no | No fetch and no account. | Claiming and connector ownership stay later. |
++| arabic-rtl-a11y | no | No screen. | Arabic query normalization stays later. |
++| data-integrity | yes | Sources stay separate. `not_supplied` is not `measured_zero`. | Data engineer: this fixture is not a stored metric row with full lineage. |
++| cost-guard | yes | No paid call and no hosting. Spend is `0.00` USD. | None for this spec. |
++| connector-safety | no | No connector and no write tool. | None for this spec. |
++
++## Areas of concern
++
++1. This spec is `draft`. Ibrahim has not approved it. The INT-05 status word stays `draft` because the acceptance message says not to set `accepted`.
++2. The M4 exit in `docs/spec/05-PROJECT-PLAN.md` §5 also requires expected-value formulas and a claim that does not grant domain or connector authority. This check is the first slice only.
++3. OI-021 stays open. This spec does not close it.
++4. Pull request 4 is already merged at `origin/main` `73d1d4d`. This spec does not merge anything else.
++
++## Test and eval plan
++
++The local command covers:
++
++- a Search Console number and a GA4 number kept in separate totals;
++- a refusal when those numbers are added;
++- a missing optional source stored as `not_supplied`, not as `measured_zero` and not as 0;
++- a failure when `not_supplied` is stored as `measured_zero`.
++
++No browser journey, no golden-file eval, and no live provider call. `pnpm test:e2e` is not run.
++
++## Rollout and rollback
++
++No feature flag and no environment. Rollback is reverting the commit that adds the command and fixtures. No staging rehearsal is in this spec.
++
++## Cost
++
++Paid calls added: none. Hosting added: none. Product spend: `0.00` USD. The USD 150 cap stays an unconfirmed assumption (D-005, OI-001).
++
++## Assumptions and open items
++
++- No new assumption row.
++- Leave OI-005 and OI-021 open.
++- No new decision row.
+diff --git a/scripts/check_m4_sources.py b/scripts/check_m4_sources.py
+new file mode 100644
+index 0000000..dadaa02
+--- /dev/null
++++ b/scripts/check_m4_sources.py
+@@ -0,0 +1,234 @@
++#!/usr/bin/env python3
++"""Keep Search Console totals apart from GA4 totals.
++
++Rows that share a source are summed. A Search Console total is never added to
++a GA4 total. A missing optional source stays not_supplied. That state is not
++measured_zero and it is not the number 0.
++
++No network, no provider call, no client-site fetch. Product spend is 0.00 USD.
++Standard library only.
++"""
++
++from __future__ import annotations
++
++import copy
++import json
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++FIXTURE_DIR = ROOT / "evals" / "m4"
++
++ALLOWED_SOURCES = ("search_console", "ga4")
++GENERATIVE_AI_EXPORT = "search_console_generative_ai_export"
++OPTIONAL_SOURCE = "ga4"
++SCORE_FIELDS = (
++    "presence_readiness",
++    "experience_effectiveness",
++    "observed_ai_visibility",
++)
++ROW_FIELDS = {"source", "value", "integrity_state"}
++
++
++def fail(message: str) -> None:
++    print(f"FAIL: {message}")
++    raise SystemExit(1)
++
++
++def load_json(path: Path):
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def shared_row_errors(row: dict) -> list[str]:
++    errors = []
++    if not isinstance(row, dict):
++        return ["row"]
++    source = row.get("source")
++    if source == GENERATIVE_AI_EXPORT or "ctr" in row:
++        errors.append("ctr")
++    if source not in ALLOWED_SOURCES:
++        errors.append("source")
++    for field in SCORE_FIELDS:
++        if field in row:
++            errors.append(field)
++    extra = set(row) - ROW_FIELDS
++    if extra:
++        errors.append("fields")
++    return errors
++
++
++def separate_totals(rows: list[dict]) -> dict[str, int]:
++    """Sum values that share a source. Never add one source to another."""
++    totals: dict[str, int] = {}
++    for row in rows:
++        if not isinstance(row, dict):
++            continue
++        source = row.get("source")
++        value = row.get("value")
++        if source not in ALLOWED_SOURCES or type(value) is not int:
++            continue
++        totals[source] = totals.get(source, 0) + value
++    return totals
++
++
++def cross_source_sum(totals: dict[str, int]) -> int | None:
++    if "search_console" not in totals or "ga4" not in totals:
++        return None
++    return totals["search_console"] + totals["ga4"]
++
++
++def separate_errors(rows: list[dict], stored: dict) -> list[str]:
++    errors = []
++    if not isinstance(rows, list) or [row.get("source") if isinstance(row, dict) else None for row in rows] != list(ALLOWED_SOURCES):
++        errors.append("order")
++    for row in rows if isinstance(rows, list) else []:
++        errors.extend(shared_row_errors(row))
++        if isinstance(row, dict) and row.get("integrity_state") != "valid":
++            errors.append("integrity_state")
++        if not isinstance(row, dict) or type(row.get("value")) is not int:
++            errors.append("value")
++    if isinstance(rows, list) and len(rows) == 2:
++        if rows[0].get("value") != 12 or rows[1].get("value") != 40:
++            errors.append("scenario")
++    computed = separate_totals(rows if isinstance(rows, list) else [])
++    if not isinstance(stored, dict):
++        errors.append("totals")
++        return errors
++    summed = cross_source_sum(computed)
++    if summed is not None and summed in stored.values():
++        errors.append("combined")
++    if stored != computed:
++        errors.append("totals")
++    return errors
++
++
++def classify_missing(row: dict) -> dict | None:
++    """A null optional GA4 value is not_supplied. A number is not that state."""
++    if not isinstance(row, dict):
++        return None
++    if row.get("source") != OPTIONAL_SOURCE:
++        return None
++    if set(row) - ROW_FIELDS:
++        return None
++    if row.get("value") is not None:
++        return None
++    return {
++        "source": OPTIONAL_SOURCE,
++        "value": None,
++        "integrity_state": "not_supplied",
++    }
++
++
++def missing_errors(row: dict) -> list[str]:
++    if not isinstance(row, dict):
++        return ["row"]
++    errors = shared_row_errors(row)
++    if row.get("source") != OPTIONAL_SOURCE:
++        errors.append("optional_source")
++    classified = classify_missing(row)
++    state = row.get("integrity_state")
++    value = row.get("value")
++    if classified is None:
++        errors.append("refused")
++    elif state != classified["integrity_state"] or value != classified["value"]:
++        errors.append("integrity_state")
++    if state == "measured_zero":
++        errors.append("measured_zero")
++    if value == 0:
++        errors.append("zero")
++    if state == "not_supplied" and type(value) is int:
++        errors.append("number")
++    return errors
++
++
++def check_separate() -> None:
++    fixture = load_json(FIXTURE_DIR / "separate-sources.json")
++    if not isinstance(fixture, dict) or not isinstance(fixture.get("rows"), list) or not isinstance(fixture.get("totals"), dict):
++        fail("separate fixture is missing rows or totals")
++    rows = fixture["rows"]
++    errors = separate_errors(rows, fixture["totals"])
++    if errors:
++        fail(f"separate totals failed: {errors}")
++    computed = separate_totals(rows)
++    folded = {
++        "search_console": cross_source_sum(computed),
++        "ga4": computed["ga4"],
++    }
++    if "combined" not in separate_errors(rows, folded):
++        fail("a combined total was accepted")
++    same_source = [
++        {"source": "search_console", "value": 5, "integrity_state": "valid"},
++        {"source": "search_console", "value": 7, "integrity_state": "valid"},
++        {"source": "ga4", "value": 40, "integrity_state": "valid"},
++    ]
++    same_totals = separate_totals(same_source)
++    if same_totals != {"search_console": 12, "ga4": 40}:
++        fail("same-source rows were not summed")
++    if 52 in same_totals.values():
++        fail("same-source sums were added across sources")
++    folded_row = copy.deepcopy(rows[0])
++    folded_row["presence_readiness"] = folded_row["value"]
++    if "presence_readiness" not in shared_row_errors(folded_row):
++        fail("a Search Console number was written into presence readiness")
++    experience = copy.deepcopy(rows[1])
++    experience["experience_effectiveness"] = experience["value"]
++    if "experience_effectiveness" not in shared_row_errors(experience):
++        fail("a GA4 number was written into experience effectiveness")
++    visibility = copy.deepcopy(rows[0])
++    visibility["observed_ai_visibility"] = visibility["value"]
++    if "observed_ai_visibility" not in shared_row_errors(visibility):
++        fail("a Search Console number was written into observed AI visibility")
++    third = copy.deepcopy(rows[0])
++    third["source"] = "pagespeed"
++    if "source" not in shared_row_errors(third):
++        fail("a third source was accepted")
++    generative = {
++        "source": GENERATIVE_AI_EXPORT,
++        "value": 1,
++        "integrity_state": "valid",
++        "ctr": 1,
++    }
++    if "ctr" not in shared_row_errors(generative):
++        fail("a generative-AI export CTR was accepted")
++    print("OK: separate search_console and ga4 totals")
++    print("OK: combined total refused")
++    print("OK: same-source rows are summed")
++
++
++def check_missing() -> None:
++    row = load_json(FIXTURE_DIR / "missing-source.json")
++    if not isinstance(row, dict):
++        fail("missing fixture is not a row")
++    if missing_errors(row):
++        fail(f"missing source failed: {missing_errors(row)}")
++    classified = classify_missing(row)
++    if classified != {"source": "ga4", "value": None, "integrity_state": "not_supplied"}:
++        fail("missing source was not classified as not_supplied")
++    if row.get("integrity_state") != classified["integrity_state"] or row.get("value") != classified["value"]:
++        fail("stored missing row does not match the classification")
++    measured = copy.deepcopy(row)
++    measured["integrity_state"] = "measured_zero"
++    if "measured_zero" not in missing_errors(measured):
++        fail("not_supplied stored as measured_zero was accepted")
++    zero = copy.deepcopy(row)
++    zero["value"] = 0
++    if "zero" not in missing_errors(zero):
++        fail("not_supplied stored as 0 was accepted")
++    numbered = copy.deepcopy(row)
++    numbered["value"] = 7
++    if "number" not in missing_errors(numbered):
++        fail("not_supplied paired with a number was accepted")
++    print("OK: missing optional source is not_supplied")
++    print("OK: not_supplied is not measured_zero")
++    print("OK: not_supplied is not 0")
++
++
++def main() -> int:
++    check_separate()
++    check_missing()
++    print("product spend 0.00 USD")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
