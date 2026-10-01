@@ -1,0 +1,30 @@
+{
+  "evidence_id": "e1e1e1e1-1111-4eee-bbbb-000000000003",
+  "audit_id": "a1b2c3d4-1111-4aaa-bbbb-000000000001",
+  "kind": "structured_data",
+  "url": "https://example.com/",
+  "http_status": 200,
+  "content_type": "text/html",
+  "injection_suspected": false,
+  "immutable": true,
+  "expires_at": "2026-10-31T10:00:00Z",
+  "lineage": {
+    "record_id": "e1e1e1e1-1111-4eee-bbbb-000000000003",
+    "project_id": "a1b2c3d4-1111-4aaa-bbbb-000000000099",
+    "site_id": "a1b2c3d4-1111-4aaa-bbbb-000000000098",
+    "source_type": "crawler",
+    "source_id": "crawl-run-001",
+    "source_version": "1.0.0",
+    "captured_at": "2026-10-01T10:00:00Z",
+    "as_of": "2026-10-01T10:00:00Z",
+    "market": "SA",
+    "language": "ar",
+    "device": "desktop",
+    "method": "raw_http_fetch",
+    "methodology_version": "0.1.0-draft",
+    "fidelity_label": "observed",
+    "content_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "parent_ids": [],
+    "validation_state": "valid"
+  }
+}

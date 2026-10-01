@@ -1,0 +1,54 @@
+{
+  "score_result_id": "cd000000-1111-4ddd-bbbb-000000000001",
+  "audit_id": "a1b2c3d4-1111-4aaa-bbbb-000000000001",
+  "score_kind": "presence_readiness",
+  "value": 77.5,
+  "pre_cap_value": 77.5,
+  "applied_cap": null,
+  "coverage": {
+    "measurable_applicable_weight": 60,
+    "total_expected_applicable_weight": 100,
+    "ratio": 0.6
+  },
+  "checked": {"checked": 7, "of": 7},
+  "pages_inspected": 1,
+  "confidence": "high",
+  "rule_result_ids": [
+    "aa000000-1111-4aaa-bbbb-000000000001",
+    "aa000000-1111-4aaa-bbbb-000000000002",
+    "aa000000-1111-4aaa-bbbb-000000000003",
+    "aa000000-1111-4aaa-bbbb-000000000004",
+    "aa000000-1111-4aaa-bbbb-000000000005",
+    "aa000000-1111-4aaa-bbbb-000000000006",
+    "aa000000-1111-4aaa-bbbb-000000000007"
+  ],
+  "methodology_version": "0.1.0-draft",
+  "computed_at": "2026-10-01T10:03:00Z",
+  "lineage": {
+    "record_id": "cd000000-1111-4ddd-bbbb-000000000001",
+    "project_id": "a1b2c3d4-1111-4aaa-bbbb-000000000099",
+    "site_id": "a1b2c3d4-1111-4aaa-bbbb-000000000098",
+    "source_type": "computation",
+    "source_id": "scoring-engine",
+    "source_version": "0.1.0-draft",
+    "captured_at": "2026-10-01T10:03:00Z",
+    "as_of": "2026-10-01T10:00:00Z",
+    "market": "SA",
+    "language": "ar",
+    "device": "desktop",
+    "method": "rules_engine",
+    "methodology_version": "0.1.0-draft",
+    "fidelity_label": "computed",
+    "content_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "parent_ids": [
+      "aa000000-1111-4aaa-bbbb-000000000001",
+      "aa000000-1111-4aaa-bbbb-000000000002",
+      "aa000000-1111-4aaa-bbbb-000000000003",
+      "aa000000-1111-4aaa-bbbb-000000000004",
+      "aa000000-1111-4aaa-bbbb-000000000005",
+      "aa000000-1111-4aaa-bbbb-000000000006",
+      "aa000000-1111-4aaa-bbbb-000000000007"
+    ],
+    "validation_state": "valid"
+  }
+}

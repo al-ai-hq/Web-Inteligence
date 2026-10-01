@@ -25,6 +25,9 @@ def _build_registry() -> Registry:
         resource = Resource.from_contents(doc, default_specification=DRAFT202012)
         schema_id = doc.get("$id", schema_file.name)
         resources.append((schema_id, resource))
+        # Also register by filename so $ref values like "common.schema.json#/$defs/uuid" resolve.
+        if schema_file.name != schema_id:
+            resources.append((schema_file.name, resource))
     return Registry().with_resources(resources)
 
 
