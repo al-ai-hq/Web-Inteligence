@@ -1,0 +1,13 @@
+# config/crawl-limits.yaml
+# Crawl job limits
+max_pages: 20                    # representative sample capacity
+max_depth: 3                     # BFS depth limit
+timeout_seconds: 900             # 15 min total job timeout (state machine A5)
+request_timeout_seconds: 30      # per-request timeout
+concurrency: 5                   # parallel fetch workers
+render_text_threshold_bytes: 500 # trigger render when raw HTML body < 500 bytes text
+allowed_ports:                   # AC-09 port allowlist
+  - 80
+  - 443
+max_response_size_bytes: 10485760      # 10 MB per response
+max_decompressed_size_bytes: 104857600 # 100 MB decompressed
