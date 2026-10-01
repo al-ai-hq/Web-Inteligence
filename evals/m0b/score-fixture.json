@@ -1,0 +1,376 @@
+{
+  "rules": [
+    {
+      "rule_id": "CRW-001",
+      "category": "crawlability",
+      "importance_weight": 1,
+      "rule_result": {
+        "rule_result_id": "77777777-7777-4777-8777-777777777701",
+        "audit_id": "11111111-1111-4111-8111-111111111111",
+        "rule_id": "CRW-001",
+        "methodology_version": "0.1.0-draft",
+        "result": "pass",
+        "method": "deterministic",
+        "scope": "site",
+        "page_url": "https://example.com/ar/services/web-design",
+        "affected_urls": [
+          "https://example.com/ar/services/web-design"
+        ],
+        "evidence_ids": [
+          "44444444-4444-4444-8444-444444444444"
+        ],
+        "confidence": "high",
+        "evaluated_at": "2026-10-01T00:00:00Z",
+        "lineage": {
+          "record_id": "77777777-7777-4777-8777-777777777701",
+          "project_id": "22222222-2222-4222-8222-222222222222",
+          "site_id": "33333333-3333-4333-8333-333333333333",
+          "source_type": "rules_engine",
+          "source_id": "rules_engine:0.1.0-draft",
+          "source_version": "0.1.0-draft",
+          "captured_at": "2026-10-01T00:00:00Z",
+          "as_of": "2026-10-01T00:00:00Z",
+          "market": "KW",
+          "language": "ar",
+          "device": "mobile",
+          "method": "rules_engine",
+          "methodology_version": "0.1.0-draft",
+          "fidelity_label": "computed",
+          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
+          "parent_ids": [
+            "44444444-4444-4444-8444-444444444444"
+          ],
+          "validation_state": "valid",
+          "audit_id": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "rule_id": "SEO-001",
+      "category": "on_page",
+      "importance_weight": 1,
+      "rule_result": {
+        "rule_result_id": "77777777-7777-4777-8777-777777777702",
+        "audit_id": "11111111-1111-4111-8111-111111111111",
+        "rule_id": "SEO-001",
+        "methodology_version": "0.1.0-draft",
+        "result": "pass",
+        "method": "deterministic",
+        "scope": "site",
+        "page_url": "https://example.com/ar/services/web-design",
+        "affected_urls": [
+          "https://example.com/ar/services/web-design"
+        ],
+        "evidence_ids": [
+          "44444444-4444-4444-8444-444444444444"
+        ],
+        "confidence": "high",
+        "evaluated_at": "2026-10-01T00:00:00Z",
+        "lineage": {
+          "record_id": "77777777-7777-4777-8777-777777777702",
+          "project_id": "22222222-2222-4222-8222-222222222222",
+          "site_id": "33333333-3333-4333-8333-333333333333",
+          "source_type": "rules_engine",
+          "source_id": "rules_engine:0.1.0-draft",
+          "source_version": "0.1.0-draft",
+          "captured_at": "2026-10-01T00:00:00Z",
+          "as_of": "2026-10-01T00:00:00Z",
+          "market": "KW",
+          "language": "ar",
+          "device": "mobile",
+          "method": "rules_engine",
+          "methodology_version": "0.1.0-draft",
+          "fidelity_label": "computed",
+          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
+          "parent_ids": [
+            "44444444-4444-4444-8444-444444444444"
+          ],
+          "validation_state": "valid",
+          "audit_id": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "rule_id": "STR-001",
+      "category": "structured_data",
+      "importance_weight": 1,
+      "rule_result": {
+        "rule_result_id": "77777777-7777-4777-8777-777777777703",
+        "audit_id": "11111111-1111-4111-8111-111111111111",
+        "rule_id": "STR-001",
+        "methodology_version": "0.1.0-draft",
+        "result": "pass",
+        "method": "deterministic",
+        "scope": "site",
+        "page_url": "https://example.com/ar/services/web-design",
+        "affected_urls": [
+          "https://example.com/ar/services/web-design"
+        ],
+        "evidence_ids": [
+          "44444444-4444-4444-8444-444444444444"
+        ],
+        "confidence": "high",
+        "evaluated_at": "2026-10-01T00:00:00Z",
+        "lineage": {
+          "record_id": "77777777-7777-4777-8777-777777777703",
+          "project_id": "22222222-2222-4222-8222-222222222222",
+          "site_id": "33333333-3333-4333-8333-333333333333",
+          "source_type": "rules_engine",
+          "source_id": "rules_engine:0.1.0-draft",
+          "source_version": "0.1.0-draft",
+          "captured_at": "2026-10-01T00:00:00Z",
+          "as_of": "2026-10-01T00:00:00Z",
+          "market": "KW",
+          "language": "ar",
+          "device": "mobile",
+          "method": "rules_engine",
+          "methodology_version": "0.1.0-draft",
+          "fidelity_label": "computed",
+          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
+          "parent_ids": [
+            "44444444-4444-4444-8444-444444444444"
+          ],
+          "validation_state": "valid",
+          "audit_id": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "rule_id": "AEO-001",
+      "category": "aeo",
+      "importance_weight": 1,
+      "rule_result": {
+        "rule_result_id": "77777777-7777-4777-8777-777777777704",
+        "audit_id": "11111111-1111-4111-8111-111111111111",
+        "rule_id": "AEO-001",
+        "methodology_version": "0.1.0-draft",
+        "result": "pass",
+        "method": "deterministic",
+        "scope": "site",
+        "page_url": "https://example.com/ar/services/web-design",
+        "affected_urls": [
+          "https://example.com/ar/services/web-design"
+        ],
+        "evidence_ids": [
+          "44444444-4444-4444-8444-444444444444"
+        ],
+        "confidence": "high",
+        "evaluated_at": "2026-10-01T00:00:00Z",
+        "lineage": {
+          "record_id": "77777777-7777-4777-8777-777777777704",
+          "project_id": "22222222-2222-4222-8222-222222222222",
+          "site_id": "33333333-3333-4333-8333-333333333333",
+          "source_type": "rules_engine",
+          "source_id": "rules_engine:0.1.0-draft",
+          "source_version": "0.1.0-draft",
+          "captured_at": "2026-10-01T00:00:00Z",
+          "as_of": "2026-10-01T00:00:00Z",
+          "market": "KW",
+          "language": "ar",
+          "device": "mobile",
+          "method": "rules_engine",
+          "methodology_version": "0.1.0-draft",
+          "fidelity_label": "computed",
+          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
+          "parent_ids": [
+            "44444444-4444-4444-8444-444444444444"
+          ],
+          "validation_state": "valid",
+          "audit_id": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "rule_id": "GEO-001",
+      "category": "geo",
+      "importance_weight": 1,
+      "rule_result": {
+        "rule_result_id": "77777777-7777-4777-8777-777777777705",
+        "audit_id": "11111111-1111-4111-8111-111111111111",
+        "rule_id": "GEO-001",
+        "methodology_version": "0.1.0-draft",
+        "result": "pass",
+        "method": "deterministic",
+        "scope": "site",
+        "page_url": "https://example.com/ar/services/web-design",
+        "affected_urls": [
+          "https://example.com/ar/services/web-design"
+        ],
+        "evidence_ids": [
+          "44444444-4444-4444-8444-444444444444"
+        ],
+        "confidence": "high",
+        "evaluated_at": "2026-10-01T00:00:00Z",
+        "lineage": {
+          "record_id": "77777777-7777-4777-8777-777777777705",
+          "project_id": "22222222-2222-4222-8222-222222222222",
+          "site_id": "33333333-3333-4333-8333-333333333333",
+          "source_type": "rules_engine",
+          "source_id": "rules_engine:0.1.0-draft",
+          "source_version": "0.1.0-draft",
+          "captured_at": "2026-10-01T00:00:00Z",
+          "as_of": "2026-10-01T00:00:00Z",
+          "market": "KW",
+          "language": "ar",
+          "device": "mobile",
+          "method": "rules_engine",
+          "methodology_version": "0.1.0-draft",
+          "fidelity_label": "computed",
+          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
+          "parent_ids": [
+            "44444444-4444-4444-8444-444444444444"
+          ],
+          "validation_state": "valid",
+          "audit_id": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "rule_id": "I18N-001",
+      "category": "i18n_accessibility",
+      "importance_weight": 1,
+      "rule_result": {
+        "rule_result_id": "77777777-7777-4777-8777-777777777706",
+        "audit_id": "11111111-1111-4111-8111-111111111111",
+        "rule_id": "I18N-001",
+        "methodology_version": "0.1.0-draft",
+        "result": "pass",
+        "method": "deterministic",
+        "scope": "site",
+        "page_url": "https://example.com/ar/services/web-design",
+        "affected_urls": [
+          "https://example.com/ar/services/web-design"
+        ],
+        "evidence_ids": [
+          "44444444-4444-4444-8444-444444444444"
+        ],
+        "confidence": "high",
+        "evaluated_at": "2026-10-01T00:00:00Z",
+        "lineage": {
+          "record_id": "77777777-7777-4777-8777-777777777706",
+          "project_id": "22222222-2222-4222-8222-222222222222",
+          "site_id": "33333333-3333-4333-8333-333333333333",
+          "source_type": "rules_engine",
+          "source_id": "rules_engine:0.1.0-draft",
+          "source_version": "0.1.0-draft",
+          "captured_at": "2026-10-01T00:00:00Z",
+          "as_of": "2026-10-01T00:00:00Z",
+          "market": "KW",
+          "language": "ar",
+          "device": "mobile",
+          "method": "rules_engine",
+          "methodology_version": "0.1.0-draft",
+          "fidelity_label": "computed",
+          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
+          "parent_ids": [
+            "44444444-4444-4444-8444-444444444444"
+          ],
+          "validation_state": "valid",
+          "audit_id": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "rule_id": "PRF-001",
+      "category": "performance_security",
+      "importance_weight": 1,
+      "rule_result": {
+        "rule_result_id": "77777777-7777-4777-8777-777777777707",
+        "audit_id": "11111111-1111-4111-8111-111111111111",
+        "rule_id": "PRF-001",
+        "methodology_version": "0.1.0-draft",
+        "result": "pass",
+        "method": "deterministic",
+        "scope": "site",
+        "page_url": "https://example.com/ar/services/web-design",
+        "affected_urls": [
+          "https://example.com/ar/services/web-design"
+        ],
+        "evidence_ids": [
+          "44444444-4444-4444-8444-444444444444"
+        ],
+        "confidence": "high",
+        "evaluated_at": "2026-10-01T00:00:00Z",
+        "lineage": {
+          "record_id": "77777777-7777-4777-8777-777777777707",
+          "project_id": "22222222-2222-4222-8222-222222222222",
+          "site_id": "33333333-3333-4333-8333-333333333333",
+          "source_type": "rules_engine",
+          "source_id": "rules_engine:0.1.0-draft",
+          "source_version": "0.1.0-draft",
+          "captured_at": "2026-10-01T00:00:00Z",
+          "as_of": "2026-10-01T00:00:00Z",
+          "market": "KW",
+          "language": "ar",
+          "device": "mobile",
+          "method": "rules_engine",
+          "methodology_version": "0.1.0-draft",
+          "fidelity_label": "computed",
+          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
+          "parent_ids": [
+            "44444444-4444-4444-8444-444444444444"
+          ],
+          "validation_state": "valid",
+          "audit_id": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    }
+  ],
+  "score": {
+    "score_result_id": "55555555-5555-4555-8555-555555555555",
+    "audit_id": "11111111-1111-4111-8111-111111111111",
+    "score_kind": "presence_readiness",
+    "value": 100,
+    "pre_cap_value": 100,
+    "coverage": {
+      "measurable_applicable_weight": 7,
+      "total_expected_applicable_weight": 7,
+      "ratio": 1
+    },
+    "checked": {
+      "checked": 7,
+      "of": 7
+    },
+    "pages_inspected": 1,
+    "confidence": "high",
+    "rule_result_ids": [
+      "77777777-7777-4777-8777-777777777701",
+      "77777777-7777-4777-8777-777777777702",
+      "77777777-7777-4777-8777-777777777703",
+      "77777777-7777-4777-8777-777777777704",
+      "77777777-7777-4777-8777-777777777705",
+      "77777777-7777-4777-8777-777777777706",
+      "77777777-7777-4777-8777-777777777707"
+    ],
+    "methodology_version": "0.1.0-draft",
+    "computed_at": "2026-10-01T00:00:00Z",
+    "lineage": {
+      "record_id": "55555555-5555-4555-8555-555555555555",
+      "project_id": "22222222-2222-4222-8222-222222222222",
+      "site_id": "33333333-3333-4333-8333-333333333333",
+      "source_type": "computation",
+      "source_id": "rules_engine:0.1.0-draft",
+      "source_version": "0.1.0-draft",
+      "captured_at": "2026-10-01T00:00:00Z",
+      "as_of": "2026-10-01T00:00:00Z",
+      "market": "KW",
+      "language": "ar",
+      "device": "mobile",
+      "method": "rules_engine",
+      "methodology_version": "0.1.0-draft",
+      "fidelity_label": "computed",
+      "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
+      "parent_ids": [
+        "77777777-7777-4777-8777-777777777701",
+        "77777777-7777-4777-8777-777777777702",
+        "77777777-7777-4777-8777-777777777703",
+        "77777777-7777-4777-8777-777777777704",
+        "77777777-7777-4777-8777-777777777705",
+        "77777777-7777-4777-8777-777777777706",
+        "77777777-7777-4777-8777-777777777707"
+      ],
+      "validation_state": "valid",
+      "audit_id": "11111111-1111-4111-8111-111111111111"
+    }
+  }
+}

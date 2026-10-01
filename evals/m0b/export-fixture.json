@@ -1,0 +1,25 @@
+{
+  "request": {
+    "access_class": "anonymous",
+    "format": "csv"
+  },
+  "authorization": {
+    "authorization_id": "e36f81a2-ce40-4b6d-9f81-a2ce406d8f13",
+    "report_id": "66666666-6666-4666-8666-666666666666",
+    "audit_id": "11111111-1111-4111-8111-111111111111",
+    "requested_at": "2026-10-01T00:00:00Z",
+    "requester": {
+      "access_class": "anonymous",
+      "user_id": null,
+      "project_id": null
+    },
+    "format": "csv",
+    "decision": "denied",
+    "denial_reason": "anonymous_export_prohibited",
+    "state": "DENIED",
+    "decided_at": "2026-10-01T00:00:00Z",
+    "decided_by": "export_policy_service",
+    "download": null,
+    "audit_event_id": "f4708b13-df51-4c7e-8a92-b3df517e9a24"
+  }
+}

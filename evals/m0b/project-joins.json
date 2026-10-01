@@ -1,0 +1,527 @@
+{
+  "valid": {
+    "audit": {
+      "audit_id": "11111111-1111-4111-8111-111111111111",
+      "access_class": "registered",
+      "project_id": "22222222-2222-4222-8222-222222222222",
+      "site_id": "33333333-3333-4333-8333-333333333333",
+      "owner_user_id": "88888888-8888-4888-8888-888888888888",
+      "mode": "representative_template",
+      "target_url": "https://example.com/ar/",
+      "comparison_target_urls": [
+        "https://example.org/ar/"
+      ],
+      "audit_tier": "rich",
+      "status": "READY_COMPLETE",
+      "anonymous_access_state": null,
+      "scope_id": "4ec50d18-24a6-4bc3-9fe7-0824a6cdef79",
+      "capability_manifest_id": "3db4fc07-1395-4ab2-8ed6-f71395bcde68",
+      "methodology_version": "0.1.0-draft",
+      "noindex": true,
+      "cost_spent": {
+        "amount": "0.00",
+        "currency": "USD"
+      },
+      "created_at": "2026-10-01T00:00:00Z",
+      "updated_at": "2026-10-01T00:00:00Z",
+      "completed_at": "2026-10-01T00:00:00Z",
+      "expires_at": "2026-10-31T00:00:00Z",
+      "claimed_at": null,
+      "claimed_by_user_id": null
+    },
+    "anonymous_audit": {
+      "audit_id": "0f5a2c6e-3b1d-4c8a-9e7f-2a6b8c0d1e21",
+      "access_class": "anonymous",
+      "project_id": null,
+      "site_id": null,
+      "owner_user_id": null,
+      "mode": "representative_template",
+      "target_url": "https://example.com/ar/",
+      "comparison_target_urls": [
+        "https://example.org/ar/"
+      ],
+      "audit_tier": "rich",
+      "status": "READY_COMPLETE",
+      "anonymous_access_state": "ACTIVE",
+      "scope_id": "4ec50d18-24a6-4bc3-9fe7-0824a6cdef79",
+      "capability_manifest_id": "3db4fc07-1395-4ab2-8ed6-f71395bcde68",
+      "methodology_version": "0.1.0",
+      "noindex": true,
+      "cost_spent": {
+        "amount": "0.84",
+        "currency": "USD"
+      },
+      "created_at": "2026-09-30T09:58:12Z",
+      "updated_at": "2026-09-30T10:24:55Z",
+      "completed_at": "2026-09-30T10:24:55Z",
+      "expires_at": "2026-10-07T09:58:12Z",
+      "claimed_at": null,
+      "claimed_by_user_id": null
+    },
+    "change_set": {
+      "change_set_id": "c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68",
+      "project_id": "1c3e5a7b-9d1f-4a3c-8e5a-7b9d1f3a5c80",
+      "site_id": "2d4f6b8c-0e2a-4b4d-9f6b-8c0e2a4b6d91",
+      "connector": "example-cms",
+      "environment": "staging",
+      "plan_item_ids": [
+        "9a1c3e5f-7b9d-4f1a-8c3e-5a7c9e1b3d57"
+      ],
+      "operations": [
+        {
+          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+          "plan_item_id": "9a1c3e5f-7b9d-4f1a-8c3e-5a7c9e1b3d57",
+          "resource_type": "page",
+          "resource_id": "1042",
+          "url": "https://example.com/ar/services/web-design",
+          "field": "seo.meta_description",
+          "field_class": "meta_description",
+          "language": "ar",
+          "current_value": null,
+          "proposed_value": "\u062e\u062f\u0645\u0627\u062a \u062a\u0635\u0645\u064a\u0645 \u0645\u0648\u0627\u0642\u0639 \u0627\u0644\u0634\u0631\u0643\u0627\u062a \u0628\u0627\u0644\u0644\u063a\u062a\u064a\u0646 \u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u0648\u0627\u0644\u0625\u0646\u062c\u0644\u064a\u0632\u064a\u0629\u060c \u0645\u0646 \u0627\u0644\u062a\u062e\u0637\u064a\u0637 \u0625\u0644\u0649 \u0627\u0644\u0625\u0637\u0644\u0627\u0642.",
+          "before_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "after_hash": "sha256:974e9bfef6d56b4c7865a916d402357faf2f068804aaf06dc5522b26606fccc4",
+          "risk_tier": 1,
+          "rationale": "SEO-002 partial: this page has no meta description.",
+          "evidence_ids": [
+            "8d4fab52-6e3c-4071-9b2f-ac5d3e7f1f24"
+          ],
+          "rule_ids": [
+            "SEO-002"
+          ],
+          "idempotency_key": "chg:c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68:op:d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+          "status": "pending"
+        }
+      ],
+      "requested_by_user_id": "3e5a7c9d-1f3b-4c5e-8a7c-9d1f3b5e7a02",
+      "approvals": [],
+      "required_approvals": 1,
+      "max_risk_tier": 1,
+      "mode": "edit_only",
+      "publish_approval_id": null,
+      "canary_op_ids": [
+        "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79"
+      ],
+      "batch_size_max": 25,
+      "snapshot_id": null,
+      "approval_expires_at": null,
+      "status": "AWAITING_APPROVAL",
+      "status_reason_key": null,
+      "auto_rollback_authorized": false,
+      "idempotency_key": "chg:c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68",
+      "created_at": "2026-10-02T10:05:00Z",
+      "updated_at": "2026-10-02T10:07:30Z"
+    },
+    "approval": {
+      "approval_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "change_set_id": "c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68",
+      "approver_user_id": "99999999-9999-4999-8999-999999999999",
+      "approver_role": "approver",
+      "requester_user_id": "88888888-8888-4888-8888-888888888888",
+      "mode": "edit",
+      "environment": "staging",
+      "op_bindings": [
+        {
+          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+          "resource_id": "1042",
+          "field": "seo.meta_description",
+          "before_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "after_hash": "sha256:974e9bfef6d56b4c7865a916d402357faf2f068804aaf06dc5522b26606fccc4"
+        }
+      ],
+      "binding_hash": "sha256:abababababababababababababababababababababababababababababababab",
+      "decision": "approved",
+      "decided_at": "2026-10-01T00:00:00Z",
+      "expires_at": "2026-10-08T00:00:00Z",
+      "auto_rollback_authorized": false,
+      "mfa_verified": false
+    },
+    "snapshot": {
+      "snapshot_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      "change_set_id": "c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68",
+      "connector": "example-cms",
+      "captured_at": "2026-10-01T00:00:00Z",
+      "items": [
+        {
+          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+          "resource_type": "page",
+          "resource_id": "1042",
+          "field": "seo.meta_description",
+          "value": null,
+          "value_hash": "sha256:abababababababababababababababababababababababababababababababab"
+        }
+      ],
+      "immutable": true,
+      "retention_expires_at": "2027-10-01T00:00:00Z"
+    },
+    "verification": {
+      "verification_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      "change_set_id": "c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68",
+      "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+      "risk_tier": 1,
+      "fetched_at": "2026-10-01T00:00:00Z",
+      "fetch_evidence_id": "44444444-4444-4444-8444-444444444444",
+      "live_value": "synthetic",
+      "status": "verified",
+      "live_on_site": true,
+      "seen_by_google": "not_checked",
+      "rule_deltas": [],
+      "recommendation": "keep"
+    },
+    "report": {
+      "report_id": "66666666-6666-4666-8666-666666666666",
+      "audit_id": "11111111-1111-4111-8111-111111111111",
+      "version": 1,
+      "access_class": "registered",
+      "languages": [
+        "ar",
+        "en"
+      ],
+      "allowed_projections": [
+        "web_interactive"
+      ],
+      "access": {
+        "link_id": "r4Ke9My1WcU3nO6qS8tX2zA5b6",
+        "secret_hash": "sha256:abababababababababababababababababababababababababababababababab",
+        "noindex": true,
+        "public_gallery": false
+      },
+      "tone": "professional",
+      "content": {
+        "summary_bullets": [
+          "Presence Readiness recomputes to 100 from seven pass rules."
+        ],
+        "score_result_ids": [
+          "55555555-5555-4555-8555-555555555555"
+        ],
+        "finding_ids": [],
+        "roadmap_id": null,
+        "prompt_run_ids": [],
+        "data_gaps": [],
+        "limitations_keys": [
+          "limitation.sample_not_full_site"
+        ],
+        "sample_disclosure": {
+          "pages_checked": 1,
+          "sampled": true
+        }
+      },
+      "lineage_coverage": {
+        "numbers_total": 1,
+        "numbers_with_lineage": 1,
+        "ratio": 1
+      },
+      "status": "ready",
+      "needs_native_review": true,
+      "retention_days": 30,
+      "created_at": "2026-10-01T00:00:00Z",
+      "expires_at": "2026-10-31T00:00:00Z"
+    },
+    "anonymous_report": {
+      "report_id": "d25e7091-bd3f-4a5c-8e70-91bd3f5c7e02",
+      "audit_id": "0f5a2c6e-3b1d-4c8a-9e7f-2a6b8c0d1e21",
+      "version": 1,
+      "access_class": "anonymous",
+      "languages": [
+        "ar",
+        "en"
+      ],
+      "allowed_projections": [
+        "web_interactive"
+      ],
+      "access": {
+        "link_id": "q3Jd8Lx0VbT2mN5pR7sW1yZ4",
+        "secret_hash": "sha256:b4dea2590c89d28e98e9973ceff38d16576cbb02915ea43cccf9ad51a63dcc22",
+        "noindex": true,
+        "public_gallery": false
+      },
+      "tone": "professional",
+      "content": {
+        "summary_bullets": [
+          "Three of 14 sampled Arabic service pages have no meta description."
+        ],
+        "score_result_ids": [],
+        "finding_ids": [
+          "2b8d4f60-1a3c-4e5b-9d7f-6c0e8a2b4d35"
+        ],
+        "roadmap_id": "d25e7091-bd3f-4a5c-8e70-91bd3f5c7e03",
+        "prompt_run_ids": [],
+        "data_gaps": [
+          {
+            "metric_key": "metric.search_console_clicks",
+            "needed_export_key": "export.search_console_performance"
+          }
+        ],
+        "limitations_keys": [
+          "limitation.sample_not_full_site",
+          "limitation.api_observations_not_consumer_apps"
+        ],
+        "sample_disclosure": {
+          "pages_checked": 14,
+          "sampled": true
+        }
+      },
+      "lineage_coverage": {
+        "numbers_total": 42,
+        "numbers_with_lineage": 42,
+        "ratio": 1
+      },
+      "status": "ready",
+      "needs_native_review": true,
+      "retention_days": 7,
+      "created_at": "2026-09-30T10:24:55Z",
+      "expires_at": "2026-10-07T09:58:12Z"
+    },
+    "deletion_request": {
+      "deletion_request_id": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      "subject_type": "audit",
+      "subject_id": "11111111-1111-4111-8111-111111111111",
+      "trigger": "user_request",
+      "requester": {
+        "actor": "registered_user",
+        "user_id": "88888888-8888-4888-8888-888888888888",
+        "proof": "authenticated_session"
+      },
+      "state": "RECEIVED",
+      "idempotency_key": "del:dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      "received_at": "2026-10-01T00:00:00Z",
+      "updated_at": "2026-10-01T00:00:00Z"
+    },
+    "webhook": {
+      "event_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "platform": "wordpress",
+      "site_id": "33333333-3333-4333-8333-333333333333",
+      "delivery_id": "delivery-1",
+      "received_at": "2026-10-01T00:00:00Z",
+      "signature_valid": true,
+      "replay_detected": false,
+      "payload_hash": "sha256:abababababababababababababababababababababababababababababababab",
+      "resource_ids": [
+        "1042"
+      ],
+      "status": "accepted",
+      "processed_at": "2026-10-01T00:00:00Z"
+    }
+  },
+  "broken": {
+    "approval_dangling": {
+      "approval_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "change_set_id": "00000000-0000-4000-8000-000000000001",
+      "approver_user_id": "99999999-9999-4999-8999-999999999999",
+      "approver_role": "approver",
+      "requester_user_id": "88888888-8888-4888-8888-888888888888",
+      "mode": "edit",
+      "environment": "staging",
+      "op_bindings": [
+        {
+          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+          "resource_id": "1042",
+          "field": "seo.meta_description",
+          "before_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "after_hash": "sha256:974e9bfef6d56b4c7865a916d402357faf2f068804aaf06dc5522b26606fccc4"
+        }
+      ],
+      "binding_hash": "sha256:abababababababababababababababababababababababababababababababab",
+      "decision": "approved",
+      "decided_at": "2026-10-01T00:00:00Z",
+      "expires_at": "2026-10-08T00:00:00Z",
+      "auto_rollback_authorized": false,
+      "mfa_verified": false
+    },
+    "duplicate_op": {
+      "change_set_id": "12121212-1212-4121-8121-121212121212",
+      "project_id": "1c3e5a7b-9d1f-4a3c-8e5a-7b9d1f3a5c80",
+      "site_id": "2d4f6b8c-0e2a-4b4d-9f6b-8c0e2a4b6d91",
+      "connector": "example-cms",
+      "environment": "staging",
+      "plan_item_ids": [
+        "9a1c3e5f-7b9d-4f1a-8c3e-5a7c9e1b3d57"
+      ],
+      "operations": [
+        {
+          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+          "plan_item_id": "9a1c3e5f-7b9d-4f1a-8c3e-5a7c9e1b3d57",
+          "resource_type": "page",
+          "resource_id": "1042",
+          "url": "https://example.com/ar/services/web-design",
+          "field": "seo.meta_description",
+          "field_class": "meta_description",
+          "language": "ar",
+          "current_value": null,
+          "proposed_value": "\u062e\u062f\u0645\u0627\u062a \u062a\u0635\u0645\u064a\u0645 \u0645\u0648\u0627\u0642\u0639 \u0627\u0644\u0634\u0631\u0643\u0627\u062a \u0628\u0627\u0644\u0644\u063a\u062a\u064a\u0646 \u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u0648\u0627\u0644\u0625\u0646\u062c\u0644\u064a\u0632\u064a\u0629\u060c \u0645\u0646 \u0627\u0644\u062a\u062e\u0637\u064a\u0637 \u0625\u0644\u0649 \u0627\u0644\u0625\u0637\u0644\u0627\u0642.",
+          "before_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "after_hash": "sha256:974e9bfef6d56b4c7865a916d402357faf2f068804aaf06dc5522b26606fccc4",
+          "risk_tier": 1,
+          "rationale": "SEO-002 partial: this page has no meta description.",
+          "evidence_ids": [
+            "8d4fab52-6e3c-4071-9b2f-ac5d3e7f1f24"
+          ],
+          "rule_ids": [
+            "SEO-002"
+          ],
+          "idempotency_key": "chg:c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68:op:d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+          "status": "pending"
+        }
+      ],
+      "requested_by_user_id": "3e5a7c9d-1f3b-4c5e-8a7c-9d1f3b5e7a02",
+      "approvals": [],
+      "required_approvals": 1,
+      "max_risk_tier": 1,
+      "mode": "edit_only",
+      "publish_approval_id": null,
+      "canary_op_ids": [
+        "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79"
+      ],
+      "batch_size_max": 25,
+      "snapshot_id": null,
+      "approval_expires_at": null,
+      "status": "AWAITING_APPROVAL",
+      "status_reason_key": null,
+      "auto_rollback_authorized": false,
+      "idempotency_key": "chg:12121212-1212-4121-8121-121212121212",
+      "created_at": "2026-10-02T10:05:00Z",
+      "updated_at": "2026-10-02T10:07:30Z"
+    },
+    "orphan_op": "15151515-1515-4151-8151-151515151515",
+    "report_missing_audit": {
+      "report_id": "66666666-6666-4666-8666-666666666666",
+      "audit_id": "00000000-0000-4000-8000-000000000002",
+      "version": 1,
+      "access_class": "registered",
+      "languages": [
+        "ar",
+        "en"
+      ],
+      "allowed_projections": [
+        "web_interactive"
+      ],
+      "access": {
+        "link_id": "r4Ke9My1WcU3nO6qS8tX2zA5b6",
+        "secret_hash": "sha256:abababababababababababababababababababababababababababababababab",
+        "noindex": true,
+        "public_gallery": false
+      },
+      "tone": "professional",
+      "content": {
+        "summary_bullets": [
+          "Presence Readiness recomputes to 100 from seven pass rules."
+        ],
+        "score_result_ids": [
+          "55555555-5555-4555-8555-555555555555"
+        ],
+        "finding_ids": [],
+        "roadmap_id": null,
+        "prompt_run_ids": [],
+        "data_gaps": [],
+        "limitations_keys": [
+          "limitation.sample_not_full_site"
+        ],
+        "sample_disclosure": {
+          "pages_checked": 1,
+          "sampled": true
+        }
+      },
+      "lineage_coverage": {
+        "numbers_total": 1,
+        "numbers_with_lineage": 1,
+        "ratio": 1
+      },
+      "status": "ready",
+      "needs_native_review": true,
+      "retention_days": 30,
+      "created_at": "2026-10-01T00:00:00Z",
+      "expires_at": "2026-10-31T00:00:00Z"
+    },
+    "deletion_missing_audit": {
+      "deletion_request_id": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      "subject_type": "audit",
+      "subject_id": "00000000-0000-4000-8000-000000000003",
+      "trigger": "user_request",
+      "requester": {
+        "actor": "registered_user",
+        "user_id": "88888888-8888-4888-8888-888888888888",
+        "proof": "authenticated_session"
+      },
+      "state": "RECEIVED",
+      "idempotency_key": "del:dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      "received_at": "2026-10-01T00:00:00Z",
+      "updated_at": "2026-10-01T00:00:00Z"
+    },
+    "webhook_null_site": {
+      "event_id": "abababab-abab-4aba-8aba-abababababab",
+      "platform": "wordpress",
+      "site_id": null,
+      "delivery_id": "delivery-1",
+      "received_at": "2026-10-01T00:00:00Z",
+      "signature_valid": true,
+      "replay_detected": false,
+      "payload_hash": "sha256:abababababababababababababababababababababababababababababababab",
+      "resource_ids": [
+        "1042"
+      ],
+      "status": "accepted",
+      "processed_at": "2026-10-01T00:00:00Z"
+    },
+    "site_project_conflict": {
+      "audit_id": "13131313-1313-4131-8131-131313131313",
+      "access_class": "registered",
+      "project_id": "14141414-1414-4141-8141-141414141414",
+      "site_id": "33333333-3333-4333-8333-333333333333",
+      "owner_user_id": "88888888-8888-4888-8888-888888888888",
+      "mode": "representative_template",
+      "target_url": "https://example.com/ar/",
+      "comparison_target_urls": [
+        "https://example.org/ar/"
+      ],
+      "audit_tier": "rich",
+      "status": "READY_COMPLETE",
+      "anonymous_access_state": null,
+      "scope_id": "4ec50d18-24a6-4bc3-9fe7-0824a6cdef79",
+      "capability_manifest_id": "3db4fc07-1395-4ab2-8ed6-f71395bcde68",
+      "methodology_version": "0.1.0-draft",
+      "noindex": true,
+      "cost_spent": {
+        "amount": "0.00",
+        "currency": "USD"
+      },
+      "created_at": "2026-10-01T00:00:00Z",
+      "updated_at": "2026-10-01T00:00:00Z",
+      "completed_at": "2026-10-01T00:00:00Z",
+      "expires_at": "2026-10-31T00:00:00Z",
+      "claimed_at": null,
+      "claimed_by_user_id": null
+    },
+    "snapshot_dangling": {
+      "snapshot_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      "change_set_id": "00000000-0000-4000-8000-000000000004",
+      "connector": "example-cms",
+      "captured_at": "2026-10-01T00:00:00Z",
+      "items": [
+        {
+          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+          "resource_type": "page",
+          "resource_id": "1042",
+          "field": "seo.meta_description",
+          "value": null,
+          "value_hash": "sha256:abababababababababababababababababababababababababababababababab"
+        }
+      ],
+      "immutable": true,
+      "retention_expires_at": "2027-10-01T00:00:00Z"
+    },
+    "verification_dangling": {
+      "verification_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      "change_set_id": "00000000-0000-4000-8000-000000000005",
+      "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
+      "risk_tier": 1,
+      "fetched_at": "2026-10-01T00:00:00Z",
+      "fetch_evidence_id": "44444444-4444-4444-8444-444444444444",
+      "live_value": "synthetic",
+      "status": "verified",
+      "live_on_site": true,
+      "seen_by_google": "not_checked",
+      "rule_deltas": [],
+      "recommendation": "keep"
+    }
+  }
+}

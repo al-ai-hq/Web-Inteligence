@@ -1,0 +1,2370 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index cb1d967..8d1eb1e 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -6,7 +6,7 @@
+ # intent/INT-00-m0a-repository-bootstrap/intent.md.
+ #
+ # Jobs:
+-#   governance - hook tests, schema check, config check, action-pin check
++#   governance - hook tests, schema check, config check, action-pin check, M0B proofs
+ #   secrets    - gitleaks over the full history
+ #   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
+ name: ci
+@@ -46,6 +46,8 @@ jobs:
+         run: python3 scripts/check_config.py
+       - name: Action pins
+         run: python3 scripts/check_action_pins.py
++      - name: M0B proofs
++        run: python3 scripts/check_m0b_proofs.py
+ 
+   secrets:
+     name: secrets
+diff --git a/docs/assumptions.md b/docs/assumptions.md
+index 76fe356..727fff0 100644
+--- a/docs/assumptions.md
++++ b/docs/assumptions.md
+@@ -54,3 +54,4 @@ An assumption is a working choice made so work can continue. Each file also mark
+ | A-042 | Rollback rehearsal weekly in staging; backup-restore drill monthly. | Tech lead | `docs/rollback-plan.md` |
+ | A-043 | Retry counts, timeouts and expiry windows in the state machines (backoff 2 s to 60 s; approval requests expire after 7 days). | Tech lead | `docs/state-machines.md` |
+ | A-044 | ESLint uses its flat config. The `apps/web` package name is `web` and the package is `private`. | Tech lead | `eslint.config.js`, `apps/web/package.json` |
++| A-045 | A proposed paid call that lands on 140.00 USD is allowed. A sum greater than 140.00 USD is refused. The USD 10 reserve and the combined cap stay assumptions (A-003, D-005). | Cloud billing owner | `scripts/check_m0b_proofs.py`, `evals/m0b/cost-fixture.json` |
+diff --git a/docs/open-items.md b/docs/open-items.md
+index 03396c6..c482a69 100644
+--- a/docs/open-items.md
++++ b/docs/open-items.md
+@@ -42,6 +42,8 @@ M0A toolchain closure, 2026-10-01: pnpm, Node.js 22, Prettier, ESLint, and Vites
+ 
+ M0A close, 2026-10-01: commits `f466a72` and `1f25117` are on `origin/main`. GitHub Actions run `36796058884` passed `governance` (Python 3.12) and `app`. The `secrets` job failed because `gitleaks-action` requires a licence for organization `al-ai-hq`. OI-021 stays open. `.cursorignore` was not changed.
+ 
++M0B Stage 1, 2026-10-01: OI-001 stays open. The modelled proof uses the combined-cap assumption and labels it unconfirmed. That assumption does not block the Stage 1 proof.
++
+ ## M0B (contracts, threat model, cost proof)
+ 
+ | ID | Item | Blocks | Decides | Where |
+diff --git a/evals/m0b/cost-fixture.json b/evals/m0b/cost-fixture.json
+new file mode 100644
+index 0000000..9f0a869
+--- /dev/null
++++ b/evals/m0b/cost-fixture.json
+@@ -0,0 +1,26 @@
++{
++  "cap_assumption": "unconfirmed",
++  "hosting": {
++    "amount": "25.00",
++    "currency": "USD",
++    "fidelity_label": "estimated"
++  },
++  "hosting_stopped": false,
++  "cases": [
++    {
++      "name": "refuse",
++      "paid_calls_to_date": "140.00",
++      "proposed_call": "0.01"
++    },
++    {
++      "name": "allow",
++      "paid_calls_to_date": "139.99",
++      "proposed_call": "0.01"
++    }
++  ],
++  "on_refuse": {
++    "ai_visibility": "unavailable",
++    "reason": "unavailable due to the monthly limit",
++    "presence_readiness": 100
++  }
++}
+diff --git a/evals/m0b/export-fixture.json b/evals/m0b/export-fixture.json
+new file mode 100644
+index 0000000..3e51531
+--- /dev/null
++++ b/evals/m0b/export-fixture.json
+@@ -0,0 +1,25 @@
++{
++  "request": {
++    "access_class": "anonymous",
++    "format": "csv"
++  },
++  "authorization": {
++    "authorization_id": "e36f81a2-ce40-4b6d-9f81-a2ce406d8f13",
++    "report_id": "66666666-6666-4666-8666-666666666666",
++    "audit_id": "11111111-1111-4111-8111-111111111111",
++    "requested_at": "2026-10-01T00:00:00Z",
++    "requester": {
++      "access_class": "anonymous",
++      "user_id": null,
++      "project_id": null
++    },
++    "format": "csv",
++    "decision": "denied",
++    "denial_reason": "anonymous_export_prohibited",
++    "state": "DENIED",
++    "decided_at": "2026-10-01T00:00:00Z",
++    "decided_by": "export_policy_service",
++    "download": null,
++    "audit_event_id": "f4708b13-df51-4c7e-8a92-b3df517e9a24"
++  }
++}
+diff --git a/evals/m0b/project-joins.json b/evals/m0b/project-joins.json
+new file mode 100644
+index 0000000..de4b353
+--- /dev/null
++++ b/evals/m0b/project-joins.json
+@@ -0,0 +1,527 @@
++{
++  "valid": {
++    "audit": {
++      "audit_id": "11111111-1111-4111-8111-111111111111",
++      "access_class": "registered",
++      "project_id": "22222222-2222-4222-8222-222222222222",
++      "site_id": "33333333-3333-4333-8333-333333333333",
++      "owner_user_id": "88888888-8888-4888-8888-888888888888",
++      "mode": "representative_template",
++      "target_url": "https://example.com/ar/",
++      "comparison_target_urls": [
++        "https://example.org/ar/"
++      ],
++      "audit_tier": "rich",
++      "status": "READY_COMPLETE",
++      "anonymous_access_state": null,
++      "scope_id": "4ec50d18-24a6-4bc3-9fe7-0824a6cdef79",
++      "capability_manifest_id": "3db4fc07-1395-4ab2-8ed6-f71395bcde68",
++      "methodology_version": "0.1.0-draft",
++      "noindex": true,
++      "cost_spent": {
++        "amount": "0.00",
++        "currency": "USD"
++      },
++      "created_at": "2026-10-01T00:00:00Z",
++      "updated_at": "2026-10-01T00:00:00Z",
++      "completed_at": "2026-10-01T00:00:00Z",
++      "expires_at": "2026-10-31T00:00:00Z",
++      "claimed_at": null,
++      "claimed_by_user_id": null
++    },
++    "anonymous_audit": {
++      "audit_id": "0f5a2c6e-3b1d-4c8a-9e7f-2a6b8c0d1e21",
++      "access_class": "anonymous",
++      "project_id": null,
++      "site_id": null,
++      "owner_user_id": null,
++      "mode": "representative_template",
++      "target_url": "https://example.com/ar/",
++      "comparison_target_urls": [
++        "https://example.org/ar/"
++      ],
++      "audit_tier": "rich",
++      "status": "READY_COMPLETE",
++      "anonymous_access_state": "ACTIVE",
++      "scope_id": "4ec50d18-24a6-4bc3-9fe7-0824a6cdef79",
++      "capability_manifest_id": "3db4fc07-1395-4ab2-8ed6-f71395bcde68",
++      "methodology_version": "0.1.0",
++      "noindex": true,
++      "cost_spent": {
++        "amount": "0.84",
++        "currency": "USD"
++      },
++      "created_at": "2026-09-30T09:58:12Z",
++      "updated_at": "2026-09-30T10:24:55Z",
++      "completed_at": "2026-09-30T10:24:55Z",
++      "expires_at": "2026-10-07T09:58:12Z",
++      "claimed_at": null,
++      "claimed_by_user_id": null
++    },
++    "change_set": {
++      "change_set_id": "c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68",
++      "project_id": "1c3e5a7b-9d1f-4a3c-8e5a-7b9d1f3a5c80",
++      "site_id": "2d4f6b8c-0e2a-4b4d-9f6b-8c0e2a4b6d91",
++      "connector": "example-cms",
++      "environment": "staging",
++      "plan_item_ids": [
++        "9a1c3e5f-7b9d-4f1a-8c3e-5a7c9e1b3d57"
++      ],
++      "operations": [
++        {
++          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
++          "plan_item_id": "9a1c3e5f-7b9d-4f1a-8c3e-5a7c9e1b3d57",
++          "resource_type": "page",
++          "resource_id": "1042",
++          "url": "https://example.com/ar/services/web-design",
++          "field": "seo.meta_description",
++          "field_class": "meta_description",
++          "language": "ar",
++          "current_value": null,
++          "proposed_value": "\u062e\u062f\u0645\u0627\u062a \u062a\u0635\u0645\u064a\u0645 \u0645\u0648\u0627\u0642\u0639 \u0627\u0644\u0634\u0631\u0643\u0627\u062a \u0628\u0627\u0644\u0644\u063a\u062a\u064a\u0646 \u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u0648\u0627\u0644\u0625\u0646\u062c\u0644\u064a\u0632\u064a\u0629\u060c \u0645\u0646 \u0627\u0644\u062a\u062e\u0637\u064a\u0637 \u0625\u0644\u0649 \u0627\u0644\u0625\u0637\u0644\u0627\u0642.",
++          "before_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++          "after_hash": "sha256:974e9bfef6d56b4c7865a916d402357faf2f068804aaf06dc5522b26606fccc4",
++          "risk_tier": 1,
++          "rationale": "SEO-002 partial: this page has no meta description.",
++          "evidence_ids": [
++            "8d4fab52-6e3c-4071-9b2f-ac5d3e7f1f24"
++          ],
++          "rule_ids": [
++            "SEO-002"
++          ],
++          "idempotency_key": "chg:c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68:op:d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
++          "status": "pending"
++        }
++      ],
++      "requested_by_user_id": "3e5a7c9d-1f3b-4c5e-8a7c-9d1f3b5e7a02",
++      "approvals": [],
++      "required_approvals": 1,
++      "max_risk_tier": 1,
++      "mode": "edit_only",
++      "publish_approval_id": null,
++      "canary_op_ids": [
++        "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79"
++      ],
++      "batch_size_max": 25,
++      "snapshot_id": null,
++      "approval_expires_at": null,
++      "status": "AWAITING_APPROVAL",
++      "status_reason_key": null,
++      "auto_rollback_authorized": false,
++      "idempotency_key": "chg:c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68",
++      "created_at": "2026-10-02T10:05:00Z",
++      "updated_at": "2026-10-02T10:07:30Z"
++    },
++    "approval": {
++      "approval_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
++      "change_set_id": "c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68",
++      "approver_user_id": "99999999-9999-4999-8999-999999999999",
++      "approver_role": "approver",
++      "requester_user_id": "88888888-8888-4888-8888-888888888888",
++      "mode": "edit",
++      "environment": "staging",
++      "op_bindings": [
++        {
++          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
++          "resource_id": "1042",
++          "field": "seo.meta_description",
++          "before_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++          "after_hash": "sha256:974e9bfef6d56b4c7865a916d402357faf2f068804aaf06dc5522b26606fccc4"
++        }
++      ],
++      "binding_hash": "sha256:abababababababababababababababababababababababababababababababab",
++      "decision": "approved",
++      "decided_at": "2026-10-01T00:00:00Z",
++      "expires_at": "2026-10-08T00:00:00Z",
++      "auto_rollback_authorized": false,
++      "mfa_verified": false
++    },
++    "snapshot": {
++      "snapshot_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
++      "change_set_id": "c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68",
++      "connector": "example-cms",
++      "captured_at": "2026-10-01T00:00:00Z",
++      "items": [
++        {
++          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
++          "resource_type": "page",
++          "resource_id": "1042",
++          "field": "seo.meta_description",
++          "value": null,
++          "value_hash": "sha256:abababababababababababababababababababababababababababababababab"
++        }
++      ],
++      "immutable": true,
++      "retention_expires_at": "2027-10-01T00:00:00Z"
++    },
++    "verification": {
++      "verification_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
++      "change_set_id": "c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68",
++      "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
++      "risk_tier": 1,
++      "fetched_at": "2026-10-01T00:00:00Z",
++      "fetch_evidence_id": "44444444-4444-4444-8444-444444444444",
++      "live_value": "synthetic",
++      "status": "verified",
++      "live_on_site": true,
++      "seen_by_google": "not_checked",
++      "rule_deltas": [],
++      "recommendation": "keep"
++    },
++    "report": {
++      "report_id": "66666666-6666-4666-8666-666666666666",
++      "audit_id": "11111111-1111-4111-8111-111111111111",
++      "version": 1,
++      "access_class": "registered",
++      "languages": [
++        "ar",
++        "en"
++      ],
++      "allowed_projections": [
++        "web_interactive"
++      ],
++      "access": {
++        "link_id": "r4Ke9My1WcU3nO6qS8tX2zA5b6",
++        "secret_hash": "sha256:abababababababababababababababababababababababababababababababab",
++        "noindex": true,
++        "public_gallery": false
++      },
++      "tone": "professional",
++      "content": {
++        "summary_bullets": [
++          "Presence Readiness recomputes to 100 from seven pass rules."
++        ],
++        "score_result_ids": [
++          "55555555-5555-4555-8555-555555555555"
++        ],
++        "finding_ids": [],
++        "roadmap_id": null,
++        "prompt_run_ids": [],
++        "data_gaps": [],
++        "limitations_keys": [
++          "limitation.sample_not_full_site"
++        ],
++        "sample_disclosure": {
++          "pages_checked": 1,
++          "sampled": true
++        }
++      },
++      "lineage_coverage": {
++        "numbers_total": 1,
++        "numbers_with_lineage": 1,
++        "ratio": 1
++      },
++      "status": "ready",
++      "needs_native_review": true,
++      "retention_days": 30,
++      "created_at": "2026-10-01T00:00:00Z",
++      "expires_at": "2026-10-31T00:00:00Z"
++    },
++    "anonymous_report": {
++      "report_id": "d25e7091-bd3f-4a5c-8e70-91bd3f5c7e02",
++      "audit_id": "0f5a2c6e-3b1d-4c8a-9e7f-2a6b8c0d1e21",
++      "version": 1,
++      "access_class": "anonymous",
++      "languages": [
++        "ar",
++        "en"
++      ],
++      "allowed_projections": [
++        "web_interactive"
++      ],
++      "access": {
++        "link_id": "q3Jd8Lx0VbT2mN5pR7sW1yZ4",
++        "secret_hash": "sha256:b4dea2590c89d28e98e9973ceff38d16576cbb02915ea43cccf9ad51a63dcc22",
++        "noindex": true,
++        "public_gallery": false
++      },
++      "tone": "professional",
++      "content": {
++        "summary_bullets": [
++          "Three of 14 sampled Arabic service pages have no meta description."
++        ],
++        "score_result_ids": [],
++        "finding_ids": [
++          "2b8d4f60-1a3c-4e5b-9d7f-6c0e8a2b4d35"
++        ],
++        "roadmap_id": "d25e7091-bd3f-4a5c-8e70-91bd3f5c7e03",
++        "prompt_run_ids": [],
++        "data_gaps": [
++          {
++            "metric_key": "metric.search_console_clicks",
++            "needed_export_key": "export.search_console_performance"
++          }
++        ],
++        "limitations_keys": [
++          "limitation.sample_not_full_site",
++          "limitation.api_observations_not_consumer_apps"
++        ],
++        "sample_disclosure": {
++          "pages_checked": 14,
++          "sampled": true
++        }
++      },
++      "lineage_coverage": {
++        "numbers_total": 42,
++        "numbers_with_lineage": 42,
++        "ratio": 1
++      },
++      "status": "ready",
++      "needs_native_review": true,
++      "retention_days": 7,
++      "created_at": "2026-09-30T10:24:55Z",
++      "expires_at": "2026-10-07T09:58:12Z"
++    },
++    "deletion_request": {
++      "deletion_request_id": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
++      "subject_type": "audit",
++      "subject_id": "11111111-1111-4111-8111-111111111111",
++      "trigger": "user_request",
++      "requester": {
++        "actor": "registered_user",
++        "user_id": "88888888-8888-4888-8888-888888888888",
++        "proof": "authenticated_session"
++      },
++      "state": "RECEIVED",
++      "idempotency_key": "del:dddddddd-dddd-4ddd-8ddd-dddddddddddd",
++      "received_at": "2026-10-01T00:00:00Z",
++      "updated_at": "2026-10-01T00:00:00Z"
++    },
++    "webhook": {
++      "event_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
++      "platform": "wordpress",
++      "site_id": "33333333-3333-4333-8333-333333333333",
++      "delivery_id": "delivery-1",
++      "received_at": "2026-10-01T00:00:00Z",
++      "signature_valid": true,
++      "replay_detected": false,
++      "payload_hash": "sha256:abababababababababababababababababababababababababababababababab",
++      "resource_ids": [
++        "1042"
++      ],
++      "status": "accepted",
++      "processed_at": "2026-10-01T00:00:00Z"
++    }
++  },
++  "broken": {
++    "approval_dangling": {
++      "approval_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
++      "change_set_id": "00000000-0000-4000-8000-000000000001",
++      "approver_user_id": "99999999-9999-4999-8999-999999999999",
++      "approver_role": "approver",
++      "requester_user_id": "88888888-8888-4888-8888-888888888888",
++      "mode": "edit",
++      "environment": "staging",
++      "op_bindings": [
++        {
++          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
++          "resource_id": "1042",
++          "field": "seo.meta_description",
++          "before_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++          "after_hash": "sha256:974e9bfef6d56b4c7865a916d402357faf2f068804aaf06dc5522b26606fccc4"
++        }
++      ],
++      "binding_hash": "sha256:abababababababababababababababababababababababababababababababab",
++      "decision": "approved",
++      "decided_at": "2026-10-01T00:00:00Z",
++      "expires_at": "2026-10-08T00:00:00Z",
++      "auto_rollback_authorized": false,
++      "mfa_verified": false
++    },
++    "duplicate_op": {
++      "change_set_id": "12121212-1212-4121-8121-121212121212",
++      "project_id": "1c3e5a7b-9d1f-4a3c-8e5a-7b9d1f3a5c80",
++      "site_id": "2d4f6b8c-0e2a-4b4d-9f6b-8c0e2a4b6d91",
++      "connector": "example-cms",
++      "environment": "staging",
++      "plan_item_ids": [
++        "9a1c3e5f-7b9d-4f1a-8c3e-5a7c9e1b3d57"
++      ],
++      "operations": [
++        {
++          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
++          "plan_item_id": "9a1c3e5f-7b9d-4f1a-8c3e-5a7c9e1b3d57",
++          "resource_type": "page",
++          "resource_id": "1042",
++          "url": "https://example.com/ar/services/web-design",
++          "field": "seo.meta_description",
++          "field_class": "meta_description",
++          "language": "ar",
++          "current_value": null,
++          "proposed_value": "\u062e\u062f\u0645\u0627\u062a \u062a\u0635\u0645\u064a\u0645 \u0645\u0648\u0627\u0642\u0639 \u0627\u0644\u0634\u0631\u0643\u0627\u062a \u0628\u0627\u0644\u0644\u063a\u062a\u064a\u0646 \u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u0648\u0627\u0644\u0625\u0646\u062c\u0644\u064a\u0632\u064a\u0629\u060c \u0645\u0646 \u0627\u0644\u062a\u062e\u0637\u064a\u0637 \u0625\u0644\u0649 \u0627\u0644\u0625\u0637\u0644\u0627\u0642.",
++          "before_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++          "after_hash": "sha256:974e9bfef6d56b4c7865a916d402357faf2f068804aaf06dc5522b26606fccc4",
++          "risk_tier": 1,
++          "rationale": "SEO-002 partial: this page has no meta description.",
++          "evidence_ids": [
++            "8d4fab52-6e3c-4071-9b2f-ac5d3e7f1f24"
++          ],
++          "rule_ids": [
++            "SEO-002"
++          ],
++          "idempotency_key": "chg:c5e7a9b1-3d5f-4a7c-9e1b-3d5f7a9c1e68:op:d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
++          "status": "pending"
++        }
++      ],
++      "requested_by_user_id": "3e5a7c9d-1f3b-4c5e-8a7c-9d1f3b5e7a02",
++      "approvals": [],
++      "required_approvals": 1,
++      "max_risk_tier": 1,
++      "mode": "edit_only",
++      "publish_approval_id": null,
++      "canary_op_ids": [
++        "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79"
++      ],
++      "batch_size_max": 25,
++      "snapshot_id": null,
++      "approval_expires_at": null,
++      "status": "AWAITING_APPROVAL",
++      "status_reason_key": null,
++      "auto_rollback_authorized": false,
++      "idempotency_key": "chg:12121212-1212-4121-8121-121212121212",
++      "created_at": "2026-10-02T10:05:00Z",
++      "updated_at": "2026-10-02T10:07:30Z"
++    },
++    "orphan_op": "15151515-1515-4151-8151-151515151515",
++    "report_missing_audit": {
++      "report_id": "66666666-6666-4666-8666-666666666666",
++      "audit_id": "00000000-0000-4000-8000-000000000002",
++      "version": 1,
++      "access_class": "registered",
++      "languages": [
++        "ar",
++        "en"
++      ],
++      "allowed_projections": [
++        "web_interactive"
++      ],
++      "access": {
++        "link_id": "r4Ke9My1WcU3nO6qS8tX2zA5b6",
++        "secret_hash": "sha256:abababababababababababababababababababababababababababababababab",
++        "noindex": true,
++        "public_gallery": false
++      },
++      "tone": "professional",
++      "content": {
++        "summary_bullets": [
++          "Presence Readiness recomputes to 100 from seven pass rules."
++        ],
++        "score_result_ids": [
++          "55555555-5555-4555-8555-555555555555"
++        ],
++        "finding_ids": [],
++        "roadmap_id": null,
++        "prompt_run_ids": [],
++        "data_gaps": [],
++        "limitations_keys": [
++          "limitation.sample_not_full_site"
++        ],
++        "sample_disclosure": {
++          "pages_checked": 1,
++          "sampled": true
++        }
++      },
++      "lineage_coverage": {
++        "numbers_total": 1,
++        "numbers_with_lineage": 1,
++        "ratio": 1
++      },
++      "status": "ready",
++      "needs_native_review": true,
++      "retention_days": 30,
++      "created_at": "2026-10-01T00:00:00Z",
++      "expires_at": "2026-10-31T00:00:00Z"
++    },
++    "deletion_missing_audit": {
++      "deletion_request_id": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
++      "subject_type": "audit",
++      "subject_id": "00000000-0000-4000-8000-000000000003",
++      "trigger": "user_request",
++      "requester": {
++        "actor": "registered_user",
++        "user_id": "88888888-8888-4888-8888-888888888888",
++        "proof": "authenticated_session"
++      },
++      "state": "RECEIVED",
++      "idempotency_key": "del:dddddddd-dddd-4ddd-8ddd-dddddddddddd",
++      "received_at": "2026-10-01T00:00:00Z",
++      "updated_at": "2026-10-01T00:00:00Z"
++    },
++    "webhook_null_site": {
++      "event_id": "abababab-abab-4aba-8aba-abababababab",
++      "platform": "wordpress",
++      "site_id": null,
++      "delivery_id": "delivery-1",
++      "received_at": "2026-10-01T00:00:00Z",
++      "signature_valid": true,
++      "replay_detected": false,
++      "payload_hash": "sha256:abababababababababababababababababababababababababababababababab",
++      "resource_ids": [
++        "1042"
++      ],
++      "status": "accepted",
++      "processed_at": "2026-10-01T00:00:00Z"
++    },
++    "site_project_conflict": {
++      "audit_id": "13131313-1313-4131-8131-131313131313",
++      "access_class": "registered",
++      "project_id": "14141414-1414-4141-8141-141414141414",
++      "site_id": "33333333-3333-4333-8333-333333333333",
++      "owner_user_id": "88888888-8888-4888-8888-888888888888",
++      "mode": "representative_template",
++      "target_url": "https://example.com/ar/",
++      "comparison_target_urls": [
++        "https://example.org/ar/"
++      ],
++      "audit_tier": "rich",
++      "status": "READY_COMPLETE",
++      "anonymous_access_state": null,
++      "scope_id": "4ec50d18-24a6-4bc3-9fe7-0824a6cdef79",
++      "capability_manifest_id": "3db4fc07-1395-4ab2-8ed6-f71395bcde68",
++      "methodology_version": "0.1.0-draft",
++      "noindex": true,
++      "cost_spent": {
++        "amount": "0.00",
++        "currency": "USD"
++      },
++      "created_at": "2026-10-01T00:00:00Z",
++      "updated_at": "2026-10-01T00:00:00Z",
++      "completed_at": "2026-10-01T00:00:00Z",
++      "expires_at": "2026-10-31T00:00:00Z",
++      "claimed_at": null,
++      "claimed_by_user_id": null
++    },
++    "snapshot_dangling": {
++      "snapshot_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
++      "change_set_id": "00000000-0000-4000-8000-000000000004",
++      "connector": "example-cms",
++      "captured_at": "2026-10-01T00:00:00Z",
++      "items": [
++        {
++          "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
++          "resource_type": "page",
++          "resource_id": "1042",
++          "field": "seo.meta_description",
++          "value": null,
++          "value_hash": "sha256:abababababababababababababababababababababababababababababababab"
++        }
++      ],
++      "immutable": true,
++      "retention_expires_at": "2027-10-01T00:00:00Z"
++    },
++    "verification_dangling": {
++      "verification_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
++      "change_set_id": "00000000-0000-4000-8000-000000000005",
++      "op_id": "d6f8b0c2-4e6a-4b8d-8f2c-4e6a8b0d2f79",
++      "risk_tier": 1,
++      "fetched_at": "2026-10-01T00:00:00Z",
++      "fetch_evidence_id": "44444444-4444-4444-8444-444444444444",
++      "live_value": "synthetic",
++      "status": "verified",
++      "live_on_site": true,
++      "seen_by_google": "not_checked",
++      "rule_deltas": [],
++      "recommendation": "keep"
++    }
++  }
++}
+diff --git a/evals/m0b/score-fixture.json b/evals/m0b/score-fixture.json
+new file mode 100644
+index 0000000..83bd845
+--- /dev/null
++++ b/evals/m0b/score-fixture.json
+@@ -0,0 +1,376 @@
++{
++  "rules": [
++    {
++      "rule_id": "CRW-001",
++      "category": "crawlability",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777701",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "CRW-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777701",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "SEO-001",
++      "category": "on_page",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777702",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "SEO-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777702",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "STR-001",
++      "category": "structured_data",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777703",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "STR-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777703",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "AEO-001",
++      "category": "aeo",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777704",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "AEO-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777704",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "GEO-001",
++      "category": "geo",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777705",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "GEO-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777705",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "I18N-001",
++      "category": "i18n_accessibility",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777706",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "I18N-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777706",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "PRF-001",
++      "category": "performance_security",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777707",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "PRF-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777707",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    }
++  ],
++  "score": {
++    "score_result_id": "55555555-5555-4555-8555-555555555555",
++    "audit_id": "11111111-1111-4111-8111-111111111111",
++    "score_kind": "presence_readiness",
++    "value": 100,
++    "pre_cap_value": 100,
++    "coverage": {
++      "measurable_applicable_weight": 7,
++      "total_expected_applicable_weight": 7,
++      "ratio": 1
++    },
++    "checked": {
++      "checked": 7,
++      "of": 7
++    },
++    "pages_inspected": 1,
++    "confidence": "high",
++    "rule_result_ids": [
++      "77777777-7777-4777-8777-777777777701",
++      "77777777-7777-4777-8777-777777777702",
++      "77777777-7777-4777-8777-777777777703",
++      "77777777-7777-4777-8777-777777777704",
++      "77777777-7777-4777-8777-777777777705",
++      "77777777-7777-4777-8777-777777777706",
++      "77777777-7777-4777-8777-777777777707"
++    ],
++    "methodology_version": "0.1.0-draft",
++    "computed_at": "2026-10-01T00:00:00Z",
++    "lineage": {
++      "record_id": "55555555-5555-4555-8555-555555555555",
++      "project_id": "22222222-2222-4222-8222-222222222222",
++      "site_id": "33333333-3333-4333-8333-333333333333",
++      "source_type": "computation",
++      "source_id": "rules_engine:0.1.0-draft",
++      "source_version": "0.1.0-draft",
++      "captured_at": "2026-10-01T00:00:00Z",
++      "as_of": "2026-10-01T00:00:00Z",
++      "market": "KW",
++      "language": "ar",
++      "device": "mobile",
++      "method": "rules_engine",
++      "methodology_version": "0.1.0-draft",
++      "fidelity_label": "computed",
++      "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++      "parent_ids": [
++        "77777777-7777-4777-8777-777777777701",
++        "77777777-7777-4777-8777-777777777702",
++        "77777777-7777-4777-8777-777777777703",
++        "77777777-7777-4777-8777-777777777704",
++        "77777777-7777-4777-8777-777777777705",
++        "77777777-7777-4777-8777-777777777706",
++        "77777777-7777-4777-8777-777777777707"
++      ],
++      "validation_state": "valid",
++      "audit_id": "11111111-1111-4111-8111-111111111111"
++    }
++  }
++}
+diff --git a/evals/m0b/trace-fixture.json b/evals/m0b/trace-fixture.json
+new file mode 100644
+index 0000000..277fe8c
+--- /dev/null
++++ b/evals/m0b/trace-fixture.json
+@@ -0,0 +1,491 @@
++{
++  "audit": {
++    "audit_id": "11111111-1111-4111-8111-111111111111",
++    "access_class": "registered",
++    "project_id": "22222222-2222-4222-8222-222222222222",
++    "site_id": "33333333-3333-4333-8333-333333333333",
++    "owner_user_id": "88888888-8888-4888-8888-888888888888",
++    "mode": "representative_template",
++    "target_url": "https://example.com/ar/",
++    "comparison_target_urls": [
++      "https://example.org/ar/"
++    ],
++    "audit_tier": "rich",
++    "status": "READY_COMPLETE",
++    "anonymous_access_state": null,
++    "scope_id": "4ec50d18-24a6-4bc3-9fe7-0824a6cdef79",
++    "capability_manifest_id": "3db4fc07-1395-4ab2-8ed6-f71395bcde68",
++    "methodology_version": "0.1.0-draft",
++    "noindex": true,
++    "cost_spent": {
++      "amount": "0.00",
++      "currency": "USD"
++    },
++    "created_at": "2026-10-01T00:00:00Z",
++    "updated_at": "2026-10-01T00:00:00Z",
++    "completed_at": "2026-10-01T00:00:00Z",
++    "expires_at": "2026-10-31T00:00:00Z",
++    "claimed_at": null,
++    "claimed_by_user_id": null
++  },
++  "evidence": {
++    "evidence_id": "44444444-4444-4444-8444-444444444444",
++    "audit_id": "11111111-1111-4111-8111-111111111111",
++    "kind": "http_response",
++    "url": "https://example.com/ar/services/web-design",
++    "final_url": "https://example.com/ar/services/web-design",
++    "http_status": 200,
++    "content_type": "text/html; charset=utf-8",
++    "storage_uri": "gs://example-evidence-bucket/audits/11111111-1111-4111-8111-111111111111/44444444-4444-4444-8444-444444444444.html",
++    "byte_size": 128,
++    "excerpt": "synthetic fixture",
++    "injection_suspected": false,
++    "immutable": true,
++    "supersedes_evidence_id": null,
++    "raw_expires_at": "2026-10-02T00:00:00Z",
++    "expires_at": "2026-10-08T00:00:00Z",
++    "lineage": {
++      "record_id": "44444444-4444-4444-8444-444444444444",
++      "project_id": "22222222-2222-4222-8222-222222222222",
++      "site_id": "33333333-3333-4333-8333-333333333333",
++      "source_type": "crawler",
++      "source_id": "rules_engine:0.1.0-draft",
++      "source_version": "0.1.0-draft",
++      "captured_at": "2026-10-01T00:00:00Z",
++      "as_of": "2026-10-01T00:00:00Z",
++      "market": "KW",
++      "language": "ar",
++      "device": "mobile",
++      "method": "raw_http_fetch",
++      "methodology_version": "0.1.0-draft",
++      "fidelity_label": "observed",
++      "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++      "parent_ids": [],
++      "validation_state": "valid",
++      "audit_id": "11111111-1111-4111-8111-111111111111"
++    }
++  },
++  "rules": [
++    {
++      "rule_id": "CRW-001",
++      "category": "crawlability",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777701",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "CRW-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777701",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "SEO-001",
++      "category": "on_page",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777702",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "SEO-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777702",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "STR-001",
++      "category": "structured_data",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777703",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "STR-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777703",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "AEO-001",
++      "category": "aeo",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777704",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "AEO-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777704",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "GEO-001",
++      "category": "geo",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777705",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "GEO-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777705",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "I18N-001",
++      "category": "i18n_accessibility",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777706",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "I18N-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777706",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    },
++    {
++      "rule_id": "PRF-001",
++      "category": "performance_security",
++      "importance_weight": 1,
++      "rule_result": {
++        "rule_result_id": "77777777-7777-4777-8777-777777777707",
++        "audit_id": "11111111-1111-4111-8111-111111111111",
++        "rule_id": "PRF-001",
++        "methodology_version": "0.1.0-draft",
++        "result": "pass",
++        "method": "deterministic",
++        "scope": "site",
++        "page_url": "https://example.com/ar/services/web-design",
++        "affected_urls": [
++          "https://example.com/ar/services/web-design"
++        ],
++        "evidence_ids": [
++          "44444444-4444-4444-8444-444444444444"
++        ],
++        "confidence": "high",
++        "evaluated_at": "2026-10-01T00:00:00Z",
++        "lineage": {
++          "record_id": "77777777-7777-4777-8777-777777777707",
++          "project_id": "22222222-2222-4222-8222-222222222222",
++          "site_id": "33333333-3333-4333-8333-333333333333",
++          "source_type": "rules_engine",
++          "source_id": "rules_engine:0.1.0-draft",
++          "source_version": "0.1.0-draft",
++          "captured_at": "2026-10-01T00:00:00Z",
++          "as_of": "2026-10-01T00:00:00Z",
++          "market": "KW",
++          "language": "ar",
++          "device": "mobile",
++          "method": "rules_engine",
++          "methodology_version": "0.1.0-draft",
++          "fidelity_label": "computed",
++          "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++          "parent_ids": [
++            "44444444-4444-4444-8444-444444444444"
++          ],
++          "validation_state": "valid",
++          "audit_id": "11111111-1111-4111-8111-111111111111"
++        }
++      }
++    }
++  ],
++  "score": {
++    "score_result_id": "55555555-5555-4555-8555-555555555555",
++    "audit_id": "11111111-1111-4111-8111-111111111111",
++    "score_kind": "presence_readiness",
++    "value": 100,
++    "pre_cap_value": 100,
++    "coverage": {
++      "measurable_applicable_weight": 7,
++      "total_expected_applicable_weight": 7,
++      "ratio": 1
++    },
++    "checked": {
++      "checked": 7,
++      "of": 7
++    },
++    "pages_inspected": 1,
++    "confidence": "high",
++    "rule_result_ids": [
++      "77777777-7777-4777-8777-777777777701",
++      "77777777-7777-4777-8777-777777777702",
++      "77777777-7777-4777-8777-777777777703",
++      "77777777-7777-4777-8777-777777777704",
++      "77777777-7777-4777-8777-777777777705",
++      "77777777-7777-4777-8777-777777777706",
++      "77777777-7777-4777-8777-777777777707"
++    ],
++    "methodology_version": "0.1.0-draft",
++    "computed_at": "2026-10-01T00:00:00Z",
++    "lineage": {
++      "record_id": "55555555-5555-4555-8555-555555555555",
++      "project_id": "22222222-2222-4222-8222-222222222222",
++      "site_id": "33333333-3333-4333-8333-333333333333",
++      "source_type": "computation",
++      "source_id": "rules_engine:0.1.0-draft",
++      "source_version": "0.1.0-draft",
++      "captured_at": "2026-10-01T00:00:00Z",
++      "as_of": "2026-10-01T00:00:00Z",
++      "market": "KW",
++      "language": "ar",
++      "device": "mobile",
++      "method": "rules_engine",
++      "methodology_version": "0.1.0-draft",
++      "fidelity_label": "computed",
++      "content_hash": "sha256:abababababababababababababababababababababababababababababababab",
++      "parent_ids": [
++        "77777777-7777-4777-8777-777777777701",
++        "77777777-7777-4777-8777-777777777702",
++        "77777777-7777-4777-8777-777777777703",
++        "77777777-7777-4777-8777-777777777704",
++        "77777777-7777-4777-8777-777777777705",
++        "77777777-7777-4777-8777-777777777706",
++        "77777777-7777-4777-8777-777777777707"
++      ],
++      "validation_state": "valid",
++      "audit_id": "11111111-1111-4111-8111-111111111111"
++    }
++  },
++  "report": {
++    "report_id": "66666666-6666-4666-8666-666666666666",
++    "audit_id": "11111111-1111-4111-8111-111111111111",
++    "version": 1,
++    "access_class": "registered",
++    "languages": [
++      "ar",
++      "en"
++    ],
++    "allowed_projections": [
++      "web_interactive"
++    ],
++    "access": {
++        "link_id": "r4Ke9My1WcU3nO6qS8tX2zA5b6",
++      "secret_hash": "sha256:abababababababababababababababababababababababababababababababab",
++      "noindex": true,
++      "public_gallery": false
++    },
++    "tone": "professional",
++    "content": {
++      "summary_bullets": [
++        "Presence Readiness recomputes to 100 from seven pass rules."
++      ],
++      "score_result_ids": [
++        "55555555-5555-4555-8555-555555555555"
++      ],
++      "finding_ids": [],
++      "roadmap_id": null,
++      "prompt_run_ids": [],
++      "data_gaps": [],
++      "limitations_keys": [
++        "limitation.sample_not_full_site"
++      ],
++      "sample_disclosure": {
++        "pages_checked": 1,
++        "sampled": true
++      }
++    },
++    "lineage_coverage": {
++      "numbers_total": 1,
++      "numbers_with_lineage": 1,
++      "ratio": 1
++    },
++    "status": "ready",
++    "needs_native_review": true,
++    "retention_days": 30,
++    "created_at": "2026-10-01T00:00:00Z",
++    "expires_at": "2026-10-31T00:00:00Z"
++  }
++}
+diff --git a/intent/INT-01-m0b-contracts-threat-model-cost-proof/intent.md b/intent/INT-01-m0b-contracts-threat-model-cost-proof/intent.md
+index 5e2e604..d861581 100644
+--- a/intent/INT-01-m0b-contracts-threat-model-cost-proof/intent.md
++++ b/intent/INT-01-m0b-contracts-threat-model-cost-proof/intent.md
+@@ -1,19 +1,21 @@
+ # Intent: M0B contracts, threat model and cost proof
+ 
+-Status: draft for review.
++Status: accepted.
+ 
+ | Field | Value |
+ | --- | --- |
+ | ID | INT-01 |
+-| Status | draft |
++| Status | accepted |
+ | Author (originator) | <DECIDE_AT_M0: product owner name> |
+ | Product owner | <DECIDE_AT_M0: name> |
+ | Tech lead | <DECIDE_AT_M0: name> |
+ | Security engineer | <DECIDE_AT_M0: name> |
+ | Milestone | M0B (05-PROJECT-PLAN §11) |
+-| Ticket | <tracker ID, or "none"> |
++| Ticket | none |
+ | Created | 2026-09-30 |
+-| Depends on | INT-00 (M0A exit gate passed) |
++| Amended | 2026-10-01. Ibrahim accepted the six amendments in the intent review: Cursor beside Claude Code; outcome bounded to the five proofs and the gaps they need; dependency on the closed M0A record; load tests, deletion demonstration and Stage 2 measurement stay out of this exit; Links added and ticket set to none; OI-001 does not block the Stage 1 proof. |
++| Accepted | Ibrahim, 2026-10-01, by the message "I accept INT-01 with the six amendments in section 10". Product owner name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Depends on | INT-00 closed implementation record, commit `96c0daa` on `main`. OI-021 and the draft M0A `release.md` do not reopen M0A and do not block M0B. |
+ | Risk class | high-risk: defines authorization, anonymous access, write approvals, cost limits and rule weights |
+ 
+ ## Problem
+@@ -22,37 +24,41 @@ The contracts and governance documents exist as drafts: schemas in `schemas/`, s
+ 
+ ## Proposed outcome
+ 
+-From 05-PROJECT-PLAN §11 (M0B), complete and reviewed:
++The existing drafts are the starting material. M0B proves the five exit checks and writes only the gaps those proofs need:
+ 
+-- full JSON Schemas (draft 2020-12) for the contracts in 03-PRODUCTION-CONTRACTS "Minimum schema set", with required fields, enums, formats, limits, `additionalProperties` policy, version and upgrade behavior;
+-- state machines with actor, preconditions, authorization, idempotency key, retries, timeout, compensating action, audit event and terminal behavior (03 "Workflow states");
+-- the source, fidelity and lineage model, and evidence immutability;
+-- the anonymous-access abuse model (D-002) and the connector approval model;
+-- the project and IAM matrix, and the egress design for the crawler;
+-- budget math and circuit breakers for the combined USD 150 cap (D-005, D-007);
+-- the retention and deletion map (D-002, D-003);
+-- test fixtures for each item above.
++- parent-join rules for the schemas that have no `project_id` (D-014, OI-040);
++- fixtures and a local check for one reproduced Presence Readiness score, one rejected invalid record, one traced report number, and one denied anonymous export;
++- a modelled Stage 1 hard stop (D-019): synthetic ledger entries, an estimated hosting baseline labelled `estimated`, and a pre-call check that refuses the next paid call at the cap minus the reserve.
+ 
+-The mandatory artifacts before M1 in 04-CLAUDE-CODE-BUILD-PROMPT §24 are all present.
++Region, identity provider, first connector, rule weights, hosting overrun, and the anonymous-backup conflict stay unchanged.
++
++Cursor sessions run this milestone under `AGENTS.md` and `.cursor/`. `.claude/` remains the policy source. `fable` at xhigh in `docs/spec/06-MODEL-PLAN.md` §3 is a Claude Code alias, not a Cursor picker value. The session records the model name it shows (D-020).
+ 
+ ## Affected users and systems
+ 
+-Product owner, SEO lead (methodology), security engineer, data engineer, AI engineer, integration engineer, privacy counsel. Future services: crawler, rules engine, report, cost guard, connector.
++Product owner, SEO lead (methodology), security engineer, data engineer, AI engineer, integration engineer, privacy counsel. Future services: crawler, rules engine, report, cost guard, connector. No service is deployed in this milestone.
+ 
+ ## Constraints
+ 
++- This milestone runs under `AGENTS.md` and `.cursor/`, with `.claude/` as the policy source (D-020). The model plan alias does not fail the milestone.
+ - D-002 anonymous reports: in-app only, no downloads, private link plus signed secret, `noindex`, deletable, 7-day expiry.
+ - D-003 registered evidence retention 30 days by default. D-004 `User → Project → Site`; claims never prove domain ownership.
+-- D-005 one combined USD 150 monthly cap (hosting plus paid calls, tracked as separate lines); D-007 per-audit soft USD 3.00 and hard USD 4.00 and the breaker settings are ASSUMPTIONS.
++- D-005 stays an assumption (OI-001). The Stage 1 proof uses the working reading: one combined USD 150 cap, with hosting and paid calls tracked as separate lines. OI-001 does not block that proof. The proof labels the cap unconfirmed.
++- D-007 per-audit soft USD 3.00 and hard USD 4.00 and the breaker settings stay assumptions.
+ - D-012 Presence Readiness and Experience Effectiveness stay separate and are never blended with observed AI visibility or search performance.
++- D-019: the M0B cost proof is modelled Stage 1 only. Measured cost on staging is after M1 and M6, before public anonymous traffic. Paid calls stop at the cap minus the reserve.
+ - Vocabulary from the canonical lists (fidelity labels, integrity states, evidence states, rule results, risk tiers, audit tiers).
+-- Rule categories and weights from v1-baseline §6.2 (crawlability 20, on_page 15, structured_data 10, aeo 20, geo 15, i18n_accessibility 10, performance_security 10); any weight change bumps `methodology_version` (`.claude/hooks/methodology_bump.py`).
++- Rule categories and weights stay at v1-baseline §6.2 (crawlability 20, on_page 15, structured_data 10, aeo 20, geo 15, i18n_accessibility 10, performance_security 10). This milestone does not change them. A later weight change bumps `methodology_version`.
+ - Policy skills that apply: `security-baseline`, `data-integrity`, `cost-guard`, `connector-safety`, `google-search-guidance`.
+-- No application runtime yet: proofs may use scripts, fixtures and schema validation, not deployed services. The cost proof at M0B is the modelled Stage 1 in `docs/cost-model.md` §7 (D-019); the measured Stage 2 runs after M1 and M6, before public anonymous traffic.
++- Proofs use scripts, fixtures and schema validation. There is no deployed service and no live provider call.
++- Retry counts and timeouts in `docs/state-machines.md` stay assumptions. This milestone does not run load tests or cost calibration.
++- The M0A toolchain (D-021) stays as closed. `pnpm test:ssrf` and `pnpm test:e2e` remain placeholders recorded as not run. They are not this exit.
+ 
+ ## Out of scope
+ 
+-Crawler implementation (M1), deployed infrastructure, real provider calls, real connectors.
++Crawler implementation (M1), deployed infrastructure, `terraform apply`, real provider calls, real connector writes, production credentials, and product spend.
++
++Also out of scope: reopening M0A; changing the M0A toolchain; a deletion demonstration; resolving the backup-versus-7-day conflict (OI-036); choosing region, identity provider, or the first connector; changing weights or the SPAM-001 cap; deciding hosting overrun (OI-031); Stage 2 measured cost.
+ 
+ ## Exit gate
+ 
+@@ -64,15 +70,25 @@ From 05-PROJECT-PLAN §11: independent reviews can
+ 4. deny one unauthorized export or write;
+ 5. simulate the USD 150 hard stop.
+ 
+-Each proof is recorded in this intent's `release.md` with the command, fixture and reviewer.
++Each proof is recorded in this intent's `release.md` with the command, fixture and reviewer. The reviewer is a person who did not author the fixture. Named owners stay open (OI-002).
++
++Load tests, a deletion demonstration, and the measured Stage 2 cost proof are not part of this exit.
+ 
+ ## Open questions
+ 
+-- D-005: is USD 150 one combined cap for hosting and paid calls? Owner: product owner with the cloud billing owner.
+-- When hosting alone approaches the cap, what does the cost guard do, given that hosting cannot be switched off like a provider call? Owner: product owner and AI engineer.
+-- Who are the independent reviewers for each proof, and are they separate from the authors? Owner: product owner.
+-- Methodology sign-off on the starting weights, critical caps (including the proposed SPAM-001 cap of 50) and rule applicability. Owner: SEO lead.
+-- Google Cloud region and data residency (`<DECIDE_AT_M0: region>`), which affect the IAM matrix and egress design. Owner: product owner.
++These stay open. None of them blocks the Stage 1 proof.
++
++- D-005: is USD 150 one combined cap for hosting and paid calls? Owner: product owner with the cloud billing owner. The proof uses the combined-cap assumption and labels it unconfirmed (OI-001).
++- When hosting alone approaches the cap, what does the cost guard do? Owner: product owner and cloud billing owner (OI-031). The hard-stop proof refuses the next paid call and does not stop hosting.
++- Named reviewers and accountable owners (OI-002). Owner: product owner. Until names exist, independence means the reviewer did not author the fixture.
++- Methodology sign-off on the starting weights, critical caps (including the proposed SPAM-001 cap of 50) and rule applicability. Owner: SEO lead. This milestone does not change them.
++- Google Cloud region and data residency (`<DECIDE_AT_M0: region>`). Owner: product owner.
+ - Identity provider for the later `User → Project → Site` model. Owner: product owner and security engineer.
+-- Retention for change snapshots and approval records (02-DETAILED-SPECIFICATION §16 has a 12-month ASSUMPTION pending legal review). Owner: privacy counsel.
+-- Whether the connector approval model is designed generically now, since the first connector is still open (D-011). Owner: integration engineer.
++- Retention for change snapshots and approval records, and anonymous data in backups beyond 7 days (OI-036). Owner: privacy counsel. The conflict stays recorded.
++- The first connector stays open (D-011). The approval model stays generic. Owner: integration engineer.
++
++## Links
++
++- Spec: `intent/INT-01-m0b-contracts-threat-model-cost-proof/spec.md` (after acceptance)
++- Plan: `intent/INT-01-m0b-contracts-threat-model-cost-proof/plan.md` (after spec approval)
++- Release: `intent/INT-01-m0b-contracts-threat-model-cost-proof/release.md` (after implementation)
+diff --git a/intent/INT-01-m0b-contracts-threat-model-cost-proof/plan.md b/intent/INT-01-m0b-contracts-threat-model-cost-proof/plan.md
+new file mode 100644
+index 0000000..cbb14a7
+--- /dev/null
++++ b/intent/INT-01-m0b-contracts-threat-model-cost-proof/plan.md
+@@ -0,0 +1,87 @@
++# Plan: M0B contracts, threat model and cost proof
++
++| Field | Value |
++| --- | --- |
++| Spec | `intent/INT-01-m0b-contracts-threat-model-cost-proof/spec.md` (status: approved) |
++| Status | done |
++| Author | Cursor session (Grok 4.7), 2026-10-01 |
++| Engineer approval | Ibrahim, 2026-10-01, by the message "I approve plan.md. Implement only that plan, locally, on this machine." The named engineer role remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Tech lead approval | Ibrahim, 2026-10-01, same message. The named tech-lead role remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Branch | `m0b-contracts-cost-proof` |
++
++Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Only a human sets `approved`.
++
++## Scope of this slice
++
++The whole approved M0B spec, in one slice. The five proofs, the parent-join check, and the CI step ship together.
++
++No crawler, no deployed service, no Terraform, no live provider call, no rule-weight change, no M0A toolchain change, and no M1 work. Product spend stays `0.00` USD.
++
++## Files
++
++| Path | Change | Why |
++| --- | --- | --- |
++| `scripts/check_m0b_proofs.py` | Create | Spec proof command. Standard library plus `jsonschema`. |
++| `evals/m0b/score-fixture.json` | Create | Seven `pass` rules and the stored score of 100. |
++| `evals/m0b/trace-fixture.json` | Create | Report headline linked to the score, rule results, and one evidence object. |
++| `evals/m0b/export-fixture.json` | Create | Anonymous CSV denial. |
++| `evals/m0b/cost-fixture.json` | Create | Refuse above `140.00`, allow a call that lands on `140.00`. |
++| `evals/m0b/project-joins.json` | Create | Seven parent joins, one valid set and one broken case each. |
++| `.github/workflows/ci.yml` | Add one governance step | `python3 scripts/check_m0b_proofs.py` after the action-pin step. No new action SHA. |
++| `docs/assumptions.md` | Append A-045 | Equality rule for the paid-call stop. Do not rewrite earlier rows. |
++| `docs/open-items.md` | Append a note | OI-001 stays open and does not block Stage 1. |
++| `intent/INT-01-m0b-contracts-threat-model-cost-proof/review.diff` | Create after the proofs pass | Input for the reviewers. |
++| `intent/INT-01-m0b-contracts-threat-model-cost-proof/release.md` | Create after the reviewers | Record command, fixture, and reviewer. Status stays `draft`. |
++
++Do not edit `config/budgets.yaml`, `config/scoring.yaml`, `config/agents/`, `schemas/`, hooks, or the M0A toolchain.
++
++## Order of work
++
++1. Write the fixtures and `scripts/check_m0b_proofs.py`.
++2. Run the script until it exits 0. The checks are: Presence Readiness recomputed as 100; the ready-without-full-lineage report rejected; headline 100 traced to evidence; anonymous CSV denied and `fixer` has no write-class tool; paid call `0.01` refused at paid-to-date `140.00` and allowed at `139.99`; seven parent joins.
++3. Add the CI step. Run `scripts/check_schemas.py` and `scripts/check_config.py`. Record `pnpm test:ssrf` and `pnpm test:e2e` as not run.
++4. Append A-045 and the OI-001 note.
++5. Save `review.diff`. Run `security-reviewer`, `cost-reviewer`, and `verifier` locally. They do not approve, merge, or spawn subagents.
++6. Write `release.md` and stop. Do not start M1.
++
++## Risks
++
++| Risk | Likelihood | Mitigation | Owner |
++| --- | --- | --- | --- |
++| Float arithmetic moves the score off 100 | Low | Use `Decimal` for the score and for money | Data engineer |
++| A new `config/*.yaml` fails `check_config.py` | Low | Join rules stay in `evals/m0b/` | Tech lead |
++| The `secrets` job stays red | High | OI-021 stays open. This slice does not change gitleaks | Security engineer |
++| Hosting `25.00` is mistaken for part of the stop line | Medium | The script prints that hosting is estimated and is not stopped | Cloud billing owner |
++
++## Proof
++
++```bash
++python3 scripts/check_m0b_proofs.py
++python3 scripts/check_schemas.py
++python3 scripts/check_config.py
++python3 -m unittest discover -s .claude/hooks/tests
++python3 -m unittest discover -s .cursor/hooks/tests
++python3 scripts/check_action_pins.py
++```
++
++`pnpm test:ssrf` and `pnpm test:e2e` stay placeholders recorded as not run. Paste real output into `release.md`.
++
++## Security, privacy, cost, Arabic/accessibility review
++
++`security-reviewer` reads `review.diff` and checks: no fetch path, no secret, anonymous export denied, parent joins, no write-class tool added.
++
++`cost-reviewer` checks: no paid call, threshold `140.00` from `config/budgets.yaml`, refusal is `unavailable`, hosting is not stopped, product spend `0.00` USD.
++
++`verifier` compares the files and commands with this plan.
++
++No screen, so no Arabic or accessibility evidence.
++
++## Rollback
++
++`git revert` of the M0B commits on `m0b-contracts-cost-proof`. No service and no staging rehearsal.
++
++## Departures from the plan
++
++- 2026-10-01: After the first security and cost reviews, the proof also checks lineage `project_id` against the audit, rejects a null project query, requires distinct report `link_id` values, and copies the change-set hashes into the approval binding. The hard-stop output prints that hosting `25.00` is estimated and is not stopped, and that paid calls at `140.00` plus that hosting line can exceed `150.00` until OI-031.
++- 2026-10-01: The approved spec's hard stop uses aggregate paid-call cases. Synthetic `CostLedgerEntry` rows and `rich_audits_per_month` are not in this slice. D-019's Stage 1 refusal clause is what the script proves.
++- 2026-10-01: The verifier's file review found no broken parent for Snapshot or Verification. Those two dangling `change_set_id` cases were added before `release.md`.
+diff --git a/intent/INT-01-m0b-contracts-threat-model-cost-proof/spec.md b/intent/INT-01-m0b-contracts-threat-model-cost-proof/spec.md
+new file mode 100644
+index 0000000..04a7a53
+--- /dev/null
++++ b/intent/INT-01-m0b-contracts-threat-model-cost-proof/spec.md
+@@ -0,0 +1,168 @@
++# Spec: M0B contracts, threat model and cost proof
++
++| Field | Value |
++| --- | --- |
++| Intent | `intent/INT-01-m0b-contracts-threat-model-cost-proof/intent.md` (status: accepted) |
++| Status | approved |
++| Author | Cursor session (Grok 4.7), 2026-10-01 |
++| Product owner sign-off | Ibrahim, 2026-10-01, by the message "I approve spec.md". The product-owner role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Policy owner sign-offs | pending: security engineer (security-baseline), data engineer (data-integrity), cloud billing owner (cost-guard), integration engineer (connector-safety), SEO lead (google-search-guidance) |
++| Spec prompt version | `.claude/skills/intent-spec-plan/SKILL.md` stage 2, skill version 0.1.0 |
++| Skill versions | intent-spec-plan 0.1.0; security-baseline 0.1.0; data-integrity 0.1.0; cost-guard 0.1.0; connector-safety 0.1.0; google-search-guidance 0.1.0; arabic-rtl-a11y 0.1.0; marketing-seo-agent vendored snapshot 2026-09-30 (no version field in its SKILL.md) |
++| Source sections read | `AGENTS.md`; `CLAUDE.md`; `docs/spec/00-READ-ME-FIRST.md`; `docs/spec/03-PRODUCTION-CONTRACTS.md`; `docs/spec/04-CLAUDE-CODE-BUILD-PROMPT.md` §7.1, §24; `docs/spec/05-PROJECT-PLAN.md` §11; `docs/spec/06-MODEL-PLAN.md` §3, §8; `docs/state-machines.md`; `docs/threat-model.md`; `docs/iam-matrix.md`; `docs/cost-model.md` §7; `docs/retention-deletion-map.md`; `docs/decisions.md` D-002, D-005, D-007, D-012, D-014, D-019, D-020, D-021; `docs/open-items.md` OI-001, OI-021, OI-031, OI-036, OI-040; `docs/assumptions.md` A-003; `config/budgets.yaml`; `config/scoring.yaml`; `config/agents/`; `schemas/` including the seven records without `project_id`; `scripts/check_schemas.py`; `scripts/check_config.py`; `intent/INT-00-m0a-repository-bootstrap/release.md` |
++
++Status values: `draft`, `changes_requested`, `approved`, `superseded`. Only the product owner sets `approved`.
++
++## Summary
++
++M0B shows that the existing contract drafts hold together for five local proofs. A check reproduces one Presence Readiness score from stored rule results, rejects one invalid report, traces one report number to evidence, denies one anonymous CSV export, and refuses the next paid call when paid calls reach the cap minus the reserve.
++
++The drafts in `schemas/`, `docs/state-machines.md`, `docs/threat-model.md`, `docs/iam-matrix.md`, `docs/cost-model.md`, and `docs/retention-deletion-map.md` stay the starting material. This milestone adds the parent-join rules those proofs need and the fixtures the checks read. It does not deploy a service, call a provider, change rule weights, or reopen M0A.
++
++Cursor runs the work beside Claude Code. `.claude/` remains the policy source. The session model is the name the picker shows. `fable` at xhigh is not a Cursor picker value (D-020).
++
++## Requirements
++
++### Functional
++
++1. A local proof command exits 0 only when all five checks below pass, and exits non-zero when any one fails. The command, fixture path, and reviewer are what `release.md` will record. The reviewer is a person who did not author the fixture. Source: accepted intent exit gate; `docs/spec/05-PROJECT-PLAN.md` §11.
++2. Reproduce one score. The fixture holds seven scored rule results, one in each Presence Readiness category, each with `importance_weight` 1 and result `pass` (value 1.00). Rule IDs are `CRW-001`, `SEO-001`, `STR-001`, `AEO-001`, `GEO-001`, `I18N-001`, and `PRF-001`. The check recomputes each category score as 100 and the pre-cap Presence Readiness as 100, using `config/scoring.yaml` weights 20, 15, 10, 20, 15, 10, 10 and `methodology_version` `0.1.0-draft`. No critical cap applies. Experience Effectiveness, AI visibility, and search performance are absent from this fixture. Source: accepted intent; D-012; `config/scoring.yaml` formulas.
++3. Reject one invalid record. The valid `schemas/examples/report-model.example.json` passes schema validation. The patched record defined by `schemas/examples/invalid/report-model.ready-without-full-lineage.invalid.json` fails validation. Source: accepted intent; `scripts/check_schemas.py`.
++4. Trace one report number. A fixture `ReportModel` headline value 100 carries fidelity `computed`, which maps to evidence state `verified` without erasing `computed`. The headline points at the `ScoreResult` from requirement 2, that score points at the seven `RuleResult` rows, and the `CRW-001` result points at one `EvidenceObject` with fidelity `observed`. Removing any link fails the check. Source: `docs/spec/03-PRODUCTION-CONTRACTS.md` "Evidence and fidelity"; data-integrity skill.
++5. Deny one unauthorized export. For an anonymous requester and format `csv`, the check returns decision `denied`, denial reason `anonymous_export_prohibited`, and creates no artifact. The existing negative example `schemas/examples/invalid/export-authorization.anonymous-authorized.invalid.json` still fails validation. The same command also asserts that `config/agents/fixer.yaml` `tools` contains none of `apply_change`, `publish`, `write_cms`, `delete_content`, `upload_disavow`, `send_email`, `submit_form`. The recorded exit proof is the export denial. Source: D-002; `schemas/export-authorization.schema.json`; connector-safety skill.
++6. Simulate the USD 150 hard stop. Money values are decimal strings plus currency `USD`. `hard_cap` is `150.00`. Reserve is `10.00` (assumption A-003). The pre-call check refuses a proposed paid call when `paid_calls_to_date + proposed_call` is greater than `140.00`. A proposed call that lands on `140.00` is allowed. The refuse fixture has paid calls to date `140.00` and a proposed call `0.01`. The allow fixture has paid calls to date `139.99` and a proposed call `0.01`. On refusal, the AI-visibility section is `unavailable` with the monthly-limit reason, and the Presence Readiness value from requirement 2 is still present. An estimated hosting line of `25.00`, fidelity `estimated`, is stored on its own line and does not stop hosting. Source: D-019; `docs/cost-model.md` §7 Stage 1; `config/budgets.yaml`.
++7. Parent-join rules are written for the seven schemas that have no `project_id`, and a check enforces them. No `project_id` field is added to those schemas in this milestone. Source: D-014; OI-040.
++8. Existing schema files, agent allowlists, scoring weights, `config/budgets.yaml` caps, and the M0A toolchain stay in place except for the fixture and proof files this spec names. `methodology_version` stays `0.1.0-draft`. Source: accepted intent; D-021.
++
++### Non-functional
++
++1. Proofs run on the local machine and in the existing GitHub Actions `governance` job. They do not deploy, call a provider, apply Terraform, or use a production credential. Source: accepted intent; D-019.
++2. Fixtures contain synthetic IDs only. They contain no secrets, tokens, emails, raw page text, or live customer URLs. Source: security-baseline skill.
++3. Anonymous export denial is evaluated in the proof, including a direct request. The in-app web report is not an export. Source: D-002; `docs/state-machines.md` §8.
++4. The combined cap remains an assumption and is labelled unconfirmed in the proof output. Per-audit soft `3.00` and hard `4.00` stay assumptions and are not the hard-stop threshold. Source: D-005; D-007; OI-001.
++5. There is no screen in this milestone. Arabic copy and WCAG evidence are not produced. `config/scoring.yaml` display names are not edited. Source: arabic-rtl-a11y skill; accepted intent.
++6. `pnpm test:ssrf` and `pnpm test:e2e` stay placeholders recorded as not run. Source: D-021.
++
++## Design
++
++### Components and boundaries
++
++The proof runner is a Python script beside `scripts/check_schemas.py`. It uses the standard library and the `jsonschema` package that script already requires. It adds no npm dependency and does not import `.claude/skills/marketing-seo-agent/scripts`.
++
++Trust boundaries in the fixtures:
++
++- Report numbers and evidence records are data. Instruction-like strings in an evidence fixture do not change the score.
++- The export check is the policy decision. It is not a browser control.
++- Agent YAML is read-only input. The proof does not grant a tool.
++- The cost check reads `config/budgets.yaml` and synthetic ledger entries. It does not call Cloud Billing or a model provider.
++- The crawler egress text already in `docs/threat-model.md` and `docs/iam-matrix.md` stays documentary. This milestone does not open a network path.
++
++The GitHub Actions `governance` job gains one step that runs the proof script. The M0A toolchain versions are unchanged.
++
++### Data contracts
++
++No schema in the minimum set is renamed or version-bumped. The seven records keep their current `$id` version `0.1.0`.
++
++Parent-join rules, checked against a fixture set:
++
++| Record | Parent | Rule |
++| --- | --- | --- |
++| `Approval` | `ChangeSet` | `change_set_id` equals that change set. The project is `ChangeSet.project_id`. |
++| `Snapshot` | `ChangeSet` | Same join as `Approval`. |
++| `Verification` | `ChangeSet` | Same join as `Approval`. |
++| `ChangeOperation` | `ChangeSet` | `op_id` appears in that change set's `operations` array. An `op_id` in none or in two change sets fails. |
++| `ReportModel` | `Audit` | `audit_id` equals that audit. When `Audit.project_id` is a UUID, that is the project. When it is null, the audit is anonymous and a project query does not return the report. |
++| `DeletionRequest` | subject | `subject_type` `audit`, `report`, `evidence_object`, `export_file`, or `keyword_upload` joins to that record and then to its project. `subject_type` `project` uses `subject_id` as the project. The M0B fixture uses `audit`. `user_account` is not in the fixture. |
++| `WebhookEvent` | `Audit` | There is no Site schema. `site_id` equals `Audit.site_id`, and the project is that audit's `project_id`. A null `site_id` belongs to no project. Two audits with the same `site_id` and different `project_id` values fail the check. |
++
++The join table lives in the proof fixture, not in a new `config/*.yaml`, so `scripts/check_config.py` does not gain an unschema'd file.
++
++Score and report records use the lineage fields already required by their schemas. The score's fidelity is `computed`. The evidence object's fidelity is `observed`. Integrity state for the scored rules is `valid`.
++
++### State transitions
++
++`docs/state-machines.md` is not rewritten. Retry counts, timeouts, and expiry windows stay assumptions. This milestone does not calibrate them and does not add a deletion demonstration.
++
++The export proof uses the existing denial transition: an anonymous request ends `denied` with reason `anonymous_export_prohibited` (`docs/state-machines.md` §8, row E3). No other transition is executed.
++
++The cost proof uses the existing skip on the monthly hard stop: AI observations become `unavailable`, and the deterministic score still completes (`docs/state-machines.md` rows A9 and A10). No workflow engine is started.
++
++### Configuration
++
++`config/budgets.yaml`, `config/scoring.yaml`, and `config/agents/*.yaml` are read and not edited.
++
++The proof reads:
++
++- monthly `hard_cap` `150.00`, `currency` `USD`, `reserve` `10.00`, `paid_calls_stop_at` `cap_minus_reserve`;
++- `methodology_version` `0.1.0-draft` and the seven category weights;
++- `fixer` `tools` and `forbidden_tools`.
++
++No model ID, price, quota, or crawler token is added (D-010). `hosting_overrun` stays `<DECIDE_AT_M0: ...>`.
++
++### UI (if any)
++
++None. No Arabic or English screen. No mock.
++
++## Policy conformance
++
++| Policy skill | Applies? | How the design complies | Concern for owner |
++| --- | --- | --- | --- |
++| google-search-guidance | Yes, by exclusion | No rule, weight, or report wording changes. The score fixture does not score `llms.txt`, require FAQ markup, or promise a rich result. Skill scripts are not imported. | SEO lead: weights and the SPAM-001 cap stay unsigned. |
++| security-baseline | Yes | Export denial is in the proof. Fixtures have no secrets. Parent joins keep project scope. No fetch is added, so the SSRF placeholder stays not run. | Security engineer: WebhookEvent joins through Audit because no Site schema exists. Null `site_id` is unscoped. |
++| arabic-rtl-a11y | No surface | No screen, copy, or PDF. Display names in `config/scoring.yaml` stay as they are, including `needs_native_review`. | Arabic reviewer: nothing new to review at this milestone. |
++| data-integrity | Yes | The score recomputes from rule results. The report number traces to evidence. `computed` maps to `verified` and is kept. Missing links fail. Categories are not blended. | Data engineer: the zero-denominator category placeholder stays open and is outside the fixture. |
++| cost-guard | Yes | The hard stop is a pre-call check on synthetic entries. Refusal yields `unavailable`, not 0. Hosting is a separate estimated line. Product spend is `0.00` USD. | Cloud billing owner: D-005 and the USD 10 reserve stay assumptions. Hosting is not part of the `140.00` threshold. |
++| connector-safety | Yes | The recorded denial is the anonymous export. The same command checks that `fixer` has no write-class tool. No connector is selected and no write is sent. | Integration engineer: the first connector stays open. The approval model stays the existing generic schema. |
++
++## Areas of concern
++
++1. D-005 is unconfirmed. The proof can show a stop at `140.00` and still be wrong if the owner later splits hosting from paid calls. The output must say the cap is an assumption.
++2. The stop threshold ignores the estimated hosting line. A real month could pass USD 150 while paid calls stay at or under `140.00`. That is the open hosting-overrun decision (OI-031). The proof must not claim hosting is protected.
++3. Anonymous backups can outlive 7 days (OI-036). This spec does not resolve it and does not add a deletion proof. `docs/retention-deletion-map.md` §8 asks for a deletion demonstration at M0B; the accepted intent keeps that out of the exit.
++4. `docs/state-machines.md` asks to calibrate retries at M0B with load tests. The accepted intent leaves those numbers as assumptions.
++5. Seven schemas still have no `project_id`. The join rules are the D-014 resolution for this milestone. A later milestone may add the field. Until the check exists, isolation for those records is documentary.
++6. `WebhookEvent` has `site_id` and the repository has no Site schema. Joining through `Audit` is a stand-in. A webhook whose site has no audit in the fixture fails closed.
++7. M0A `release.md` is still `draft`, and the GitHub Actions `secrets` job failed on the gitleaks organization licence (OI-021). That does not reopen M0A. The new proof step cannot turn a red `secrets` job green.
++8. Named owners do not exist (OI-002). Independence is "did not author the fixture" until names are set.
++9. `docs/spec/03-PRODUCTION-CONTRACTS.md` still describes a Claude Code build only. D-020 puts Cursor beside it. This spec does not edit 03.
++
++## Test and eval plan
++
++The proof script is the test. Fixtures live under `evals/m0b/` and use synthetic UUIDs.
++
++| Check | Fixture | Pass condition |
++| --- | --- | --- |
++| Score | `evals/m0b/score-fixture.json` | Recomputed pre-cap Presence Readiness is 100 at `methodology_version` `0.1.0-draft` |
++| Invalid record | `schemas/examples/report-model.example.json` and `schemas/examples/invalid/report-model.ready-without-full-lineage.invalid.json` | Base validates; patched record does not |
++| Trace | `evals/m0b/trace-fixture.json` | Headline 100 links score, rule result, and evidence; a missing link fails |
++| Export denial | `evals/m0b/export-fixture.json` plus the existing anonymous-authorized negative example | Decision `denied`, reason `anonymous_export_prohibited`, no artifact; negative example still invalid; `fixer` tools have no write-class name |
++| Hard stop | `evals/m0b/cost-fixture.json` | `140.00` + `0.01` is refused; `139.99` + `0.01` is allowed; AI section `unavailable`; Presence Readiness 100 remains; hosting `25.00` stays `estimated` |
++| Parent join | `evals/m0b/project-joins.json` | Each of the seven rules resolves one valid parent and rejects one broken parent |
++
++`pnpm test:ssrf` and `pnpm test:e2e` are not these checks. Golden files, product-agent evals, and build-agent evals are not run. No browser journey is run.
++
++`scripts/check_schemas.py` and `scripts/check_config.py` still pass after the proof files are added. Those commands are part of implementation proof later. They were not re-run while this spec was written.
++
++## Rollout and rollback
++
++No feature flag and no environment. The change is repository files: the proof script, `evals/m0b/` fixtures, and one `governance` job step.
++
++Rollback is `git revert` of the M0B commits. No service, schema migration, or cloud resource is created. Staging rehearsal is not run.
++
++The monitoring signal is a green proof step in the `governance` job. The `secrets` job remains outside this milestone's control until OI-021 is decided.
++
++## Cost
++
++Paid calls added: none. Hosting added: none. Product spend against the USD 150 cap: `0.00` USD.
++
++The hard-stop fixture is synthetic. The reserve `10.00` and the per-audit caps stay assumptions. Session usage for writing this spec is build cost, separate from the product cap (`docs/spec/06-MODEL-PLAN.md` §6).
++
++## Assumptions and open items
++
++- ASSUMPTION: D-005 combined cap, labelled unconfirmed. Do not rewrite D-005.
++- ASSUMPTION: reserve `10.00` USD (A-003). Paid-call stop line is `140.00`. A proposed call is refused only when the sum is greater than `140.00`.
++- ASSUMPTION: D-007 per-audit soft `3.00` and hard `4.00`, unused as the monthly stop line.
++- ASSUMPTION: estimated hosting in the fixture is `25.00` USD and is not added to the `140.00` threshold.
++- ASSUMPTION: retry and timeout numbers stay as written in `docs/state-machines.md`.
++- Open: OI-001, OI-002, OI-021, OI-031, OI-036, OI-040 as the join-rule work this milestone does, region, identity provider, first connector, weight sign-off, zero-denominator category score, Stage 2 measured cost.
++- Copy forward at implementation, without rewriting earlier rows: one assumption line for the `140.00` comparison if it is not already A-003, and a note that OI-001 does not block Stage 1. Do not close OI-001.
+diff --git a/scripts/check_m0b_proofs.py b/scripts/check_m0b_proofs.py
+new file mode 100644
+index 0000000..f2c2bdd
+--- /dev/null
++++ b/scripts/check_m0b_proofs.py
+@@ -0,0 +1,457 @@
++#!/usr/bin/env python3
++"""Run the five M0B exit proofs locally.
++
++No network, no provider call, no cloud resource. Product spend is 0.00 USD.
++The combined USD 150 cap stays an assumption (D-005, OI-001).
++"""
++
++from __future__ import annotations
++
++import json
++import sys
++from decimal import Decimal
++from pathlib import Path
++
++import yaml
++from jsonschema import Draft202012Validator
++from referencing import Registry, Resource
++from referencing.jsonschema import DRAFT202012
++
++ROOT = Path(__file__).resolve().parent.parent
++SCHEMA_DIR = ROOT / "schemas"
++FIXTURE_DIR = ROOT / "evals" / "m0b"
++sys.path.insert(0, str(ROOT / "scripts"))
++import check_schemas  # noqa: E402
++from check_config import WRITE_CLASS_TOOLS  # noqa: E402
++
++RULES = (
++    ("CRW-001", "crawlability"),
++    ("SEO-001", "on_page"),
++    ("STR-001", "structured_data"),
++    ("AEO-001", "aeo"),
++    ("GEO-001", "geo"),
++    ("I18N-001", "i18n_accessibility"),
++    ("PRF-001", "performance_security"),
++)
++PASS_VALUE = Decimal("1.00")
++FIDELITY_TO_EVIDENCE = {
++    "observed": "verified",
++    "computed": "verified",
++    "assessed": "inferred",
++    "attested": "client_stated",
++    "user_supplied": "client_stated",
++    "estimated": "estimated",
++    "unavailable": "unavailable",
++}
++
++
++def fail(message: str) -> None:
++    print(f"FAIL: {message}")
++    raise SystemExit(1)
++
++
++def load_json(path: Path):
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def registry_and_validators():
++    docs = {}
++    for path in sorted(SCHEMA_DIR.glob("*.schema.json")):
++        docs[path.name] = json.loads(path.read_text(encoding="utf-8"))
++    registry = Registry()
++    for name, doc in docs.items():
++        resource = Resource.from_contents(doc, default_specification=DRAFT202012)
++        registry = registry.with_resources([(doc["$id"], resource), (name, resource)])
++
++    def validator_for(stem: str) -> Draft202012Validator:
++        return Draft202012Validator(
++            docs[f"{stem}.schema.json"],
++            registry=registry,
++            format_checker=Draft202012Validator.FORMAT_CHECKER,
++        )
++
++    return validator_for
++
++
++def require_valid(validator, instance, label: str) -> None:
++    errors = sorted(validator.iter_errors(instance), key=lambda item: list(item.absolute_path))
++    if errors:
++        first = errors[0]
++        where = "/".join(str(part) for part in first.absolute_path) or "(root)"
++        fail(f"{label} is not schema-valid at {where}: {first.message}")
++
++
++def money(value: str) -> Decimal:
++    amount = Decimal(value)
++    if amount != amount.quantize(Decimal("0.01")):
++        fail(f"money value {value} is not a 2-decimal USD string")
++    return amount
++
++
++def load_weights():
++    scoring = yaml.safe_load((ROOT / "config" / "scoring.yaml").read_text(encoding="utf-8"))
++    if scoring["methodology_version"] != "0.1.0-draft":
++        fail("methodology_version changed")
++    weights = {name: category["weight"] for name, category in scoring["categories"].items()}
++    expected = {
++        "crawlability": 20,
++        "on_page": 15,
++        "structured_data": 10,
++        "aeo": 20,
++        "geo": 15,
++        "i18n_accessibility": 10,
++        "performance_security": 10,
++    }
++    if weights != expected:
++        fail(f"category weights changed: {weights}")
++    return weights
++
++
++def load_stop_line() -> Decimal:
++    budgets = yaml.safe_load((ROOT / "config" / "budgets.yaml").read_text(encoding="utf-8"))
++    if budgets["currency"] != "USD":
++        fail("budget currency is not USD")
++    hard_cap = money(budgets["monthly"]["hard_cap"])
++    reserve = money(budgets["monthly"]["reserve"])
++    if hard_cap != Decimal("150.00") or reserve != Decimal("10.00"):
++        fail("hard cap or reserve differs from the Stage 1 proof")
++    if budgets["monthly"]["paid_calls_stop_at"] != "cap_minus_reserve":
++        fail("paid_calls_stop_at is not cap_minus_reserve")
++    return hard_cap - reserve
++
++
++def reproduce_score(validator_for) -> None:
++    fixture = load_json(FIXTURE_DIR / "score-fixture.json")
++    weights = load_weights()
++    rows = fixture["rules"]
++    if [(row["rule_id"], row["category"]) for row in rows] != list(RULES):
++        fail("score fixture rules are not the seven named pass rules")
++    by_category = {}
++    seen_ids = []
++    for row in rows:
++        if row["importance_weight"] != 1 or row["rule_result"]["result"] != "pass":
++            fail(f"{row['rule_id']} is not importance 1 and pass")
++        require_valid(validator_for("rule-result"), row["rule_result"], row["rule_id"])
++        by_category[row["category"]] = Decimal(100) * PASS_VALUE * Decimal(1) / Decimal(1)
++        seen_ids.append(row["rule_result"]["rule_result_id"])
++    readiness = sum(by_category[name] * Decimal(weights[name]) / Decimal(100) for name in weights)
++    if readiness != Decimal(100):
++        fail(f"recomputed readiness is {readiness}")
++    score = fixture["score"]
++    require_valid(validator_for("score-result"), score, "score")
++    if score["score_kind"] != "presence_readiness":
++        fail("score kind is not presence readiness")
++    if score["methodology_version"] != "0.1.0-draft":
++        fail("stored methodology_version differs")
++    if Decimal(str(score["value"])) != Decimal(100) or Decimal(str(score["pre_cap_value"])) != Decimal(100):
++        fail("stored score is not 100")
++    if score.get("applied_cap") not in (None,):
++        fail("a critical cap is present")
++    if score["rule_result_ids"] != seen_ids:
++        fail("score does not point at the seven rule results")
++    if "experience" in json.dumps(fixture):
++        fail("experience effectiveness is in the score fixture")
++    print("OK: reproduce one score 100")
++
++
++def reject_invalid_record(validator_for) -> None:
++    validator = validator_for("report-model")
++    base = load_json(SCHEMA_DIR / "examples" / "report-model.example.json")
++    spec = load_json(SCHEMA_DIR / "examples" / "invalid" / "report-model.ready-without-full-lineage.invalid.json")
++    if not validator.is_valid(base):
++        fail("valid report example does not validate")
++    patched = check_schemas.apply_patch(base, spec["patch"])
++    if validator.is_valid(patched):
++        fail("ready report without full lineage was accepted")
++    print("OK: reject one invalid record")
++
++
++def trace_report(validator_for) -> None:
++    fixture = load_json(FIXTURE_DIR / "trace-fixture.json")
++    require_valid(validator_for("audit"), fixture["audit"], "trace audit")
++    require_valid(validator_for("evidence-object"), fixture["evidence"], "trace evidence")
++    require_valid(validator_for("score-result"), fixture["score"], "trace score")
++    require_valid(validator_for("report-model"), fixture["report"], "trace report")
++    errors = trace_errors(fixture)
++    if errors:
++        fail("; ".join(errors))
++    broken = json.loads(json.dumps(fixture))
++    for row in broken["rules"]:
++        if row["rule_result"]["rule_id"] == "CRW-001":
++            row["rule_result"]["evidence_ids"] = []
++    if not trace_errors(broken):
++        fail("a missing evidence link was accepted")
++    print("OK: trace one report number")
++
++
++def trace_errors(fixture) -> list[str]:
++    errors = []
++    audit = fixture["audit"]
++    evidence = fixture["evidence"]
++    score = fixture["score"]
++    report = fixture["report"]
++    rules = {row["rule_result"]["rule_result_id"]: row["rule_result"] for row in fixture["rules"]}
++    if report["content"]["score_result_ids"] != [score["score_result_id"]]:
++        errors.append("report headline does not point at the score")
++    if score["audit_id"] != audit["audit_id"] or report["audit_id"] != audit["audit_id"]:
++        errors.append("score or report audit_id does not match")
++    if Decimal(str(score["value"])) != Decimal(100):
++        errors.append("headline is not 100")
++    label = score["lineage"]["fidelity_label"]
++    if label != "computed" or FIDELITY_TO_EVIDENCE[label] != "verified":
++        errors.append("computed fidelity was not kept and mapped to verified")
++    if score["rule_result_ids"] != list(rules):
++        errors.append("score does not point at the rule results")
++    crw = next(row["rule_result"] for row in fixture["rules"] if row["rule_result"]["rule_id"] == "CRW-001")
++    if evidence["evidence_id"] not in crw["evidence_ids"]:
++        errors.append("CRW-001 does not point at the evidence object")
++    if evidence["lineage"]["fidelity_label"] != "observed":
++        errors.append("evidence fidelity is not observed")
++    if evidence["lineage"]["parent_ids"] != []:
++        errors.append("observed evidence has parents")
++    if audit["project_id"] is None:
++        errors.append("trace audit has no project")
++    chain = [score["lineage"], evidence["lineage"]]
++    chain.extend(row["rule_result"]["lineage"] for row in fixture["rules"])
++    for item in chain:
++        if item["project_id"] != audit["project_id"]:
++            errors.append("lineage project_id does not match the audit")
++            break
++    return errors
++
++
++def deny_export(validator_for) -> None:
++    fixture = load_json(FIXTURE_DIR / "export-fixture.json")
++    decision = export_decision(fixture["request"])
++    if decision != {
++        "decision": "denied",
++        "denial_reason": "anonymous_export_prohibited",
++        "artifact": None,
++    }:
++        fail(f"anonymous csv decision was {decision}")
++    stored = fixture["authorization"]
++    require_valid(validator_for("export-authorization"), stored, "export authorization")
++    if stored["format"] != "csv" or stored["decision"] != "denied":
++        fail("stored authorization is not a denied csv")
++    if stored["denial_reason"] != "anonymous_export_prohibited" or stored["download"] is not None:
++        fail("stored authorization created an artifact or used another reason")
++    negative = load_json(
++        SCHEMA_DIR / "examples" / "invalid" / "export-authorization.anonymous-authorized.invalid.json"
++    )
++    base = load_json(SCHEMA_DIR / "examples" / negative["base_example"])
++    patched = check_schemas.apply_patch(base, negative["patch"])
++    if validator_for("export-authorization").is_valid(patched):
++        fail("anonymous authorized export was accepted")
++    agent = yaml.safe_load((ROOT / "config" / "agents" / "fixer.yaml").read_text(encoding="utf-8"))
++    overlap = WRITE_CLASS_TOOLS.intersection(agent["tools"])
++    if overlap:
++        fail(f"fixer tools include write-class names: {sorted(overlap)}")
++    print("OK: deny anonymous csv export")
++
++
++def export_decision(request: dict) -> dict:
++    if request["access_class"] == "anonymous":
++        return {
++            "decision": "denied",
++            "denial_reason": "anonymous_export_prohibited",
++            "artifact": None,
++        }
++    fail("this proof only decides the anonymous export")
++    return {}
++
++
++def hard_stop() -> None:
++    threshold = load_stop_line()
++    if threshold != Decimal("140.00"):
++        fail(f"stop line is {threshold}")
++    fixture = load_json(FIXTURE_DIR / "cost-fixture.json")
++    if fixture["cap_assumption"] != "unconfirmed":
++        fail("cap assumption is not labelled unconfirmed")
++    hosting = fixture["hosting"]
++    if hosting["amount"] != "25.00" or hosting["currency"] != "USD" or hosting["fidelity_label"] != "estimated":
++        fail("hosting line is not the estimated 25.00 USD")
++    if fixture["hosting_stopped"] is not False:
++        fail("the proof stops hosting")
++    cases = {case["name"]: case for case in fixture["cases"]}
++    refuse_case = cases["refuse"]
++    allow_case = cases["allow"]
++    if not call_refused(refuse_case, threshold):
++        fail("140.00 + 0.01 was allowed")
++    if call_refused(allow_case, threshold):
++        fail("139.99 + 0.01 was refused")
++    outcome = fixture["on_refuse"]
++    if outcome["ai_visibility"] != "unavailable" or outcome["reason"] != "unavailable due to the monthly limit":
++        fail("AI visibility was not unavailable for the monthly limit")
++    if outcome["presence_readiness"] != 100:
++        fail("deterministic score did not remain")
++    print("OK: hard stop at 140.00 USD (cap assumption unconfirmed)")
++    print("hosting 25.00 USD is estimated and is not stopped")
++    print("paid calls at 140.00 plus hosting 25.00 can exceed 150.00 until OI-031")
++
++
++def call_refused(case: dict, threshold: Decimal) -> bool:
++    paid = money(case["paid_calls_to_date"])
++    proposed = money(case["proposed_call"])
++    return paid + proposed > threshold
++
++
++def parent_joins(validator_for) -> None:
++    fixture = load_json(FIXTURE_DIR / "project-joins.json")
++    valid = fixture["valid"]
++    for stem, instance in (
++        ("audit", valid["audit"]),
++        ("audit", valid["anonymous_audit"]),
++        ("change-set", valid["change_set"]),
++        ("approval", valid["approval"]),
++        ("snapshot", valid["snapshot"]),
++        ("verification", valid["verification"]),
++        ("report-model", valid["report"]),
++        ("report-model", valid["anonymous_report"]),
++        ("deletion-request", valid["deletion_request"]),
++        ("webhook-event", valid["webhook"]),
++    ):
++        require_valid(validator_for(stem), instance, stem)
++    if join_errors(valid):
++        fail("valid parent joins failed: " + "; ".join(join_errors(valid)))
++    project_id = valid["audit"]["project_id"]
++    if visible_report_ids(valid, project_id) != [valid["report"]["report_id"]]:
++        fail("project query did not return only the registered report")
++    if visible_report_ids(valid, "22222222-2222-4222-8222-222222222223"):
++        fail("a foreign project saw a report")
++    if visible_report_ids(valid, None):
++        fail("a null project query returned a report")
++    broken = fixture["broken"]
++    expectations = {
++        "approval_dangling": lambda bundle: "approval parent" in " ".join(join_errors(bundle)),
++        "snapshot_dangling": lambda bundle: "snapshot parent" in " ".join(join_errors(bundle)),
++        "verification_dangling": lambda bundle: "verification parent" in " ".join(join_errors(bundle)),
++        "duplicate_op": lambda bundle: "op_id" in " ".join(join_errors(bundle)),
++        "orphan_op": lambda bundle: "op_id" in " ".join(join_errors(bundle)),
++        "report_missing_audit": lambda bundle: "report parent" in " ".join(join_errors(bundle)),
++        "deletion_missing_audit": lambda bundle: "deletion parent" in " ".join(join_errors(bundle)),
++        "webhook_null_site": lambda bundle: "unscoped" in " ".join(join_errors(bundle)),
++        "site_project_conflict": lambda bundle: "site" in " ".join(join_errors(bundle)),
++    }
++    for name, expect in expectations.items():
++        bundle = json.loads(json.dumps(valid))
++        apply_break(bundle, name, broken[name])
++        if not expect(bundle):
++            fail(f"broken parent case {name} was accepted: {join_errors(bundle)}")
++    print("OK: parent joins")
++
++
++def apply_break(bundle: dict, name: str, payload) -> None:
++    if name == "approval_dangling":
++        bundle["approval"] = payload
++    elif name == "snapshot_dangling":
++        bundle["snapshot"] = payload
++    elif name == "verification_dangling":
++        bundle["verification"] = payload
++    elif name == "duplicate_op":
++        bundle["extra_change_sets"] = [payload]
++    elif name == "orphan_op":
++        bundle["orphan_op_ids"] = [payload]
++    elif name == "report_missing_audit":
++        bundle["report"] = payload
++    elif name == "deletion_missing_audit":
++        bundle["deletion_request"] = payload
++    elif name == "webhook_null_site":
++        bundle["webhook"] = payload
++    elif name == "site_project_conflict":
++        bundle["extra_audits"] = [payload]
++    else:
++        fail(f"unknown break {name}")
++
++
++def change_sets_of(bundle: dict) -> list[dict]:
++    sets = [bundle["change_set"]]
++    sets.extend(bundle.get("extra_change_sets", []))
++    return sets
++
++
++def audits_of(bundle: dict) -> list[dict]:
++    rows = [bundle["audit"], bundle["anonymous_audit"]]
++    rows.extend(bundle.get("extra_audits", []))
++    return rows
++
++
++def join_errors(bundle: dict) -> list[str]:
++    errors = []
++    sets = change_sets_of(bundle)
++    audits = audits_of(bundle)
++    audits_by_id = {row["audit_id"]: row for row in audits}
++    if len(audits_by_id) != len(audits):
++        errors.append("duplicate audit_id")
++    change_ids = [row["change_set_id"] for row in sets]
++    if len(change_ids) != len(set(change_ids)):
++        errors.append("duplicate change_set_id")
++
++    def one_change_set(record: dict, label: str) -> None:
++        matches = [row for row in sets if row["change_set_id"] == record["change_set_id"]]
++        if len(matches) != 1:
++            errors.append(f"{label} parent missing")
++
++    one_change_set(bundle["approval"], "approval")
++    one_change_set(bundle["snapshot"], "snapshot")
++    one_change_set(bundle["verification"], "verification")
++
++    counts: dict[str, int] = {}
++    for change_set in sets:
++        for operation in change_set["operations"]:
++            counts[operation["op_id"]] = counts.get(operation["op_id"], 0) + 1
++    for op_id in bundle.get("orphan_op_ids", []):
++        counts[op_id] = counts.get(op_id, 0)
++    for op_id, count in counts.items():
++        if count != 1:
++            errors.append(f"op_id {op_id} appears {count} times")
++
++    reports = (bundle["report"], bundle["anonymous_report"])
++    link_ids = [report["access"]["link_id"] for report in reports]
++    if len(link_ids) != len(set(link_ids)):
++        errors.append("link_id reused")
++    for report in reports:
++        if report["audit_id"] not in audits_by_id:
++            errors.append("report parent missing")
++    deletion = bundle["deletion_request"]
++    if deletion["subject_type"] != "audit" or deletion["subject_id"] not in audits_by_id:
++        errors.append("deletion parent missing")
++
++    webhook = bundle["webhook"]
++    if webhook.get("site_id") is None:
++        errors.append("webhook unscoped")
++    else:
++        matched = [row for row in audits if row.get("site_id") == webhook["site_id"]]
++        projects = {row.get("project_id") for row in matched}
++        if not matched:
++            errors.append("webhook site has no audit")
++        elif len(projects) != 1 or None in projects:
++            errors.append("webhook site maps to more than one project")
++    return errors
++
++
++def visible_report_ids(bundle: dict, project_id: str | None) -> list[str]:
++    if not project_id:
++        return []
++    audits = {row["audit_id"]: row for row in audits_of(bundle)}
++    visible = []
++    for report in (bundle["report"], bundle["anonymous_report"]):
++        audit = audits.get(report["audit_id"])
++        if audit and audit.get("project_id") == project_id:
++            visible.append(report["report_id"])
++    return visible
++
++
++def main() -> int:
++    validator_for = registry_and_validators()
++    reproduce_score(validator_for)
++    reject_invalid_record(validator_for)
++    trace_report(validator_for)
++    deny_export(validator_for)
++    hard_stop()
++    parent_joins(validator_for)
++    print("product spend 0.00 USD")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())

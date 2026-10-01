@@ -54,3 +54,4 @@ An assumption is a working choice made so work can continue. Each file also mark
 | A-042 | Rollback rehearsal weekly in staging; backup-restore drill monthly. | Tech lead | `docs/rollback-plan.md` |
 | A-043 | Retry counts, timeouts and expiry windows in the state machines (backoff 2 s to 60 s; approval requests expire after 7 days). | Tech lead | `docs/state-machines.md` |
 | A-044 | ESLint uses its flat config. The `apps/web` package name is `web` and the package is `private`. | Tech lead | `eslint.config.js`, `apps/web/package.json` |
+| A-045 | A proposed paid call that lands on 140.00 USD is allowed. A sum greater than 140.00 USD is refused. The USD 10 reserve and the combined cap stay assumptions (A-003, D-005). | Cloud billing owner | `scripts/check_m0b_proofs.py`, `evals/m0b/cost-fixture.json` |
