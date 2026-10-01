@@ -13,7 +13,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ssrf": "vitest run --project ssrf"
+    "test:ssrf": "vitest run --project ssrf --passWithNoTests",
+    "proofs": ".venv/bin/python3 -m scripts.proofs.run_all"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",
