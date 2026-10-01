@@ -1,0 +1,299 @@
+# Cloud Workflow: Audit Pipeline
+# Orchestrates: crawl -> render (conditional) -> evidence processing -> audit completion
+# Part of M1 Secure Crawler and Evidence Capture
+
+main:
+  params: [input]
+  steps:
+    # -----------------------------------------------------------------------
+    # Step 1: Start the crawl job
+    # -----------------------------------------------------------------------
+    - start_crawl_job:
+        call: googleapis.run.v1.jobs.run
+        args:
+          name: '${"namespaces/" + input.crawl_project + "/jobs/crawl-job"}'
+          body:
+            overrides:
+              containerOverrides:
+                - env:
+                    - name: AUDIT_ID
+                      value: '${input.audit_id}'
+                    - name: AUDIT_SCOPE
+                      value: '${input.audit_scope}'
+                    - name: LANDING_BUCKET
+                      value: '${input.landing_bucket}'
+        result: crawl_operation
+
+    # -----------------------------------------------------------------------
+    # Step 2: Poll crawl job until completion (15 min timeout)
+    # -----------------------------------------------------------------------
+    - check_crawl_result:
+        call: poll_crawl_job
+        args:
+          crawl_project: '${input.crawl_project}'
+          operation_name: '${crawl_operation.name}'
+          timeout_seconds: 900
+        result: crawl_result
+
+    # -----------------------------------------------------------------------
+    # Step 3: Conditionally start render job if manifest exists
+    # -----------------------------------------------------------------------
+    - check_render_manifest:
+        switch:
+          - condition: '${crawl_result.render_manifest_exists == true}'
+            next: start_render_job
+        next: start_evidence_processor
+
+    - start_render_job:
+        call: googleapis.run.v1.jobs.run
+        args:
+          name: '${"namespaces/" + input.crawl_project + "/jobs/render-job"}'
+          body:
+            overrides:
+              containerOverrides:
+                - env:
+                    - name: AUDIT_ID
+                      value: '${input.audit_id}'
+                    - name: LANDING_BUCKET
+                      value: '${input.landing_bucket}'
+        result: render_operation
+
+    - check_render_result:
+        call: poll_render_job
+        args:
+          crawl_project: '${input.crawl_project}'
+          operation_name: '${render_operation.name}'
+          timeout_seconds: 300
+        result: render_result
+
+    # -----------------------------------------------------------------------
+    # Step 4: Start evidence processor
+    # -----------------------------------------------------------------------
+    - start_evidence_processor:
+        call: googleapis.run.v1.jobs.run
+        args:
+          name: '${"namespaces/" + input.app_project + "/jobs/evidence-processor"}'
+          body:
+            overrides:
+              containerOverrides:
+                - env:
+                    - name: AUDIT_ID
+                      value: '${input.audit_id}'
+                    - name: LANDING_BUCKET
+                      value: '${input.landing_bucket}'
+                    - name: APP_PROJECT
+                      value: '${input.app_project}'
+        result: evidence_operation
+
+    - check_evidence_result:
+        call: poll_evidence_job
+        args:
+          app_project: '${input.app_project}'
+          operation_name: '${evidence_operation.name}'
+          timeout_seconds: 600
+        result: evidence_result
+
+    # -----------------------------------------------------------------------
+    # Step 5: Complete audit - transition to AUDITING state
+    # -----------------------------------------------------------------------
+    - complete_audit:
+        call: http.post
+        args:
+          url: '${"https://" + input.app_project + ".run.app/api/audits/" + input.audit_id + "/transition"}'
+          auth:
+            type: OAuth2
+            scopes: 'https://www.googleapis.com/auth/cloud-platform'
+          body:
+            state: 'AUDITING'
+            audit_id: '${input.audit_id}'
+        result: audit_transition
+
+    - return_success:
+        return:
+          audit_id: '${input.audit_id}'
+          status: 'AUDITING'
+          crawl_status: '${crawl_result.status}'
+          render_status: '${render_result.status}'
+
+# ===========================================================================
+# Subworkflow: Poll crawl job status
+# ===========================================================================
+poll_crawl_job:
+  params: [crawl_project, operation_name, timeout_seconds]
+  steps:
+    - init:
+        assign:
+          - start_time: '${sys.now()}'
+          - elapsed: 0
+
+    - poll_loop:
+        while: '${elapsed < timeout_seconds}'
+        steps:
+          - wait:
+              call: sys.sleep
+              args:
+                seconds: 15
+
+          - check_status:
+              try:
+                call: googleapis.run.v1.namespaces.jobs.get
+                args:
+                  name: '${"namespaces/" + crawl_project + "/jobs/crawl-job"}'
+                result: job_status
+              retry:
+                max_retries: 3
+                backoff:
+                  initial_delay: 2
+                  multiplier: 2
+
+          - check_completion:
+              switch:
+                - condition: '${job_status.status.conditions[0].type == "Completed" and job_status.status.conditions[0].status == "True"}'
+                  next: crawl_success
+                - condition: '${job_status.status.conditions[0].type == "Completed" and job_status.status.conditions[0].status == "False"}'
+                  next: crawl_failed
+              next: update_elapsed
+
+          - update_elapsed:
+              assign:
+                - elapsed: '${sys.now() - start_time}'
+
+    - crawl_timeout:
+        raise:
+          code: 408
+          message: 'crawl timeout after 15 minutes'
+
+    - crawl_failed:
+        switch:
+          - condition: '${job_status.status.conditions[0].exitCode == 42}'
+            next: ssrf_blocked
+        next: crawl_generic_failure
+
+    - ssrf_blocked:
+        raise:
+          code: 403
+          message: 'SSRF attempt blocked'
+
+    - crawl_generic_failure:
+        raise:
+          code: 500
+          message: '${"crawl job failed with exit code: " + string(job_status.status.conditions[0].exitCode)}'
+
+    - crawl_success:
+        return:
+          status: 'SUCCESS'
+          render_manifest_exists: '${job_status.status.conditions[0].render_manifest_exists != null}'
+
+# ===========================================================================
+# Subworkflow: Poll render job status
+# ===========================================================================
+poll_render_job:
+  params: [crawl_project, operation_name, timeout_seconds]
+  steps:
+    - init:
+        assign:
+          - start_time: '${sys.now()}'
+          - elapsed: 0
+
+    - poll_loop:
+        while: '${elapsed < timeout_seconds}'
+        steps:
+          - wait:
+              call: sys.sleep
+              args:
+                seconds: 10
+
+          - check_status:
+              try:
+                call: googleapis.run.v1.namespaces.jobs.get
+                args:
+                  name: '${"namespaces/" + crawl_project + "/jobs/render-job"}'
+                result: job_status
+              retry:
+                max_retries: 3
+                backoff:
+                  initial_delay: 2
+                  multiplier: 2
+
+          - check_completion:
+              switch:
+                - condition: '${job_status.status.conditions[0].type == "Completed" and job_status.status.conditions[0].status == "True"}'
+                  next: render_success
+                - condition: '${job_status.status.conditions[0].type == "Completed" and job_status.status.conditions[0].status == "False"}'
+                  next: render_failed
+              next: update_elapsed
+
+          - update_elapsed:
+              assign:
+                - elapsed: '${sys.now() - start_time}'
+
+    - render_timeout:
+        return:
+          status: 'TIMEOUT'
+          warning: 'render job timed out, continuing with raw evidence only'
+
+    - render_failed:
+        return:
+          status: 'FAILED'
+          warning: 'render job failed, continuing with raw evidence only'
+
+    - render_success:
+        return:
+          status: 'SUCCESS'
+
+# ===========================================================================
+# Subworkflow: Poll evidence processor job status
+# ===========================================================================
+poll_evidence_job:
+  params: [app_project, operation_name, timeout_seconds]
+  steps:
+    - init:
+        assign:
+          - start_time: '${sys.now()}'
+          - elapsed: 0
+
+    - poll_loop:
+        while: '${elapsed < timeout_seconds}'
+        steps:
+          - wait:
+              call: sys.sleep
+              args:
+                seconds: 10
+
+          - check_status:
+              try:
+                call: googleapis.run.v1.namespaces.jobs.get
+                args:
+                  name: '${"namespaces/" + app_project + "/jobs/evidence-processor"}'
+                result: job_status
+              retry:
+                max_retries: 3
+                backoff:
+                  initial_delay: 2
+                  multiplier: 2
+
+          - check_completion:
+              switch:
+                - condition: '${job_status.status.conditions[0].type == "Completed" and job_status.status.conditions[0].status == "True"}'
+                  next: evidence_success
+                - condition: '${job_status.status.conditions[0].type == "Completed" and job_status.status.conditions[0].status == "False"}'
+                  next: evidence_failed
+              next: update_elapsed
+
+          - update_elapsed:
+              assign:
+                - elapsed: '${sys.now() - start_time}'
+
+    - evidence_timeout:
+        raise:
+          code: 408
+          message: 'evidence processing failed'
+
+    - evidence_failed:
+        raise:
+          code: 500
+          message: 'evidence processing failed'
+
+    - evidence_success:
+        return:
+          status: 'SUCCESS'
