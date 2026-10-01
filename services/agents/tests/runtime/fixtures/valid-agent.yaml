@@ -1,0 +1,10 @@
+name: test-agent
+milestone: "M3"
+reads_untrusted_content: true
+model_tier: fast
+tools:
+  - get_evidence
+  - eval_rule
+forbidden_tools:
+  - apply_change
+  - publish
