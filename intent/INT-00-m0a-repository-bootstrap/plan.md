@@ -3,10 +3,10 @@
 | Field | Value |
 | --- | --- |
 | Spec | `intent/INT-00-m0a-repository-bootstrap/spec.md` (status: approved) |
-| Status | draft |
+| Status | approved |
 | Author | Qoder agent session 7ad412ff-ada7-4dd7-a092-b42da4ea0df7, 2026-10-01 |
-| Engineer approval | pending |
-| Tech lead approval | pending (required: high-risk — permissions, hooks, CI and the path to production infrastructure, per INT-00 risk class) |
+| Engineer approval | Ibrahim Abedrabboh, 2026-10-01 (approved in conversation, recorded here per `.claude/skills/intent-spec-plan/SKILL.md`) |
+| Tech lead approval | Ibrahim Abedrabboh, 2026-10-01 (same conversation; both roles held per D-020) |
 | Branch | `m0a/bootstrap` (local-only repository; no remote, no push — owner decision, spec Areas of concern 7) |
 
 Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Only a human sets `approved`.
