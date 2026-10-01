@@ -1,0 +1,612 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index c63510c..73b701e 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -6,7 +6,7 @@
+ # intent/INT-00-m0a-repository-bootstrap/intent.md.
+ #
+ # Jobs:
+-#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness, M6 AI visibility
++#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness, M6 AI visibility, M7 public footprint
+ #   secrets    - gitleaks over the full history
+ #   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
+ name: ci
+@@ -52,6 +52,8 @@ jobs:
+         run: python3 scripts/check_m5_experience.py
+       - name: M6 AI visibility
+         run: python3 scripts/check_m6_visibility.py
++      - name: M7 public footprint
++        run: python3 scripts/check_m7_footprint.py
+       - name: M2 readiness
+         run: python3 scripts/check_m2_readiness.py
+       - name: Action pins
+diff --git a/evals/m7/missing-review-count.json b/evals/m7/missing-review-count.json
+new file mode 100644
+index 0000000..a5aa79a
+--- /dev/null
++++ b/evals/m7/missing-review-count.json
+@@ -0,0 +1,3 @@
++{
++  "review_count": null
++}
+diff --git a/evals/m7/sourced-fact.json b/evals/m7/sourced-fact.json
+new file mode 100644
+index 0000000..87ada8d
+--- /dev/null
++++ b/evals/m7/sourced-fact.json
+@@ -0,0 +1,4 @@
++{
++  "source": "synthetic_source",
++  "confidence": "medium"
++}
+diff --git a/evals/m7/unapplied-correction.json b/evals/m7/unapplied-correction.json
+new file mode 100644
+index 0000000..500a1fe
+--- /dev/null
++++ b/evals/m7/unapplied-correction.json
+@@ -0,0 +1,3 @@
++{
++  "status": "pending"
++}
+diff --git a/intent/INT-08-m7-public-footprint/intent.md b/intent/INT-08-m7-public-footprint/intent.md
+new file mode 100644
+index 0000000..c44d4bf
+--- /dev/null
++++ b/intent/INT-08-m7-public-footprint/intent.md
+@@ -0,0 +1,84 @@
++# Intent: M7 public footprint
++
++Status: draft.
++
++| Field | Value |
++| --- | --- |
++| ID | INT-08 |
++| Status | draft |
++| Author (originator) | <DECIDE_AT_M0: product owner name> |
++| Product owner | <DECIDE_AT_M0: name> |
++| Tech lead | <DECIDE_AT_M0: name> |
++| Milestone | M7 (05-PROJECT-PLAN §5) |
++| Ticket | none |
++| Created | 2026-10-01 |
++| Drafted from | Ibrahim, 2026-10-01, by the message "Start M7. Write the INT-08 intent." This draft proposes the same kind of first slice as M5 and M6: a local check only. There is no live public-source fetch and no correction is applied. Product spend stays `0.00` USD. |
++| Text accepted | Ibrahim, 2026-10-01, by the message "I accept this INT-08 text." The status word stays `draft` because that message also says not to set `accepted`. |
++| Depends on | `origin/main` at `c01dbd4`, which merges pull request 7 and includes the local M6 AI visibility check. That fact does not finish the later M6 exit and does not authorize a further merge. |
++| Risk class | standard for this slice. A live public-source fetch is SSRF-adjacent, and applying a correction is a connector write. This slice does not add those. |
++
++Status values: `draft`, `accepted`, `rejected`, `superseded`. Ibrahim accepted this text on 2026-10-01. This session does not set `accepted`.
++
++## Problem
++
++A public footprint fact can be shown with no source, a missing review count can be filled in with a number, and a correction can be stored as if it had already been applied. The product rules already say sources and confidence stay visible, reviews and counts are not fabricated, and a correction stays governed. Nobody has yet shown that, in a local check, with no live fetch and no write.
++
++## Proposed outcome
++
++A local check, with no live fetch and no screen, shows all of these:
++
++- A public fact shows its source and a confidence label. A fact with no source is refused.
++- A missing review count is not stored as a number. That includes `0`.
++- A correction stays unapplied. Storing it as applied is refused.
++- Product spend stays `0.00` USD.
++
++Cursor sessions run this milestone under `AGENTS.md` and `.cursor/`. `.claude/` remains the policy source. `opusplan` at high in `docs/spec/06-MODEL-PLAN.md` §3 is a Claude Code alias, not a Cursor picker value. The session records the model name it shows (D-020). This draft was written in a session that showed Grok 4.7.
++
++## Affected users and systems
++
++The methodology owner. No service is deployed. No public page is fetched. No connector writes.
++
++## Constraints
++
++- D-009: do not call Google Autocomplete or scrape search-result pages. Do not import `.claude/skills/marketing-seo-agent/scripts`. This slice does not fetch a profile, a listing, or a review page.
++- D-016: a correction is not applied unless the governed conditions hold. This slice does not apply one.
++- D-020: record the model the session shows.
++- `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.9: reviews and public proof do not fabricate sentiment or counts. A correction opportunity is not itself a write.
++- `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.10: a correction workflow stays evidence-linked. This slice does not edit the fact registry.
++- `docs/spec/02-DETAILED-SPECIFICATION.md` §10: a change is applied only by the connector, after approval. Fabricated reviews, ratings, and claims are forbidden.
++- `docs/spec/02-DETAILED-SPECIFICATION.md` §13: no fabricated reviews, ratings, testimonials, prices, availability, credentials, or claims.
++- `docs/test-strategy.md` §5: the M7 evidence is no fabricated reviews or counts, with sources and confidence visible.
++- `pnpm test:e2e` stays recorded as not run. There is no screen.
++
++## Out of scope
++
++- Reopening M0A, M0B, M1, M2, M3, M4, M5, or M6. Starting M8. Merging any pull request.
++- The later M6 exit: a live provider gateway and the full observation catalogue.
++- Closing OI-021. The secrets job fails because organization `al-ai-hq` has no `GITLEAKS_LICENSE`.
++- Approved public-source discovery, the entity graph, the brand fact registry, hallucination monitoring, and earned-evidence recommendations.
++- A live fetch, a review-site scrape, a connector write, and a client-site change.
++- Deploy, Terraform apply, and product spend.
++
++## Exit gate
++
++From 05-PROJECT-PLAN §5, this first slice shows locally:
++
++1. one public fact whose source and confidence label are visible, and one refusal when the source is missing;
++2. one refusal when a missing review count is stored as a number, including `0`;
++3. one refusal when a correction is stored as applied.
++
++The later M7 exit, approved discovery and a governed correction workflow in the product, is not this slice. `pnpm test:e2e` stays recorded as not run.
++
++## Open questions
++
++These stay open. They do not block this draft. They block live discovery and a correction workflow.
++
++- Which public sources are approved for discovery. Owner: product owner. The name remains `<DECIDE_AT_M0: name>` (OI-002).
++- Which review and listing platforms are in scope. Owner: methodology owner.
++- Arabic name transliteration during fact consistency. Owner: Arabic editorial owner.
++
++## Links
++
++- Spec: `intent/INT-08-m7-public-footprint/spec.md` (after acceptance)
++- Plan: `intent/INT-08-m7-public-footprint/plan.md` (after spec approval)
++- Release: `intent/INT-08-m7-public-footprint/release.md` (after implementation)
+diff --git a/intent/INT-08-m7-public-footprint/plan.md b/intent/INT-08-m7-public-footprint/plan.md
+new file mode 100644
+index 0000000..0ab4c60
+--- /dev/null
++++ b/intent/INT-08-m7-public-footprint/plan.md
+@@ -0,0 +1,118 @@
++# Plan: M7 local public footprint
++
++| Field | Value |
++| --- | --- |
++| Spec | `intent/INT-08-m7-public-footprint/spec.md`. Ibrahim approved that spec on 2026-10-01 by the message "I approve spec.md" and said not to set `approved`. This plan does not edit `spec.md`, so the status word in that file stays `draft`. |
++| Status | done |
++| Author | Cursor session (Grok 4.7), 2026-10-01 (D-020). Plan stage only. |
++| Engineer approval | Ibrahim, 2026-10-01, by the message "I approve plan.md." That message did not set the status word to `approved`. This session later set Status to `done` after the check was built. |
++| Tech lead approval | not required. This slice does not fetch a public page, apply a correction, add a connector write, change the cost guard, or touch production infrastructure. |
++| Branch | `m7-public-footprint`, cut from `origin/main` at `c01dbd4` when implementation starts. Not created by this plan. |
++
++Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Ibrahim approved this plan on 2026-10-01. This session does not set `approved`.
++
++## Scope of this slice
++
++Add one local command that keeps a public fact tied to a source and a confidence label, keeps a missing review count null, and keeps a correction unapplied. Product spend stays `0.00` USD.
++
++The command exits 0 only when all three of these pass:
++
++- The fact source is the synthetic label `synthetic_source` and the confidence label is `medium`. A missing source is refused. A missing confidence label is refused. `high` and `low` remain legal confidence labels. `medium` is a fixture label, not a calibrated judgment.
++- A missing review count is null. Storing it as `0` or as any other number, including `4`, is refused.
++- The correction status is `pending`. Storing it as `applied` is refused.
++
++`synthetic_source` is not a URL and not a platform name. This slice does not cover a displayed review count of `0`.
++
++The check reads fixtures on this machine. It does not fetch a page and it does not send a correction. It does not close OI-021. It does not start M8. The later M7 exit in `docs/spec/05-PROJECT-PLAN.md` §5 (approved discovery, an entity graph, and a governed correction workflow in the product) stays out of this slice.
++
++## Files
++
++| Path | Change | Why |
++| --- | --- | --- |
++| `evals/m7/sourced-fact.json` | Create | Two synthetic fields: `source` `synthetic_source` and `confidence` `medium`. No other field. |
++| `evals/m7/missing-review-count.json` | Create | One synthetic field: `review_count` null. |
++| `evals/m7/unapplied-correction.json` | Create | One synthetic field: `status` `pending`. |
++| `scripts/check_m7_footprint.py` | Create | Local command. Python standard library only. It classifies the fact, the missing count, and the correction. The stored rows must match that classification. |
++| `.github/workflows/ci.yml` | One governance step | Run `python3 scripts/check_m7_footprint.py` after the existing M6 AI visibility step. No new action SHA. The gitleaks step stays as it is. |
++
++The fact has only `source` and `confidence`. The count has only `review_count`. The correction has only `status`. These fixtures are not a full public-source observation and not a full change operation.
++
++In-memory copies cover a missing source, a missing confidence label, a confidence label outside `high`, `medium`, and `low`, a source that is a URL, `review_count` `0`, `review_count` `4`, and status `applied`. The command fails if any of those copies is accepted.
++
++Do not edit `schemas/`, `config/`, `package.json`, `scripts/check_m0b_proofs.py`, `scripts/check_m2_readiness.py`, `scripts/check_m3_access.py`, `scripts/check_m4_sources.py`, `scripts/check_m5_experience.py`, or `scripts/check_m6_visibility.py`. Do not add a workflow action. Do not close OI-021. Leave the untracked Icon file out. `pnpm test:e2e` stays not run. `pnpm test:ssrf` is not this exit.
++
++## Order of work
++
++Do not start this list until the plan is approved.
++
++1. Cut `m7-public-footprint` from `origin/main` at `c01dbd4`. Carry only `intent/INT-08-m7-public-footprint/`. The current checkout is `main` at that same commit. Do not commit this slice on `main`. Leave the untracked Icon file out.
++2. Add the three fixtures under `evals/m7/`. Synthetic values only. No secrets, customer page text, live review text, or platform names.
++3. Add `scripts/check_m7_footprint.py` so it exits 0 only when the fact, the missing count, and the unapplied correction pass, and the in-memory failures are refused. Do not set `.claude/state/test-lock`. This is not a bug fix.
++4. Add the CI step. Run the proof commands below and paste the output. Record `pnpm test:e2e` as not run.
++5. Save `intent/INT-08-m7-public-footprint/review.diff`. Run `security-reviewer` and `verifier`. They do not approve, merge, or spawn subagents. Fill `release.md` from the template. Stop. Do not start M8.
++
++## Behaviour the command must pin
++
++- Accept the golden fact only when `source` is `synthetic_source` and `confidence` is `medium`.
++- Accept `high` and `low` as confidence labels on that same synthetic source. Refuse a confidence label outside `high`, `medium`, and `low`.
++- Refuse a missing source and a missing confidence label.
++- Refuse a source that starts with `http`. This command does not fetch.
++- Accept the missing review count only when `review_count` is null. Refuse `0`. Refuse any other number, including `4`.
++- Do not accept an `as_displayed` field. A displayed zero stays out of this slice.
++- Accept the correction only when `status` is `pending`. Refuse `applied`.
++- Refuse a `platform_name` field. This command does not choose a review platform or a listing platform.
++- A fixture that only agrees with itself is not enough. The command classifies a non-empty synthetic source, a confidence label in the allowed set, a null review count, and a `pending` correction. The stored row must match that classification.
++- Print `product spend 0.00 USD`. No network, no provider call, no Google Autocomplete, no search-result scrape, and no client-site fetch.
++- Do not import `.claude/skills/marketing-seo-agent/scripts`.
++
++## Risks
++
++| Risk | Likelihood | Mitigation | Owner |
++| --- | --- | --- | --- |
++| A fact is stored with no source | Medium | The command classifies the source and fails when it is missing or empty. | Data engineer |
++| A missing review count is stored as `0` or as another number | Medium | The passing value is null. Copies that use `0` or `4` fail the check. | Data engineer |
++| A correction is stored as `applied` | Medium | The passing status is `pending`. A copy with `applied` fails the check. | Integration engineer |
++| The synthetic source is treated as an approved platform | Medium | The source is the label `synthetic_source`. A URL and a `platform_name` field fail the check. | Methodology owner |
++| A displayed zero is treated as this missing-count case | Medium | An `as_displayed` field fails the check. That case stays out of this slice. | Data engineer |
++| The check is treated as the full M7 exit | Medium | Discovery, the entity graph, and a live correction workflow stay out. `pnpm test:e2e` stays not run. | Product owner |
++| A live fetch or a connector write is added | Low | The file list is the three fixtures, one standard-library script, and one CI step. Product spend stays `0.00` USD. | Engineer |
++| OI-021 is closed while editing CI | Low | The only CI edit is the new step. The gitleaks step and OI-021 stay unchanged. | Tech lead |
++| The script compares a fixture only to itself | Medium | The command classifies the source, the confidence label, the null count, and the pending correction. The stored row must match that result. | Engineer |
++
++## Proof
++
++Run from the repository root after implementation. Paste the output. Do not claim a command passed unless it was run.
++
++```bash
++python3 scripts/check_m7_footprint.py
++python3 scripts/check_schemas.py
++python3 scripts/check_config.py
++python3 -m unittest discover -s .claude/hooks/tests
++python3 -m unittest discover -s .cursor/hooks/tests
++```
++
++`check_m7_footprint.py` uses the standard library, so `python3` does not need PyYAML. If `python3 scripts/check_schemas.py` fails because `jsonschema` is missing, rerun the schema and config checks with `./.venv/bin/python` and record that departure. `pnpm test:e2e` is not an exit command. Record it as not run. `pnpm test:ssrf` is the M1 suite and is not this exit.
++
++No Arabic or WCAG run. There is no screen. No golden-file eval. No live fetch.
++
++## Security, privacy, cost, Arabic/accessibility review
++
++- `security-reviewer`: fixtures are synthetic; the command does not fetch, call a connector, or store a secret.
++- `verifier`: the diff matches this plan and the spec, the source and confidence label stay visible, the missing review count stays null, the correction stays `pending`, and the pasted command output is real.
++- Arabic and accessibility review is not run.
++- `seo-method-checker` is not run. This slice does not change a rule, a keyword, content, or a golden file.
++- Cost review is not a separate subagent. The diff must show no paid call, no hosting resource, and no new dependency. Product spend `0.00` USD.
++
++Reviewers do not approve, merge, or spawn subagents.
++
++No new decision row. No new assumption row. Leave the approved public sources, review platforms, listing platforms, and Arabic transliteration open. Leave OI-021 open.
++
++## Rollback
++
++No production path. After a commit, rollback is `git revert` of that commit. Removing `scripts/check_m7_footprint.py`, `evals/m7/`, and the CI step returns the tree to `origin/main` at `c01dbd4`. Staging rehearsal is not part of this slice.
++
++## Departures from the plan
++
++- 2026-10-01: The branch `m7-public-footprint` was created at `c01dbd4`. It was not pushed.
++- 2026-10-01: `python3 scripts/check_schemas.py` and `python3 scripts/check_config.py` failed on Python 3.14.7 (`/opt/homebrew/opt/python@3.14/bin/python3.14`) because `jsonschema` and PyYAML are not installed for that interpreter. Those checks passed with `./.venv/bin/python`. `python3 scripts/check_m7_footprint.py` passed on that system interpreter because the command uses the standard library only. No package was added.
++- 2026-10-01: The security review found the source check only refused a lowercase `http` prefix, and the `high` and `low` cases were built by the same function that checked them. The source check now refuses a trimmed, case-folded `http` prefix, a `//` prefix, and any `://`. `high` and `low` are literal stored rows. A platform name inside the source value stays open: this slice does not keep a platform blocklist. The status word was not set to `approved`.
+diff --git a/intent/INT-08-m7-public-footprint/spec.md b/intent/INT-08-m7-public-footprint/spec.md
+new file mode 100644
+index 0000000..c22d8bc
+--- /dev/null
++++ b/intent/INT-08-m7-public-footprint/spec.md
+@@ -0,0 +1,112 @@
++# Spec: M7 local public footprint
++
++| Field | Value |
++| --- | --- |
++| Intent | `intent/INT-08-m7-public-footprint/intent.md` (status word: draft; text accepted by Ibrahim on 2026-10-01) |
++| Status | draft |
++| Author | Cursor session (Grok 4.7), 2026-10-01 |
++| Product owner sign-off | Ibrahim, 2026-10-01, by the message "I approve spec.md." The status word stays `draft` because that message also says not to set `approved`. The product-owner role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Policy owner sign-offs | pending: methodology owner (footprint facts), data engineer (data-integrity), integration engineer (connector-safety) |
++| Spec prompt version | `.claude/skills/intent-spec-plan/SKILL.md` stage 2, skill version 0.1.0 |
++| Skill versions | intent-spec-plan 0.1.0; data-integrity 0.1.0; cost-guard 0.1.0; google-search-guidance 0.1.0; security-baseline 0.1.0; connector-safety 0.1.0 |
++| Source sections read | accepted INT-08 text; `docs/spec/05-PROJECT-PLAN.md` §5 M7; `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.9, §5.10; `docs/spec/02-DETAILED-SPECIFICATION.md` §10, §13; `docs/test-strategy.md` §5; `schemas/public-source-observation.schema.json`; `schemas/common.schema.json` `confidence_level`; `schemas/change-operation.schema.json` `status`; `docs/decisions.md` D-009, D-016, D-020; data-integrity skill; connector-safety skill |
++
++Status values: `draft`, `changes_requested`, `approved`, `superseded`. Ibrahim approved this spec on 2026-10-01. This session does not set `approved`.
++
++## Summary
++
++This spec defines a local check that keeps a public fact tied to a source and a confidence label, keeps a missing review count from being stored as a number, and keeps a correction unapplied. A missing review count stays null. It is not `0` and it is not any other number. A correction stored as `applied` is refused.
++
++The check does not fetch a page and does not send a correction. Product spend stays `0.00` USD.
++
++Cursor runs the work beside Claude Code. `.claude/` remains the policy source. `opusplan` at high is not a Cursor picker value. This spec was written in a session that showed Grok 4.7 (D-020).
++
++## Requirements
++
++### Functional
++
++1. A local command exits 0 only when the fact case, the missing-count case, and the correction case all pass. Any failure exits non-zero. Source: accepted INT-08 text; `docs/spec/05-PROJECT-PLAN.md` §5.
++2. A passing public fact shows a source and a confidence label. The confidence label is one of `high`, `medium`, or `low`. A fact with no source is refused. A fact with no confidence label is refused. Source: accepted INT-08 text; `schemas/common.schema.json` `confidence_level`; `docs/test-strategy.md` §5.
++3. A missing review count is null. Storing it as `0` or as any other number fails the check. Source: accepted INT-08 text; `schemas/public-source-observation.schema.json` description "recorded only as displayed; never estimated"; `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.9; `docs/spec/02-DETAILED-SPECIFICATION.md` §13.
++4. A correction stays `pending`. Storing it as `applied` fails the check. Source: accepted INT-08 text; `schemas/change-operation.schema.json` `status`; `docs/spec/02-DETAILED-SPECIFICATION.md` §10; D-016.
++5. The check does not choose a public source, a review platform, or a listing platform. The source in the fixture is a synthetic label. Source: accepted INT-08 text.
++6. No schema file and no `config/` file is added or changed. The check does not edit the M6 command. Source: accepted INT-08 text.
++
++### Non-functional
++
++1. The check runs on this machine. It does not fetch a profile, a listing, a review page, or a client site. It does not call Google Autocomplete or scrape a search-result page. It does not send a correction. Product spend is `0.00` USD. Source: accepted INT-08 text; D-009; D-016.
++2. The check does not import `.claude/skills/marketing-seo-agent/scripts`. Source: D-009.
++3. Fixtures are synthetic. They contain no secrets, customer page text, or live review text. Source: accepted INT-08 text.
++4. There is no screen. `pnpm test:e2e` stays the placeholder recorded as not run. Source: accepted INT-08 text.
++5. Approved public-source discovery, the entity graph, the brand fact registry, hallucination monitoring, and earned-evidence recommendations stay out of this check. Source: accepted INT-08 text; `docs/spec/05-PROJECT-PLAN.md` §5.
++
++## Design
++
++### Components and boundaries
++
++The check is a local command. It reads fixtures. It does not fetch a page and it does not call a connector. Stored rows are data. The command refuses a fact with no source, a missing review count stored as a number, and a correction stored as `applied`.
++
++### Data contracts
++
++No schema is added or changed. One fixture carries a synthetic source and a confidence label from `confidence_level`. One fixture carries a missing review count as null. One fixture carries a correction whose status is `pending`. These fixtures are not a full public-source observation and not a full change operation.
++
++### State transitions
++
++No workflow state is added. A missing source ends as refused. A missing review count stays null. A correction stays `pending`.
++
++### Configuration
++
++No `config/` file is edited. No platform name is written.
++
++### UI (if any)
++
++None.
++
++## Policy conformance
++
++| Policy skill | Applies? | How the design complies | Concern for owner |
++| --- | --- | --- | --- |
++| google-search-guidance | yes | No Autocomplete and no result-page scrape. | SEO lead: this check is not a search report. |
++| security-baseline | yes | No fetch and no secret. | A later public-source fetch stays out of this slice. |
++| arabic-rtl-a11y | no | No screen. | Arabic name transliteration stays open. |
++| data-integrity | yes | The source and the confidence label are visible. A missing review count is null, not a number. Counts are not estimated. | Data engineer: this fixture is not a full public-source observation. |
++| cost-guard | yes | No paid call and no hosting. Spend is `0.00` USD. | The USD 150 cap stays unconfirmed (D-005, OI-001). |
++| connector-safety | yes | The correction stays `pending`. Nothing is applied or published. | Integration engineer: a later correction workflow stays out of this slice. |
++
++## Areas of concern
++
++1. This spec stays `draft`. Ibrahim approved it on 2026-10-01 and said not to set `approved`. The INT-08 status word also stays `draft`.
++2. The M7 exit in `docs/spec/05-PROJECT-PLAN.md` §5 also requires approved discovery, an entity graph, and a governed correction workflow in the product. This check is the first slice only.
++3. `schemas/public-source-observation.schema.json` allows a displayed review count of `0` when `as_displayed` is true. This check does not cover that displayed-zero case. It covers a missing count, which stays null.
++4. The approved public sources, review platforms, and listing platforms stay open. The synthetic source in this check is not that decision.
++5. OI-021 stays open. This spec does not close it.
++6. Pull request 7 is already merged at `origin/main` `c01dbd4`. This spec does not merge anything else, and it does not finish the later M6 exit.
++
++## Test and eval plan
++
++The local command covers:
++
++- a public fact with a source and a confidence label of `high`, `medium`, or `low`;
++- a refusal when the source is missing;
++- a refusal when the confidence label is missing;
++- a missing review count stored as null;
++- a refusal when that missing count is stored as `0` or as any other number;
++- a correction stored as `pending`;
++- a refusal when that correction is stored as `applied`.
++
++No browser journey, no golden-file eval, and no live fetch. `pnpm test:e2e` is not run.
++
++## Rollout and rollback
++
++No feature flag and no environment. Rollback is reverting the commit that adds the command and fixtures. No staging rehearsal is in this spec.
++
++## Cost
++
++Paid calls added: none. Hosting added: none. Product spend: `0.00` USD. The USD 150 cap stays an unconfirmed assumption (D-005, OI-001).
++
++## Assumptions and open items
++
++- No new assumption row.
++- Leave the approved public sources, review platforms, listing platforms, and Arabic transliteration open.
++- Leave OI-021 open.
++- No new decision row.
+diff --git a/scripts/check_m7_footprint.py b/scripts/check_m7_footprint.py
+new file mode 100644
+index 0000000..02f9d85
+--- /dev/null
++++ b/scripts/check_m7_footprint.py
+@@ -0,0 +1,224 @@
++#!/usr/bin/env python3
++"""Keep a public fact sourced, a missing review count null, and a correction unapplied.
++
++A fact needs a synthetic source and a confidence label. A missing review count
++is null, not 0 and not another number. A correction stays pending.
++
++No network, no provider call, no client-site fetch, no connector write.
++Product spend is 0.00 USD. Standard library only.
++"""
++
++from __future__ import annotations
++
++import json
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++FIXTURE_DIR = ROOT / "evals" / "m7"
++
++CONFIDENCE_LABELS = {"high", "medium", "low"}
++GOLDEN_SOURCE = "synthetic_source"
++GOLDEN_CONFIDENCE = "medium"
++FACT_FIELDS = {"source", "confidence"}
++COUNT_FIELDS = {"review_count"}
++CORRECTION_FIELDS = {"status"}
++PENDING = "pending"
++APPLIED = "applied"
++FABRICATED_COUNT = 4
++
++
++def fail(message: str) -> None:
++    print(f"FAIL: {message}")
++    raise SystemExit(1)
++
++
++def load_json(path: Path):
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def is_url_source(source: str) -> bool:
++    """Refuse a fetch target. This is not a full URL parser."""
++    stripped = source.strip().lower()
++    return stripped.startswith("http") or stripped.startswith("//") or "://" in stripped
++
++
++def classify_fact(source, confidence) -> dict | None:
++    """A visible fact has a non-empty synthetic source and a known confidence label."""
++    if not isinstance(source, str) or source.strip() == "" or is_url_source(source):
++        return None
++    if confidence not in CONFIDENCE_LABELS:
++        return None
++    return {"source": source, "confidence": confidence}
++
++
++def fact_errors(stored: dict) -> list[str]:
++    if not isinstance(stored, dict):
++        return ["fact"]
++    errors = []
++    if "platform_name" in stored:
++        errors.append("platform_name")
++    extra = set(stored) - FACT_FIELDS
++    if extra:
++        errors.append("fields")
++    source = stored.get("source") if "source" in stored else None
++    if "source" not in stored or not isinstance(source, str) or source.strip() == "":
++        errors.append("source")
++    elif is_url_source(source):
++        errors.append("url")
++    if "confidence" not in stored:
++        errors.append("confidence")
++    elif stored.get("confidence") not in CONFIDENCE_LABELS:
++        errors.append("confidence_label")
++    classified = classify_fact(stored.get("source"), stored.get("confidence"))
++    if classified is None or stored != classified:
++        errors.append("classified")
++    return errors
++
++
++def classify_missing(review_count) -> dict | None:
++    """A missing count is null. A number is not that state."""
++    if review_count is None:
++        return {"review_count": None}
++    return None
++
++
++def count_errors(stored: dict) -> list[str]:
++    if not isinstance(stored, dict):
++        return ["count"]
++    errors = []
++    if "as_displayed" in stored:
++        errors.append("as_displayed")
++    if "platform_name" in stored:
++        errors.append("platform_name")
++    if set(stored) != COUNT_FIELDS:
++        errors.append("fields")
++    review_count = stored.get("review_count") if "review_count" in stored else False
++    classified = classify_missing(review_count if "review_count" in stored else False)
++    if classified is None or stored != classified:
++        errors.append("classified")
++    if type(review_count) is int and review_count == 0:
++        errors.append("zero")
++    if type(review_count) is int and review_count != 0:
++        errors.append("number")
++    return errors
++
++
++def classify_correction(status) -> dict | None:
++    """An unapplied correction is pending. Applied is not that state."""
++    if status == PENDING:
++        return {"status": PENDING}
++    return None
++
++
++def correction_errors(stored: dict) -> list[str]:
++    if not isinstance(stored, dict):
++        return ["correction"]
++    errors = []
++    if "platform_name" in stored:
++        errors.append("platform_name")
++    if set(stored) != CORRECTION_FIELDS:
++        errors.append("fields")
++    status = stored.get("status")
++    if status == APPLIED:
++        errors.append("applied")
++    classified = classify_correction(status)
++    if classified is None or stored != classified:
++        errors.append("classified")
++    return errors
++
++
++def check_fact() -> None:
++    fixture = load_json(FIXTURE_DIR / "sourced-fact.json")
++    if not isinstance(fixture, dict):
++        fail("fact fixture is not an object")
++    expected = classify_fact(GOLDEN_SOURCE, GOLDEN_CONFIDENCE)
++    if expected is None or fixture != expected:
++        fail(f"sourced fact failed: {fact_errors(fixture)}")
++    if fact_errors(fixture):
++        fail(f"sourced fact failed: {fact_errors(fixture)}")
++    for label in ("high", "low"):
++        labelled = {"source": GOLDEN_SOURCE, "confidence": label}
++        if fact_errors(labelled):
++            fail(f"confidence label {label} was refused")
++    missing_source = {"confidence": GOLDEN_CONFIDENCE}
++    if "source" not in fact_errors(missing_source):
++        fail("a missing source was accepted")
++    empty_source = {"source": "", "confidence": GOLDEN_CONFIDENCE}
++    if "source" not in fact_errors(empty_source):
++        fail("an empty source was accepted")
++    missing_confidence = {"source": GOLDEN_SOURCE}
++    if "confidence" not in fact_errors(missing_confidence):
++        fail("a missing confidence label was accepted")
++    unknown = {"source": GOLDEN_SOURCE, "confidence": "certain"}
++    if "confidence_label" not in fact_errors(unknown):
++        fail("a confidence label outside the allowed set was accepted")
++    url_source = {"source": "https://example.invalid/profile", "confidence": GOLDEN_CONFIDENCE}
++    if "url" not in fact_errors(url_source):
++        fail("a URL source was accepted")
++    upper_scheme = {"source": "HTTPS://example.invalid/profile", "confidence": GOLDEN_CONFIDENCE}
++    if "url" not in fact_errors(upper_scheme):
++        fail("an uppercase URL source was accepted")
++    spaced_url = {"source": " https://example.invalid/profile", "confidence": GOLDEN_CONFIDENCE}
++    if "url" not in fact_errors(spaced_url):
++        fail("a spaced URL source was accepted")
++    scheme_relative = {"source": "//example.invalid/profile", "confidence": GOLDEN_CONFIDENCE}
++    if "url" not in fact_errors(scheme_relative):
++        fail("a scheme-relative URL source was accepted")
++    named = {"source": GOLDEN_SOURCE, "confidence": GOLDEN_CONFIDENCE, "platform_name": "synthetic_source"}
++    if "platform_name" not in fact_errors(named):
++        fail("a platform name was accepted")
++    print("OK: public fact shows a source and a confidence label")
++    print("OK: missing source is refused")
++    print("OK: missing confidence label is refused")
++
++
++def check_count() -> None:
++    fixture = load_json(FIXTURE_DIR / "missing-review-count.json")
++    if not isinstance(fixture, dict):
++        fail("count fixture is not an object")
++    expected = classify_missing(None)
++    if expected is None or fixture != expected:
++        fail(f"missing review count failed: {count_errors(fixture)}")
++    if count_errors(fixture):
++        fail(f"missing review count failed: {count_errors(fixture)}")
++    zero = {"review_count": 0}
++    if "zero" not in count_errors(zero):
++        fail("a missing review count stored as 0 was accepted")
++    numbered = {"review_count": FABRICATED_COUNT}
++    if "number" not in count_errors(numbered):
++        fail("a missing review count stored as another number was accepted")
++    displayed = {"review_count": None, "as_displayed": True}
++    if "as_displayed" not in count_errors(displayed):
++        fail("a displayed count was accepted in the missing-count case")
++    print("OK: missing review count is null")
++    print("OK: missing review count is not 0")
++    print("OK: missing review count is not another number")
++
++
++def check_correction() -> None:
++    fixture = load_json(FIXTURE_DIR / "unapplied-correction.json")
++    if not isinstance(fixture, dict):
++        fail("correction fixture is not an object")
++    expected = classify_correction(PENDING)
++    if expected is None or fixture != expected:
++        fail(f"unapplied correction failed: {correction_errors(fixture)}")
++    if correction_errors(fixture):
++        fail(f"unapplied correction failed: {correction_errors(fixture)}")
++    applied = {"status": APPLIED}
++    if "applied" not in correction_errors(applied):
++        fail("a correction stored as applied was accepted")
++    print("OK: correction stays pending")
++    print("OK: applied correction is refused")
++
++
++def main() -> int:
++    check_fact()
++    check_count()
++    check_correction()
++    print("product spend 0.00 USD")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
