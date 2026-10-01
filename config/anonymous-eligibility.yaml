@@ -1,0 +1,126 @@
+# Purpose: Anonymous audit eligibility policy: which tier (rich, reduced, preview, refused) a request gets,
+#          the privacy-conscious signals used to decide, the default scope per tier, and budget overrides.
+# Owner role: Security owner, with the product owner and the privacy owner
+# Source sections: 01-PRODUCT-REQUIREMENTS §5.0, §5.19, §12, §16; 04-CLAUDE-CODE-BUILD-PROMPT §3.1;
+#                  05-PROJECT-PLAN §1.1, §5 (M0), §7; 09-MERGE-DECISIONS; v1-baseline §9.9;
+#                  docs/decisions.md D-002, D-004, D-006; docs/anonymous-eligibility-policy.md
+# Status: draft for review
+#
+# Rules for this file:
+# - Default scopes are ASSUMPTIONS (D-006). Sizes are configuration, not constants.
+# - No invasive cross-site fingerprinting. A shared IP address is not a person (01-PRODUCT-REQUIREMENTS §5.19).
+# - Every tier's report is an in-app web report only, private, noindex, deletable, and expires in 7 days
+#   at most (D-002). No tier offers a download.
+# - Claiming an anonymous audit after registration never proves domain ownership (D-004).
+
+version: "0.1.0-draft"
+
+tiers:
+  rich:
+    when: "First audit for a low-risk visitor (01-PRODUCT-REQUIREMENTS §5.0)."
+    scope:
+      max_representative_pages: 20
+      max_pages_status: "ASSUMPTION (D-006): up to 20 representative pages; representative sampling, not a universal count (09-MERGE-DECISIONS)."
+      presence_readiness: true
+      experience_effectiveness: true
+      performance_accessibility_public_footprint_template_findings: true
+      comparisons: 1
+      comparisons_note: "One equivalent competitor or dual-URL comparison (04-CLAUDE-CODE-BUILD-PROMPT §3.1)."
+      ai_visibility_panel: "config/prompt-panels/free-panel.yaml"
+      action_board: {min: 8, max: 12}
+      preliminary_roadmap: true
+    report: in_app_web_only
+    retention: P7D
+  reduced:
+    when: "Second anonymous audit from the same visitor. It remains a genuine basic audit (04-CLAUDE-CODE-BUILD-PROMPT §3.1)."
+    scope:
+      max_representative_pages: 10
+      max_pages_status: "ASSUMPTION: half of the rich default."
+      presence_readiness: true
+      experience_effectiveness: false
+      experience_effectiveness_status: "ASSUMPTION: omitted to control cost; confirm at M0."
+      performance_accessibility_public_footprint_template_findings: true
+      comparisons: 0
+      ai_visibility_panel: none
+      ai_visibility_status: "ASSUMPTION: no new AI observations; valid recent observations for the same domain may be shown with their capture time."
+      action_board: {min: 8, max: 12}
+      preliminary_roadmap: true
+    report: in_app_web_only
+    retention: P7D
+  preview:
+    when: "Third and later anonymous audits from the same visitor (01-PRODUCT-REQUIREMENTS §5.0)."
+    scope:
+      max_representative_pages: 1
+      max_pages_status: "ASSUMPTION: the quick single-page audit mode (04-CLAUDE-CODE-BUILD-PROMPT §5)."
+      presence_readiness: true
+      presence_readiness_note: "Shown with low confidence and 'checked X of Y'; a sample is never presented as full coverage."
+      experience_effectiveness: false
+      performance_accessibility_public_footprint_template_findings: false
+      comparisons: 0
+      ai_visibility_panel: none
+      action_board: {min: 0, max: 3}
+      action_board_status: "ASSUMPTION: short preview list of the top actions."
+      preliminary_roadmap: false
+    report: in_app_web_only
+    retention: P7D
+    registration_prompt: "Offer registration for another comprehensive audit (01-PRODUCT-REQUIREMENTS §5.0)."
+  refused:
+    when: "Only when risk or budget requires it (01-PRODUCT-REQUIREMENTS §5.19)."
+    scope: none
+    response: "Temporary refusal with a plain reason category and a retry-after time; no audit is created."
+    retry_after: "<DECIDE_AT_M0: retry-after period>"
+
+signals:
+  allowed:
+    - id: signed_first_audit_cookie
+      use: "Detect a repeat audit from the same browser."
+      note: "Lost or cleared cookies must not block a visitor; test 'signed-cookie loss' (05-PROJECT-PLAN §7)."
+    - id: recent_domain_audit_state
+      use: "Detect a recent audit of the same domain; reuse valid recent evidence and disclose its capture time."
+    - id: request_velocity
+      use: "Detect bursts from one client or network."
+    - id: automation_indicators
+      use: "Detect scripted or headless submissions."
+    - id: limited_network_risk
+      use: "Detect known abusive networks through the edge protection layer."
+  prohibited:
+    - cross_site_fingerprinting
+    - device_fingerprinting
+    - cross_site_tracking_identifiers
+    - ip_address_as_identity
+  ip_address_rules:
+    - "A shared IP address is not a unique person (01-PRODUCT-REQUIREMENTS §5.19)."
+    - "IP-based velocity may trigger CAPTCHA or a slower queue. ASSUMPTION: it never by itself moves a visitor below the tier their own browser state earns; test shared-IP fairness (05-PROJECT-PLAN §7)."
+    - "IP data is kept only for security and rate limiting under config/retention.yaml."
+  retention_ref: "config/retention.yaml#anonymous.eligibility_signals"
+
+decision_order:
+  - "1. Global safety and spending breakers apply first and override first-audit eligibility (01-PRODUCT-REQUIREMENTS §5.19)."
+  - "2. URL safety check; an unsafe or private target is rejected at intake (v1-baseline §6.4)."
+  - "3. Suspicious request (automation indicators, velocity, network risk): CAPTCHA first; then slower queue, reduced scope, or temporary refusal (01-PRODUCT-REQUIREMENTS §5.19)."
+  - "4. Otherwise tier by the visitor's own history: first audit rich, second reduced, later preview."
+  - "5. A recent valid audit of the same domain may be reused, with its capture time disclosed."
+
+escalation:
+  captcha: "Only when a request is suspicious (04-CLAUDE-CODE-BUILD-PROMPT §3.1)."
+  slower_queue: "Allowed under risk or budget pressure."
+  thresholds: "<DECIDE_AT_M0: velocity and automation thresholds that count as suspicious; calibrate in staging>"
+
+budget_overrides:
+  source_reference: ["01-PRODUCT-REQUIREMENTS §5.19", "config/budgets.yaml#degradation_order"]
+  rules:
+    - "At degradation step 4 (100% of the monthly cap) no tier runs AI observations; the panel shows unavailable due to the monthly limit."
+    - "<DECIDE_AT_M0: degradation step at which new anonymous audits are capped at reduced, then preview, then refused>"
+    - "Preserve the deterministic audit, evidence, core scores and action plan before optional AI repetition or enrichment."
+
+registration_triggers:
+  source_reference: "01-PRODUCT-REQUIREMENTS §5.0; 04-CLAUDE-CODE-BUILD-PROMPT §3.1"
+  list:
+    - another_comprehensive_audit
+    - persistence_or_history_comparison
+    - private_keyword_uploads_or_connections
+    - monitoring_and_alerts
+    - collaboration
+    - exports
+    - public_gallery_publication_after_domain_verification
+    - preparing_approving_or_applying_corrections

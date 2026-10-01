@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:profile-observation:0.1.0",
+  "title": "ProfileObservation",
+  "description": "A public or owner-supplied business-profile observation, with the observer location recorded.",
+  "type": "object",
+  "required": [
+    "observation_id",
+    "project_id",
+    "platform",
+    "profile_url",
+    "access",
+    "observer_location",
+    "attributes",
+    "captured_at",
+    "evidence_id",
+    "lineage"
+  ],
+  "properties": {
+    "observation_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "location_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "google_business_profile",
+        "apple_business_connect",
+        "bing_places",
+        "directory",
+        "social",
+        "other"
+      ]
+    },
+    "profile_url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "access": {
+      "type": "string",
+      "enum": [
+        "public",
+        "owner_supplied"
+      ]
+    },
+    "observer_location": {
+      "$ref": "common.schema.json#/$defs/label",
+      "description": "Where the observation was made from (01-PRODUCT-REQUIREMENTS §16)."
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "attribute",
+          "value"
+        ],
+        "properties": {
+          "attribute": {
+            "type": "string",
+            "enum": [
+              "name",
+              "category",
+              "address",
+              "service_area",
+              "phone",
+              "hours",
+              "website",
+              "description",
+              "attributes"
+            ]
+          },
+          "value": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/text"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "captured_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "evidence_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23",
+    "01-PRODUCT-REQUIREMENTS §16"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

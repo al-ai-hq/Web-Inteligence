@@ -1,0 +1,31 @@
+{
+  "description": "A failed run is never counted in a denominator (v1-baseline §6.7).",
+  "base_example": "prompt-run.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/status",
+      "value": "error"
+    },
+    {
+      "op": "replace",
+      "path": "/error_class",
+      "value": "provider_5xx"
+    },
+    {
+      "op": "replace",
+      "path": "/brand_mentioned",
+      "value": null
+    },
+    {
+      "op": "replace",
+      "path": "/recommended",
+      "value": null
+    },
+    {
+      "op": "replace",
+      "path": "/brand_url_cited",
+      "value": null
+    }
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:page-map-row:0.1.0",
+  "title": "PageMapRow",
+  "description": "One page in an architecture plan. Keeps the existing page that owns demand unless a reviewed merge or redirect plan justifies change.",
+  "type": "object",
+  "required": [
+    "row_id",
+    "architecture_plan_id",
+    "page_type",
+    "owner_decision",
+    "justification",
+    "market",
+    "language",
+    "cluster_ids",
+    "evidence_ids"
+  ],
+  "properties": {
+    "row_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "architecture_plan_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url",
+          "description": "Existing URL."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "proposed_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "page_type": {
+      "type": "string",
+      "enum": [
+        "home",
+        "category",
+        "service",
+        "product",
+        "location",
+        "article",
+        "comparison",
+        "glossary",
+        "support",
+        "other"
+      ]
+    },
+    "parent_row_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cluster_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "owner_decision": {
+      "type": "string",
+      "enum": [
+        "keep",
+        "improve",
+        "new_page_justified",
+        "merge_proposed",
+        "redirect_proposed"
+      ]
+    },
+    "justification": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "owner_decision": {
+            "enum": [
+              "keep",
+              "improve",
+              "merge_proposed",
+              "redirect_proposed"
+            ]
+          }
+        },
+        "required": [
+          "owner_decision"
+        ]
+      },
+      "then": {
+        "properties": {
+          "url": {
+            "$ref": "common.schema.json#/$defs/url"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "owner_decision": {
+            "const": "new_page_justified"
+          }
+        },
+        "required": [
+          "owner_decision"
+        ]
+      },
+      "then": {
+        "properties": {
+          "proposed_url": {
+            "$ref": "common.schema.json#/$defs/url"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §17",
+    "05-PROJECT-PLAN M8C"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

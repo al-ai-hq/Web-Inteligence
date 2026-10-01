@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:job-stage:0.1.0",
+  "title": "JobStage",
+  "description": "One idempotent stage of a workflow instance, with attempts, timings, cost and failure class (v1-baseline §12.3). The state of the workflow instance itself lives on its owning record.",
+  "type": "object",
+  "required": [
+    "stage_id",
+    "workflow",
+    "workflow_instance_id",
+    "stage",
+    "status",
+    "attempt_count",
+    "idempotency_key",
+    "created_at"
+  ],
+  "properties": {
+    "stage_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "workflow": {
+      "type": "string",
+      "enum": [
+        "audit",
+        "content",
+        "change",
+        "anonymous_access",
+        "prompt_panel_run",
+        "deletion_request",
+        "export_authorization",
+        "keyword_sync",
+        "retention",
+        "integrity_check"
+      ]
+    },
+    "workflow_instance_id": {
+      "$ref": "common.schema.json#/$defs/uuid",
+      "description": "ID of the owning record (audit, change set, panel run, and so on)."
+    },
+    "stage": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 64,
+      "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+      "description": "State name from docs/state-machines.md, for example CRAWLING or APPLYING_CANARY."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "running",
+        "succeeded",
+        "failed",
+        "skipped",
+        "cancelled",
+        "timed_out"
+      ]
+    },
+    "attempt_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 20
+    },
+    "max_attempts": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20,
+      "description": "Allowed attempts for this stage. ASSUMPTION values live in docs/state-machines.md."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 200
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "timeout_seconds": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cost": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/money"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "error_class": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/error_class"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "v1-baseline §12.3",
+    "03-PRODUCTION-CONTRACTS: Workflow states"
+  ],
+  "x-source-fields": [
+    "stage",
+    "attempt_count",
+    "started_at",
+    "completed_at",
+    "cost",
+    "error_class"
+  ],
+  "x-added-fields": [
+    "stage_id",
+    "workflow",
+    "workflow_instance_id",
+    "status",
+    "max_attempts",
+    "idempotency_key",
+    "timeout_seconds",
+    "created_at"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

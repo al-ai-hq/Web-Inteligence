@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:comparison-source:0.1.0",
+  "title": "ComparisonSource",
+  "description": "A dated source supporting a comparison claim.",
+  "type": "object",
+  "required": [
+    "source_id",
+    "url",
+    "publisher",
+    "source_tier",
+    "captured_on",
+    "evidence_id",
+    "language",
+    "lineage"
+  ],
+  "properties": {
+    "source_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "publisher": {
+      "$ref": "common.schema.json#/$defs/label"
+    },
+    "source_tier": {
+      "$ref": "common.schema.json#/$defs/source_tier"
+    },
+    "captured_on": {
+      "$ref": "common.schema.json#/$defs/date"
+    },
+    "evidence_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "excerpt": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §25"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

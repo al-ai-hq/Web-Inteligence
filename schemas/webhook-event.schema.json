@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:webhook-event:0.1.0",
+  "title": "WebhookEvent",
+  "description": "A received CMS or platform webhook. Unsigned or replayed events are rejected and never processed.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "platform",
+    "delivery_id",
+    "received_at",
+    "signature_valid",
+    "replay_detected",
+    "payload_hash",
+    "resource_ids",
+    "status",
+    "processed_at"
+  ],
+  "properties": {
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "platform": {
+      "$ref": "common.schema.json#/$defs/platform"
+    },
+    "connector": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_key"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "site_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "delivery_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "The platform's event or delivery ID, used for replay detection."
+    },
+    "received_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "signature_valid": {
+      "type": "boolean"
+    },
+    "replay_detected": {
+      "type": "boolean"
+    },
+    "payload_hash": {
+      "$ref": "common.schema.json#/$defs/content_hash"
+    },
+    "resource_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "minItems": 0,
+      "maxItems": 500
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "accepted",
+        "rejected_signature",
+        "rejected_replay",
+        "processed",
+        "failed"
+      ]
+    },
+    "processed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "signature_valid": {
+            "const": false
+          }
+        },
+        "required": [
+          "signature_valid"
+        ]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "const": "rejected_signature"
+          },
+          "processed_at": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "replay_detected": {
+            "const": true
+          }
+        },
+        "required": [
+          "replay_detected"
+        ]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "rejected_signature",
+              "rejected_replay"
+            ]
+          },
+          "processed_at": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "02-DETAILED-SPECIFICATION §11"
+  ],
+  "x-source-fields": [
+    "event_id",
+    "platform",
+    "received_at",
+    "signature_valid",
+    "resource_ids",
+    "processed_at"
+  ],
+  "x-added-fields": [
+    "connector",
+    "site_id",
+    "delivery_id",
+    "replay_detected",
+    "payload_hash",
+    "status"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

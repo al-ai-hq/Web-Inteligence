@@ -1,0 +1,27 @@
+{
+  "description": "The connector refuses to apply without a stored snapshot.",
+  "base_example": "change-set.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/status",
+      "value": "APPLYING_CANARY"
+    },
+    {
+      "op": "replace",
+      "path": "/approvals",
+      "value": [
+        {
+          "approval_id": "5fd61e29-35b7-4cd4-8a0f-1935b7deaf80",
+          "user_id": "6ae72f3a-46c8-4de5-9b1a-2a46c8efba91",
+          "at": "2026-10-02T11:00:00Z"
+        }
+      ]
+    },
+    {
+      "op": "replace",
+      "path": "/approval_expires_at",
+      "value": "2026-10-09T11:00:00Z"
+    }
+  ]
+}

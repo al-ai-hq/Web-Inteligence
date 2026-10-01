@@ -1,0 +1,11 @@
+{
+  "description": "Expected effects are qualitative; no traffic or ranking forecasts.",
+  "base_example": "plan-item.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/expected_effect",
+      "value": "Organic clicks will grow by 20% within 30 days."
+    }
+  ]
+}

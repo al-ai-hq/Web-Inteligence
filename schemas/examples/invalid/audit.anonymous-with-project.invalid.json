@@ -1,0 +1,11 @@
+{
+  "description": "D-004: an anonymous audit has no project until it is claimed.",
+  "base_example": "audit.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/project_id",
+      "value": "1c3e5a7b-9d1f-4a3c-8e5a-7b9d1f3a5c80"
+    }
+  ]
+}

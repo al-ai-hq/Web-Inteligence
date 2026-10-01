@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:commerce-item:0.1.0",
+  "title": "CommerceItem",
+  "description": "A catalog record (product, variant, category, facet or pagination page) with the values visible on the page. Never estimates demand, revenue or uplift.",
+  "type": "object",
+  "required": [
+    "item_id",
+    "project_id",
+    "item_type",
+    "url",
+    "canonical_url",
+    "language",
+    "market",
+    "lifecycle",
+    "evidence_ids",
+    "lineage"
+  ],
+  "properties": {
+    "item_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "site_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "item_type": {
+      "type": "string",
+      "enum": [
+        "product",
+        "variant",
+        "category",
+        "subcategory",
+        "collection",
+        "facet_page",
+        "pagination_page",
+        "seasonal_hub"
+      ]
+    },
+    "parent_item_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "canonical_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sku": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "gtin": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 14,
+          "pattern": "^[0-9]{8,14}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "title": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "visible_price": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/money"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "visible_availability": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/availability"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "seller": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "variant_attributes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "properties": {
+          "name": {
+            "$ref": "common.schema.json#/$defs/label"
+          },
+          "value": {
+            "$ref": "common.schema.json#/$defs/label"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 20
+    },
+    "lifecycle": {
+      "type": "string",
+      "enum": [
+        "active",
+        "out_of_stock",
+        "discontinued",
+        "seasonal",
+        "unknown"
+      ]
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23",
+    "01-PRODUCT-REQUIREMENTS §16"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,72 @@
+# Purpose: Maximum data age per data type, time-alignment rules and calendar annotations used by the
+#          integrity service. Data older than its limit is marked stale and excluded from new plans.
+# Owner role: Data engineer
+# Source sections: 02-DETAILED-SPECIFICATION §6, §7, §15; v1-baseline §11.3; 01-PRODUCT-REQUIREMENTS §5.19, §8;
+#                  docs/decisions.md D-002, D-010
+# Status: draft for review
+#
+# Durations use ISO 8601 (P7D = 7 days, P12M = 12 months). All numeric limits below are ASSUMPTIONS from
+# 02-DETAILED-SPECIFICATION §15 unless a source says otherwise. 09-MERGE-DECISIONS rejects fixed numerical
+# freshness without configuration ownership, so each limit has an owner and can change here.
+
+version: "0.1.0-draft"
+
+on_stale:
+  integrity_state: stale
+  action: "Mark stale; exclude from new plans; show the capture time (02-DETAILED-SPECIFICATION §15)."
+
+limits:
+  - data_type: crawl_evidence_for_new_plans
+    max_age: P7D
+    status: "ASSUMPTION (02-DETAILED-SPECIFICATION §15)"
+    owner_role: data_engineer
+  - data_type: search_console_data
+    max_age: P3D
+    status: "ASSUMPTION (02-DETAILED-SPECIFICATION §15)"
+    owner_role: data_engineer
+  - data_type: keyword_volumes
+    max_age: P12M
+    status: "ASSUMPTION (02-DETAILED-SPECIFICATION §15)"
+    owner_role: seo_lead
+    note: "Keyword Planner historical metrics refresh monthly and Google recommends caching them (policy fact pf-keyword-planner-refresh)."
+  - data_type: anonymous_evidence_reuse
+    max_age: "<DECIDE_AT_M0: reuse window for recent evidence in anonymous audits>"
+    upper_bound: P7D
+    status: "Upper bound from D-002: anonymous evidence is deleted after 7 days at most, so it cannot be reused beyond that."
+    owner_role: data_engineer
+    note: "Reuse recent evidence only when valid, and disclose its capture time (01-PRODUCT-REQUIREMENTS §5.19)."
+  - data_type: ga4_data
+    max_age: "<DECIDE_AT_M0: GA4 freshness limit; the sources give none>"
+    owner_role: data_engineer
+  - data_type: ai_visibility_observations
+    max_age: null
+    note: "Never reuse an old result as a new timestamped observation (v1-baseline §11.2). Observations keep their run time; freshness is shown, not extended."
+    owner_role: ai_engineer
+
+registry_reviews:
+  crawler_registry: {cadence: monthly, source_reference: "02-DETAILED-SPECIFICATION §6"}
+  provider_prices_and_models: {cadence: monthly, source_reference: "v1-baseline §11.3; 02-DETAILED-SPECIFICATION §18"}
+  policy_facts: {cadence: "per entry review_by and expires_on in config/policy-facts.yaml", source_reference: "01-PRODUCT-REQUIREMENTS §8, §15"}
+  schema_requirements: {cadence: "<DECIDE_AT_M0: review cadence>", note: "Also on any Google structured-data change."}
+
+time_alignment:
+  search_console:
+    timezone: "America/Los_Angeles"
+    timezone_note: "Search Console dates are Pacific Time (02-DETAILED-SPECIFICATION §15)."
+    flag_incomplete_recent_days: 3
+    flag_incomplete_note: "The most recent 2-3 days are incomplete; ASSUMPTION: flag 3 days."
+  ga4:
+    timezone: "property timezone"
+  comparisons:
+    equal_period_length: true
+    note: "Compared periods have equal length; otherwise exclude or flag the period (02-DETAILED-SPECIFICATION §15)."
+
+calendar_annotations:
+  source_reference: "02-DETAILED-SPECIFICATION §15"
+  events:
+    - ramadan
+    - eid_al_fitr
+    - eid_al_adha
+    - national_days
+    - friday_saturday_weekend
+  note: "Ramadan and the two Eids move about 11 days earlier each year; dates come from a maintained calendar source <DECIDE_AT_M0: calendar data source>."

@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:audit-scope:0.1.0",
+  "title": "AuditScope",
+  "description": "Crawl and sampling scope for one audit. Records whether the result is a sample so reports never present a sample as full coverage.",
+  "type": "object",
+  "required": [
+    "scope_id",
+    "audit_id",
+    "mode",
+    "seed_urls",
+    "max_pages",
+    "max_depth",
+    "sampling",
+    "render_policy",
+    "markets",
+    "languages",
+    "devices",
+    "respect_robots",
+    "created_at"
+  ],
+  "properties": {
+    "scope_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "audit_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "mode": {
+      "$ref": "common.schema.json#/$defs/audit_mode"
+    },
+    "seed_urls": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/url"
+      },
+      "minItems": 1,
+      "maxItems": 100,
+      "uniqueItems": true
+    },
+    "max_pages": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000
+    },
+    "max_depth": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 20
+    },
+    "sampling": {
+      "type": "string",
+      "enum": [
+        "single_page",
+        "priority_pages",
+        "representative_sample",
+        "full_bounded"
+      ],
+      "description": "How pages were chosen. Anything but full_bounded is a sample."
+    },
+    "template_groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "template_key",
+          "sampled_urls"
+        ],
+        "properties": {
+          "template_key": {
+            "$ref": "common.schema.json#/$defs/config_key"
+          },
+          "sampled_urls": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/url"
+            },
+            "minItems": 1,
+            "maxItems": 50,
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "include_patterns": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "exclude_patterns": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "render_policy": {
+      "type": "string",
+      "enum": [
+        "raw_only",
+        "raw_then_render_when_thin",
+        "render_selected"
+      ],
+      "description": "Raw HTML first, controlled headless fallback (04-CLAUDE-CODE-BUILD-PROMPT §6)."
+    },
+    "markets": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/market"
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/language"
+      },
+      "minItems": 1,
+      "maxItems": 10,
+      "uniqueItems": true
+    },
+    "devices": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/device"
+      },
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "respect_robots": {
+      "const": true,
+      "description": "The crawler always respects robots directives and never bypasses them."
+    },
+    "comparison": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "other_target_url",
+            "equivalent_method"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "url",
+                "domain",
+                "staging",
+                "before_after",
+                "language_parity"
+              ]
+            },
+            "other_target_url": {
+              "$ref": "common.schema.json#/$defs/url"
+            },
+            "equivalent_method": {
+              "const": true,
+              "description": "Comparisons run the same method, rules and scope on both sides."
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §5.1, §5.4, §5.5"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:rule-definition:0.1.0",
+  "title": "RuleDefinition",
+  "description": "A versioned audit rule. Deterministic rules are final; model output never changes a pass or fail.",
+  "type": "object",
+  "required": [
+    "rule_id",
+    "methodology_version",
+    "category",
+    "title_key",
+    "description_key",
+    "importance_weight",
+    "scored",
+    "applicability_condition",
+    "input_evidence",
+    "evaluation_method",
+    "pass_condition",
+    "fail_condition",
+    "recommendation_key",
+    "source_references",
+    "status"
+  ],
+  "properties": {
+    "rule_id": {
+      "$ref": "common.schema.json#/$defs/rule_id"
+    },
+    "methodology_version": {
+      "$ref": "common.schema.json#/$defs/methodology_version"
+    },
+    "category": {
+      "$ref": "common.schema.json#/$defs/rule_category"
+    },
+    "title_key": {
+      "$ref": "common.schema.json#/$defs/message_key"
+    },
+    "description_key": {
+      "$ref": "common.schema.json#/$defs/message_key"
+    },
+    "importance_weight": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5,
+      "description": "Integer weight inside the category (v1-baseline §7). 0 for reported-only rules such as GEO-010."
+    },
+    "scored": {
+      "type": "boolean",
+      "description": "False for observational rules such as GSC-003 and AGT-002."
+    },
+    "critical_flag": {
+      "type": "boolean",
+      "description": "True for rules such as SPAM-001 whose confirmed failure is a Critical finding."
+    },
+    "critical_cap": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "max_score",
+            "condition_key"
+          ],
+          "properties": {
+            "max_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "condition_key": {
+              "$ref": "common.schema.json#/$defs/message_key"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Critical cap applied after weighting (v1-baseline §6.4)."
+    },
+    "requires": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "connected_site",
+          "keyword_data",
+          "search_console",
+          "analytics",
+          "fact_sheet",
+          "commerce",
+          "local"
+        ]
+      },
+      "minItems": 0,
+      "maxItems": 7,
+      "uniqueItems": true
+    },
+    "applicability_condition": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "input_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 64,
+        "pattern": "^[a-z][a-z0-9_]{1,63}$"
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true,
+      "description": "EvidenceObject kinds the rule reads."
+    },
+    "evaluation_method": {
+      "$ref": "common.schema.json#/$defs/evaluation_method"
+    },
+    "rubric_ref": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "Path to the rubric under docs/rubrics/ for assessed rules."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "pass_condition": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "partial_condition": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fail_condition": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "recommendation_key": {
+      "$ref": "common.schema.json#/$defs/message_key"
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "url",
+          "source_tier",
+          "checked_on"
+        ],
+        "properties": {
+          "url": {
+            "$ref": "common.schema.json#/$defs/url"
+          },
+          "source_tier": {
+            "$ref": "common.schema.json#/$defs/source_tier"
+          },
+          "checked_on": {
+            "$ref": "common.schema.json#/$defs/date"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 20
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "experimental",
+        "deprecated"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "evaluation_method": {
+            "const": "assessed"
+          }
+        },
+        "required": [
+          "evaluation_method"
+        ]
+      },
+      "then": {
+        "required": [
+          "rubric_ref"
+        ],
+        "properties": {
+          "rubric_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "v1-baseline §7",
+    "02-DETAILED-SPECIFICATION §6"
+  ],
+  "x-source-fields": [
+    "rule_id",
+    "methodology_version",
+    "category",
+    "title_key",
+    "description_key",
+    "importance_weight",
+    "applicability_condition",
+    "input_evidence",
+    "evaluation_method",
+    "pass_condition",
+    "partial_condition",
+    "fail_condition",
+    "recommendation_key",
+    "source_references"
+  ],
+  "x-added-fields": [
+    "scored",
+    "critical_flag",
+    "critical_cap",
+    "requires",
+    "rubric_ref",
+    "status"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md",
+  "x-field-mapping": {
+    "title": "title_key",
+    "description": "description_key",
+    "source_reference": "source_references"
+  }
+}

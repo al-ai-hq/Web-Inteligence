@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:deletion-receipt:0.1.0",
+  "title": "DeletionReceipt",
+  "description": "Proof that a deletion completed and was verified in each store. Holds identifiers and outcomes only, never the deleted content (v1-baseline §10).",
+  "type": "object",
+  "required": [
+    "receipt_id",
+    "deletion_request_id",
+    "subject_type",
+    "subject_id",
+    "trigger",
+    "requested_at",
+    "completed_at",
+    "stores",
+    "backup_expiry_by",
+    "content_retained",
+    "verified"
+  ],
+  "properties": {
+    "receipt_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "deletion_request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "subject_type": {
+      "type": "string",
+      "enum": [
+        "audit",
+        "report",
+        "project",
+        "user_account",
+        "evidence_object",
+        "export_file",
+        "keyword_upload"
+      ]
+    },
+    "subject_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "user_request",
+        "anonymous_expiry",
+        "registered_retention_expiry",
+        "account_deletion",
+        "operator"
+      ]
+    },
+    "requested_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "completed_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "stores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "store",
+          "outcome",
+          "verified_at"
+        ],
+        "properties": {
+          "store": {
+            "type": "string",
+            "enum": [
+              "cloud_sql",
+              "cloud_storage",
+              "bigquery",
+              "logs",
+              "cache",
+              "backups"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "deleted",
+              "not_present",
+              "expires_with_backup_cycle",
+              "failed"
+            ]
+          },
+          "verified_at": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/timestamp"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 10
+    },
+    "backup_expiry_by": {
+      "$ref": "common.schema.json#/$defs/timestamp",
+      "description": "Encrypted backups expire within 35 days of source deletion; restores re-apply the deletion queue (v1-baseline §10)."
+    },
+    "content_retained": {
+      "const": false
+    },
+    "verified": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "verified": {
+            "const": true
+          }
+        },
+        "required": [
+          "verified"
+        ]
+      },
+      "then": {
+        "properties": {
+          "stores": {
+            "items": {
+              "properties": {
+                "outcome": {
+                  "enum": [
+                    "deleted",
+                    "not_present",
+                    "expires_with_backup_cycle"
+                  ]
+                },
+                "verified_at": {
+                  "$ref": "common.schema.json#/$defs/timestamp"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "v1-baseline §10",
+    "01-PRODUCT-REQUIREMENTS §9"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

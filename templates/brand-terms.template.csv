@@ -1,0 +1,10 @@
+term,language,kind
+<brand name in English>,en,brand_name
+<اسم العلامة التجارية بالعربية>,ar,brand_name
+<product or service name>,en,product_name
+<common misspelling>,en,misspelling
+<إملاء شائع خاطئ>,ar,misspelling
+<Arabic brand name in Latin letters>,ar-Latn,transliteration
+<English brand name in Arabic letters>,ar,transliteration
+<ABBREVIATION>,en,abbreviation
+<canonical host name e.g. example.com>,zxx,domain

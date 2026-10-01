@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:audit:0.1.0",
+  "title": "Audit",
+  "description": "One audit run. Anonymous audits carry an eligibility tier, a hard expiry of at most 7 days and a separate access lifecycle; they never enter connected-analysis states (D-002, D-004).",
+  "type": "object",
+  "required": [
+    "audit_id",
+    "access_class",
+    "mode",
+    "target_url",
+    "status",
+    "methodology_version",
+    "noindex",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "audit_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "access_class": {
+      "$ref": "common.schema.json#/$defs/access_class"
+    },
+    "project_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Null for anonymous audits until claimed (D-004)."
+    },
+    "site_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "owner_user_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Registered owner. Null for anonymous audits."
+    },
+    "mode": {
+      "$ref": "common.schema.json#/$defs/audit_mode"
+    },
+    "target_url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "comparison_target_urls": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/url"
+      },
+      "minItems": 0,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "description": "Equivalent-method comparison targets. Anonymous first audit: at most one (04-CLAUDE-CODE-BUILD-PROMPT §3.1)."
+    },
+    "audit_tier": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/audit_tier"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/audit_state"
+    },
+    "anonymous_access_state": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/anonymous_access_state"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Anonymous report lifecycle. Null for audits created by registered users; CLAIMED for claimed anonymous audits."
+    },
+    "scope_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "capability_manifest_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "methodology_version": {
+      "$ref": "common.schema.json#/$defs/methodology_version"
+    },
+    "noindex": {
+      "type": "boolean",
+      "description": "Report pages send noindex. Always true for anonymous audits."
+    },
+    "cost_spent": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/money"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Paid-call spend so far, from the cost ledger."
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "updated_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Hard expiry. For anonymous audits at most 7 days after created_at (D-002); the retention job enforces it."
+    },
+    "claimed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "When a registered user claimed this anonymous audit. Claiming never proves domain ownership (D-004)."
+    },
+    "claimed_by_user_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "access_class": {
+            "const": "anonymous"
+          }
+        },
+        "required": [
+          "access_class"
+        ]
+      },
+      "then": {
+        "required": [
+          "audit_tier",
+          "expires_at",
+          "anonymous_access_state"
+        ],
+        "properties": {
+          "audit_tier": {
+            "$ref": "common.schema.json#/$defs/audit_tier"
+          },
+          "expires_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          },
+          "anonymous_access_state": {
+            "$ref": "common.schema.json#/$defs/anonymous_access_state"
+          },
+          "project_id": {
+            "type": "null"
+          },
+          "owner_user_id": {
+            "type": "null"
+          },
+          "noindex": {
+            "const": true
+          },
+          "status": {
+            "not": {
+              "$ref": "common.schema.json#/$defs/connected_analysis_state"
+            }
+          },
+          "comparison_target_urls": {
+            "maxItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "access_class": {
+            "const": "registered"
+          }
+        },
+        "required": [
+          "access_class"
+        ]
+      },
+      "then": {
+        "properties": {
+          "anonymous_access_state": {
+            "enum": [
+              null,
+              "CLAIMED"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "anonymous_access_state": {
+            "const": "CLAIMED"
+          }
+        },
+        "required": [
+          "anonymous_access_state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "access_class": {
+            "const": "registered"
+          },
+          "claimed_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          },
+          "claimed_by_user_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "project_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "03-PRODUCTION-CONTRACTS: Workflow states",
+    "v1-baseline §12.4 (audits)",
+    "D-002",
+    "D-004"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

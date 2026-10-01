@@ -1,0 +1,26 @@
+{
+  "description": "A tier 3 mismatch goes to human review, never automatic rollback.",
+  "base_example": "verification.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/risk_tier",
+      "value": 3
+    },
+    {
+      "op": "replace",
+      "path": "/status",
+      "value": "mismatch"
+    },
+    {
+      "op": "replace",
+      "path": "/live_on_site",
+      "value": false
+    },
+    {
+      "op": "replace",
+      "path": "/recommendation",
+      "value": "rollback"
+    }
+  ]
+}

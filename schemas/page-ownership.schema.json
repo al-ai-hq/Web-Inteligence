@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:page-ownership:0.1.0",
+  "title": "PageOwnership",
+  "description": "Which page owns a keyword cluster, with the cannibalization check that must run before any page, title, H1, canonical or intent change is proposed.",
+  "type": "object",
+  "required": [
+    "ownership_id",
+    "project_id",
+    "cluster_id",
+    "owner_url",
+    "candidate_urls",
+    "decision",
+    "basis",
+    "cannibalization_check",
+    "decided_by",
+    "decided_at",
+    "evidence_ids",
+    "lineage"
+  ],
+  "properties": {
+    "ownership_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "site_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cluster_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "owner_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "candidate_urls": {
+      "$ref": "common.schema.json#/$defs/url_list"
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "owner_assigned",
+        "justified_new_page",
+        "gap",
+        "cannibalized",
+        "merge_proposed"
+      ]
+    },
+    "basis": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "search_console_query_page",
+          "target_url",
+          "page_topic",
+          "serp_overlap",
+          "human_decision"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 5,
+      "uniqueItems": true
+    },
+    "cannibalization_check": {
+      "type": "object",
+      "required": [
+        "result",
+        "checked_at",
+        "evidence_ids"
+      ],
+      "properties": {
+        "result": {
+          "type": "string",
+          "enum": [
+            "clear",
+            "conflict",
+            "insufficient_data"
+          ]
+        },
+        "checked_at": {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        "evidence_ids": {
+          "$ref": "common.schema.json#/$defs/evidence_ids"
+        }
+      },
+      "additionalProperties": false
+    },
+    "decided_by": {
+      "type": "string",
+      "enum": [
+        "keyword_analyst",
+        "human"
+      ]
+    },
+    "decided_by_user_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decided_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "owner_assigned"
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "then": {
+        "properties": {
+          "owner_url": {
+            "$ref": "common.schema.json#/$defs/url"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decided_by": {
+            "const": "human"
+          }
+        },
+        "required": [
+          "decided_by"
+        ]
+      },
+      "then": {
+        "properties": {
+          "decided_by_user_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §8",
+    "02-DETAILED-SPECIFICATION §7"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

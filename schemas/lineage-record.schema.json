@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:lineage-record:0.1.0",
+  "title": "LineageRecord",
+  "description": "Stand-alone lineage for one stored value. Carries the V4 lineage fields plus a reference to the value. A number without lineage cannot appear in a report or justify a change (02-DETAILED-SPECIFICATION §15).",
+  "type": "object",
+  "required": [
+    "record_id",
+    "project_id",
+    "site_id",
+    "source_type",
+    "source_id",
+    "source_version",
+    "captured_at",
+    "as_of",
+    "market",
+    "language",
+    "device",
+    "method",
+    "methodology_version",
+    "fidelity_label",
+    "content_hash",
+    "parent_ids",
+    "validation_state",
+    "value_ref"
+  ],
+  "properties": {
+    "record_id": {
+      "$ref": "common.schema.json#/$defs/uuid",
+      "description": "ID of the record this lineage describes."
+    },
+    "project_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Owning project. Null for an anonymous audit until it is claimed (D-004)."
+    },
+    "site_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Owning site. Null for an anonymous audit until it is claimed (D-004)."
+    },
+    "source_type": {
+      "$ref": "common.schema.json#/$defs/source_type"
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Identifier of the source instance: crawl run, upload ID, provider config key, connector ID, or rule ID."
+    },
+    "source_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Version of the source: API version, crawler version, export format version, or rule-set version."
+    },
+    "captured_at": {
+      "$ref": "common.schema.json#/$defs/timestamp",
+      "description": "When the system captured or computed the value (RFC 3339 UTC)."
+    },
+    "as_of": {
+      "$ref": "common.schema.json#/$defs/timestamp",
+      "description": "The time the value describes. For period data, the end of the period."
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language",
+      "description": "BCP 47 tag. Use 'zxx' for values with no linguistic content."
+    },
+    "device": {
+      "$ref": "common.schema.json#/$defs/device"
+    },
+    "method": {
+      "$ref": "common.schema.json#/$defs/method_id"
+    },
+    "methodology_version": {
+      "$ref": "common.schema.json#/$defs/methodology_version"
+    },
+    "fidelity_label": {
+      "$ref": "common.schema.json#/$defs/fidelity_label"
+    },
+    "content_hash": {
+      "$ref": "common.schema.json#/$defs/content_hash",
+      "description": "Hash of the evidence content, or of the canonical inputs for computed values."
+    },
+    "parent_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list",
+      "description": "Record IDs this value was derived from. Empty for primary observations."
+    },
+    "validation_state": {
+      "$ref": "common.schema.json#/$defs/integrity_state"
+    },
+    "audit_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Audit that produced the value, when there is one."
+    },
+    "value_ref": {
+      "type": "object",
+      "description": "The stored value this lineage describes.",
+      "required": [
+        "entity",
+        "entity_id",
+        "field"
+      ],
+      "properties": {
+        "entity": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9_]{1,63}$",
+          "description": "snake_case record type, e.g. score_result."
+        },
+        "entity_id": {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9_.\\[\\]]{0,127}$",
+          "description": "Field path within the record."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "03-PRODUCTION-CONTRACTS: Evidence and fidelity"
+  ],
+  "x-source-fields": [
+    "record_id",
+    "value_ref",
+    "fidelity_label",
+    "source_type",
+    "source_version",
+    "as_of",
+    "method",
+    "methodology_version",
+    "parent_ids",
+    "content_hash"
+  ],
+  "x-added-fields": [
+    "project_id",
+    "site_id",
+    "source_id",
+    "captured_at",
+    "market",
+    "language",
+    "device",
+    "validation_state",
+    "audit_id"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md",
+  "x-field-mapping": {
+    "source": "source_type + source_id",
+    "api_version": "source_version"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "description": "03-PRODUCTION-CONTRACTS: robots and indexability changes are tier 3.",
+  "base_example": "change-operation.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/field_class",
+      "value": "robots_directive"
+    }
+  ]
+}

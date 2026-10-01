@@ -1,0 +1,16 @@
+{
+  "description": "02-DETAILED-SPECIFICATION §10: tier 3 needs two approvers.",
+  "base_example": "change-set.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/max_risk_tier",
+      "value": 3
+    },
+    {
+      "op": "replace",
+      "path": "/batch_size_max",
+      "value": null
+    }
+  ]
+}

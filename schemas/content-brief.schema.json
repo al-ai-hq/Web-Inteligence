@@ -1,0 +1,694 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:content-brief:0.1.0",
+  "title": "ContentBrief",
+  "description": "A content brief for one cluster. Volume and position appear only with a named source; otherwise the report shows 'Not available (needs export)'. Only fact-register facts may be used.",
+  "type": "object",
+  "required": [
+    "brief_id",
+    "cluster_id",
+    "page_goal",
+    "audience",
+    "target_cluster",
+    "intent",
+    "market",
+    "language",
+    "target_url",
+    "proposed_url",
+    "slug",
+    "observations",
+    "angle",
+    "outline",
+    "questions",
+    "entities",
+    "title_options",
+    "meta_options",
+    "fact_ids",
+    "proof_points_needed",
+    "first_hand_input_needed",
+    "internal_links",
+    "schema_candidates",
+    "competitor_coverage",
+    "length_guidance",
+    "cta_notes",
+    "regulated_claims",
+    "success_measures",
+    "review_date",
+    "status",
+    "author_id",
+    "needs_native_review",
+    "created_at"
+  ],
+  "properties": {
+    "brief_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "cluster_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "opportunity_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "page_goal": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "audience": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "target_cluster": {
+      "type": "object",
+      "required": [
+        "primary_keyword",
+        "variants",
+        "volume"
+      ],
+      "properties": {
+        "primary_keyword": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "language",
+              "text"
+            ],
+            "properties": {
+              "language": {
+                "$ref": "common.schema.json#/$defs/language"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              }
+            },
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 50
+        },
+        "volume": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "value",
+                "source",
+                "period",
+                "fidelity_label"
+              ],
+              "properties": {
+                "value": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "source": {
+                  "$ref": "common.schema.json#/$defs/label"
+                },
+                "period": {
+                  "$ref": "common.schema.json#/$defs/month_range"
+                },
+                "fidelity_label": {
+                  "allOf": [
+                    {
+                      "$ref": "common.schema.json#/$defs/fidelity_label"
+                    },
+                    {
+                      "enum": [
+                        "observed",
+                        "user_supplied",
+                        "estimated"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Null means 'Not available (needs export)'."
+        }
+      },
+      "additionalProperties": false
+    },
+    "intent": {
+      "$ref": "common.schema.json#/$defs/keyword_intent"
+    },
+    "market": {
+      "$ref": "common.schema.json#/$defs/market"
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "target_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url",
+          "description": "Existing page to improve."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "proposed_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url",
+          "description": "Proposed new page, only when no existing page owns the cluster."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "slug": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Follows the site's slug convention; Arabic slugs keep their script."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "date",
+          "url",
+          "source",
+          "note"
+        ],
+        "properties": {
+          "date": {
+            "$ref": "common.schema.json#/$defs/date"
+          },
+          "url": {
+            "$ref": "common.schema.json#/$defs/url"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "licensed_serp_data",
+              "observed_ai_citation"
+            ]
+          },
+          "note": {
+            "$ref": "common.schema.json#/$defs/text"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "angle": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "outline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "language",
+          "headings"
+        ],
+        "properties": {
+          "language": {
+            "$ref": "common.schema.json#/$defs/language"
+          },
+          "headings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "level",
+                "text"
+              ],
+              "properties": {
+                "level": {
+                  "type": "integer",
+                  "minimum": 2,
+                  "maximum": 4
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                }
+              },
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 60
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 4
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "text",
+          "source",
+          "source_ref"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "search_console_query",
+              "keyword_upload",
+              "visibility_prompt",
+              "customer_input"
+            ]
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/label"
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "title_options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "language",
+          "text"
+        ],
+        "properties": {
+          "language": {
+            "$ref": "common.schema.json#/$defs/language"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "description": "Near 60 characters. ASSUMPTION: hard limit 80."
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 2,
+      "maxItems": 6
+    },
+    "meta_options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "language",
+          "text"
+        ],
+        "properties": {
+          "language": {
+            "$ref": "common.schema.json#/$defs/language"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 170,
+            "description": "ASSUMPTION: hard limit 170 characters."
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 2,
+      "maxItems": 4
+    },
+    "fact_ids": {
+      "$ref": "common.schema.json#/$defs/uuid_list"
+    },
+    "proof_points_needed": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "minItems": 0,
+      "maxItems": 30
+    },
+    "first_hand_input_needed": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "minItems": 0,
+      "maxItems": 20
+    },
+    "internal_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_url",
+          "target_url",
+          "anchor_text"
+        ],
+        "properties": {
+          "source_url": {
+            "$ref": "common.schema.json#/$defs/url"
+          },
+          "target_url": {
+            "$ref": "common.schema.json#/$defs/url"
+          },
+          "anchor_text": {
+            "$ref": "common.schema.json#/$defs/label"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "schema_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "type",
+          "matches_visible_content"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 64,
+            "pattern": "^[A-Z][A-Za-z]+$",
+            "description": "schema.org type name."
+          },
+          "matches_visible_content": {
+            "const": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 10
+    },
+    "competitor_coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "url",
+          "observed_on",
+          "note"
+        ],
+        "properties": {
+          "url": {
+            "$ref": "common.schema.json#/$defs/url"
+          },
+          "observed_on": {
+            "$ref": "common.schema.json#/$defs/date"
+          },
+          "note": {
+            "$ref": "common.schema.json#/$defs/text"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 30,
+      "description": "Cited or ranking sources only, with URLs."
+    },
+    "length_guidance": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "Based on what ranks; not a fixed number."
+    },
+    "cta_notes": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "regulated_claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "text",
+          "domain",
+          "professional_review_required"
+        ],
+        "properties": {
+          "text": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "domain": {
+            "type": "string",
+            "enum": [
+              "health",
+              "finance",
+              "legal",
+              "other"
+            ]
+          },
+          "professional_review_required": {
+            "const": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 30
+    },
+    "success_measures": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "cluster_impressions",
+          "cluster_clicks",
+          "cluster_avg_position",
+          "panel_recheck"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 4,
+      "uniqueItems": true
+    },
+    "review_date": {
+      "$ref": "common.schema.json#/$defs/date"
+    },
+    "status": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/content_state"
+        },
+        {
+          "enum": [
+            "BRIEF_DRAFT",
+            "BRIEF_REVIEW",
+            "BRIEF_APPROVED",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    "author_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid",
+          "description": "Named human author. Required before drafting."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "approved_by_user_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "approved_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "needs_native_review": {
+      "type": "boolean"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "BRIEF_APPROVED"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "approved_by_user_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "approved_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "target_url": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "target_url"
+        ]
+      },
+      "then": {
+        "properties": {
+          "proposed_url": {
+            "$ref": "common.schema.json#/$defs/url"
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "language": {
+            "pattern": "^ar(-|$)"
+          }
+        },
+        "required": [
+          "language"
+        ]
+      },
+      "then": {
+        "properties": {
+          "needs_native_review": {
+            "const": true
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix A (runtime agent instructions) (CONTENT STRATEGIST)",
+    "02-DETAILED-SPECIFICATION §9"
+  ],
+  "x-source-fields": [
+    "brief_id",
+    "cluster_id",
+    "status",
+    "author_id",
+    "page_goal",
+    "target_cluster",
+    "intent",
+    "market",
+    "language",
+    "target_url",
+    "proposed_url",
+    "slug",
+    "observations",
+    "angle",
+    "outline",
+    "questions",
+    "entities",
+    "title_options",
+    "meta_options",
+    "fact_ids",
+    "proof_points_needed",
+    "first_hand_input_needed",
+    "internal_links",
+    "schema_candidates",
+    "competitor_coverage",
+    "length_guidance",
+    "cta_notes",
+    "regulated_claims",
+    "success_measures",
+    "review_date"
+  ],
+  "x-added-fields": [
+    "opportunity_id",
+    "audience",
+    "approved_by_user_id",
+    "approved_at",
+    "needs_native_review",
+    "created_at"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:internal-link-plan-row:0.1.0",
+  "title": "InternalLinkPlanRow",
+  "description": "One planned internal link.",
+  "type": "object",
+  "required": [
+    "row_id",
+    "architecture_plan_id",
+    "source_url",
+    "target_url",
+    "anchor_text",
+    "anchor_language",
+    "purpose",
+    "status"
+  ],
+  "properties": {
+    "row_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "architecture_plan_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "source_url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "target_url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "anchor_text": {
+      "$ref": "common.schema.json#/$defs/label"
+    },
+    "anchor_language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "hierarchy",
+        "related",
+        "conversion",
+        "ownership_signal"
+      ]
+    },
+    "cluster_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "plan_item_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "approved",
+        "implemented",
+        "rejected"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §17",
+    "05-PROJECT-PLAN M8C"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

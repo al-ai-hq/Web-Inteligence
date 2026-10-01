@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:go-no-go-item:0.1.0",
+  "title": "GoNoGoItem",
+  "description": "One launch criterion with evidence, owner and decision. A waiver needs a named approver.",
+  "type": "object",
+  "required": [
+    "item_id",
+    "baseline_id",
+    "criterion",
+    "category",
+    "required",
+    "status",
+    "owner_user_id",
+    "evidence_ids"
+  ],
+  "properties": {
+    "item_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "baseline_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "criterion": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "redirects",
+        "parity",
+        "tracking",
+        "hreflang",
+        "sitemaps",
+        "robots",
+        "feeds",
+        "rollback_ready",
+        "owners_named",
+        "communications"
+      ]
+    },
+    "required": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "pass",
+        "fail",
+        "waived"
+      ]
+    },
+    "waiver": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "approved_by_user_id",
+            "reason",
+            "approved_at"
+          ],
+          "properties": {
+            "approved_by_user_id": {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            "reason": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "approved_at": {
+              "$ref": "common.schema.json#/$defs/timestamp"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "owner_user_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    },
+    "decided_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "waived"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "waiver"
+        ],
+        "properties": {
+          "waiver": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

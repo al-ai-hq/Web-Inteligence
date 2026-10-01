@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:report-model:0.1.0",
+  "title": "ReportModel",
+  "description": "The canonical report model. Every projection reads from it. Anonymous reports have one projection, the in-app interactive web report, and expire within 7 days; no PDF, document, CSV, JSON, evidence or task export is ever allowed for them (D-002). A report is ready only when 100% of its numbers carry lineage.",
+  "type": "object",
+  "required": [
+    "report_id",
+    "audit_id",
+    "version",
+    "access_class",
+    "languages",
+    "allowed_projections",
+    "access",
+    "tone",
+    "content",
+    "lineage_coverage",
+    "status",
+    "needs_native_review",
+    "retention_days",
+    "created_at",
+    "expires_at"
+  ],
+  "properties": {
+    "report_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "audit_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "access_class": {
+      "$ref": "common.schema.json#/$defs/access_class"
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/language"
+      },
+      "minItems": 1,
+      "maxItems": 4,
+      "uniqueItems": true
+    },
+    "allowed_projections": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/report_projection"
+      },
+      "minItems": 1,
+      "maxItems": 8,
+      "uniqueItems": true
+    },
+    "access": {
+      "type": "object",
+      "required": [
+        "link_id",
+        "secret_hash",
+        "noindex",
+        "public_gallery"
+      ],
+      "properties": {
+        "link_id": {
+          "type": "string",
+          "minLength": 22,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]{22,64}$",
+          "description": "Unguessable report identifier (at least 128 bits, base64url)."
+        },
+        "secret_hash": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/content_hash"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Hash of the separate signed access secret. Required for anonymous reports."
+        },
+        "noindex": {
+          "type": "boolean"
+        },
+        "public_gallery": {
+          "type": "boolean",
+          "description": "Explicit opt-in after domain verification only (M12)."
+        }
+      },
+      "additionalProperties": false
+    },
+    "tone": {
+      "$ref": "common.schema.json#/$defs/tone"
+    },
+    "content": {
+      "type": "object",
+      "required": [
+        "summary_bullets",
+        "score_result_ids",
+        "finding_ids",
+        "roadmap_id",
+        "prompt_run_ids",
+        "data_gaps",
+        "limitations_keys",
+        "sample_disclosure"
+      ],
+      "properties": {
+        "summary_bullets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "minItems": 0,
+          "maxItems": 5
+        },
+        "score_result_ids": {
+          "$ref": "common.schema.json#/$defs/uuid_list"
+        },
+        "finding_ids": {
+          "$ref": "common.schema.json#/$defs/uuid_list"
+        },
+        "roadmap_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prompt_run_ids": {
+          "$ref": "common.schema.json#/$defs/uuid_list"
+        },
+        "data_gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "metric_key",
+              "needed_export_key"
+            ],
+            "properties": {
+              "metric_key": {
+                "$ref": "common.schema.json#/$defs/message_key"
+              },
+              "needed_export_key": {
+                "$ref": "common.schema.json#/$defs/message_key"
+              }
+            },
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 50
+        },
+        "limitations_keys": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/message_key"
+          },
+          "minItems": 0,
+          "maxItems": 50
+        },
+        "sample_disclosure": {
+          "type": "object",
+          "required": [
+            "pages_checked",
+            "sampled"
+          ],
+          "properties": {
+            "pages_checked": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "sampled": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "lineage_coverage": {
+      "type": "object",
+      "required": [
+        "numbers_total",
+        "numbers_with_lineage",
+        "ratio"
+      ],
+      "properties": {
+        "numbers_total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "numbers_with_lineage": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "ready",
+        "blocked_lineage",
+        "expired",
+        "deleted"
+      ]
+    },
+    "needs_native_review": {
+      "type": "boolean"
+    },
+    "retention_days": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3650
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "access_class": {
+            "const": "anonymous"
+          }
+        },
+        "required": [
+          "access_class"
+        ]
+      },
+      "then": {
+        "required": [
+          "expires_at"
+        ],
+        "properties": {
+          "allowed_projections": {
+            "items": {
+              "const": "web_interactive"
+            },
+            "maxItems": 1
+          },
+          "retention_days": {
+            "maximum": 7
+          },
+          "expires_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          },
+          "access": {
+            "required": [
+              "secret_hash"
+            ],
+            "properties": {
+              "secret_hash": {
+                "$ref": "common.schema.json#/$defs/content_hash"
+              },
+              "noindex": {
+                "const": true
+              },
+              "public_gallery": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ready"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "lineage_coverage": {
+            "properties": {
+              "ratio": {
+                "const": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §3.1, §13",
+    "D-002",
+    "D-003",
+    "02-DETAILED-SPECIFICATION §15"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

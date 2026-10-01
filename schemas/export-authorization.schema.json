@@ -1,0 +1,387 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:export-authorization:0.1.0",
+  "title": "ExportAuthorization",
+  "description": "A server-side decision on one export request. Every export request is evaluated here. Requests from anonymous users are always denied (D-002).",
+  "type": "object",
+  "required": [
+    "authorization_id",
+    "report_id",
+    "audit_id",
+    "requested_at",
+    "requester",
+    "format",
+    "decision",
+    "denial_reason",
+    "state",
+    "decided_at",
+    "decided_by",
+    "download"
+  ],
+  "properties": {
+    "authorization_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "report_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "audit_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "requested_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "requester": {
+      "type": "object",
+      "required": [
+        "access_class",
+        "user_id",
+        "project_id"
+      ],
+      "properties": {
+        "access_class": {
+          "$ref": "common.schema.json#/$defs/access_class"
+        },
+        "user_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "project_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "format": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/report_projection"
+        },
+        {
+          "not": {
+            "const": "web_interactive"
+          }
+        }
+      ],
+      "description": "Requested export format. The in-app web view is not an export."
+    },
+    "decision": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "authorized",
+            "denied"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Null only while state is REQUESTED or EVALUATING."
+    },
+    "denial_reason": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "anonymous_export_prohibited",
+            "plan_not_eligible",
+            "not_project_member",
+            "report_expired",
+            "report_deleted",
+            "lineage_incomplete",
+            "rate_limited"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "$ref": "common.schema.json#/$defs/export_authorization_state"
+    },
+    "decided_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decided_by": {
+      "const": "export_policy_service",
+      "description": "Decided server-side by a deterministic service; never by the client or an AI agent."
+    },
+    "download": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "expires_at",
+            "max_downloads",
+            "artifact_uri"
+          ],
+          "properties": {
+            "expires_at": {
+              "$ref": "common.schema.json#/$defs/timestamp"
+            },
+            "max_downloads": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            },
+            "artifact_uri": {
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/storage_uri"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "audit_event_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "requester": {
+            "properties": {
+              "access_class": {
+                "const": "anonymous"
+              }
+            },
+            "required": [
+              "access_class"
+            ]
+          }
+        },
+        "required": [
+          "requester"
+        ]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "denied",
+              null
+            ]
+          },
+          "denial_reason": {
+            "enum": [
+              "anonymous_export_prohibited",
+              null
+            ]
+          },
+          "state": {
+            "enum": [
+              "REQUESTED",
+              "EVALUATING",
+              "DENIED"
+            ]
+          },
+          "download": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "REQUESTED",
+              "EVALUATING"
+            ]
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "type": "null"
+          },
+          "denial_reason": {
+            "type": "null"
+          },
+          "decided_at": {
+            "type": "null"
+          },
+          "download": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "DENIED"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "const": "denied"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "AUTHORIZED",
+              "GENERATING",
+              "READY",
+              "EXPIRED",
+              "REVOKED",
+              "FAILED"
+            ]
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "const": "authorized"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "denied"
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "then": {
+        "properties": {
+          "denial_reason": {
+            "type": "string"
+          },
+          "decided_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          },
+          "download": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "authorized"
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "then": {
+        "properties": {
+          "denial_reason": {
+            "type": "null"
+          },
+          "decided_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          },
+          "requester": {
+            "properties": {
+              "access_class": {
+                "const": "registered"
+              },
+              "user_id": {
+                "$ref": "common.schema.json#/$defs/uuid"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "READY"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "download": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §3.1, §13, §21",
+    "D-002"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

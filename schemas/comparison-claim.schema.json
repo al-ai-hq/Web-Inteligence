@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:comparison-claim:0.1.0",
+  "title": "ComparisonClaim",
+  "description": "One factual claim on a comparison, alternatives or best-for page. Every competitor claim needs a dated source, a freshness date and a correction path.",
+  "type": "object",
+  "required": [
+    "claim_id",
+    "subject",
+    "claim_type",
+    "statement",
+    "language",
+    "source_ids",
+    "dated_on",
+    "freshness_expires_on",
+    "legal_review_required",
+    "status",
+    "correction_path"
+  ],
+  "properties": {
+    "claim_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "page_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "brief_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "subject": {
+      "type": "string",
+      "enum": [
+        "own",
+        "competitor"
+      ]
+    },
+    "competitor_name": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "claim_type": {
+      "type": "string",
+      "enum": [
+        "price",
+        "feature",
+        "availability",
+        "performance",
+        "rating",
+        "policy",
+        "other"
+      ]
+    },
+    "statement": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "language": {
+      "$ref": "common.schema.json#/$defs/language"
+    },
+    "source_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/uuid"
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "dated_on": {
+      "$ref": "common.schema.json#/$defs/date"
+    },
+    "freshness_expires_on": {
+      "$ref": "common.schema.json#/$defs/date"
+    },
+    "legal_review_required": {
+      "type": "boolean"
+    },
+    "trademark_flag": {
+      "type": "boolean"
+    },
+    "regulated_flag": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "verified",
+        "stale",
+        "disputed",
+        "removed"
+      ]
+    },
+    "correction_path": {
+      "$ref": "common.schema.json#/$defs/text"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "subject": {
+            "const": "competitor"
+          }
+        },
+        "required": [
+          "subject"
+        ]
+      },
+      "then": {
+        "properties": {
+          "competitor_name": {
+            "$ref": "common.schema.json#/$defs/label"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §17",
+    "04-CLAUDE-CODE-BUILD-PROMPT §25"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:batch-decision:0.1.0",
+  "title": "BatchDecision",
+  "description": "A decision on a generation batch. The programmatic governor agent may only pause or stop; proceeding needs a human.",
+  "type": "object",
+  "required": [
+    "decision_id",
+    "batch_id",
+    "decision",
+    "actor",
+    "reason",
+    "evidence_ids",
+    "decided_at"
+  ],
+  "properties": {
+    "decision_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "batch_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "proceed",
+        "pause",
+        "merge",
+        "remove",
+        "stop"
+      ]
+    },
+    "actor": {
+      "type": "string",
+      "enum": [
+        "programmatic_governor",
+        "human"
+      ]
+    },
+    "user_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reason": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    },
+    "decided_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "actor": {
+            "const": "programmatic_governor"
+          }
+        },
+        "required": [
+          "actor"
+        ]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "pause",
+              "stop"
+            ]
+          },
+          "user_id": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "actor": {
+            "const": "human"
+          }
+        },
+        "required": [
+          "actor"
+        ]
+      },
+      "then": {
+        "properties": {
+          "user_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §25"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

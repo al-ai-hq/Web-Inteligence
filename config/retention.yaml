@@ -1,0 +1,177 @@
+# Purpose: Retention periods and deletion behavior per data item for anonymous audits, registered projects
+#          and shared operational data. The daily deletion job and deletion receipts read this file.
+# Owner role: Privacy owner, with legal and privacy counsel and the platform engineer
+# Source sections: v1-baseline §9.6, §10; 02-DETAILED-SPECIFICATION §16, §17; 01-PRODUCT-REQUIREMENTS §5.0, §9, §12, §16;
+#                  04-CLAUDE-CODE-BUILD-PROMPT §3.1, §19; docs/decisions.md D-002, D-003, D-004
+# Status: draft for review
+#
+# Rules for this file:
+# - Durations use ISO 8601 (PT24H, P7D, P30D). No item may be kept longer than its source allows.
+# - D-002: anonymous reports and evidence expire after 7 days at most and can be deleted any time.
+# - D-003: registered-project evidence defaults to 30 days unless an approved plan says otherwise.
+# - Where a provider's terms require a shorter period, the shorter period applies (v1-baseline §10).
+# - This is a product baseline, not legal advice. Counsel reviews every period before launch.
+
+version: "0.1.0-draft"
+
+principles:
+  - "Show the report expiration date (v1-baseline §10)."
+  - "Allow immediate user deletion (v1-baseline §9.6, §10; 01-PRODUCT-REQUIREMENTS §9)."
+  - "Run a daily deletion job (v1-baseline §10; 02-DETAILED-SPECIFICATION §11)."
+  - "Record deletion completion without retaining deleted content (v1-baseline §10)."
+  - "Verify downstream deletion (01-PRODUCT-REQUIREMENTS §9)."
+  - "Apply provider-specific rules when shorter or more restrictive (v1-baseline §10)."
+  - "Review Google Grounding display, storage and citation requirements before launch and on provider changes (v1-baseline §10; 02-DETAILED-SPECIFICATION §17)."
+
+anonymous:
+  max_retention: P7D
+  source_reference: ["D-002", "01-PRODUCT-REQUIREMENTS §5.0, §9, §16", "04-CLAUDE-CODE-BUILD-PROMPT §3.1, §19"]
+  exports: none
+  exports_note: "No PDF, document, CSV, JSON, evidence or task download for anonymous users; denied server-side (D-002)."
+  items:
+    - id: anonymous_raw_fetch_snapshots
+      data: "Raw fetched HTML and rendered snapshots"
+      retention: PT24H
+      deletion: "Delete after extraction; retain hashes and necessary evidence snippets only."
+      source_reference: "v1-baseline §10"
+    - id: anonymous_evidence_and_findings
+      data: "Normalized crawl evidence, rule results and findings"
+      retention: P7D
+      deletion: "Delete with the audit, on user request, or automatically at expiry."
+      source_reference: "D-002 (v1-baseline §10 allowed 30 days; D-002 shortens it)"
+    - id: anonymous_llm_prompts_and_responses
+      data: "Raw AI-visibility prompts, responses and citations"
+      retention: P7D
+      deletion: "Delete with the audit or at expiry; earlier when provider terms require."
+      source_reference: "D-002; v1-baseline §10"
+    - id: anonymous_web_report
+      data: "Interactive in-app web report"
+      retention: P7D
+      deletion: "Private link stops working and data is deleted at expiry or on user request."
+      access: "Unguessable audit identifier plus a separate signed access secret; noindex; never published to a gallery."
+      source_reference: "D-002; 01-PRODUCT-REQUIREMENTS §5.0"
+    - id: anonymous_access_secret
+      data: "Signed temporary access secret for the report link"
+      retention: P7D
+      deletion: "Expires with the report; invalidated on deletion."
+      source_reference: "D-002; 04-CLAUDE-CODE-BUILD-PROMPT §3.1"
+  claim_after_registration: "A report claimed after registration moves to the registered schedule; claiming never proves domain ownership (D-004)."
+  eligibility_signals:
+    note: "Not report or evidence data. Periods are open decisions and need legal review."
+    signed_first_audit_cookie_lifetime: "<DECIDE_AT_M0: cookie lifetime; legal review of whether it counts as essential (v1-baseline §9.9)>"
+    recent_domain_audit_state: "<DECIDE_AT_M0: how long the product remembers that a domain was audited, and in what minimized form>"
+    request_velocity_counters: "<DECIDE_AT_M0: counter window>"
+
+registered:
+  default_evidence_retention: P30D
+  source_reference: ["D-003", "01-PRODUCT-REQUIREMENTS §9", "04-CLAUDE-CODE-BUILD-PROMPT §19"]
+  override: "Only an approved plan or policy may change the default (01-PRODUCT-REQUIREMENTS §9, §14)."
+  items:
+    - id: registered_raw_fetch_snapshots
+      data: "Raw fetched HTML and rendered snapshots"
+      retention: PT24H
+      deletion: "Delete after extraction; retain hashes and necessary evidence snippets only."
+      source_reference: "v1-baseline §10"
+    - id: registered_evidence_and_findings
+      data: "Normalized crawl evidence, rule results and findings"
+      retention: P30D
+      deletion: "Delete with the audit, on user request, or automatically at expiry."
+      source_reference: "D-003; v1-baseline §10"
+    - id: registered_llm_prompts_and_responses
+      data: "Raw AI-visibility prompts, responses and citations"
+      retention: P30D
+      retention_note: "30 days maximum; shorter where provider terms require."
+      source_reference: "v1-baseline §10; 02-DETAILED-SPECIFICATION §16"
+    - id: registered_web_report
+      data: "Web report"
+      retention: P30D
+      deletion: "Private URL expires; data deleted."
+      source_reference: "v1-baseline §10; D-003"
+    - id: registered_exports
+      data: "PDF, document, CSV and JSON exports for eligible registered plans"
+      retention: P30D
+      deletion: "Object deleted and signed links invalidated."
+      source_reference: "v1-baseline §10 (generated PDF)"
+    - id: keyword_uploads
+      data: "Keyword CSV uploads and derived clusters"
+      retention: P30D
+      retention_note: "02-DETAILED-SPECIFICATION §16 says 'workspace setting'; ASSUMPTION: the D-003 default applies until a project setting is approved."
+      source_reference: "02-DETAILED-SPECIFICATION §16"
+    - id: search_console_and_ga4_data
+      data: "Search Console rows, URL Inspection results, GA4 rows, imported generative AI export"
+      retention: P30D
+      retention_note: "Workspace setting in 02-DETAILED-SPECIFICATION §16; ASSUMPTION: the D-003 default applies."
+      source_reference: "02-DETAILED-SPECIFICATION §16"
+    - id: server_or_cdn_logs
+      data: "Client-uploaded server or CDN logs"
+      retention: P30D
+      retention_note: "ASSUMPTION in 02-DETAILED-SPECIFICATION §16."
+      source_reference: "02-DETAILED-SPECIFICATION §16"
+    - id: licensed_keyword_data
+      data: "Keyword Planner or licensed keyword data"
+      retention: "per provider terms"
+      source_reference: "02-DETAILED-SPECIFICATION §16"
+    - id: brand_fact_sheet_terms_style_guide
+      data: "Brand fact sheet, brand-term list, style guides"
+      retention: "project lifetime"
+      retention_note: "02-DETAILED-SPECIFICATION §16 says workspace lifetime; under D-004 the unit is the Project."
+      source_reference: "02-DETAILED-SPECIFICATION §16; D-004"
+    - id: connector_credentials
+      data: "CMS or Git credentials (references in Secret Manager)"
+      retention: "until disconnect"
+      deletion: "Revoked and deleted on disconnect."
+      source_reference: "02-DETAILED-SPECIFICATION §16, §17"
+    - id: change_snapshots_and_approvals
+      data: "Change snapshots and approval records"
+      retention: P12M
+      retention_note: "ASSUMPTION in 02-DETAILED-SPECIFICATION §16, pending legal review; listed as an open decision in 02-DETAILED-SPECIFICATION §20."
+      source_reference: "02-DETAILED-SPECIFICATION §16, §20"
+    - id: account_records
+      data: "User account and project records"
+      retention: "<DECIDE_AT_M0: account and project record retention after account deletion; legal review>"
+      source_reference: "not specified in the sources"
+
+operational:
+  items:
+    - id: security_and_rate_limit_logs
+      data: "IP, security and rate-limit logs"
+      retention: P30D
+      deletion: "Delete or irreversibly aggregate."
+      source_reference: "v1-baseline §10"
+    - id: application_error_logs
+      data: "Application error logs"
+      retention: P30D
+      deletion: "Redact URLs, page content, prompts and email addresses."
+      source_reference: "v1-baseline §10"
+    - id: delivery_logs
+      data: "Delivery logs without message content (registered notifications only; anonymous audits collect no email)"
+      retention: P30D
+      deletion: "Aggregate success metrics may remain non-identifying."
+      source_reference: "v1-baseline §10; D-002"
+    - id: encrypted_backups
+      data: "Encrypted backups"
+      retention: P35D
+      retention_note: "Up to 35 days after source deletion; expire automatically; a restore reapplies the deletion queue."
+      conflict_note: "Anonymous data can persist in encrypted backups beyond the 7-day D-002 limit. Open item: confirm with counsel or shorten backup retention for anonymous data."
+      source_reference: "v1-baseline §10"
+    - id: aggregated_anonymous_metrics
+      data: "Aggregated anonymous metrics"
+      retention: "indefinite"
+      condition: "Must not permit re-identification."
+      source_reference: "v1-baseline §10"
+    - id: audit_log
+      data: "Append-only audit log of access, approvals, writes, publication and deletion"
+      retention: "<DECIDE_AT_M0: audit-log retention; legal review>"
+      source_reference: "02-DETAILED-SPECIFICATION §17; 01-PRODUCT-REQUIREMENTS §9"
+    - id: deletion_receipts
+      data: "Deletion completion records without deleted content"
+      retention: "<DECIDE_AT_M0: deletion-receipt retention>"
+      source_reference: "v1-baseline §10"
+    - id: marketing_consent_record
+      data: "Separate marketing consent record, if introduced"
+      retention: "until withdrawal plus the required legal proof period"
+      source_reference: "v1-baseline §10"
+    - id: methodology_registries
+      data: "Rules, crawler, provider, schema-requirement and policy-fact registries"
+      retention: "versioned indefinitely"
+      source_reference: "02-DETAILED-SPECIFICATION §16"

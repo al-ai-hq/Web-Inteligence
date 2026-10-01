@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:merchant-issue:0.1.0",
+  "title": "MerchantIssue",
+  "description": "An issue exactly as reported by Merchant Center. Counts are only those reported; the product never estimates disapprovals.",
+  "type": "object",
+  "required": [
+    "issue_id",
+    "project_id",
+    "source",
+    "issue_code",
+    "reported_severity",
+    "affected_item_refs",
+    "reported_at",
+    "integrity_state",
+    "lineage"
+  ],
+  "properties": {
+    "issue_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "merchant_center_export",
+        "merchant_api"
+      ]
+    },
+    "issue_code": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Code as reported by the source."
+    },
+    "reported_severity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Vendor label as reported; not mapped to WPI severity."
+    },
+    "detail": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "affected_item_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "minItems": 0,
+      "maxItems": 10000
+    },
+    "affected_count_reported": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reported_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "integrity_state": {
+      "$ref": "common.schema.json#/$defs/integrity_state"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23",
+    "01-PRODUCT-REQUIREMENTS §16"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

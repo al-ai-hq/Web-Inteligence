@@ -1,0 +1,248 @@
+# Purpose: Presence Readiness scoring method: category weights, rule result values, formulas,
+#          critical caps, evidence confidence, recommendation priority, and the rule that keeps
+#          Presence Readiness separate from every other measurement.
+# Owner role: Methodology owner (SEO lead)
+# Source sections: v1-baseline §6.1-§6.8; 02-DETAILED-SPECIFICATION §6, §7, §8, §15;
+#                  01-PRODUCT-REQUIREMENTS §5.2, §5.3, §5.12, §8 (Scoring), §12, §14;
+#                  04-CLAUDE-CODE-BUILD-PROMPT §7.1-§7.2; docs/decisions.md D-006, D-012
+# Status: draft for review
+#
+# Rules for this file:
+# - Weights, caps and thresholds are methodology decisions. 01-PRODUCT-REQUIREMENTS §14 requires
+#   approval and calibration before production. Any change bumps methodology_version.
+# - Nothing here is a Google requirement. It is this product's scoring method.
+
+methodology_version: "0.1.0-draft"
+score_name: presence_readiness
+display_name:
+  en: "Presence Readiness"
+  ar: "جاهزية الحضور"  # needs_native_review: true
+scale:
+  min: 0
+  max: 100
+evaluation_basis: "Deterministic rule results plus labelled assessed results (02-DETAILED-SPECIFICATION §15). Model prose never changes a pass or fail."
+
+# v1-baseline §6.2 (unchanged by 02-DETAILED-SPECIFICATION §6). Weights are percentages and must sum to 100.
+categories:
+  crawlability:
+    weight: 20
+    title: "Crawlability and indexability"
+    v4_title: "Crawlability/indexability"
+    rules_file: "config/rules/crawlability.yaml"
+  on_page:
+    weight: 15
+    title: "On-page technical SEO"
+    v4_title: "On-page SEO and internal architecture"
+    rules_file: "config/rules/on-page.yaml"
+  structured_data:
+    weight: 10
+    title: "Structured data and machine readability"
+    v4_title: "Structured data and entity clarity"
+    rules_file: "config/rules/structured-data.yaml"
+  aeo:
+    weight: 20
+    title: "Answer Engine Optimization content"
+    v4_title: "AEO"
+    rules_file: "config/rules/aeo.yaml"
+  geo:
+    weight: 15
+    title: "GEO entity clarity, authority, and citations"
+    v4_title: "GEO"
+    rules_file: "config/rules/geo.yaml"
+  i18n_accessibility:
+    weight: 10
+    title: "Internationalization, accessibility, and mobile UX"
+    v4_title: "Internationalization/accessibility"
+    rules_file: "config/rules/i18n-accessibility.yaml"
+  performance_security:
+    weight: 10
+    title: "Performance, security, and delivery quality"
+    v4_title: "Performance/security posture"
+    rules_file: "config/rules/performance-security.yaml"
+
+# v1-baseline §6.3. Rule importance weights are integers 1-5 inside a category.
+# Unscored rules (scored: false in the rule files) have importance_weight 0 and never enter a denominator.
+rule_results:
+  pass:
+    value: 1.00
+    in_denominator: true
+    reduces_confidence: false
+  partial:
+    value: 0.50
+    in_denominator: true
+    reduces_confidence: false
+  fail:
+    value: 0.00
+    in_denominator: true
+    reduces_confidence: false
+  not_applicable:
+    value: null
+    in_denominator: false
+    reduces_confidence: false
+  unavailable:
+    value: null
+    in_denominator: false
+    reduces_confidence: true
+  error:
+    value: null
+    in_denominator: false
+    reduces_confidence: true
+
+formulas:
+  category_score: >-
+    category_score_c = 100 * SUM(result_value_r * importance_weight_r) / SUM(importance_weight_r),
+    both sums over scored rules r in category c whose result is pass, partial or fail.
+  category_score_when_no_measurable_rule: "<DECIDE_AT_M0: category score when the denominator is 0 (v1-baseline §6.3 is silent); options: category shown as unavailable and overall score shown as unavailable, or weights renormalized with disclosure>"
+  readiness_pre_cap: >-
+    readiness_pre_cap = SUM over the 7 categories of (category_score_c * category_weight_c / 100).
+  readiness_capped: >-
+    readiness = MIN(readiness_pre_cap, every critical cap that applies). Each cap is a maximum overall
+    score (v1-baseline §6.4), so the lowest applicable cap wins.
+  precision: "Calculate with full precision. Round to the nearest whole number only at the presentation boundary (v1-baseline §6.3)."
+  display:
+    - "Show the pre-cap weighted score and every applied cap (v1-baseline §6.4)."
+    - "Every score shows 'checked X of Y' (02-DETAILED-SPECIFICATION §15)."
+    - "Show coverage and confidence beside the score (01-PRODUCT-REQUIREMENTS §8, Scoring)."
+    - "Show methodology_version with the score."
+  recompute: "Scores must be recomputable from stored rule results; nightly recomputation (02-DETAILED-SPECIFICATION §15)."
+
+# v1-baseline §6.4 plus SPAM-001 from 02-DETAILED-SPECIFICATION §6.
+critical_caps:
+  - id: homepage_unretrievable
+    condition: "Homepage cannot be retrieved after safe retries"
+    max_overall_score: 20
+    related_rule_ids: [CRW-001]
+    source_reference: "v1-baseline §6.4"
+  - id: sitewide_noindex
+    condition: "Site-wide noindex or equivalent on canonical pages"
+    max_overall_score: 25
+    related_rule_ids: [CRW-003]
+    source_reference: "v1-baseline §6.4"
+  - id: robots_blocks_general_search
+    condition: "robots.txt blocks all general search crawling"
+    max_overall_score: 30
+    related_rule_ids: [CRW-004]
+    source_reference: "v1-baseline §6.4"
+  - id: unsafe_canonical_domain
+    condition: "Canonical domain resolves only to an unsafe/private address"
+    max_overall_score: null
+    action: "No audit; security rejection at intake. No score is produced."
+    related_rule_ids: []
+    source_reference: "v1-baseline §6.4"
+  - id: empty_main_content
+    condition: "Valid homepage but main content is empty to both HTML and rendered extraction"
+    max_overall_score: 45
+    related_rule_ids: [DEL-001]
+    source_reference: "v1-baseline §6.4"
+  - id: https_unavailable
+    condition: "HTTPS unavailable or certificate invalid"
+    max_overall_score: 60
+    related_rule_ids: [PRF-001]
+    source_reference: "v1-baseline §6.4"
+  - id: spam_policy_confirmed
+    condition: "Confirmed SPAM-001 failure (scaled or templated thin pages, doorway patterns, hidden text or fabricated review markup)"
+    max_overall_score: 50
+    status: "ASSUMPTION: proposed cap pending calibration on the labelled site set (02-DETAILED-SPECIFICATION §6)"
+    confirmation: "<DECIDE_AT_M0: what confirms a SPAM-001 failure before the cap applies, e.g. human review of the screen output>"
+    also: "Blocks automatic fixes on the affected pages (02-DETAILED-SPECIFICATION §6)."
+    related_rule_ids: [SPAM-001]
+    source_reference: "02-DETAILED-SPECIFICATION §6"
+caps_note: "related_rule_ids are for traceability. ASSUMPTION: a cap triggers on its stated condition, which the related rule's evidence records; the rule result alone does not apply a cap."
+
+# v1-baseline §6.5. Confidence is not statistical probability.
+confidence:
+  coverage_formula: "coverage = measurable_applicable_weight / total_expected_applicable_weight"
+  levels:
+    high:
+      min_coverage: 0.90
+      min_pages_inspected: 10
+      all_critical_stages_completed: true
+    medium:
+      min_coverage: 0.70
+      homepage_inspected: true
+      min_important_pages_inspected_besides_homepage: 4
+    low:
+      description: "Coverage below 0.70, fewer than five pages inspected, or a critical stage failed."
+  evaluation_order: "Test high first, then medium; anything else is low."
+  critical_stages: "<DECIDE_AT_M0: list of critical stages; v1-baseline §6.5 does not name them. Candidates from 03-PRODUCTION-CONTRACTS workflow states: VALIDATING, CRAWLING, EXTRACTING, AUDITING>"
+  not_probability: true
+
+# v1-baseline §6.6 and 02-DETAILED-SPECIFICATION §8. Priority orders recommendations; it never changes a score.
+priority:
+  formula: "priority_value = impact * reach * confidence_factor / effort"
+  inputs:
+    impact: {min: 1, max: 5, note: "Judgment, shown as High, Medium or Low; not a forecast."}
+    reach:
+      min: 1
+      max: 5
+      note: "Number or share of important pages affected, normalized 1-5. Uses keyword volume or Search Console impressions when available, never mixing sources in one figure."
+    effort: {min: 1, max: 5, note: "1 is easiest. Judgment, shown as High, Medium or Low."}
+    confidence_factor:
+      high: 1.0
+      medium: 0.75
+      low: 0.5
+  display_bands:
+    labels: [critical, high, medium, low]
+    thresholds: "<DECIDE_AT_M0: versioned priority_value thresholds for each label (v1-baseline §6.6 requires versioned thresholds but gives no values)>"
+  plan_ordering: "Order by business impact on key pages, then effort, then confidence (02-DETAILED-SPECIFICATION §8)."
+  plan_groups: [critical_blocker, quick_win, strategic_opportunity, measurement_fix, polish]
+  horizons: ["0-30", "31-60", "61-90"]
+  executive_board_size: {min: 8, max: 12, source_reference: "01-PRODUCT-REQUIREMENTS §5.12"}
+  forbidden: "Never forecast rankings, traffic, citations or revenue (02-DETAILED-SPECIFICATION §8)."
+
+# D-012 and 01-PRODUCT-REQUIREMENTS §5.3, §8. These measurements are separate outputs.
+separation:
+  never_blend:
+    - presence_readiness
+    - experience_effectiveness
+    - ai_visibility
+    - search_performance
+  rule: >-
+    Presence Readiness is computed only from the seven categories above. Experience Effectiveness,
+    observed AI visibility and search performance are never added to, averaged with, weighted into,
+    or used to cap Presence Readiness, and Presence Readiness is never blended into any of them.
+    Each is shown as its own score or scorecard with its own confidence and denominators.
+  readiness_is_not_presence: "Readiness checks never support a claim about presence in AI answers (02-DETAILED-SPECIFICATION §6)."
+  unscored_rules: "Rules with scored: false (GSC-003, GEO-010, SPAM-001, AGT-002) never enter a category denominator. SPAM-001 acts only through its critical cap."
+  ui_and_exports: "Readiness and observed AI visibility cannot be confused in UI or exports (01-PRODUCT-REQUIREMENTS §12)."
+
+# Separate outputs, described here only so implementers see the boundary.
+separate_outputs:
+  experience_effectiveness:
+    status: "Defined at M5 (01-PRODUCT-REQUIREMENTS §5.3; 05-PROJECT-PLAN M5)."
+    dimensions: [design_hierarchy, copy_and_positioning_clarity, ux_and_navigation, trust_and_proof, conversion_path_and_measurement]
+    weights: "<DECIDE_AT_M0: experience rubric and weights need approval (01-PRODUCT-REQUIREMENTS §14)>"
+    fidelity_label: assessed
+    requires: "Rubric, evidence, confidence and reviewer trace for every subjective check."
+  ai_visibility:
+    source_reference: "v1-baseline §6.7-§6.8; 02-DETAILED-SPECIFICATION §6"
+    metrics:
+      mention_rate: "responses_mentioning_entity / valid_responses"
+      recommendation_rate: "responses_recommending_entity / valid_discovery_and_comparison_responses"
+      domain_citation_rate: "responses_citing_target_domain / valid_responses"
+      provider_coverage: "providers_with_valid_responses / configured_providers"
+      share_of_observed_mentions: "entity_mentions / all_extracted_organization_mentions"
+      accuracy_issue_count: "count of accuracy issues on brand_facts prompts (connected panel)"
+    rules:
+      - "Zero valid responses produces unavailable, not 0%."
+      - "Provider failures and open circuit breakers are excluded from valid denominators and shown as unavailable, never 0%."
+      - "Branded prompts do not count toward recommendation rate."
+      - "A mention in a cited source list does not count as a recommendation."
+      - "An organization name that appears only in the submitted prompt is not a response mention."
+      - "Show numerator and denominator beside every rate."
+      - "Do not average provider percentages when denominators differ; aggregate compatible counts."
+      - "Cells with fewer than 10 runs show counts, not percentages (02-DETAILED-SPECIFICATION §6)."
+      - "The free panel is a single-run snapshot shown as counts (D-006)."
+      - "Never describe results as a universal AI ranking; label them API observations, not consumer-app reproductions."
+  search_performance:
+    source_reference: "02-DETAILED-SPECIFICATION §7"
+    contents: [clusters_with_mapped_page, share_of_clusters_average_position_10_or_better, click_trend, impression_trend, imported_generative_ai_impressions]
+    rules:
+      - "CTR computed from totals; average position is an impression-weighted average, not a fixed rank."
+      - "Rate changes in percentage points."
+      - "Never add Search Console clicks, GA4 sessions, provider observations and business outcomes together."
+
+governance:
+  change_control: "Do not change weights, caps or thresholds without bumping methodology_version and recording the decision."
+  calibration: "Calibrate weights, caps and thresholds on the labelled site set before production (04-CLAUDE-CODE-BUILD-PROMPT §7.1)."
+  no_universal_thresholds: "No arbitrary universal thresholds (01-PRODUCT-REQUIREMENTS §8, Scoring)."

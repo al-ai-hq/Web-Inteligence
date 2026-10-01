@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:url-inventory-row:0.1.0",
+  "title": "URLInventoryRow",
+  "description": "One URL in the pre-migration inventory. Arabic URLs keep their original encoding.",
+  "type": "object",
+  "required": [
+    "row_id",
+    "baseline_id",
+    "url_as_found",
+    "url_normalized",
+    "http_status",
+    "indexable",
+    "canonical_url",
+    "in_sitemap",
+    "priority",
+    "lineage"
+  ],
+  "properties": {
+    "row_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "baseline_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "url_as_found": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 4096,
+      "pattern": "^https?://"
+    },
+    "url_normalized": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "http_status": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "indexable": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "canonical_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "language": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/language"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "market": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/market"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "hreflang_targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "language",
+          "url"
+        ],
+        "properties": {
+          "language": {
+            "$ref": "common.schema.json#/$defs/language"
+          },
+          "url": {
+            "$ref": "common.schema.json#/$defs/url"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "template_key": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_key"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "in_sitemap": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "normal"
+      ]
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:crawl-diff:0.1.0",
+  "title": "CrawlDiff",
+  "description": "A deterministic like-for-like diff between two snapshots. Severity is triage, not a verdict; a diff is not traffic-impact proof.",
+  "type": "object",
+  "required": [
+    "diff_id",
+    "baseline_snapshot_id",
+    "compare_snapshot_id",
+    "like_for_like",
+    "engine_version",
+    "rows",
+    "generated_at",
+    "lineage"
+  ],
+  "properties": {
+    "diff_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "baseline_snapshot_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "compare_snapshot_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "like_for_like": {
+      "const": true,
+      "description": "Same URL set, crawler method and methodology version; otherwise no diff is produced."
+    },
+    "engine_version": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "row_id",
+          "url",
+          "dimension",
+          "before",
+          "after",
+          "triage_severity"
+        ],
+        "properties": {
+          "row_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "url": {
+            "$ref": "common.schema.json#/$defs/url"
+          },
+          "dimension": {
+            "$ref": "common.schema.json#/$defs/diff_dimension"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "after": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "triage_severity": {
+            "allOf": [
+              {
+                "$ref": "common.schema.json#/$defs/severity"
+              },
+              {
+                "enum": [
+                  "critical",
+                  "high",
+                  "medium",
+                  "low"
+                ]
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 20000
+    },
+    "generated_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §17",
+    "04-CLAUDE-CODE-BUILD-PROMPT §25",
+    "05-PROJECT-PLAN M8C"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

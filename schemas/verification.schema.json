@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:verification:0.1.0",
+  "title": "Verification",
+  "description": "Whether an applied operation is live and correct, from a fresh public fetch, never from a CMS API response alone. 'Live on site' and 'seen by Google' are reported separately.",
+  "type": "object",
+  "required": [
+    "verification_id",
+    "change_set_id",
+    "op_id",
+    "risk_tier",
+    "fetched_at",
+    "fetch_evidence_id",
+    "live_value",
+    "status",
+    "live_on_site",
+    "seen_by_google",
+    "rule_deltas",
+    "recommendation"
+  ],
+  "properties": {
+    "verification_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "change_set_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "op_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "risk_tier": {
+      "$ref": "common.schema.json#/$defs/plan_risk_tier"
+    },
+    "fetched_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "fetch_evidence_id": {
+      "$ref": "common.schema.json#/$defs/uuid",
+      "description": "EvidenceObject from the fresh public fetch."
+    },
+    "live_value": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 100000
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "mismatch",
+        "partial",
+        "pending_google"
+      ]
+    },
+    "live_on_site": {
+      "type": "boolean"
+    },
+    "seen_by_google": {
+      "type": "string",
+      "enum": [
+        "yes",
+        "no",
+        "pending",
+        "not_checked"
+      ]
+    },
+    "rule_deltas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "rule_id",
+          "before",
+          "after"
+        ],
+        "properties": {
+          "rule_id": {
+            "$ref": "common.schema.json#/$defs/rule_id"
+          },
+          "before": {
+            "$ref": "common.schema.json#/$defs/rule_result"
+          },
+          "after": {
+            "$ref": "common.schema.json#/$defs/rule_result"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "gsc_inspection": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "inspected_at",
+            "result_summary",
+            "evidence_id"
+          ],
+          "properties": {
+            "inspected_at": {
+              "$ref": "common.schema.json#/$defs/timestamp"
+            },
+            "result_summary": {
+              "$ref": "common.schema.json#/$defs/text"
+            },
+            "evidence_id": {
+              "$ref": "common.schema.json#/$defs/uuid"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Optional URL Inspection result within quota."
+    },
+    "recommendation": {
+      "type": "string",
+      "enum": [
+        "keep",
+        "rollback",
+        "human_review"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "verified"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "live_on_site": {
+            "const": true
+          },
+          "recommendation": {
+            "const": "keep"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "mismatch"
+          },
+          "risk_tier": {
+            "enum": [
+              1,
+              2
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "risk_tier"
+        ]
+      },
+      "then": {
+        "properties": {
+          "recommendation": {
+            "const": "rollback"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "mismatch"
+          },
+          "risk_tier": {
+            "const": 3
+          }
+        },
+        "required": [
+          "status",
+          "risk_tier"
+        ]
+      },
+      "then": {
+        "properties": {
+          "recommendation": {
+            "const": "human_review"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix A (runtime agent instructions) (VERIFIER)",
+    "02-DETAILED-SPECIFICATION §10"
+  ],
+  "x-source-fields": [
+    "verification_id",
+    "change_set_id",
+    "op_id",
+    "fetched_at",
+    "live_value",
+    "status",
+    "rule_deltas",
+    "gsc_inspection",
+    "recommendation"
+  ],
+  "x-added-fields": [
+    "risk_tier",
+    "fetch_evidence_id",
+    "live_on_site",
+    "seen_by_google"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

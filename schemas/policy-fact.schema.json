@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:policy-fact:0.1.0",
+  "title": "PolicyFact",
+  "description": "A time-sensitive provider, platform, schema, shopping, Business Profile, crawler or migration fact with its primary source, checked date, owner, review date and expiry. Expired facts cannot support client-facing guidance.",
+  "type": "object",
+  "required": [
+    "policy_fact_id",
+    "key",
+    "domain",
+    "statement",
+    "source_url",
+    "source_tier",
+    "checked_on",
+    "owner",
+    "review_on",
+    "expires_on",
+    "status",
+    "version"
+  ],
+  "properties": {
+    "policy_fact_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "key": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+      "description": "Dotted key, e.g. google.search.faq_rich_results."
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "ai_provider",
+        "crawler",
+        "search_feature",
+        "structured_data",
+        "shopping",
+        "business_profile",
+        "platform",
+        "migration",
+        "quota",
+        "pricing",
+        "legal_terms",
+        "other"
+      ]
+    },
+    "statement": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "Plain statement of the fact as currently documented."
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": [
+            "string",
+            "number",
+            "boolean"
+          ],
+          "maxLength": 2000
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Machine-usable value when there is one."
+    },
+    "source_url": {
+      "$ref": "common.schema.json#/$defs/url"
+    },
+    "source_tier": {
+      "$ref": "common.schema.json#/$defs/source_tier"
+    },
+    "checked_on": {
+      "$ref": "common.schema.json#/$defs/date"
+    },
+    "owner": {
+      "$ref": "common.schema.json#/$defs/label",
+      "description": "Accountable owner role or person."
+    },
+    "review_on": {
+      "$ref": "common.schema.json#/$defs/date"
+    },
+    "expires_on": {
+      "$ref": "common.schema.json#/$defs/date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "current",
+        "due_for_review",
+        "expired",
+        "superseded"
+      ]
+    },
+    "superseded_by": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT §23",
+    "01-PRODUCT-REQUIREMENTS §15",
+    "03-PRODUCTION-CONTRACTS: Minimum schema set"
+  ],
+  "x-source-fields": [
+    "source_url",
+    "checked_on",
+    "owner",
+    "review_on",
+    "expires_on"
+  ],
+  "x-added-fields": [
+    "policy_fact_id",
+    "key",
+    "domain",
+    "statement",
+    "value",
+    "source_tier",
+    "status",
+    "superseded_by",
+    "version"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,323 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:performance-diagnosis:0.1.0",
+  "title": "PerformanceDiagnosis",
+  "description": "Explanation of an organic performance change from tool results only. Every number references a stored observation; rate changes are percentage points; calendar effects are checked before attributing a change to SEO.",
+  "type": "object",
+  "required": [
+    "diagnosis_id",
+    "project_id",
+    "periods",
+    "change_summary",
+    "driver",
+    "shape",
+    "top_segments",
+    "explanations",
+    "unresolved",
+    "opportunities",
+    "calendar_events",
+    "evidence_ids",
+    "created_at",
+    "lineage"
+  ],
+  "properties": {
+    "diagnosis_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid",
+      "description": "Build prompt field workspace_id maps to project_id until M11 (D-004)."
+    },
+    "periods": {
+      "type": "object",
+      "required": [
+        "current",
+        "previous",
+        "equal_length"
+      ],
+      "properties": {
+        "current": {
+          "$ref": "common.schema.json#/$defs/date_range"
+        },
+        "previous": {
+          "$ref": "common.schema.json#/$defs/date_range"
+        },
+        "equal_length": {
+          "const": true,
+          "description": "Compared periods must have equal length."
+        }
+      },
+      "additionalProperties": false
+    },
+    "change_summary": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "driver": {
+      "type": "string",
+      "enum": [
+        "impressions",
+        "ctr",
+        "both",
+        "undetermined"
+      ]
+    },
+    "shape": {
+      "type": "string",
+      "enum": [
+        "step",
+        "gradual",
+        "undetermined"
+      ]
+    },
+    "top_segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "segment",
+          "contribution",
+          "evidence_ids"
+        ],
+        "properties": {
+          "segment": {
+            "type": "object",
+            "required": [
+              "dimension",
+              "value"
+            ],
+            "properties": {
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "page",
+                  "query_cluster",
+                  "brand_segment",
+                  "market",
+                  "device",
+                  "search_appearance"
+                ]
+              },
+              "value": {
+                "$ref": "common.schema.json#/$defs/label"
+              }
+            },
+            "additionalProperties": false
+          },
+          "contribution": {
+            "type": "object",
+            "required": [
+              "value",
+              "unit",
+              "observation_id"
+            ],
+            "properties": {
+              "value": {
+                "type": "number"
+              },
+              "unit": {
+                "type": "string",
+                "enum": [
+                  "percent",
+                  "percentage_points",
+                  "count",
+                  "new"
+                ]
+              },
+              "observation_id": {
+                "$ref": "common.schema.json#/$defs/uuid",
+                "description": "PerformanceObservation the number comes from."
+              }
+            },
+            "additionalProperties": false
+          },
+          "evidence_ids": {
+            "$ref": "common.schema.json#/$defs/evidence_ids"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 20
+    },
+    "explanations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "claim",
+          "confidence",
+          "evidence_ids"
+        ],
+        "properties": {
+          "claim": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "confidence": {
+            "$ref": "common.schema.json#/$defs/confidence_level"
+          },
+          "evidence_ids": {
+            "$ref": "common.schema.json#/$defs/evidence_ids"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 20
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "question",
+          "check_that_decides"
+        ],
+        "properties": {
+          "question": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "check_that_decides": {
+            "$ref": "common.schema.json#/$defs/text"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 20
+    },
+    "opportunities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "type",
+          "url",
+          "cluster_id",
+          "evidence_ids"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "low_ctr",
+              "striking_distance",
+              "decay",
+              "cannibalization"
+            ]
+          },
+          "url": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/url"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cluster_id": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidence_ids": {
+            "$ref": "common.schema.json#/$defs/evidence_ids"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "calendar_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "name",
+          "date_range",
+          "source_url"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ramadan",
+              "eid",
+              "national_day",
+              "weekend_pattern",
+              "google_update",
+              "google_incident",
+              "other"
+            ]
+          },
+          "name": {
+            "$ref": "common.schema.json#/$defs/label"
+          },
+          "date_range": {
+            "$ref": "common.schema.json#/$defs/date_range"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/url"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "proposed",
+  "x-source": [
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix B (data contracts)",
+    "04-CLAUDE-CODE-BUILD-PROMPT Appendix A (runtime agent instructions) (PERFORMANCE ANALYST)",
+    "02-DETAILED-SPECIFICATION §11, §15"
+  ],
+  "x-source-fields": [
+    "diagnosis_id",
+    "periods",
+    "driver",
+    "shape",
+    "top_segments",
+    "explanations",
+    "unresolved",
+    "opportunities",
+    "calendar_events",
+    "evidence_ids",
+    "change_summary"
+  ],
+  "x-added-fields": [
+    "project_id",
+    "created_at",
+    "lineage"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md",
+  "x-field-mapping": {
+    "workspace_id": "project_id"
+  }
+}

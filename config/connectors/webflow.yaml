@@ -1,0 +1,112 @@
+# Purpose: Capability and policy config for a Webflow connector: auth, scopes, allowed fields with risk tiers,
+#          staged-publish rules, webhook secret reference, rate-limit notes. Read only by the deterministic
+#          connector service, the only component that holds write credentials.
+# Owner role: Integration engineer
+# Source sections: 02-DETAILED-SPECIFICATION §10, §13, §17, §19; 03-PRODUCTION-CONTRACTS (Change risk baseline);
+#                  04-CLAUDE-CODE-BUILD-PROMPT §15; 07-SKILLS-AND-AGENTS §5, §6; 01-PRODUCT-REQUIREMENTS §5.13;
+#                  09-MERGE-DECISIONS; 08-REFERENCE-LIBRARY (Webflow: Update Page Metadata)
+# Status: draft for review
+#
+# Rules for this file:
+# - status: candidate. The first CMS/Git connector is an open decision (D-011).
+# - The endpoint and pages:write scope are from 02-DETAILED-SPECIFICATION §10 (policy fact
+#   pf-webflow-page-settings-endpoint). Other scopes and field names are verified at build; none are invented.
+
+connector_id: webflow
+display_name: "Webflow"
+status: candidate
+milestone: M9
+reference_urls: ["https://developers.webflow.com/data/reference/pages-and-components/pages/update-page-settings"]
+
+auth:
+  method: oauth
+  api: "Data API v2"
+  scopes:
+    - scope: "pages:write"
+      purpose: "Page title, slug, SEO and Open Graph fields through PUT /v2/pages/{page_id}"
+      source_reference: "02-DETAILED-SPECIFICATION §10"
+    - scope: "<confirm: read scope for pages>"
+      purpose: "Read current values and snapshot"
+    - scope: "<confirm: CMS read and write scopes for collection items>"
+      purpose: "CMS item fields"
+    - scope: "<confirm: publish scope>"
+      purpose: "Separate approved site publish"
+  credential_secret_ref: "<DECIDE_AT_M0: Secret Manager secret name for the per-site OAuth token>"
+  held_by: connector_service_only
+  rotation: "Rotate; revoke on disconnect; never sent to a model (02-DETAILED-SPECIFICATION §17)."
+
+interface: [capabilities, read_fields, snapshot, apply, publish, rollback, verify_webhook]
+
+allowed_fields:
+  - field: page.title
+    risk_tier: 2
+    api_field: "<verify at build: Update Page Metadata reference>"
+    note: "Title change needs a cannibalization result showing the page owns its main query."
+  - field: page.seo_title
+    risk_tier: 2
+    api_field: "<verify at build: Update Page Metadata reference>"
+  - field: page.seo_description
+    risk_tier: 1
+    api_field: "<verify at build: Update Page Metadata reference>"
+  - field: page.open_graph_title
+    risk_tier: 1
+    api_field: "<verify at build: Update Page Metadata reference>"
+  - field: page.open_graph_description
+    risk_tier: 1
+    api_field: "<verify at build: Update Page Metadata reference>"
+  - field: page.slug
+    risk_tier: 3
+    api_field: "<verify at build: Update Page Metadata reference>"
+    note: "Ships with its 301 redirect and internal-link updates in the same approved change set."
+  - field: cms_item.fields
+    risk_tier: 2
+    api_field: "<verify at build: CMS items reference>"
+    note: "Existing items only."
+  - field: collection_template.seo_binding
+    risk_tier: 3
+    api_field: "<verify at build>"
+    note: "Template SEO fields are fixed at the binding, not per page; fix the binding, not single pages (policy fact pf-webflow-template-seo-binding, needs verification). Template changes are tier 3."
+
+forbidden:
+  - delete_content
+  - create_page_without_named_human_author
+  - fabricated_reviews_ratings_or_claims
+  - hidden_text
+  - cloaking
+  - link_schemes
+  - write_outside_approved_target_hash_or_expiry
+
+publish_rules:
+  default_write_mode: staged
+  publish_is_separate_step: true
+  requires_separate_approval: true
+  site_publish_scope_warning: "A site publish pushes all staged changes, including other people's, so staged changes are checked first (02-DETAILED-SPECIFICATION §10; policy fact pf-webflow-site-publish-scope)."
+  pre_publish_check: "List every staged change on the site; publish only when the staged set equals the approved set, otherwise stop for human review."
+  rule: "Edit approval is not publish approval (01-PRODUCT-REQUIREMENTS §5.13)."
+  approval_binding: [target, field, before_hash, after_hash, environment, edit_or_publish_mode, approver, expiry]
+
+rollout:
+  tier_1: "Canary of 1-2 pages, read back, then batches of up to 25 pages (ASSUMPTION in 02-DETAILED-SPECIFICATION §10)."
+  tier_2: "One approver after per-page diff review; page by page."
+  tier_3: "Two approvers; the requester cannot approve; staging or pull request; one change at a time in a change window."
+  one_change_set_per_site_at_a_time: true
+
+rollback:
+  automatic: "Only when the approval explicitly authorizes it, the rollback target matches the stored snapshot, the connector supports reliable reversal, and deterministic read-back detects an exact tier 1-2 mismatch (09-MERGE-DECISIONS, Adapted)."
+  otherwise: human_review
+
+webhook:
+  mechanism: "<confirm: Webflow webhook events and signing method at build>"
+  signature_verification: required
+  replay_protection: "Reject replayed event IDs."
+  secret_ref: "<DECIDE_AT_M0: Secret Manager secret name for the per-site Webflow webhook signing secret>"
+  purpose: "Targeted re-audit of changed URLs (02-DETAILED-SPECIFICATION §11)."
+
+rate_limits:
+  platform_limits: "<confirm: Webflow Data API rate limits from current documentation>"
+  idempotency_key_required: true
+  never_retry_write_without_idempotency_key: true
+
+contract_tests:
+  sandbox: "A Webflow test site (02-DETAILED-SPECIFICATION §19)."
+  scenarios: [stale_state, conflict, replay, wrong_tenant, denial, partial_failure, read_back_mismatch, slug_redirect, rollback, foreign_staged_changes, timeout_mid_write, token_revoked_mid_run, rate_limited, publish_fails_after_write]

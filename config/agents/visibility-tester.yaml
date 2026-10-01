@@ -1,0 +1,34 @@
+# Purpose: Runtime tool allowlist for the visibility-tester agent. Enforced in code, not only in prompts.
+# Owner role: AI engineer, with the security owner
+# Source sections: 02-DETAILED-SPECIFICATION §13 (agent table and exact runtime allowlists); 03-PRODUCTION-CONTRACTS (Agent tool boundaries); 05-PROJECT-PLAN §5 (milestones);
+#                  docs/decisions.md D-009, D-011, D-012
+# Status: draft for review
+#
+# reads_untrusted_content is true because the agent receives text that originated outside the system
+# (page content, CMS content, tool or model output, user input). Such text is data, never instructions.
+# No write-class tool may appear in tools. Only the deterministic connector service holds write credentials.
+# Note: Analyzes one provider response to one prompt. Provider calls are made by deterministic adapters, not by the agent.
+# Note: CONFLICT noted: the 02-DETAILED-SPECIFICATION §13 table lists 'Provider adapters' as a tool; the exact runtime allowlist lists analyze_response instead and 03-PRODUCTION-CONTRACTS allows only adapter results. This file follows the exact allowlist.
+# Note: V4 name: Visibility observer. No retries beyond policy (config/budgets.yaml).
+# Note: Model tier 'per_provider' is the 02-DETAILED-SPECIFICATION §13 value; confirm at M6 whether the analysis step uses a fixed tier.
+
+name: visibility-tester
+milestone: "M6"
+reads_untrusted_content: true
+model_tier: per_provider
+tools:
+  - analyze_response
+  - match_entity
+  - normalize_citation
+  - check_brand_facts
+forbidden_tools:
+  - apply_change
+  - publish
+  - write_cms
+  - delete_content
+  - upload_disavow
+  - send_email
+  - submit_form
+  - approve_change
+  - call_provider
+  - read_provider_credentials

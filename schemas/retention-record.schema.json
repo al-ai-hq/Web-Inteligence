@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:retention-record:0.1.0",
+  "title": "RetentionRecord",
+  "description": "Retention clock for one stored subject. Anonymous subjects keep at most 7 days (D-002); registered evidence defaults to 30 days unless an approved plan says otherwise (D-003).",
+  "type": "object",
+  "required": [
+    "retention_id",
+    "subject_type",
+    "subject_id",
+    "access_class",
+    "policy_basis",
+    "retention_days",
+    "starts_at",
+    "expires_at",
+    "status"
+  ],
+  "properties": {
+    "retention_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "subject_type": {
+      "type": "string",
+      "enum": [
+        "audit",
+        "report",
+        "evidence_object",
+        "prompt_run_response",
+        "raw_capture",
+        "export_file",
+        "snapshot",
+        "approval_record",
+        "keyword_upload",
+        "cost_ledger",
+        "security_log"
+      ]
+    },
+    "subject_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "access_class": {
+      "$ref": "common.schema.json#/$defs/access_class"
+    },
+    "policy_basis": {
+      "type": "string",
+      "enum": [
+        "d002_anonymous_max_7_days",
+        "d003_registered_default_30_days",
+        "approved_plan_override",
+        "provider_terms_shorter",
+        "raw_capture_24_hours",
+        "snapshot_12_months_assumption",
+        "deletion_requested"
+      ]
+    },
+    "plan_override_ref": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Approved plan or policy that changes the default."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "retention_days": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3650
+    },
+    "starts_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "expires_at": {
+      "$ref": "common.schema.json#/$defs/timestamp",
+      "description": "Consumers must check expires_at <= starts_at + retention_days."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "expiring",
+        "deleted"
+      ]
+    },
+    "deletion_request_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "access_class": {
+            "const": "anonymous"
+          }
+        },
+        "required": [
+          "access_class"
+        ]
+      },
+      "then": {
+        "properties": {
+          "retention_days": {
+            "maximum": 7
+          },
+          "policy_basis": {
+            "enum": [
+              "d002_anonymous_max_7_days",
+              "raw_capture_24_hours",
+              "provider_terms_shorter",
+              "deletion_requested"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "policy_basis": {
+            "const": "approved_plan_override"
+          }
+        },
+        "required": [
+          "policy_basis"
+        ]
+      },
+      "then": {
+        "properties": {
+          "plan_override_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "policy_basis": {
+            "const": "raw_capture_24_hours"
+          }
+        },
+        "required": [
+          "policy_basis"
+        ]
+      },
+      "then": {
+        "properties": {
+          "retention_days": {
+            "maximum": 1
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "D-002",
+    "D-003",
+    "v1-baseline §10",
+    "02-DETAILED-SPECIFICATION §16"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,103 @@
+# Status: draft for review. Owner: tech lead.
+#
+# Supply chain: third-party actions below use version tags until M0A. At M0A,
+# pin every `uses:` to a full commit SHA (keep the tag in a trailing comment)
+# and let a dependency bot propose updates. See
+# intent/INT-00-m0a-repository-bootstrap/intent.md.
+#
+# Jobs:
+#   governance - hook tests, schema check, config check (runs from day one)
+#   secrets    - gitleaks over the full history
+#   app        - lint, typecheck, unit tests, SSRF suite; runs only after M0A
+#                adds package.json (see the `detect` job)
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  governance:
+    name: governance
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install checker dependencies
+        run: pip install pyyaml jsonschema
+      - name: Hook tests
+        run: python3 -m unittest discover -s .claude/hooks/tests -v
+      - name: Schema check
+        run: python3 scripts/check_schemas.py
+      - name: Config check
+        run: python3 scripts/check_config.py
+
+  secrets:
+    name: secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # <DECIDE_AT_M0: gitleaks-action or the gitleaks CLI pinned by version and
+      # checksum. Check the action's README for whether organization-owned
+      # repositories need a GITLEAKS_LICENSE secret.>
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # A job-level `if:` cannot call hashFiles() because it is evaluated before a
+  # runner checks out the code, so this job checks for package.json and the
+  # `app` job reads its output.
+  detect:
+    name: detect app
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      has_app: ${{ steps.check.outputs.has_app }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: echo "has_app=${{ hashFiles('package.json') != '' }}" >> "$GITHUB_OUTPUT"
+
+  app:
+    name: app
+    needs: detect
+    if: needs.detect.outputs.has_app == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      # ASSUMPTION (D-008): pnpm. The version comes from the `packageManager`
+      # field that M0A adds to package.json.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          # <DECIDE_AT_M0: Node version>. setup-node reads it from package.json
+          # (`engines.node` or `volta.node`) when M0A sets one.
+          node-version-file: package.json
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test
+      - name: SSRF suite
+        run: pnpm test:ssrf

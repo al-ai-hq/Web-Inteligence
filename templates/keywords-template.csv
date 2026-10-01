@@ -1,0 +1,4 @@
+keyword,market,language,avg_monthly_volume,volume_source,volume_period,intent,target_url,priority
+kunafa delivery riyadh,SA,en-SA,1000,Google Keyword Planner,2025-10 to 2026-09,transactional,https://www.example.com/en-sa/kunafa-delivery,1
+توصيل كنافة الرياض,SA,ar-SA,500,Google Keyword Planner,2025-10 to 2026-09,transactional,https://www.example.com/ar-sa/kunafa-delivery,1
+how to store kunafa,global,en,,,,informational,,3

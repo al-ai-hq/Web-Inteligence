@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:connector-capability:0.1.0",
+  "title": "ConnectorCapability",
+  "description": "What one connector version can read and write, with scopes and allowed fields. Publish is always a separate operation. The authoritative copy lives in config/connectors/<name>.yaml.",
+  "type": "object",
+  "required": [
+    "connector_capability_id",
+    "connector",
+    "platform",
+    "version",
+    "auth_method",
+    "scopes",
+    "operations",
+    "allowed_fields",
+    "publish_is_separate",
+    "config_path",
+    "checked_on",
+    "status"
+  ],
+  "properties": {
+    "connector_capability_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "connector": {
+      "$ref": "common.schema.json#/$defs/config_key"
+    },
+    "platform": {
+      "$ref": "common.schema.json#/$defs/platform"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "auth_method": {
+      "type": "string",
+      "enum": [
+        "oauth",
+        "application_password",
+        "management_token",
+        "github_app",
+        "api_key"
+      ]
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "minItems": 0,
+      "maxItems": 50,
+      "uniqueItems": true,
+      "description": "Narrowest scopes; exact scope strings come from the platform's documentation."
+    },
+    "operations": {
+      "type": "object",
+      "required": [
+        "read_fields",
+        "snapshot",
+        "apply",
+        "publish",
+        "rollback",
+        "verify_webhook"
+      ],
+      "properties": {
+        "read_fields": {
+          "type": "boolean"
+        },
+        "snapshot": {
+          "type": "boolean"
+        },
+        "apply": {
+          "type": "boolean"
+        },
+        "publish": {
+          "type": "boolean"
+        },
+        "rollback": {
+          "type": "boolean"
+        },
+        "verify_webhook": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "allowed_fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "resource_type",
+          "field",
+          "field_class",
+          "max_length",
+          "risk_tier"
+        ],
+        "properties": {
+          "resource_type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "field": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "field_class": {
+            "$ref": "common.schema.json#/$defs/field_class"
+          },
+          "max_length": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "risk_tier": {
+            "$ref": "common.schema.json#/$defs/risk_tier"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 500
+    },
+    "publish_is_separate": {
+      "const": true
+    },
+    "config_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "pattern": "^config/connectors/[a-z0-9-]+\\.yaml$"
+    },
+    "sandbox_contract_tests_passed_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "checked_on": {
+      "$ref": "common.schema.json#/$defs/date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "sandbox",
+        "enabled",
+        "disabled"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "enabled"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "sandbox_contract_tests_passed_at": {
+            "$ref": "common.schema.json#/$defs/timestamp"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "02-DETAILED-SPECIFICATION §10",
+    "03-PRODUCTION-CONTRACTS: Required configuration"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,11 @@
+{
+  "description": "An unknown volume is null with a non-valid volume state and fidelity 'unavailable'.",
+  "base_example": "keyword-row.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/avg_monthly_volume",
+      "value": null
+    }
+  ]
+}

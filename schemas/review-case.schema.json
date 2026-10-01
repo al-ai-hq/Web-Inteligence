@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:review-case:0.1.0",
+  "title": "ReviewCase",
+  "description": "A review that needs human action (response, report, escalation). The product never writes, buys or fabricates reviews and never posts a response itself.",
+  "type": "object",
+  "required": [
+    "case_id",
+    "project_id",
+    "platform",
+    "case_type",
+    "status",
+    "human_owner_required",
+    "evidence_ids",
+    "created_at"
+  ],
+  "properties": {
+    "case_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "location_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "platform": {
+      "$ref": "common.schema.json#/$defs/label"
+    },
+    "review_url": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/url"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rating_displayed": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "case_type": {
+      "type": "string",
+      "enum": [
+        "response_needed",
+        "policy_violation_report",
+        "suspected_fake_review",
+        "factual_error",
+        "legal_escalation"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "response_drafted",
+        "awaiting_human",
+        "responded_by_human",
+        "reported_by_human",
+        "escalated",
+        "closed"
+      ]
+    },
+    "assigned_user_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "human_owner_required": {
+      "const": true
+    },
+    "evidence_ids": {
+      "$ref": "common.schema.json#/$defs/evidence_ids"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23",
+    "04-CLAUDE-CODE-BUILD-PROMPT §11"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

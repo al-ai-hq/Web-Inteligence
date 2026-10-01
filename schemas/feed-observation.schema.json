@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:feed-observation:0.1.0",
+  "title": "FeedObservation",
+  "description": "One attribute value for one item from a product feed or Merchant Center export.",
+  "type": "object",
+  "required": [
+    "observation_id",
+    "project_id",
+    "source",
+    "item_ref",
+    "attribute",
+    "value",
+    "captured_at",
+    "evidence_id",
+    "lineage"
+  ],
+  "properties": {
+    "observation_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "merchant_center_export",
+        "feed_file",
+        "connector_read"
+      ]
+    },
+    "feed_name": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/label"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "item_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Offer ID or item ID as it appears in the feed."
+    },
+    "commerce_item_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "attribute": {
+      "type": "string",
+      "enum": [
+        "title",
+        "link",
+        "price",
+        "sale_price",
+        "currency",
+        "availability",
+        "gtin",
+        "brand",
+        "condition",
+        "shipping",
+        "returns",
+        "image_link",
+        "language"
+      ]
+    },
+    "value": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "captured_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "evidence_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "lineage": {
+      "$ref": "common.schema.json#/$defs/lineage",
+      "description": "Lineage for the values in this record (03-PRODUCTION-CONTRACTS: Evidence and fidelity)."
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "04-CLAUDE-CODE-BUILD-PROMPT §23"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

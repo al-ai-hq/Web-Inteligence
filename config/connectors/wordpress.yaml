@@ -1,0 +1,123 @@
+# Purpose: Capability and policy config for a self-hosted WordPress connector: auth, allowed fields with risk
+#          tiers, publish rules, webhook secret reference, rate-limit notes. Read only by the deterministic
+#          connector service, the only component that holds write credentials.
+# Owner role: Integration engineer
+# Source sections: 02-DETAILED-SPECIFICATION §10, §13, §17, §19; 03-PRODUCTION-CONTRACTS (Change risk baseline,
+#                  Required configuration); 04-CLAUDE-CODE-BUILD-PROMPT §15; 07-SKILLS-AND-AGENTS §5, §6;
+#                  01-PRODUCT-REQUIREMENTS §5.13, §8 (Changes), §16; 09-MERGE-DECISIONS (Adapted, Deferred);
+#                  08-REFERENCE-LIBRARY (WordPress REST API Handbook)
+# Status: draft for review
+#
+# Rules for this file:
+# - status: candidate. The first CMS/Git connector is an open decision (D-011); only one pilot connector is
+#   built until it passes full contract and rollback testing (09-MERGE-DECISIONS).
+# - Field names below are conceptual. Exact REST paths and field names are verified against the WordPress REST
+#   API Handbook at build time (api_field placeholders); none are invented here.
+# - Risk tiers follow 02-DETAILED-SPECIFICATION §10 and 03-PRODUCTION-CONTRACTS; exact tiers need calibration.
+
+connector_id: wordpress
+display_name: "WordPress (self-hosted)"
+status: candidate
+milestone: M9
+reference_urls: ["https://developer.wordpress.org/rest-api/"]
+
+auth:
+  method: application_password
+  details: "Application Password for a least-privilege user, HTTPS only (02-DETAILED-SPECIFICATION §10)."
+  scopes: "Not scope-based; access follows the WordPress user's role."
+  least_privilege_role: "<DECIDE_AT_M0: WordPress role with the fewest capabilities that can edit the allowed fields; verify in the REST API Handbook>"
+  credential_secret_ref: "<DECIDE_AT_M0: Secret Manager secret name for the per-site application password>"
+  held_by: connector_service_only
+  rotation: "Rotate; revoke and delete on disconnect; never sent to a model (02-DETAILED-SPECIFICATION §17)."
+
+interface: [capabilities, read_fields, snapshot, apply, publish, rollback, verify_webhook]
+interface_source: "02-DETAILED-SPECIFICATION §5, §10 (snapshot, write with idempotency key, publish, rollback, signed webhooks)"
+
+allowed_fields:
+  - field: post_or_page.title
+    risk_tier: 2
+    api_field: "<verify at build: WordPress REST API Handbook>"
+    note: "Title change needs a cannibalization result showing the page owns its main query."
+  - field: post_or_page.excerpt
+    risk_tier: 2
+    api_field: "<verify at build: WordPress REST API Handbook>"
+    note: "ASSUMPTION: tier 2 because many themes show the excerpt as visible content."
+  - field: post_or_page.content_blocks
+    risk_tier: 2
+    api_field: "<verify at build: WordPress REST API Handbook>"
+    note: "Existing pages only; no new pages without a named human author."
+  - field: media.alt_text
+    risk_tier: 1
+    api_field: "<verify at build: WordPress REST API Handbook>"
+  - field: seo_plugin.seo_title
+    risk_tier: 2
+    api_field: "<verify at build: only if the SEO plugin (Yoast, Rank Math, All in One SEO) exposes it over REST>"
+  - field: seo_plugin.meta_description
+    risk_tier: 1
+    api_field: "<verify at build: only if the SEO plugin exposes it over REST>"
+  - field: seo_plugin.open_graph
+    risk_tier: 1
+    api_field: "<verify at build: only if the SEO plugin exposes it over REST>"
+  - field: seo_plugin.json_ld
+    risk_tier: 2
+    api_field: "<verify at build: only if the SEO plugin exposes it over REST>"
+  - field: seo_plugin.canonical
+    risk_tier: 3
+    api_field: "<verify at build: only if the SEO plugin exposes it over REST>"
+  - field: seo_plugin.robots_meta
+    risk_tier: 3
+    api_field: "<verify at build: only if the SEO plugin exposes it over REST>"
+    note: "noindex and robots changes are never below tier 3."
+  - field: post_or_page.slug
+    risk_tier: 3
+    api_field: "<verify at build: WordPress REST API Handbook>"
+    note: "Ships with its 301 redirect and internal-link updates in the same approved change set."
+
+fallback_when_field_not_exposed: "The plan gives the value to paste manually (02-DETAILED-SPECIFICATION §10)."
+manual_only:
+  - item: robots_txt
+    note: "Through a plugin or manual steps only (02-DETAILED-SPECIFICATION §10)."
+  - item: redirects
+    note: "Through a plugin or manual steps only, unless a plugin exposes them over REST <verify at build>."
+
+forbidden:
+  - delete_content
+  - create_page_without_named_human_author
+  - fabricated_reviews_ratings_or_claims
+  - hidden_text
+  - cloaking
+  - link_schemes
+  - write_outside_approved_target_hash_or_expiry
+
+publish_rules:
+  default_write_mode: draft
+  publish_is_separate_step: true
+  requires_separate_approval: true
+  rule: "Edit approval is not publish approval. Changing a draft to published is its own approved step (01-PRODUCT-REQUIREMENTS §5.13; 07-SKILLS-AND-AGENTS §6)."
+  approval_binding: [target, field, before_hash, after_hash, environment, edit_or_publish_mode, approver, expiry]
+
+rollout:
+  tier_1: "Canary of 1-2 pages, read back, then batches of up to 25 pages (ASSUMPTION in 02-DETAILED-SPECIFICATION §10)."
+  tier_2: "One approver after per-page diff review; page by page."
+  tier_3: "Two approvers; the requester cannot approve; staging or pull request; one change at a time in a change window."
+  one_change_set_per_site_at_a_time: true
+
+rollback:
+  automatic: "Only when the approval explicitly authorizes it, the rollback target matches the stored snapshot, the connector supports reliable reversal, and deterministic read-back detects an exact tier 1-2 mismatch (09-MERGE-DECISIONS, Adapted)."
+  otherwise: human_review
+
+webhook:
+  mechanism: "<confirm: WordPress has no signed webhook in the sources; confirm the plugin or mechanism at build>"
+  signature_verification: required
+  replay_protection: "Reject replayed event IDs."
+  secret_ref: "<DECIDE_AT_M0: Secret Manager secret name for the per-site WordPress webhook signing secret>"
+  purpose: "Targeted re-audit of changed URLs (02-DETAILED-SPECIFICATION §11)."
+
+rate_limits:
+  platform_limits: "<confirm: host-dependent; record the site's limits at connection time>"
+  idempotency_key_required: true
+  never_retry_write_without_idempotency_key: true
+
+contract_tests:
+  sandbox: "WordPress in a container (02-DETAILED-SPECIFICATION §19)."
+  scenarios: [stale_state, conflict, replay, wrong_tenant, denial, partial_failure, read_back_mismatch, slug_redirect, rollback, timeout_mid_write, token_revoked_mid_run, rate_limited, publish_fails_after_write]

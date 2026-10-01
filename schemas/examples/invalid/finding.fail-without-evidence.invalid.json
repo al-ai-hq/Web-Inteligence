@@ -1,0 +1,16 @@
+{
+  "description": "Evidence before advice: a pass, partial or fail finding cites at least one evidence object.",
+  "base_example": "finding.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/result",
+      "value": "fail"
+    },
+    {
+      "op": "replace",
+      "path": "/evidence_ids",
+      "value": []
+    }
+  ]
+}

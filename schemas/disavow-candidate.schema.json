@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:disavow-candidate:0.1.0",
+  "title": "DisavowCandidate",
+  "description": "A link or domain proposed for disavow review. Requires evidence, exceptional justification, SEO and legal review and reconciliation with the existing file. The product never uploads a disavow file; the verified property owner does.",
+  "type": "object",
+  "required": [
+    "candidate_id",
+    "project_id",
+    "level",
+    "target",
+    "evidence_ids",
+    "justification",
+    "review",
+    "existing_file_reconciled",
+    "product_uploads",
+    "status"
+  ],
+  "properties": {
+    "candidate_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "domain",
+        "url"
+      ]
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "evidence_ids": {
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/evidence_ids"
+        },
+        {
+          "minItems": 1
+        }
+      ]
+    },
+    "justification": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "vendor_labels": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/label"
+      },
+      "minItems": 0,
+      "maxItems": 10,
+      "description": "Vendor toxicity or spam labels, shown as vendor-specific, never as a verdict."
+    },
+    "review": {
+      "type": "object",
+      "required": [
+        "seo_reviewer_user_id",
+        "legal_reviewer_user_id",
+        "decision"
+      ],
+      "properties": {
+        "seo_reviewer_user_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "legal_reviewer_user_id": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved_for_owner_action",
+            "rejected"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "existing_file_reconciled": {
+      "type": "boolean"
+    },
+    "product_uploads": {
+      "const": false,
+      "description": "The product never uploads a disavow file."
+    },
+    "owner_action": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "user_id",
+            "recorded_at"
+          ],
+          "properties": {
+            "user_id": {
+              "$ref": "common.schema.json#/$defs/uuid"
+            },
+            "recorded_at": {
+              "$ref": "common.schema.json#/$defs/timestamp"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "under_review",
+        "approved_for_owner_action",
+        "rejected",
+        "owner_actioned"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "approved_for_owner_action"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "existing_file_reconciled": {
+            "const": true
+          },
+          "review": {
+            "properties": {
+              "seo_reviewer_user_id": {
+                "$ref": "common.schema.json#/$defs/uuid"
+              },
+              "legal_reviewer_user_id": {
+                "$ref": "common.schema.json#/$defs/uuid"
+              },
+              "decision": {
+                "const": "approved_for_owner_action"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §17",
+    "04-CLAUDE-CODE-BUILD-PROMPT §25"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

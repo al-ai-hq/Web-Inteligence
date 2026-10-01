@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:diff-review:0.1.0",
+  "title": "DiffReview",
+  "description": "Review of one diff row. Critical and high rows are confirmed against the live page and release intent before anyone calls them a regression.",
+  "type": "object",
+  "required": [
+    "review_id",
+    "diff_id",
+    "row_id",
+    "reviewer",
+    "classification",
+    "reviewed_at"
+  ],
+  "properties": {
+    "review_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "diff_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "row_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "reviewer": {
+      "type": "string",
+      "enum": [
+        "change_monitor",
+        "human"
+      ]
+    },
+    "reviewer_user_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "live_recheck_evidence_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "release_intent_ref": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "classification": {
+      "type": "string",
+      "enum": [
+        "intended",
+        "regression_suspected",
+        "unknown"
+      ]
+    },
+    "note": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reviewed_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "reviewer": {
+            "const": "human"
+          }
+        },
+        "required": [
+          "reviewer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "reviewer_user_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          }
+        }
+      }
+    }
+  ],
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "01-PRODUCT-REQUIREMENTS §17",
+    "04-CLAUDE-CODE-BUILD-PROMPT §25"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

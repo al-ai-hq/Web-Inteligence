@@ -1,0 +1,16 @@
+{
+  "description": "D-002: anonymous subjects are kept at most 7 days.",
+  "base_example": "retention-record.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/retention_days",
+      "value": 30
+    },
+    {
+      "op": "replace",
+      "path": "/policy_basis",
+      "value": "d003_registered_default_30_days"
+    }
+  ]
+}

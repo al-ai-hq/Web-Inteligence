@@ -1,0 +1,210 @@
+# Purpose: Rule definitions for the Answer Engine Optimization content category (weight 20)
+#          of Presence Readiness.
+# Owner role: Methodology owner (SEO lead)
+# Source sections: v1-baseline §6.3, §7, §7.4; 02-DETAILED-SPECIFICATION §6, §13;
+#                  08-REFERENCE-LIBRARY (Optimizing for generative AI search, Helpful content)
+# Status: draft for review
+#
+# Field notes: see config/rules/crawlability.yaml.
+# evaluation: assessed marks the semantic rules the Auditor agent evaluates with a rubric
+# (02-DETAILED-SPECIFICATION §13 names AEO-001, AEO-006 and AEO-009). Rubrics live under docs/rubrics/.
+# The Auditor never rewards keyword density or content split into tiny chunks, and never penalizes a
+# page for lacking an FAQ block or llms.txt.
+
+methodology_version: "0.1.0-draft"
+category: aeo
+category_title: "Answer Engine Optimization content"
+category_weight: 20
+
+rules:
+  - id: AEO-001
+    title: "Clear offering"
+    category: aeo
+    importance_weight: 5
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Site states what it provides in concrete language."
+      partial: "<DECIDE_AT_M0: partial standard; define in the AEO-001 rubric>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: assessed
+    fidelity_label: assessed
+    change: unchanged
+    source_reference:
+      - "v1-baseline §7.4"
+      - "02-DETAILED-SPECIFICATION §13"
+      - "https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
+
+  - id: AEO-002
+    title: "Audience clarity"
+    category: aeo
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Site identifies who the offering serves."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.4 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.4"]
+
+  - id: AEO-003
+    title: "Geographic availability"
+    category: aeo
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "Where relevant to the offering; otherwise not_applicable."
+    standards:
+      pass: "Service area or worldwide availability is explicit where relevant."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.4 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.4"]
+
+  - id: AEO-004
+    title: "Pricing or pricing explanation"
+    category: aeo
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Price, range, quote process, or reason for absence is clear."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.4 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.4"]
+
+  - id: AEO-005
+    title: "Process explanation"
+    category: aeo
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "Important service pages."
+    standards:
+      pass: "Important services explain how engagement or purchase works."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.4 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.4"]
+
+  - id: AEO-006
+    title: "Direct question answers"
+    category: aeo
+    importance_weight: 5
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Key customer questions receive concise answers near descriptive headings."
+      partial: "<DECIDE_AT_M0: partial standard; define in the AEO-006 rubric>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: assessed
+    fidelity_label: assessed
+    change: unchanged
+    source_reference: ["v1-baseline §7.4", "02-DETAILED-SPECIFICATION §13"]
+
+  - id: AEO-007
+    title: "FAQ quality"
+    category: aeo
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Sites that publish FAQ content; otherwise not_applicable. A missing FAQ block is never a failure."
+    standards:
+      pass: "FAQ content is useful, non-duplicative, and visible."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.4 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    notes:
+      - "FAQ rich results no longer appear in Google Search (since 7 May 2026); FAQ content is judged for readers only."
+    source_reference:
+      - "v1-baseline §7.4"
+      - "https://developers.google.com/search/docs/appearance/structured-data/faqpage"
+
+  - id: AEO-008
+    title: "Comparison and selection guidance"
+    category: aeo
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Site explains suitability, trade-offs, or selection criteria."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.4 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.4"]
+
+  - id: AEO-009
+    title: "Reader-first organization"
+    category: aeo
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Reader-first organization: descriptive headings, clear paragraphs, answers stated plainly. No chunking requirement."
+      partial: "<DECIDE_AT_M0: partial standard; define in the AEO-009 rubric>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: assessed
+    fidelity_label: assessed
+    change: modified
+    v1:
+      title: "Answer extractability"
+      pass: "Pages contain self-contained passages that retain meaning when quoted."
+      importance_weight: 4
+    notes:
+      - "Google says content does not need to be split into small chunks for its AI features (02-DETAILED-SPECIFICATION §2, §6)."
+    source_reference:
+      - "02-DETAILED-SPECIFICATION §6"
+      - "02-DETAILED-SPECIFICATION §13"
+      - "https://developers.google.com/search/docs/fundamentals/ai-optimization-guide"
+
+  - id: AEO-010
+    title: "Content freshness"
+    category: aeo
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Time-sensitive content in the sample; otherwise not_applicable."
+    standards:
+      pass: "Time-sensitive content shows meaningful update information."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.4 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.4"]
+
+  - id: AEO-011
+    title: "Contact and next-step clarity"
+    category: aeo
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Users and machines can identify a clear next action."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.4 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.4"]

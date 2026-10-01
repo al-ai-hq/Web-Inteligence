@@ -1,0 +1,55 @@
+{
+  "report_id": "d25e7091-bd3f-4a5c-8e70-91bd3f5c7e02",
+  "audit_id": "0f5a2c6e-3b1d-4c8a-9e7f-2a6b8c0d1e21",
+  "version": 1,
+  "access_class": "anonymous",
+  "languages": [
+    "ar",
+    "en"
+  ],
+  "allowed_projections": [
+    "web_interactive"
+  ],
+  "access": {
+    "link_id": "q3Jd8Lx0VbT2mN5pR7sW1yZ4",
+    "secret_hash": "sha256:b4dea2590c89d28e98e9973ceff38d16576cbb02915ea43cccf9ad51a63dcc22",
+    "noindex": true,
+    "public_gallery": false
+  },
+  "tone": "professional",
+  "content": {
+    "summary_bullets": [
+      "Three of 14 sampled Arabic service pages have no meta description."
+    ],
+    "score_result_ids": [],
+    "finding_ids": [
+      "2b8d4f60-1a3c-4e5b-9d7f-6c0e8a2b4d35"
+    ],
+    "roadmap_id": "d25e7091-bd3f-4a5c-8e70-91bd3f5c7e03",
+    "prompt_run_ids": [],
+    "data_gaps": [
+      {
+        "metric_key": "metric.search_console_clicks",
+        "needed_export_key": "export.search_console_performance"
+      }
+    ],
+    "limitations_keys": [
+      "limitation.sample_not_full_site",
+      "limitation.api_observations_not_consumer_apps"
+    ],
+    "sample_disclosure": {
+      "pages_checked": 14,
+      "sampled": true
+    }
+  },
+  "lineage_coverage": {
+    "numbers_total": 42,
+    "numbers_with_lineage": 42,
+    "ratio": 1
+  },
+  "status": "ready",
+  "needs_native_review": true,
+  "retention_days": 7,
+  "created_at": "2026-09-30T10:24:55Z",
+  "expires_at": "2026-10-07T09:58:12Z"
+}

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:wpi:schema:attempt:0.1.0",
+  "title": "Attempt",
+  "description": "One attempt at a job stage. A retry creates a new attempt with the same idempotency key.",
+  "type": "object",
+  "required": [
+    "attempt_id",
+    "stage_id",
+    "attempt_number",
+    "idempotency_key",
+    "started_at",
+    "outcome"
+  ],
+  "properties": {
+    "attempt_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "stage_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "attempt_number": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 200
+    },
+    "started_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "ended_at": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "running",
+        "succeeded",
+        "retryable_error",
+        "fatal_error",
+        "timed_out",
+        "cancelled"
+      ]
+    },
+    "error_class": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/error_class"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "error_message_key": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/message_key"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cost": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/money"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "worker": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/config_key",
+          "description": "Worker or service identity key (never a credential)."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "x-version": "0.1.0",
+  "x-status": "draft",
+  "x-source": [
+    "03-PRODUCTION-CONTRACTS: Minimum schema set",
+    "v1-baseline §12.3"
+  ],
+  "x-migration": "additive optional fields bump minor; removals, renames or type changes bump major and need a migration note in docs/decisions.md"
+}

@@ -1,0 +1,130 @@
+# Purpose: Spending caps, alert thresholds, tracked cost lines, per-audit caps, circuit-breaker settings and
+#          the degradation order the cost guard enforces before every paid call.
+# Owner role: Cloud billing owner, with the AI engineer
+# Source sections: v1-baseline §11.2, §11.4; 02-DETAILED-SPECIFICATION §6, §15, §18; 01-PRODUCT-REQUIREMENTS §5.19, §9, §14;
+#                  05-PROJECT-PLAN §9, §11 (M0B); docs/decisions.md D-005, D-006, D-007, D-010
+# Status: draft for review
+#
+# Rules for this file:
+# - Money is a decimal string plus an ISO 4217 currency.
+# - D-005: one hard monthly cap of USD 150 covers everything: Google Cloud hosting and infrastructure plus
+#   AI-model and data-provider calls. ASSUMPTION: the owner's answer "1 and 2" is read conservatively as one
+#   combined cap; confirm with the owner.
+# - Cloud Billing budgets only alert. The cost guard acts on their Pub/Sub notifications and checks caps in
+#   code before every paid call (02-DETAILED-SPECIFICATION §18).
+# - No prices here. Prices come from each provider's official page and the price_table_version in
+#   config/providers.yaml (D-010).
+
+version: "0.1.0-draft"
+currency: USD
+
+monthly:
+  hard_cap: "150.00"
+  scope: combined_hosting_and_paid_calls
+  source_reference: ["D-005", "01-PRODUCT-REQUIREMENTS §9", "v1-baseline §11.2"]
+  on_hard_cap: >-
+    Disable paid model and data-provider calls; deterministic audits continue; AI visibility is reported as
+    unavailable due to the monthly limit (v1-baseline §11.4; 02-DETAILED-SPECIFICATION §18).
+  reserve: "10.00"
+  paid_calls_stop_at: cap_minus_reserve
+  reserve_note: "ASSUMPTION (docs/cost-model.md, A-003): keep USD 10 unspent so Billing-export delay cannot push total spend over the cap; confirm at the M0B cost proof."
+  hosting_overrun: "<DECIDE_AT_M0: what happens when hosting alone approaches the cap; the cost guard cannot stop hosting without stopping the service>"
+  allocation_between_lines: "<DECIDE_AT_M0: planning allocation of the USD 150 between hosting and paid calls (05-PROJECT-PLAN §9 item 2)>"
+  exceptions: "Only an approved decision may change the cap (01-PRODUCT-REQUIREMENTS §14)."
+
+alerts:
+  - id: monthly_alert
+    threshold: "100.00"
+    action: notify_admins
+    source_reference: "v1-baseline §11.2; 02-DETAILED-SPECIFICATION §18"
+    note: "ASSUMPTION: the v1 USD 100 alert is kept against the combined cap."
+
+tracked_lines:
+  note: "Tracked separately against the one cap (D-005)."
+  lines:
+    - id: hosting_infrastructure
+      description: "Google Cloud hosting and infrastructure"
+      data_source: "Cloud Billing export in BigQuery"
+    - id: paid_model_calls
+      description: "AI-model calls for visibility observations, agents, summarization and translation, including provider search-tool calls"
+      data_source: "cost ledger"
+    - id: paid_data_provider_calls
+      description: "Paid keyword or other data-provider calls, when a licensed source is enabled"
+      data_source: "cost ledger"
+
+cost_ledger:
+  fields: [provider, model_id, tokens, search_calls, latency, price_table_version]
+  source_reference: "02-DETAILED-SPECIFICATION §18"
+  reconciliation:
+    cadence: monthly
+    against: "Cloud Billing export in BigQuery"
+    variance_alert_percent: 5
+    variance_note: "ASSUMPTION in 02-DETAILED-SPECIFICATION §15."
+  monthly_model_cost_formula: >-
+    monthly_model_cost = A * (P * SUM over providers p of c_p + s), where A is audits per month, P prompts per
+    provider, c_p the cost of one observation on provider p including its search calls, and s the
+    summarization cost per audit (02-DETAILED-SPECIFICATION §18).
+
+per_audit:
+  soft_cap: "3.00"
+  soft_action: "Skip optional retries and summaries."
+  hard_cap: "4.00"
+  hard_action: "Stop paid calls; mark the affected sections unavailable."
+  status: "ASSUMPTION (D-007, from 02-DETAILED-SPECIFICATION §18 and v1-baseline §11.2)"
+  pre_call_check: "Checked before every paid call."
+
+per_project_connected:
+  budget: "<DECIDE_AT_M0: per-project budget for connected work (verification, re-audits, keyword data, briefs, drafts, prompt panels); set once connected-tier pricing is decided>"
+  source_reference: "02-DETAILED-SPECIFICATION §18"
+  note: "A full panel of 40 prompts, 5 providers and 3 runs is 600 paid observations per run, so panel size and cadence are set per plan."
+
+retries:
+  max_automatic_retries: 1
+  retry_on: [transient_provider_failure]
+  never_retry: [invalid_prompt, policy_rejected_prompt]
+  write_retries: "A connector write is never retried without its idempotency key."
+  source_reference: "v1-baseline §11.2; 02-DETAILED-SPECIFICATION §10"
+
+circuit_breaker:
+  scope: per_provider
+  open_after_consecutive_failures: 3
+  counted_failures: [timeout, http_5xx]
+  cool_down: PT15M
+  probe_requests: 1
+  close_on: probe_success
+  on_open: "Mark that provider's results unavailable, never 0%; the rest of the audit continues."
+  status: "ASSUMPTION (D-007, from 02-DETAILED-SPECIFICATION §18)"
+  global_override: "Global safety and spending circuit breakers override first-audit eligibility (01-PRODUCT-REQUIREMENTS §5.19)."
+
+# v1-baseline §11.4 plus the 02-DETAILED-SPECIFICATION §18 addition. Percentages are of the monthly hard cap,
+# measured on projected monthly spend. ASSUMPTION: under D-005 projected spend includes hosting.
+degradation_order:
+  steps:
+    - step: 1
+      at_percent_of_cap: 70
+      action: "Disable automatic provider retries."
+      source_reference: "v1-baseline §11.4"
+    - step: 2
+      at_percent_of_cap: 85
+      action: "Reduce optional report-summarization tokens."
+      source_reference: "v1-baseline §11.4"
+    - step: 3
+      at_percent_of_cap: 95
+      action: "Keep providers with degradation_priority keep in config/providers.yaml; mark providers with drop_first (default Grok) temporarily unavailable."
+      source_reference: "v1-baseline §11.4"
+    - step: 4
+      at: cap_minus_reserve
+      note: "Same threshold as monthly.paid_calls_stop_at (USD 150 minus the reserve); one hard-stop threshold for paid calls."
+      action: "Continue deterministic website audits; report AI visibility as unavailable due to the monthly limit."
+      source_reference: "v1-baseline §11.4"
+  quota_guard:
+    action: "Pause Search Console URL Inspection calls when a property nears its URL Inspection quota."
+    quota_ref: "config/policy-facts.yaml#pf-gsc-url-inspection-quota"
+    near_threshold: "<DECIDE_AT_M0: share of the daily and per-minute quota that counts as near>"
+    source_reference: "02-DETAILED-SPECIFICATION §18"
+  scope_reduction:
+    action: "Reduce audit scope under budget pressure (D-006); anonymous tier downgrades follow config/anonymous-eligibility.yaml."
+    preserve_first: "Preserve the deterministic audit, evidence, core scores and action plan before optional AI repetition or enrichment (01-PRODUCT-REQUIREMENTS §5.19)."
+  rule: "Never silently represent a skipped provider as a negative result (v1-baseline §11.4)."
+
+call_limits_ref: "config/providers.yaml#call_defaults"

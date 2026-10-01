@@ -1,0 +1,11 @@
+{
+  "description": "D-002: an anonymous denial always carries the reason anonymous_export_prohibited.",
+  "base_example": "export-authorization.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/denial_reason",
+      "value": "plan_not_eligible"
+    }
+  ]
+}

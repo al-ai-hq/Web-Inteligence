@@ -1,0 +1,11 @@
+{
+  "description": "Anonymous audits never enter connected-analysis states.",
+  "base_example": "audit.example.json",
+  "patch": [
+    {
+      "op": "replace",
+      "path": "/status",
+      "value": "KEYWORD_SYNC"
+    }
+  ]
+}

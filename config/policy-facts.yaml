@@ -1,0 +1,359 @@
+# Purpose: Registry of time-sensitive provider, platform, schema and policy facts the product relies on.
+#          Each fact carries its primary source, checked date, owner, review date and expiry. An expired or
+#          unverified fact must not drive a recommendation, a score or client-facing text.
+# Owner role: Provider-policy owner, with the SEO lead, AI engineer and integration engineer per fact
+# Source sections: 02-DETAILED-SPECIFICATION §2, §6, §7, §8, §10, §12, §13, §15, §17;
+#                  08-REFERENCE-LIBRARY (Sources checked); 01-PRODUCT-REQUIREMENTS §8, §15, §16;
+#                  03-PRODUCTION-CONTRACTS (Required configuration, PolicyFact); docs/decisions.md D-010
+# Status: draft for review
+#
+# Field rules:
+# - checked_on: the date 08-REFERENCE-LIBRARY records for the source. Where the library lists a link
+#   without its own date, "2026-09-29" is used, the start of its "links checked 29-30 September 2026" range.
+#   source_updated_on is the page's own update date where the library gives one.
+# - review_by and expires_on are ASSUMPTIONS: review one month after the check (monthly registry review,
+#   02-DETAILED-SPECIFICATION §6 and v1-baseline §11.3) and expire at the end of the following quarter,
+#   unless the fact itself has an earlier date.
+# - status: verified_in_library (a checked primary source exists) or needs_verification (no verified URL;
+#   source_url is "<confirm>"). needs_verification facts are hypotheses until checked.
+# - source_tier: 1 primary documentation or open standard; 2 independent study with method; 3 vendor claim.
+
+version: "0.1.0-draft"
+defaults:
+  review_by: "2026-10-30"
+  expires_on: "2026-12-31"
+  on_expiry: "Treat the fact as unavailable; block client-facing use until an owner re-verifies it (01-PRODUCT-REQUIREMENTS §8)."
+
+facts:
+  - id: pf-faq-rich-results-retired
+    statement: "FAQ rich results stopped appearing in Google Search on 7 May 2026. FAQPage remains a valid schema.org type; existing markup does no harm but is not a lever."
+    source_url: "https://developers.google.com/search/docs/appearance/structured-data/faqpage"
+    source_tier: 1
+    checked_on: "2026-09-30"
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [AEO-007, config/schema-requirements.yaml, planner]
+
+  - id: pf-howto-deprecated
+    statement: "HowTo rich results were deprecated before FAQ rich results were retired."
+    source_url: "<confirm>"
+    source_tier: 1
+    checked_on: null
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: needs_verification
+    used_by: [config/schema-requirements.yaml]
+
+  - id: pf-google-agent-robots
+    statement: "Google-Agent is a user-triggered fetcher for agents on Google infrastructure and generally ignores robots.txt."
+    source_url: "https://developers.google.com/crawling/docs/crawlers-fetchers/google-agent"
+    source_tier: 1
+    checked_on: "2026-09-30"
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [config/crawler-registry.yaml, CRW-010]
+
+  - id: pf-google-extended-scope
+    statement: "Google controls AI features in Search through Googlebot rules and snippet controls; Google-Extended governs training and grounding in other Google systems."
+    source_url: "https://developers.google.com/search/docs/appearance/ai-features"
+    source_tier: 1
+    source_updated_on: "2025-12-10"
+    checked_on: "2026-09-29"
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [config/crawler-registry.yaml, CRW-010]
+
+  - id: pf-control-tokens-no-user-agent
+    statement: "Google-Extended and Applebot-Extended are control tokens with no user agent of their own, so they never appear in logs."
+    source_url: "https://developers.google.com/crawling/docs/crawlers-fetchers/google-common-crawlers"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: needs_verification
+    verification_note: "The library URL covers Google-Extended only; the Applebot-Extended part has no verified source."
+    used_by: [config/crawler-registry.yaml]
+
+  - id: pf-grounding-skips-google-extended
+    statement: "Grounding with Google Search on Agent Platform skips pages that disallow Google-Extended."
+    source_url: "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/grounding/grounding-with-google-search"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: ai_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [CRW-010, report-writer]
+
+  - id: pf-grounding-search-suggestions-display
+    statement: "A Gemini response that carries Google Search Suggestions is a Grounded Result under the Service Specific Terms, and the suggestions must be displayed with it."
+    source_url: "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/grounding/grounding-with-google-search"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: legal_privacy_counsel
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    note: "Counsel reviews storage and display of grounded results before launch (02-DETAILED-SPECIFICATION §17)."
+    used_by: [config/providers.yaml, report-writer, config/retention.yaml]
+
+  - id: pf-ai-features-snippet-eligibility
+    statement: "To appear as a link in Google's AI features a page must be indexed and eligible to be shown with a snippet; nosnippet and restrictive max-snippet values limit this."
+    source_url: "https://developers.google.com/search/docs/appearance/ai-features"
+    source_tier: 1
+    source_updated_on: "2025-12-10"
+    checked_on: "2026-09-29"
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [CRW-012]
+
+  - id: pf-ai-optimization-still-seo
+    statement: "Google says optimizing for its generative AI search is still SEO, and that llms.txt, special markup and chunking content for AI are unnecessary, as are inauthentic mentions."
+    source_url: "https://developers.google.com/search/docs/fundamentals/ai-optimization-guide"
+    source_tier: 1
+    source_updated_on: "2026-07-10"
+    checked_on: "2026-09-29"
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [AEO-009, GEO-010, planner, auditor]
+
+  - id: pf-gsc-ai-features-setting
+    statement: "A site must be included in generative AI features in Search Console to be eligible for them; the setting rolled out worldwide on 31 August 2026."
+    source_url: "https://developers.google.com/search/docs/fundamentals/ai-optimization-guide"
+    secondary_source_url: "https://blog.google/products-and-platforms/products/search/new-controls-website-owners/"
+    source_tier: 1
+    source_updated_on: "2026-08-31"
+    checked_on: "2026-09-29"
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [GSC-002]
+
+  - id: pf-gsc-genai-report-ui-only
+    statement: "The Search Console generative AI performance report counts impressions only for AI Overviews and AI Mode, can be exported from the UI, and was found absent from the Search Analytics API."
+    source_url: "https://support.google.com/webmasters/answer/16984139"
+    secondary_source_url: "https://cogny.com/blog/google-search-console-generative-ai-performance-report"
+    secondary_source_tier: 3
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: data_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    note: "The API-absence part rests on an independent 2026 check, not on Google documentation; re-verify before building the import."
+    used_by: [GSC-003, performance-analyst]
+
+  - id: pf-gsc-row-limit
+    statement: "The Search Console API returns up to 50,000 rows per day per search type per property."
+    source_url: "https://support.google.com/webmasters/answer/12919192"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: data_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [keyword-analyst, performance-analyst]
+
+  - id: pf-gsc-url-inspection-quota
+    statement: "The URL Inspection API allows 2,000 queries per day and 600 queries per minute per property."
+    source_url: "https://developers.google.com/search/blog/2022/01/url-inspection-api"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: data_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    quota:
+      queries_per_day_per_property: 2000
+      queries_per_minute_per_property: 600
+    used_by: [GSC-001, verifier, config/budgets.yaml]
+
+  - id: pf-keyword-planner-refresh
+    statement: "Keyword Planner historical metrics report average monthly searches over the past 12 months, refresh monthly, and Google recommends caching them."
+    source_url: "https://developers.google.com/google-ads/api/docs/keyword-planning/overview"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [config/freshness.yaml, keyword-analyst]
+
+  - id: pf-gemini-2-5-retirement
+    statement: "Gemini 2.5 models retire on 16 October 2026; do not choose them."
+    source_url: "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/release-notes"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: ai_engineer
+    review_by: "2026-10-16"
+    expires_on: "2026-10-16"
+    status: verified_in_library
+    used_by: [config/providers.yaml]
+
+  - id: pf-agent-platform-naming
+    statement: "Vertex AI is now named Gemini Enterprise Agent Platform."
+    source_url: "https://cloud.google.com/blog/products/ai-machine-learning/introducing-gemini-enterprise-agent-platform"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: gcp_platform_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [config/providers.yaml]
+
+  - id: pf-regional-genai-me-central
+    statement: "Google lists me-central1 (Doha) and me-central2 (Dammam) for regional generative AI APIs; model availability must be checked per model."
+    source_url: "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/release-notes"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: gcp_platform_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [config/providers.yaml, region decision]
+
+  - id: pf-claude-web-search-org-policy
+    statement: "On Agent Platform, Claude web search requires the org policy constraints/vertexai.allowedPartnerModelFeatures to allow it."
+    source_url: "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/partner-models/claude/web-search"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: ai_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [config/providers.yaml]
+
+  - id: pf-model-armor-inline-gemini
+    statement: "Model Armor's inline integration covers Gemini generateContent without streaming; other models are screened through REST sanitize calls."
+    source_url: "https://docs.cloud.google.com/model-armor/integrations"
+    source_tier: 1
+    source_updated_on: "2026-09-24"
+    checked_on: "2026-09-29"
+    owner_role: ai_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [config/providers.yaml]
+
+  - id: pf-openai-on-agent-platform
+    statement: "Agent Platform lists only OpenAI open-weight models, which do not represent ChatGPT."
+    source_url: "<confirm>"
+    source_tier: 1
+    checked_on: null
+    owner_role: ai_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: needs_verification
+    used_by: [config/providers.yaml]
+
+  - id: pf-shopify-graphql-required
+    statement: "The Shopify REST Admin API is legacy since 1 October 2024, and new public apps must use the GraphQL Admin API since 1 April 2025."
+    source_url: "https://shopify.dev/docs/api/admin-rest"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: integration_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [config/connectors/shopify.yaml]
+
+  - id: pf-webflow-page-settings-endpoint
+    statement: "The Webflow Data API v2 updates page title, slug, SEO and Open Graph fields through PUT /v2/pages/{page_id} with the pages:write scope."
+    source_url: "https://developers.webflow.com/data/reference/pages-and-components/pages/update-page-settings"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: integration_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [config/connectors/webflow.yaml]
+
+  - id: pf-webflow-site-publish-scope
+    statement: "A Webflow site publish pushes all staged changes, including changes made by other people."
+    source_url: "<confirm>"
+    source_tier: 1
+    checked_on: null
+    owner_role: integration_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: needs_verification
+    used_by: [config/connectors/webflow.yaml]
+
+  - id: pf-webflow-template-seo-binding
+    statement: "Webflow collection-template SEO fields are fixed at the template binding, not per page."
+    source_url: "<confirm>"
+    source_tier: 1
+    checked_on: null
+    owner_role: integration_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: needs_verification
+    used_by: [config/connectors/webflow.yaml]
+
+  - id: pf-indexing-api-scope
+    statement: "The Google Indexing API covers only job-posting and livestream pages; the product does not use it."
+    source_url: "<confirm>"
+    source_tier: 1
+    checked_on: null
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: needs_verification
+    used_by: [connectors]
+
+  - id: pf-webmcp-origin-trial
+    statement: "WebMCP is in a Chrome origin trial from Chrome 149 and is subject to change."
+    source_url: "https://developer.chrome.com/docs/ai/webmcp"
+    source_tier: 1
+    checked_on: "2026-09-30"
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [AGT-002]
+
+  - id: pf-lighthouse-agentic-browsing
+    statement: "Lighthouse's agentic browsing category is experimental and needs Chrome 150 or later."
+    source_url: "https://developer.chrome.com/docs/lighthouse/agentic-browsing"
+    source_tier: 1
+    checked_on: "2026-09-30"
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [AGT-002]
+
+  - id: pf-google-recrawl-delay
+    statement: "Google may take days to months to recrawl a changed page, so 'live on site' and 'seen by Google' are reported separately."
+    source_url: "https://developers.google.com/search/docs/appearance/ai-features"
+    source_tier: 1
+    checked_on: "2026-09-29"
+    owner_role: seo_lead
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: verified_in_library
+    used_by: [verifier]
+
+  - id: pf-search-console-pacific-time
+    statement: "Search Console dates are in Pacific Time, and the most recent 2-3 days are incomplete."
+    source_url: "<confirm>"
+    source_tier: 1
+    checked_on: null
+    owner_role: data_engineer
+    review_by: "2026-10-30"
+    expires_on: "2026-12-31"
+    status: needs_verification
+    used_by: [config/freshness.yaml, performance-analyst]

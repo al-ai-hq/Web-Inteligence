@@ -1,0 +1,196 @@
+# Purpose: Registry of AI-model provider families used for AI visibility observations and for runtime
+#          agent model tiers: access route, model ID, region, price-table version, web-search support,
+#          allowed data classes and default enablement. No model ID or price is written here.
+# Owner role: AI engineer, with the provider-policy owner
+# Source sections: v1-baseline §8.1-§8.4, §9.8, §11.2, §12.5; 02-DETAILED-SPECIFICATION §6, §12, §13, §17, §18;
+#                  01-PRODUCT-REQUIREMENTS §5.8, §14, §15; 04-CLAUDE-CODE-BUILD-PROMPT §23;
+#                  05-PROJECT-PLAN §10; 08-REFERENCE-LIBRARY (LLM providers, Google Cloud platform)
+# Status: draft for review
+#
+# Rules for this file (D-010, D-011):
+# - model_id and price_table_version stay placeholders until M0. Choose current stable models after
+#   checking each provider's model versions page. Gemini 2.5 models retire 16 October 2026
+#   (policy fact pf-gemini-2-5-retirement); do not choose them.
+# - The launch provider set is an open decision (D-011; 01-PRODUCT-REQUIREMENTS §14), so every provider
+#   is disabled by default. v4_default_engine records the 01-PRODUCT-REQUIREMENTS §16 default list.
+# - Every report says these are API observations, not reproductions of consumer apps (v1-baseline §8.2).
+# - Web-search notes are candidate facts from 08-REFERENCE-LIBRARY; re-verify before implementation.
+#   checked_on "2026-09-29" is the start of the "links checked 29-30 September 2026" range stated in
+#   08-REFERENCE-LIBRARY, used where the library gives no exact date for a link.
+
+registry_version: "0.1.0-draft"
+review_cadence: "monthly (v1-baseline §11.3; 02-DETAILED-SPECIFICATION §18)"
+
+# Data classes. ASSUMPTION: names to be aligned with docs/data-classification.md at M0B.
+data_class_policy:
+  source_reference: ["v1-baseline §9.8", "02-DETAILED-SPECIFICATION §13 (Hard restrictions)", "02-DETAILED-SPECIFICATION §17"]
+  default_allowed: [public_site_content, generated_prompts]
+  require_project_opt_in: [search_console_data, analytics_data, fact_sheet, keyword_uploads, cms_content]
+  never_sent: [cms_credentials, oauth_tokens, api_keys, email_address, ip_address, personal_data]
+  final_decision: "<DECIDE_AT_M0: allowed data classes per provider (01-PRODUCT-REQUIREMENTS §14)>"
+
+# Call limits shared by all visibility adapters (v1-baseline §11.2, §8.4, §12.5).
+call_defaults:
+  max_search_uses_per_prompt: 2
+  max_search_uses_note: "v1-baseline §11.2 gives 1-2; ASSUMPTION: 2 is the cap."
+  max_output_tokens: 1000
+  max_output_tokens_note: "v1-baseline §11.2 gives about 700-1,000; ASSUMPTION: 1000 is the cap."
+  max_automatic_retries: 1
+  retry_policy: "One retry for a transient provider failure only. Never retry invalid or policy-rejected prompts (v1-baseline §11.2)."
+  timeout: "<DECIDE_AT_M0: per-call timeout>"
+  temperature: "<DECIDE_AT_M0: low documented value per provider where supported (v1-baseline §8.4)>"
+  approximate_location: "Same approximate location for every provider where supported (v1-baseline §8.4)."
+  store_exact_final_prompt: true
+  adapter_contract_ref: "v1-baseline §12.5"
+
+providers:
+  - id: gemini
+    family: "Google Gemini"
+    report_label: "Gemini API grounded with Google Search"
+    access_route: "Agent Platform Gemini API (Gemini Enterprise Agent Platform, formerly Vertex AI)"
+    model_id: "<DECIDE_AT_M0: check the provider's model versions page>"
+    model_versions_page: "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"
+    region: "<DECIDE_AT_M0: region; check regional availability, e.g. me-central1 and me-central2, in the release notes>"
+    price_table_version: "<DECIDE_AT_M0: price table version from the provider's official pricing page>"
+    web_search:
+      supported: true
+      mode: "Grounding with Google Search"
+      note: >-
+        Grounded results that carry Google Search Suggestions must display the suggestions (Service Specific
+        Terms); counsel reviews storage and display before launch. Grounding skips pages that disallow
+        Google-Extended.
+      source_url: "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/grounding/grounding-with-google-search"
+      checked_on: "2026-09-29"
+    guardrails: "Model Armor inline integration for generateContent without streaming (policy fact pf-model-armor-inline-gemini)."
+    data_classes_allowed: [public_site_content, generated_prompts]
+    enabled_by_default: false
+    v4_default_engine: true
+    degradation_priority: keep
+    source_reference: ["v1-baseline §8.1", "02-DETAILED-SPECIFICATION §6", "02-DETAILED-SPECIFICATION §17"]
+
+  - id: claude
+    family: "Anthropic Claude"
+    report_label: "Claude API with web search"
+    access_route: "<DECIDE_AT_M0: Agent Platform Model Garden or the Anthropic API>"
+    access_route_options: ["Agent Platform Model Garden", "Anthropic API"]
+    model_id: "<DECIDE_AT_M0: check the provider's model versions page>"
+    region: "<DECIDE_AT_M0: region (Model Garden route) or provider processing region (Anthropic API route)>"
+    price_table_version: "<DECIDE_AT_M0: price table version from the provider's official pricing page>"
+    web_search:
+      supported: true
+      mode: "Web search tool"
+      note: >-
+        Returns citations and supports a maximum search count (v1-baseline §8.1). On Agent Platform the org
+        policy constraints/vertexai.allowedPartnerModelFeatures must allow web search.
+      source_url: "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/partner-models/claude/web-search"
+      alternate_source_url: "https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/web-search-tool"
+      checked_on: "2026-09-29"
+    guardrails: "Model Armor REST sanitize calls (02-DETAILED-SPECIFICATION §12)."
+    data_classes_allowed: [public_site_content, generated_prompts]
+    enabled_by_default: false
+    v4_default_engine: true
+    degradation_priority: keep
+    source_reference: ["v1-baseline §8.1", "02-DETAILED-SPECIFICATION §6", "05-PROJECT-PLAN §10"]
+
+  - id: openai
+    family: "OpenAI"
+    report_label: "OpenAI API with web search"
+    access_route: "OpenAI API through the egress proxy"
+    model_id: "<DECIDE_AT_M0: check the provider's model versions page>"
+    region: "<DECIDE_AT_M0: provider processing region; check the provider's data-residency terms>"
+    price_table_version: "<DECIDE_AT_M0: price table version from the provider's official pricing page>"
+    web_search:
+      supported: true
+      mode: "Web search tool (Responses API)"
+      note: >-
+        Web search can be forced when the test needs current web evidence (v1-baseline §8.1). Agent Platform
+        lists only OpenAI open-weight models, which do not represent ChatGPT (02-DETAILED-SPECIFICATION §6).
+      source_url: "https://developers.openai.com/api/docs/guides/tools-web-search"
+      checked_on: "2026-09-29"
+    guardrails: "Model Armor REST sanitize calls (02-DETAILED-SPECIFICATION §12)."
+    data_classes_allowed: [public_site_content, generated_prompts]
+    enabled_by_default: false
+    v4_default_engine: true
+    v4_engine_name: "ChatGPT (observed through the API, not the consumer app)"
+    degradation_priority: keep
+    source_reference: ["v1-baseline §8.1", "02-DETAILED-SPECIFICATION §6"]
+
+  - id: perplexity
+    family: "Perplexity"
+    report_label: "Perplexity API with web search"
+    access_route: "Perplexity API through the egress proxy"
+    model_id: "<DECIDE_AT_M0: check the provider's model versions page>"
+    region: "<DECIDE_AT_M0: provider processing region; check the provider's data-residency terms>"
+    price_table_version: "<DECIDE_AT_M0: price table version from the provider's official pricing page>"
+    web_search:
+      supported: true
+      mode: "Built-in search with citations"
+      note: "Current search-grounded API with citations (v1-baseline §8.1)."
+      source_url: "https://docs.perplexity.ai/"
+      checked_on: "2026-09-29"
+    guardrails: "Model Armor REST sanitize calls (02-DETAILED-SPECIFICATION §12)."
+    data_classes_allowed: [public_site_content, generated_prompts]
+    enabled_by_default: false
+    v4_default_engine: true
+    degradation_priority: keep
+    source_reference: ["v1-baseline §8.1", "02-DETAILED-SPECIFICATION §6"]
+
+  - id: grok
+    family: "xAI Grok"
+    report_label: "Grok API with web search"
+    access_route: "<DECIDE_AT_M0: Agent Platform Model Garden or the xAI API; confirm web search support on Agent Platform first>"
+    access_route_options: ["Agent Platform Model Garden", "xAI API"]
+    model_id: "<DECIDE_AT_M0: check the provider's model versions page>"
+    region: "<DECIDE_AT_M0: region (Model Garden route) or provider processing region (xAI API route)>"
+    price_table_version: "<DECIDE_AT_M0: price table version from the provider's official pricing page>"
+    web_search:
+      supported: "to_verify"
+      mode: "Web search through agent search tools with citations"
+      note: >-
+        Verify search support on Agent Platform; otherwise use xAI web search. X Search is excluded from the
+        baseline unless explicitly selected (v1-baseline §8.1).
+      source_url: "https://docs.x.ai/developers/tools/citations"
+      checked_on: "2026-09-29"
+    guardrails: "Model Armor REST sanitize calls (02-DETAILED-SPECIFICATION §12)."
+    data_classes_allowed: [public_site_content, generated_prompts]
+    enabled_by_default: false
+    v4_default_engine: false
+    degradation_priority: drop_first
+    degradation_note: "At 95% of the monthly cap, keep the other providers and mark Grok temporarily unavailable (v1-baseline §11.4)."
+    source_reference: ["v1-baseline §8.1", "v1-baseline §11.4", "02-DETAILED-SPECIFICATION §6"]
+
+# 01-PRODUCT-REQUIREMENTS §16 and 04-CLAUDE-CODE-BUILD-PROMPT §23: "Explain every omitted default engine."
+omitted_default_engines:
+  - engine: "Google AI surfaces (AI Overviews, AI Mode)"
+    reason: >-
+      No supported API route is listed in 08-REFERENCE-LIBRARY. Observed presence comes from the Search Console
+      generative AI performance export (impressions only, GSC-003), not from prompt runs. Result-page scraping is
+      not allowed (D-009).
+    status: "omitted; observed through GSC-003 in the connected tier"
+  - engine: "Microsoft Copilot"
+    reason: >-
+      01-PRODUCT-REQUIREMENTS §16 adds Copilot when Bing matters. No supported API route or documentation is
+      listed in 08-REFERENCE-LIBRARY. Personal browser sessions are not allowed.
+    status: "<DECIDE_AT_M0: whether Bing matters for launch markets and whether a supported API or governed product account exists>"
+
+# Model tiers used by config/agents/*.yaml. Provider and model are chosen at M0 (D-011).
+agent_model_tiers:
+  fast:
+    provider: "<DECIDE_AT_M0: provider for the fast tier>"
+    model_id: "<DECIDE_AT_M0: check the provider's model versions page>"
+  strong_reasoning:
+    provider: "<DECIDE_AT_M0: provider for the strong-reasoning tier>"
+    model_id: "<DECIDE_AT_M0: check the provider's model versions page>"
+  embedding:
+    provider: "<DECIDE_AT_M0: Agent Platform embedding model for keyword clustering>"
+    model_id: "<DECIDE_AT_M0: check the provider's model versions page>"
+  fast_plus_embedding:
+    uses: [fast, embedding]
+  fast_or_none:
+    uses: [fast]
+    note: "The verifier runs without a model when every check is deterministic."
+  per_provider:
+    note: "Visibility analysis tier from 02-DETAILED-SPECIFICATION §13; confirm at M6."
+  report_summarization:
+    provider: "<DECIDE_AT_M0: one economical model for report summarization and translation (v1-baseline §11.3)>"
+    model_id: "<DECIDE_AT_M0: check the provider's model versions page>"

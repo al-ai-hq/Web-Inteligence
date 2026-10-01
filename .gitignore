@@ -1,0 +1,29 @@
+# Local Claude Code state and personal settings
+.claude/state/
+.claude/settings.local.json
+intent/_plans/*.tmp
+
+# Secrets
+.env
+.env.*
+secrets/
+*.pem
+*-key.json
+
+# Build output and dependencies (after M0A)
+node_modules/
+.next/
+dist/
+coverage/
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# macOS
+.DS_Store
+Icon?
