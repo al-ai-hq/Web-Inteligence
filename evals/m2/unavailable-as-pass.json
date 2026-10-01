@@ -1,0 +1,11 @@
+{
+  "rules": [
+    {
+      "rule_id": "CRW-001",
+      "category": "crawlability",
+      "importance_weight": 1,
+      "stored_result": "unavailable",
+      "shown_as": "pass"
+    }
+  ]
+}
