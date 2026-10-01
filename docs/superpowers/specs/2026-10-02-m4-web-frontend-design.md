@@ -41,7 +41,7 @@ flowchart TB
         RH["route handlers — only API surface, zod-validated"]
     end
     subgraph pipeline["packages/audit-pipeline — new"]
-        PORT["JobDispatcher port: dispatch(jobId), getStatus(jobId)"]
+        PORT["JobDispatcher port: dispatch(jobId)"]
         IPD["InProcessDispatcher (this milestone; serializes audits)"]
         CTD["CloudTasksDispatcher (later; spec 5.6 idempotency)"]
         RUN["runAuditPipeline(deps)"]
@@ -74,7 +74,7 @@ flowchart TB
 ### packages/audit-pipeline (new workspace package `@wpi/audit-pipeline`)
 
 - **Ports** (interfaces owned by this package):
-  - `JobDispatcher` — `dispatch(jobId: string): Promise<void>` and `getStatus(jobId: string): Promise<WorkflowStatus>`.
+  - `JobDispatcher` — `dispatch(jobId: string): Promise<void>`. Deliberately no `getStatus`: Postgres is the single source of truth for workflow status, read through `AuditStore`. Queue depth for the honest waiting UI comes from the dispatcher's own lightweight signal, not per-job queries.
   - `AuditStore` — create/read/update audit rows; the only persistence seam.
 - **`InProcessDispatcher`** (this milestone): runs `runAuditPipeline` in the web server process. Because the M1 entry points read configuration from `process.env` (see §7), it **serializes audits: one at a time per server instance**, scoping env per run and restoring it afterward.
 - **`CloudTasksDispatcher`** (later milestone): same port; the pipeline does not change. Spec 4.3 retry/backoff and 5.6 dispatch idempotency are scheduled there, not here.
@@ -84,7 +84,7 @@ flowchart TB
 ### apps/web (existing placeholder, built out)
 
 - Next.js App Router with `[locale]` segment; **RSC by default**, `"use client"` only where interaction requires it (per apps/web/CLAUDE.md).
-- **Route handlers are the only API surface** — no server actions for mutations.
+- **Route handlers are the only API surface** — no server actions for mutations. Full inventory: `POST /api/audits` (create), `GET /api/audits/[id]/status` (poll), `DELETE /api/audits/[id]` (self-delete), and a catch-all `ANY /api/export/*` → 403. There is deliberately no report API route — the report renders server-side in the RSC page, keeping the smallest possible surface.
 - Tailwind CSS v4 (D-022), logical properties for RTL.
 - Dependencies added: `next-intl` (the one i18n dependency), Tailwind v4, and `@axe-core/playwright` (a11y scans, §6). Nothing else beyond what D-021 already authorizes.
 
@@ -121,6 +121,12 @@ Mapping:
 - **CANCELLED** remains in the enum; no cancel path is built in this milestone.
 - **EXPIRED** is set by the lazy sweep (§5); user self-delete sets `deleted_at` (returns 410, distinct from expiry).
 
+Transition rules (enforced in `PostgresAuditStore`, asserted in tests):
+
+- Terminal outcomes `READY_PARTIAL`, `READY_COMPLETE`, `FAILED`, `CANCELLED` are absorbing except for retention: their only legal exit is → `EXPIRED`. No re-running, no un-failing.
+- Every status write is a guarded update (`... WHERE status NOT IN ('EXPIRED','CANCELLED') AND deleted_at IS NULL`); a write matching zero rows means the row expired or was deleted mid-run, and the pipeline stops instead of overwriting.
+- The expiry sweep marks every non-EXPIRED row past `expires_at` as EXPIRED — covering both 7-day retention of finished reports and stalled in-flight audits.
+
 ### Postgres schema (single table this milestone)
 
 ```sql
@@ -142,7 +148,7 @@ CREATE TABLE audits (
 CREATE INDEX audits_expires_at_idx ON audits (expires_at);
 ```
 
-This table is the operational store for this milestone; the canonical audit record (schemas/audit.schema.json) constrains it in ways the pipeline must honor and tests must assert: `noindex` always true for anonymous audits, `expires_at` at most 7 days after `created_at`, `audit_tier` carrying the eligibility tier, and `anonymous_access_state` staying ANONYMOUS (claiming is a stub this milestone; D-004 lifecycle comes later).
+This table is the operational store for this milestone; the canonical audit record (schemas/audit.schema.json) constrains it in ways the pipeline must honor and tests must assert: `noindex` always true for anonymous audits, `expires_at` at most 7 days after `created_at`, `audit_tier` carrying the eligibility tier, and `anonymous_access_state` staying ANONYMOUS (claiming is a stub this milestone; D-004 lifecycle comes later). `audits.locale` records the UI language chosen at creation — it selects the default report page language and status copy; the ReportModel's `languages` stays `["en","ar"]` because findings are bilingual template-composed and the reader can switch locale. `context` holds exactly the eight context fields of docs/spec/02-DETAILED-SPECIFICATION.md:103, zod-validated at the route.
 
 ### ReportModel assembly (schemas/report-model.schema.json)
 
@@ -151,6 +157,8 @@ Assembly must produce a record valid against `schemas/report-model.schema.json` 
 - `access_class: "anonymous_private"`, `languages: ["en","ar"]`, `allowed_projections: []` (structural export denial), `retention_days: 7`, `expires_at = created_at + 7 days`.
 - `tone` follows templates/style-guide-ar.md (MSA) and templates/style-guide-en.md (answer-first); `access` reflects signed-secret delivery. Exact enum literals come from the schema and are asserted in tests.
 - `needs_native_review`: this milestone composes from natively authored bilingual templates ⇒ `false`; the native-speaker copy review happens at the release gate, not per-report.
+
+**The report deliberately does NOT render the Presence Readiness 0–100 score.** The deterministic scoring engine (v1 formulas, seven category weights, critical caps, confidence — docs/spec/02-DETAILED-SPECIFICATION.md:162, never blended per D-012) does not exist anywhere in the repo (verified 2026-10-02: zero hits across services/ and packages/). Inventing a substitute number would violate the methodology contracts. The report renders M3's agent findings grouped by category; the score engine is required pre-pilot work, recorded in §9.
 
 ## 4. Web UI, i18n, and RTL
 
@@ -210,9 +218,10 @@ flowchart TB
 - **URL validation twice:** fail-fast zod + `url-validator` at creation, and full re-validation inside the pipeline before crawling (SSRF defense in depth, matching M1 semantics).
 - **zod at every route handler**; error envelope is always `{ error: code }` with statuses 400 (validation), 404 (unknown id / missing or wrong secret), 403 (export denial), 410 (deleted or expired), 429 (eligibility exhausted).
 - **Secrets:** each audit gets a 32-byte random secret, delivered once in the URL; **only the SHA-256 hash is stored** (`secret_hash`). Cookie is HMAC-signed with `AUDIT_COOKIE_SECRET`, HttpOnly.
-- **Eligibility tiering is server-side**, per config/anonymous-eligibility.yaml (1st audit rich ~20 pages; 2nd reduced sample; later preview-only), keyed on the signed cookie. A blocked-cookie visitor counts as first-time; that exposure is contained by the invitation-only pilot (D-020). Client-visible copy states what tier offers without leaking internals.
+- **Secret hygiene in the browser:** the report page sets `<meta name="referrer" content="no-referrer">` and outbound links carry `rel="noreferrer"`, so the `?s=` secret never leaks via the Referer header. Residual exposure in server access logs is accepted for the local, invitation-only pilot (D-020).
+- **Eligibility tiering is server-side**, per config/anonymous-eligibility.yaml (1st audit rich ~20 pages; 2nd reduced sample; later preview-only), keyed on the signed cookie. A blocked-cookie visitor counts as first-time; that exposure is contained by the invitation-only pilot (D-020). Client-visible copy states what tier offers without leaking internals. Deleting an audit does not reset the eligibility counter — the cookie's audit count only ever increases in this milestone.
 - **Structural export denial:** no export routes exist anywhere in the app; a catch-all `/api/export/*` handler returns 403 server-side (defense independent of route inventory); `allowed_projections: []` in every ReportModel.
-- **Budget wiring at the composition root:** the dispatcher adapter constructs `CostTracker` and passes it into `handleAgentTask` with the **USD-150 combined cap** — closing the M3 "CostTracker/Orchestrator wiring at composition root" backlog item for this execution path.
+- **Budget wiring at the composition root:** the dispatcher adapter constructs a fresh `CostTracker` per pipeline run and passes it into `handleAgentTask` as the budget gate — closing the M3 "CostTracker/Orchestrator wiring at composition root" backlog item for this execution path. Run cost is persisted into `audits.costs` at run end (success or failure). D-020's USD 150 is a **combined monthly** cap for hosting and paid calls (docs/decisions.md:32, A-001); monthly enforcement requires cost persistence across audits (spec 4.5, deferred backlog), so this milestone enforces only the per-audit hard stop.
 - **reCAPTCHA deferred** (D-020); the route leaves an env-flag-gated placeholder point.
 - **Expiry without cron:** rows past `expires_at` are marked EXPIRED by a lazy sweep on read plus a sweep on server startup.
 - **Pipeline failures:** any throw ⇒ status `FAILED` + `failure_reason` (a bilingual message key, not a raw stack) + UI offers "start a new audit". No resume.
@@ -240,7 +249,7 @@ flowchart TB
     L1 --> L2 --> L3 --> L4
 ```
 
-- **Layer 1 (vitest, pure):** pipeline behavior with fake dispatcher + fake store — every state transition including all failure paths (invalid URL ⇒ FAILED with reason key; insufficient evidence ⇒ READY_PARTIAL with `unavailable` + reason, never 0%); ReportModel assembly; secret stored as SHA-256 only; eligibility tier 1st/2nd/3rd; lazy expiry sweep. Route-handler tests for each status code and the `{ error: code }` envelope; signed-cookie round-trip and tamper rejection; export catch-all returns 403 before any other logic.
+- **Layer 1 (vitest, pure):** pipeline behavior with fake dispatcher + fake store — every state transition including all failure paths (invalid URL ⇒ FAILED with reason key; insufficient evidence ⇒ READY_PARTIAL with `unavailable` + reason, never 0%); ReportModel assembly; secret stored as SHA-256 only; eligibility tier 1st/2nd/3rd; lazy expiry sweep; guarded terminal transitions — no write escapes a row absorbed by EXPIRED/CANCELLED semantics, and a zero-row guarded write stops the pipeline. Route-handler tests for each status code and the `{ error: code }` envelope; signed-cookie round-trip and tamper rejection; export catch-all returns 403 before any other logic.
 - **Layer 2 (real Postgres):** `PostgresAuditStore` tests run against a `wpi_test` database dropped/recreated per run (plain psql — no testcontainers/Docker dependency). Migrations apply cleanly on an empty DB; the CHECK constraint rejects invalid status; the expires_at index exists; **two concurrent dispatches to the InProcessDispatcher serialize** (one-at-a-time guarantee).
 - **Layer 3 (contract & parity):** assembled reports validate against schemas/report-model.schema.json (same pattern as the repo's schema lint); `messages/en.json` and `messages/ar.json` have identical key sets and every key resolves in both locales (acceptance requires Arabic/English parity, docs/spec/01-PRODUCT-REQUIREMENTS.md:373–374).
 - **Layer 4 (Playwright, chromium only):** core EN and AR journeys per project-plan §7 (05 §7:307) run against a **stub dispatcher** that advances states on a timer — no real crawl, no Gemini, no network. `@axe-core/playwright` scans landing + report in both locales at the WCAG 2.2 AA threshold; the report URL is asserted to return `X-Robots-Tag: noindex, nofollow`.
@@ -265,6 +274,7 @@ flowchart TB
 ## 9. Governance
 
 - **Record D-022** (Tailwind CSS v4) in docs/decisions.md during implementation — the register is append-only; D-021 is currently the last entry.
+- **Score engine is a pre-pilot gate, not part of this milestone:** the Presence Readiness scoring engine (v1 formulas, category weights, critical caps, confidence — 02-DETAILED-SPECIFICATION.md:162) must be built and reviewed before the D-020 pilot; the report UI is designed to accept it without layout change.
 - **Deliberately not decided here** (repo forbids guessing open decisions): Identity Platform provider (D-011), reCAPTCHA introduction timing, Cloud Tasks migration timing.
 - Exit-gate traceability: §0 lists the INT-04 gate items; §3 (retention/expiry/delete), §4 (in-app report, noindex), §5 (export denial, secret access), §6 (RTL + a11y tests) each close one or more of them.
 
