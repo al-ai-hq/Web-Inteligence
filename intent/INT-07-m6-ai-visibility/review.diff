@@ -1,0 +1,728 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 3b1cdc2..c63510c 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -6,7 +6,7 @@
+ # intent/INT-00-m0a-repository-bootstrap/intent.md.
+ #
+ # Jobs:
+-#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness
++#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness, M6 AI visibility
+ #   secrets    - gitleaks over the full history
+ #   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
+ name: ci
+@@ -50,6 +50,8 @@ jobs:
+         run: python3 scripts/check_m4_sources.py
+       - name: M5 experience effectiveness
+         run: python3 scripts/check_m5_experience.py
++      - name: M6 AI visibility
++        run: python3 scripts/check_m6_visibility.py
+       - name: M2 readiness
+         run: python3 scripts/check_m2_readiness.py
+       - name: Action pins
+diff --git a/evals/m6/all-failed.json b/evals/m6/all-failed.json
+new file mode 100644
+index 0000000..e7c5d68
+--- /dev/null
++++ b/evals/m6/all-failed.json
+@@ -0,0 +1,11 @@
++{
++  "prompt_count": 8,
++  "providers": [
++    {"slot": "slot_1", "outcome": "failed"},
++    {"slot": "slot_2", "outcome": "failed"},
++    {"slot": "slot_3", "outcome": "failed"},
++    {"slot": "slot_4", "outcome": "failed"},
++    {"slot": "slot_5", "outcome": "failed"}
++  ],
++  "rate": "unavailable"
++}
+diff --git a/evals/m6/separate-visibility.json b/evals/m6/separate-visibility.json
+new file mode 100644
+index 0000000..8c8d858
+--- /dev/null
++++ b/evals/m6/separate-visibility.json
+@@ -0,0 +1,5 @@
++{
++  "observed_ai_visibility": 24,
++  "presence_readiness": 31,
++  "experience_effectiveness": 22
++}
+diff --git a/evals/m6/valid-denominator.json b/evals/m6/valid-denominator.json
+new file mode 100644
+index 0000000..7cb3ab7
+--- /dev/null
++++ b/evals/m6/valid-denominator.json
+@@ -0,0 +1,16 @@
++{
++  "prompt_count": 8,
++  "providers": [
++    {"slot": "slot_1", "outcome": "valid"},
++    {"slot": "slot_2", "outcome": "valid"},
++    {"slot": "slot_3", "outcome": "valid"},
++    {"slot": "slot_4", "outcome": "failed"},
++    {"slot": "slot_5", "outcome": "failed"}
++  ],
++  "counts": {
++    "prompt_count": 8,
++    "provider_count": 5,
++    "failed_provider_count": 2,
++    "denominator": 24
++  }
++}
+diff --git a/intent/INT-07-m6-ai-visibility/intent.md b/intent/INT-07-m6-ai-visibility/intent.md
+new file mode 100644
+index 0000000..93ebbbf
+--- /dev/null
++++ b/intent/INT-07-m6-ai-visibility/intent.md
+@@ -0,0 +1,85 @@
++# Intent: M6 AI visibility laboratory
++
++Status: draft.
++
++| Field | Value |
++| --- | --- |
++| ID | INT-07 |
++| Status | draft |
++| Author (originator) | <DECIDE_AT_M0: product owner name> |
++| Product owner | <DECIDE_AT_M0: name> |
++| Tech lead | <DECIDE_AT_M0: name> |
++| Milestone | M6 (05-PROJECT-PLAN §5) |
++| Ticket | none |
++| Created | 2026-10-01 |
++| Drafted from | Ibrahim, 2026-10-01, by the message "shall we start M6". This draft proposes the same kind of first slice as M4 and M5: a local check only. There is no live provider call. Product spend stays `0.00` USD. |
++| Text accepted | Ibrahim, 2026-10-01, by the message "I accept this INT-07 text." The status word stays `draft` because that message also says not to set `accepted`. |
++| Depends on | `origin/main` at `8753bf9`, which merges pull request 6 and includes the local M5 Experience Effectiveness check. That fact does not finish the later M5 exit and does not authorize a further merge. |
++| Risk class | standard for this slice. A live provider gateway, a cost-guard change, or a circuit breaker in production is high-risk. This slice does not add those. |
++
++Status values: `draft`, `accepted`, `rejected`, `superseded`. Ibrahim accepted this text on 2026-10-01. This session does not set `accepted`.
++
++## Problem
++
++Observed AI visibility is a count of model answers. Presence Readiness is a deterministic score, and Experience Effectiveness is a reviewed score. A later screen can add an AI mention rate to either score, or treat a failed provider call as a measured zero. The product rules already say observed AI visibility stays apart from those scores, a failed provider leaves the denominator, and a rate with no valid responses is unavailable rather than 0%. Nobody has yet shown that, in a local check, with no provider call.
++
++## Proposed outcome
++
++A local check, with no provider call and no screen, shows all of these:
++
++- An observed AI visibility result stays apart from Presence Readiness and from Experience Effectiveness. Adding one to either is refused.
++- Eight prompts across five providers, with two providers failed, use a denominator of 24. The failures are excluded. They are not stored as 0%.
++- When every provider fails, the rate is `unavailable`, not 0%.
++- Product spend stays `0.00` USD.
++
++Cursor sessions run this milestone under `AGENTS.md` and `.cursor/`. `.claude/` remains the policy source. `opusplan` at high in `docs/spec/06-MODEL-PLAN.md` §3 is a Claude Code alias, not a Cursor picker value. The session records the model name it shows (D-020). This draft was written in a session that showed Grok 4.7.
++
++## Affected users and systems
++
++The methodology owner. No service is deployed. No model provider is called.
++
++## Constraints
++
++- D-012: observed AI visibility stays apart from Presence Readiness, Experience Effectiveness, and search performance. This slice does not blend them.
++- D-009: do not call Google Autocomplete or scrape search-result pages. Do not import `.claude/skills/marketing-seo-agent/scripts`.
++- D-020: record the model the session shows.
++- `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.8: cost, failure, and denominator transparency. This slice does not choose providers.
++- `docs/spec/02-DETAILED-SPECIFICATION.md` §6: numerators and denominators sit beside every rate. The launch set of providers stays open (D-011).
++- `docs/test-strategy.md` §6.3: the AI valid-denominator fixture is 8 prompts times 5 providers with 2 providers failed, denominator 24, failures excluded, shown as counts. When all providers fail, the result is `unavailable`, not 0%.
++- `config/prompt-panels/` is not edited. Provider choice stays `<DECIDE_AT_M0: runtime model providers>`.
++- `pnpm test:e2e` stays recorded as not run. There is no screen.
++
++## Out of scope
++
++- Reopening M0A, M0B, M1, M2, M3, M4, or M5. Starting M7. Merging any pull request.
++- The later M5 exit: rubric agreement and calibration.
++- The later M4 exit: expected-value formulas, and a claim that does not grant domain or connector authority.
++- Closing OI-021. The secrets job fails because organization `al-ai-hq` has no `GITLEAKS_LICENSE`.
++- A provider gateway, repeats, a cost ledger, circuit breakers, prompt families, and a provider version registry.
++- Mentions, recommendations, citations, competitor share, lost prompts, and cited-source gaps beyond the denominator case in this slice.
++- A live provider call, a client-site fetch, and a search-result scrape.
++- Deploy, Terraform apply, and product spend.
++
++## Exit gate
++
++From 05-PROJECT-PLAN §5, this first slice shows locally:
++
++1. one refusal when observed AI visibility is merged into Presence Readiness or Experience Effectiveness;
++2. the documented denominator of 24 when two of five providers fail;
++3. one case where every provider failure stays `unavailable`, not 0%.
++
++The later M6 exit, a live provider gateway and the full observation catalogue, is not this slice. `pnpm test:e2e` stays recorded as not run.
++
++## Open questions
++
++These stay open. They do not block this draft. They block a live laboratory.
++
++- The launch set of runtime model providers (D-011). Owner: product owner. The name remains `<DECIDE_AT_M0: name>` (OI-002).
++- Prompt-panel contents in `config/prompt-panels/`. Owner: methodology owner.
++- The combined USD 150 cap (D-005, OI-001). Owner: product owner.
++
++## Links
++
++- Spec: `intent/INT-07-m6-ai-visibility/spec.md` (after acceptance)
++- Plan: `intent/INT-07-m6-ai-visibility/plan.md` (after spec approval)
++- Release: `intent/INT-07-m6-ai-visibility/release.md` (after implementation)
+diff --git a/intent/INT-07-m6-ai-visibility/plan.md b/intent/INT-07-m6-ai-visibility/plan.md
+new file mode 100644
+index 0000000..e7b55aa
+--- /dev/null
++++ b/intent/INT-07-m6-ai-visibility/plan.md
+@@ -0,0 +1,117 @@
++# Plan: M6 local AI visibility denominator
++
++| Field | Value |
++| --- | --- |
++| Spec | `intent/INT-07-m6-ai-visibility/spec.md`. Ibrahim approved that spec on 2026-10-01 by the message "I approve spec.md" and said not to set `approved`. This plan does not edit `spec.md`, so the status word in that file stays `draft`. |
++| Status | done |
++| Author | Cursor session (Grok 4.7), 2026-10-01 (D-020). Plan stage only. |
++| Engineer approval | Ibrahim, 2026-10-01, by the message "I approve plan.md." That message did not set the status word to `approved`. This session later set Status to `done` after the check was built. |
++| Tech lead approval | not required. This slice does not add a provider gateway, a cost-guard change, a circuit breaker, a live provider call, rule weights, or production infrastructure. |
++| Branch | `m6-ai-visibility`, cut from `origin/main` at `8753bf9` when implementation starts. Not created by this plan. |
++
++Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Ibrahim approved this plan on 2026-10-01. This session does not set `approved`.
++
++## Scope of this slice
++
++Add one local command that keeps an observed AI visibility count apart from Presence Readiness and Experience Effectiveness, computes a valid denominator of 24, and keeps an all-fail rate as `unavailable`. Product spend stays `0.00` USD.
++
++The command exits 0 only when all three of these pass:
++
++- Observed AI visibility `24` stays apart from Presence Readiness `31` and Experience Effectiveness `22`. Adding `24` to either score is refused. `24` is not written into search performance.
++- Eight prompts across five synthetic provider slots, with two slots failed, produce a denominator of 24. The command computes `8 × (5 − 2)`. The failures are excluded. They are not stored as `0%` or as `0`. The passing result is counts, with that denominator beside them.
++- When all five slots fail, the rate is `unavailable`, not `0%` and not `0`.
++
++`24`, `31`, and `22` are fixture inputs. They are not mention rates, criterion weights, or a calibrated score. `slot_1` through `slot_5` are synthetic slots. They are not model IDs and they are not the launch set of providers.
++
++The check reads fixtures on this machine. It does not call a provider. It does not edit `config/prompt-panels/`. It does not close OI-021. It does not start M7. The later M6 exit in `docs/spec/05-PROJECT-PLAN.md` §5 (a live provider gateway and the full observation catalogue) stays out of this slice.
++
++## Files
++
++| Path | Change | Why |
++| --- | --- | --- |
++| `evals/m6/separate-visibility.json` | Create | Three synthetic fields: `observed_ai_visibility` `24`, `presence_readiness` `31`, and `experience_effectiveness` `22`. No other score field. |
++| `evals/m6/valid-denominator.json` | Create | `prompt_count` `8` and five slots, `slot_1` through `slot_3` with outcome `valid`, `slot_4` and `slot_5` with outcome `failed`. Stored counts must match the computed denominator `24`. |
++| `evals/m6/all-failed.json` | Create | The same five slots, each with outcome `failed`. Stored rate `unavailable`. |
++| `scripts/check_m6_visibility.py` | Create | Local command. Python standard library only. It computes the separate counts and the denominator from the slot outcomes. The stored rows must match that computation. |
++| `.github/workflows/ci.yml` | One governance step | Run `python3 scripts/check_m6_visibility.py` after the existing M5 experience-effectiveness step. No new action SHA. The gitleaks step stays as it is. |
++
++Each provider slot has only `slot` and `outcome`. The passing denominator result has only `prompt_count`, `provider_count`, `failed_provider_count`, and `denominator`. It has no percentage. This fixture is not a full observation row.
++
++In-memory copies cover `24` added to `31` or to `22`, `24` written into `search_performance`, a stored denominator of `40`, a failed slot stored as `0%` or as `0`, and an all-fail rate stored as `0%` or as `0`. The command fails if any of those copies is accepted.
++
++Do not edit `schemas/`, `config/`, `config/prompt-panels/`, `package.json`, `scripts/check_m0b_proofs.py`, `scripts/check_m2_readiness.py`, `scripts/check_m3_access.py`, `scripts/check_m4_sources.py`, or `scripts/check_m5_experience.py`. Do not add a workflow action. Do not close OI-021. Leave the untracked Icon file out. `pnpm test:e2e` stays not run. `pnpm test:ssrf` is not this exit.
++
++## Order of work
++
++Do not start this list until the plan is approved.
++
++1. Cut `m6-ai-visibility` from `origin/main` at `8753bf9`. Carry only `intent/INT-07-m6-ai-visibility/`. The current checkout is `main` at that same commit. Do not commit this slice on `main`. Leave the untracked Icon file out.
++2. Add the three fixtures under `evals/m6/`. Synthetic values only. No secrets, customer prompt text, live answers, or model IDs.
++3. Add `scripts/check_m6_visibility.py` so it exits 0 only when the separate counts, the denominator, and the all-fail rate pass, and the in-memory failures are refused. Do not set `.claude/state/test-lock`. This is not a bug fix.
++4. Add the CI step. Run the proof commands below and paste the output. Record `pnpm test:e2e` as not run.
++5. Save `intent/INT-07-m6-ai-visibility/review.diff`. Run `security-reviewer` and `verifier`. They do not approve, merge, or spawn subagents. Fill `release.md` from the template. Stop. Do not start M7.
++
++## Behaviour the command must pin
++
++- Keep observed AI visibility `24`, Presence Readiness `31`, and Experience Effectiveness `22` as separate values. Refuse a merged total, including `55` (`24 + 31`) and `46` (`24 + 22`), whether it is stored on either score or beside them.
++- Refuse a copy that writes `24` into `search_performance`.
++- Count slots whose outcome is `failed`. The valid denominator is `prompt_count × (provider_count − failed_provider_count)`. For the golden inputs that is `8 × (5 − 2) = 24`.
++- Accept the golden denominator only when the stored counts are `prompt_count` `8`, `provider_count` `5`, `failed_provider_count` `2`, and `denominator` `24`.
++- Refuse a stored denominator of `40`, which is `8 × 5` with the failures left in.
++- Refuse a failed slot stored as `0%` or as `0`. The passing counts have no percentage field.
++- When every slot is `failed`, accept the rate only as `unavailable`. Refuse `0%` and refuse `0`.
++- Refuse a `model_id` field. This command does not write a provider name or a model ID.
++- A fixture that only agrees with itself is not enough. The command counts the failed slots and multiplies. The stored denominator must match that result.
++- Print `product spend 0.00 USD`. No network, no provider call, no Google Autocomplete, no search-result scrape, and no client-site fetch.
++- Do not import `.claude/skills/marketing-seo-agent/scripts`.
++
++## Risks
++
++| Risk | Likelihood | Mitigation | Owner |
++| --- | --- | --- | --- |
++| The visibility count is added to a score and the sum is accepted | Medium | The command computes `24 + 31` and `24 + 22` and fails when either sum is stored. | Data engineer |
++| Failed providers stay in the denominator | Medium | The command counts failed slots and computes `8 × (5 − 2)`. A stored `40` fails the check. | Data engineer |
++| A failed provider is stored as `0%` or as `0` | Medium | Those copies fail. The all-fail rate passes only as `unavailable`. | Data engineer |
++| The five slots are treated as the launch providers | Medium | The slots are named `slot_1` through `slot_5`. A `model_id` field fails the check. D-011 stays open. | Methodology owner |
++| The check is treated as the full M6 exit | Medium | The gateway, catalogue, repeats, and circuit breakers stay out. `pnpm test:e2e` stays not run. | Product owner |
++| A live provider call is added | Low | The file list is the three fixtures, one standard-library script, and one CI step. Product spend stays `0.00` USD. | Engineer |
++| OI-021 is closed while editing CI | Low | The only CI edit is the new step. The gitleaks step and OI-021 stay unchanged. | Tech lead |
++| The script compares a fixture only to itself | Medium | The command counts failed slots and multiplies by the prompt count. The stored denominator must match that result. | Engineer |
++
++## Proof
++
++Run from the repository root after implementation. Paste the output. Do not claim a command passed unless it was run.
++
++```bash
++python3 scripts/check_m6_visibility.py
++python3 scripts/check_schemas.py
++python3 scripts/check_config.py
++python3 -m unittest discover -s .claude/hooks/tests
++python3 -m unittest discover -s .cursor/hooks/tests
++```
++
++`check_m6_visibility.py` uses the standard library, so `python3` does not need PyYAML. If `python3 scripts/check_schemas.py` fails because `jsonschema` is missing, rerun the schema and config checks with `./.venv/bin/python` and record that departure. `pnpm test:e2e` is not an exit command. Record it as not run. `pnpm test:ssrf` is the M1 suite and is not this exit.
++
++No Arabic or WCAG run. There is no screen. No golden-file eval. No live provider call.
++
++## Security, privacy, cost, Arabic/accessibility review
++
++- `security-reviewer`: fixtures are synthetic; the command does not fetch, call a provider, or store a secret.
++- `verifier`: the diff matches this plan and the spec, the visibility count stays apart from both scores, the denominator is the computed `24`, `unavailable` stays distinct from `0%` and from `0`, and the pasted command output is real.
++- Arabic and accessibility review is not run.
++- `seo-method-checker` is not run. This slice does not change a rule, a keyword, content, or a golden file.
++- Cost review is not a separate subagent. The diff must show no paid call, no hosting resource, and no new dependency. Product spend `0.00` USD.
++
++Reviewers do not approve, merge, or spawn subagents.
++
++No new decision row. No new assumption row. Leave D-011, the prompt-panel contents, and the USD 150 cap open. Leave OI-021 open.
++
++## Rollback
++
++No production path. After a commit, rollback is `git revert` of that commit. Removing `scripts/check_m6_visibility.py`, `evals/m6/`, and the CI step returns the tree to `origin/main` at `8753bf9`. Staging rehearsal is not part of this slice.
++
++## Departures from the plan
++
++- 2026-10-01: The branch `m6-ai-visibility` was created at `8753bf9`. It was not pushed.
++- 2026-10-01: `python3 scripts/check_schemas.py` and `python3 scripts/check_config.py` failed on Python 3.14.7 (`/opt/homebrew/opt/python@3.14/bin/python3.14`) because `jsonschema` and PyYAML are not installed for that interpreter. Those checks passed with `./.venv/bin/python`. `python3 scripts/check_m6_visibility.py` passed on that system interpreter because the command uses the standard library only. No package was added.
++- 2026-10-01: The security review found a zero test on every count value, and a check that required the visibility count to equal the denominator. The zero test now stays on a failed slot and on the all-fail rate. The visibility count stays a separate fixture input. An in-memory copy with one failed slot must recompute the denominator as `32`. The status word was not set to `approved`.
+diff --git a/intent/INT-07-m6-ai-visibility/spec.md b/intent/INT-07-m6-ai-visibility/spec.md
+new file mode 100644
+index 0000000..0dcfcb7
+--- /dev/null
++++ b/intent/INT-07-m6-ai-visibility/spec.md
+@@ -0,0 +1,114 @@
++# Spec: M6 local AI visibility denominator
++
++| Field | Value |
++| --- | --- |
++| Intent | `intent/INT-07-m6-ai-visibility/intent.md` (status word: draft; text accepted by Ibrahim on 2026-10-01) |
++| Status | draft |
++| Author | Cursor session (Grok 4.7), 2026-10-01 |
++| Product owner sign-off | Ibrahim, 2026-10-01, by the message "I approve spec.md." The status word stays `draft` because that message also says not to set `approved`. The product-owner role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Policy owner sign-offs | pending: methodology owner (denominator), data engineer (data-integrity) |
++| Spec prompt version | `.claude/skills/intent-spec-plan/SKILL.md` stage 2, skill version 0.1.0 |
++| Skill versions | intent-spec-plan 0.1.0; data-integrity 0.1.0; cost-guard 0.1.0; google-search-guidance 0.1.0; security-baseline 0.1.0 |
++| Source sections read | accepted INT-07 text; `docs/spec/05-PROJECT-PLAN.md` §5 M6; `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.8 and the AI visibility bullets; `docs/spec/02-DETAILED-SPECIFICATION.md` §6; `docs/test-strategy.md` §6.3; `docs/decisions.md` D-006, D-009, D-010, D-011, D-012, D-020; data-integrity skill; cost-guard skill |
++
++Status values: `draft`, `changes_requested`, `approved`, `superseded`. Ibrahim approved this spec on 2026-10-01. This session does not set `approved`.
++
++## Summary
++
++This spec defines a local check that keeps an observed AI visibility result apart from Presence Readiness and from Experience Effectiveness. Eight prompts across five providers, with two providers failed, use a computed denominator of 24. The failures are excluded and are not stored as 0%. When every provider fails, the rate is `unavailable`, not 0%.
++
++The check does not call a provider and does not choose the launch set. Product spend stays `0.00` USD.
++
++Cursor runs the work beside Claude Code. `.claude/` remains the policy source. `opusplan` at high is not a Cursor picker value. This spec was written in a session that showed Grok 4.7 (D-020).
++
++## Requirements
++
++### Functional
++
++1. A local command exits 0 only when the separation case, the denominator case, and the all-fail case all pass. Any failure exits non-zero. Source: accepted INT-07 text; `docs/spec/05-PROJECT-PLAN.md` §5.
++2. An observed AI visibility result stays apart from Presence Readiness and from Experience Effectiveness. The check refuses a result that adds the visibility result to either score. Source: accepted INT-07 text; D-012.
++3. The visibility result is not written into search performance. A case that does so fails the check. Source: D-012.
++4. The denominator case is 8 prompts, 5 providers, and 2 providers failed. The valid denominator is computed as 8 × (5 − 2), which is 24. Failed providers are excluded. Source: `docs/test-strategy.md` §6.3; `docs/spec/02-DETAILED-SPECIFICATION.md` §6; `docs/spec/01-PRODUCT-REQUIREMENTS.md` AI visibility bullets.
++5. A failed provider stored as 0% or as the number 0 fails the check. The passing result is shown as counts, with the denominator beside them. Source: accepted INT-07 text; `docs/test-strategy.md` §6.3; D-006.
++6. When all 5 providers fail, the rate is `unavailable`. Storing that case as 0% or as the number 0 fails the check. Source: accepted INT-07 text; `docs/test-strategy.md` §6.3; data-integrity skill.
++7. The check does not name a model ID and does not choose the launch set of providers. The five providers are synthetic slots. Source: D-010; D-011; accepted INT-07 text.
++8. No schema file, no `config/` file, and no file under `config/prompt-panels/` is added or changed. The check does not edit the M4 or M5 commands. Source: accepted INT-07 text.
++
++### Non-functional
++
++1. The check runs on this machine. It does not call a provider, fetch a client site, call Google Autocomplete, or scrape a search-result page. Product spend is `0.00` USD. Source: accepted INT-07 text; D-009.
++2. The check does not import `.claude/skills/marketing-seo-agent/scripts`. Source: D-009.
++3. Fixtures are synthetic. They contain no secrets, customer prompt text, or live answers. Source: accepted INT-07 text.
++4. There is no screen. `pnpm test:e2e` stays the placeholder recorded as not run. Source: accepted INT-07 text.
++5. A provider gateway, repeats, a cost ledger, circuit breakers, prompt families, a provider version registry, and the rest of the observation catalogue stay out of this check. Source: accepted INT-07 text; `docs/spec/05-PROJECT-PLAN.md` §5.
++
++## Design
++
++### Components and boundaries
++
++The check is a local command. It reads fixtures. It does not call a model. Stored rows are data. The command computes the valid denominator from the prompt count and the failed-provider count, and it refuses a merged score. It does not change a Presence Readiness or Experience Effectiveness result.
++
++### Data contracts
++
++No schema is added or changed. One fixture carries an observed AI visibility count kept apart from Presence Readiness and Experience Effectiveness. One fixture carries 8 prompts, 5 synthetic provider slots, and 2 failed slots, with a stored denominator that must equal the computed 24. One fixture carries 5 failed slots and a stored rate of `unavailable`. This fixture is not a full observation row.
++
++### State transitions
++
++No workflow state is added. A merged score ends as refused. An all-fail rate stays `unavailable`.
++
++### Configuration
++
++No `config/` file is edited. No model ID, price, or provider name is written.
++
++### UI (if any)
++
++None.
++
++## Policy conformance
++
++| Policy skill | Applies? | How the design complies | Concern for owner |
++| --- | --- | --- | --- |
++| google-search-guidance | yes | No Autocomplete, no result-page scrape, and search performance stays apart from observed AI visibility. | SEO lead: this check is not a search-performance report. |
++| security-baseline | yes | No fetch, no provider call, and no secret. | A later provider gateway stays out of this slice. |
++| arabic-rtl-a11y | no | No screen. | Prompt language stays with the later laboratory. |
++| data-integrity | yes | The visibility count stays apart from both scores. The denominator is 24. `unavailable` is not 0%. | Data engineer: this fixture is not a full observation row. |
++| cost-guard | yes | No paid call and no hosting. Spend is `0.00` USD. | The USD 150 cap stays unconfirmed (D-005, OI-001). |
++| connector-safety | no | No connector and no write tool. | None for this spec. |
++
++## Areas of concern
++
++1. This spec stays `draft`. Ibrahim approved it on 2026-10-01 and said not to set `approved`. The INT-07 status word also stays `draft`.
++2. The M6 exit in `docs/spec/05-PROJECT-PLAN.md` §5 also requires a live provider gateway and the full observation catalogue. This check is the first slice only.
++3. The launch set of providers stays `<DECIDE_AT_M0: runtime model providers>` (D-011). The five slots in this check are not that decision.
++4. The 8 × configured-providers × 1 size is a configurable default (D-006). This check uses the documented fixture. It does not edit `config/prompt-panels/`.
++5. OI-021 stays open. This spec does not close it.
++6. Pull request 6 is already merged at `origin/main` `8753bf9`. This spec does not merge anything else, and it does not finish the later M5 exit.
++
++## Test and eval plan
++
++The local command covers:
++
++- an observed AI visibility result kept apart from Presence Readiness and from Experience Effectiveness;
++- a refusal when the visibility result is added to either score;
++- a refusal when that result is written into search performance;
++- a computed denominator of 24 from 8 prompts, 5 providers, and 2 failed providers;
++- a failure when a failed provider is stored as 0% or as 0;
++- an all-fail rate stored as `unavailable`;
++- a failure when that all-fail rate is stored as 0% or as 0.
++
++No browser journey, no golden-file eval, and no live provider call. `pnpm test:e2e` is not run.
++
++## Rollout and rollback
++
++No feature flag and no environment. Rollback is reverting the commit that adds the command and fixtures. No staging rehearsal is in this spec.
++
++## Cost
++
++Paid calls added: none. Hosting added: none. Product spend: `0.00` USD. The USD 150 cap stays an unconfirmed assumption (D-005, OI-001).
++
++## Assumptions and open items
++
++- No new assumption row.
++- Leave D-011, the prompt-panel contents, and the USD 150 cap open.
++- Leave OI-021 open.
++- No new decision row.
+diff --git a/scripts/check_m6_visibility.py b/scripts/check_m6_visibility.py
+new file mode 100644
+index 0000000..be34832
+--- /dev/null
++++ b/scripts/check_m6_visibility.py
+@@ -0,0 +1,316 @@
++#!/usr/bin/env python3
++"""Keep observed AI visibility apart from the other scores.
++
++Eight prompts across five slots, with two slots failed, use a denominator of
++24. That denominator is prompt_count times the count of slots that are not
++failed. A failed slot is not 0% and not 0. When every slot fails, the rate is
++unavailable.
++
++No network, no provider call, no client-site fetch. Product spend is 0.00 USD.
++Standard library only.
++"""
++
++from __future__ import annotations
++
++import copy
++import json
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++FIXTURE_DIR = ROOT / "evals" / "m6"
++
++VISIBILITY = "observed_ai_visibility"
++READINESS = "presence_readiness"
++EXPERIENCE = "experience_effectiveness"
++SEARCH_PERFORMANCE = "search_performance"
++SCORE_FIELDS = {VISIBILITY, READINESS, EXPERIENCE}
++GOLDEN_VISIBILITY = 24
++GOLDEN_READINESS = 31
++GOLDEN_EXPERIENCE = 22
++SLOT_FIELDS = {"slot", "outcome"}
++OUTCOMES = {"valid", "failed"}
++GOLDEN_SLOTS = ("slot_1", "slot_2", "slot_3", "slot_4", "slot_5")
++GOLDEN_VALID_OUTCOMES = ("valid", "valid", "valid", "failed", "failed")
++COUNT_FIELDS = {
++    "prompt_count",
++    "provider_count",
++    "failed_provider_count",
++    "denominator",
++}
++PROMPT_COUNT = 8
++UNAVAILABLE = "unavailable"
++ZERO_PERCENT = "0%"
++
++
++def fail(message: str) -> None:
++    print(f"FAIL: {message}")
++    raise SystemExit(1)
++
++
++def load_json(path: Path):
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def separate_counts(visibility: int, readiness: int, experience: int) -> dict[str, int]:
++    """Keep the three values apart. Do not add the visibility count to a score."""
++    return {
++        VISIBILITY: visibility,
++        READINESS: readiness,
++        EXPERIENCE: experience,
++    }
++
++
++def merged_with_readiness(visibility: int, readiness: int) -> int:
++    return visibility + readiness
++
++
++def merged_with_experience(visibility: int, experience: int) -> int:
++    return visibility + experience
++
++
++def score_errors(stored: dict, visibility: int, readiness: int, experience: int) -> list[str]:
++    errors = []
++    if not isinstance(stored, dict):
++        return ["scores"]
++    extra = set(stored) - SCORE_FIELDS
++    if "model_id" in stored or "model_id" in extra:
++        errors.append("model_id")
++    if SEARCH_PERFORMANCE in stored:
++        errors.append("search_performance")
++    if extra - {"model_id", SEARCH_PERFORMANCE}:
++        errors.append("fields")
++    if stored.get(SEARCH_PERFORMANCE) == visibility:
++        errors.append("search_performance")
++    computed = separate_counts(visibility, readiness, experience)
++    sums = (
++        merged_with_readiness(visibility, readiness),
++        merged_with_experience(visibility, experience),
++    )
++    if any(total in stored.values() for total in sums):
++        errors.append("combined")
++    if (
++        stored.get(VISIBILITY) != computed[VISIBILITY]
++        or stored.get(READINESS) != computed[READINESS]
++        or stored.get(EXPERIENCE) != computed[EXPERIENCE]
++    ):
++        errors.append("scores")
++    return errors
++
++
++def slot_errors(slot: dict) -> list[str]:
++    if not isinstance(slot, dict):
++        return ["slot"]
++    errors = []
++    if "model_id" in slot:
++        errors.append("model_id")
++    if set(slot) - SLOT_FIELDS:
++        errors.append("fields")
++    if slot.get("outcome") not in OUTCOMES:
++        errors.append("outcome")
++    if slot.get("rate") == ZERO_PERCENT or slot.get("outcome") == ZERO_PERCENT:
++        errors.append("percent")
++    if slot.get("rate") == 0 or slot.get("outcome") == 0:
++        errors.append("zero")
++    return errors
++
++
++def denominator_counts(prompt_count: int, providers: list) -> dict[str, int] | None:
++    """Count failed slots, then multiply. Failures leave the denominator."""
++    if type(prompt_count) is not int or not isinstance(providers, list):
++        return None
++    failed = 0
++    for slot in providers:
++        if not isinstance(slot, dict) or set(slot) != SLOT_FIELDS:
++            return None
++        outcome = slot.get("outcome")
++        if outcome not in OUTCOMES:
++            return None
++        if outcome == "failed":
++            failed += 1
++    provider_count = len(providers)
++    return {
++        "prompt_count": prompt_count,
++        "provider_count": provider_count,
++        "failed_provider_count": failed,
++        "denominator": prompt_count * (provider_count - failed),
++    }
++
++
++def included_denominator(prompt_count: int, providers: list) -> int | None:
++    """The wrong total: every slot stays in, including failures."""
++    if type(prompt_count) is not int or not isinstance(providers, list):
++        return None
++    return prompt_count * len(providers)
++
++
++def count_errors(stored: dict, prompt_count: int, providers: list) -> list[str]:
++    errors = []
++    if not isinstance(stored, dict) or set(stored) != COUNT_FIELDS:
++        return ["counts"]
++    if "rate" in stored or ZERO_PERCENT in stored.values():
++        errors.append("percent")
++    computed = denominator_counts(prompt_count, providers)
++    if computed is None or stored != computed:
++        errors.append("denominator")
++    included = included_denominator(prompt_count, providers)
++    if (
++        computed is not None
++        and included is not None
++        and included in stored.values()
++        and stored.get("denominator") != computed["denominator"]
++    ):
++        errors.append("included")
++    return errors
++
++
++def classify_all_fail(providers: list) -> str | None:
++    if not isinstance(providers, list) or not providers:
++        return None
++    for slot in providers:
++        if not isinstance(slot, dict) or set(slot) != SLOT_FIELDS or slot.get("outcome") != "failed":
++            return None
++    return UNAVAILABLE
++
++
++def rate_errors(rate, providers: list) -> list[str]:
++    expected = classify_all_fail(providers)
++    errors = []
++    if expected is None or rate != expected:
++        errors.append("rate")
++    if rate == ZERO_PERCENT:
++        errors.append("percent")
++    if rate == 0:
++        errors.append("zero")
++    return errors
++
++
++def golden_slots(providers: list, outcomes: tuple[str, ...]) -> bool:
++    if not isinstance(providers, list) or len(providers) != len(GOLDEN_SLOTS):
++        return False
++    for slot, name, outcome in zip(providers, GOLDEN_SLOTS, outcomes):
++        if not isinstance(slot, dict):
++            return False
++        if slot.get("slot") != name or slot.get("outcome") != outcome:
++            return False
++        if set(slot) != SLOT_FIELDS:
++            return False
++    return True
++
++
++def check_separate() -> None:
++    fixture = load_json(FIXTURE_DIR / "separate-visibility.json")
++    if not isinstance(fixture, dict):
++        fail("separate fixture is not an object")
++    computed = separate_counts(GOLDEN_VISIBILITY, GOLDEN_READINESS, GOLDEN_EXPERIENCE)
++    if fixture != computed:
++        fail(f"separate scores failed: {score_errors(fixture, GOLDEN_VISIBILITY, GOLDEN_READINESS, GOLDEN_EXPERIENCE)}")
++    with_readiness = merged_with_readiness(GOLDEN_VISIBILITY, GOLDEN_READINESS)
++    with_experience = merged_with_experience(GOLDEN_VISIBILITY, GOLDEN_EXPERIENCE)
++    on_visibility = copy.deepcopy(computed)
++    on_visibility[VISIBILITY] = with_readiness
++    if "combined" not in score_errors(on_visibility, GOLDEN_VISIBILITY, GOLDEN_READINESS, GOLDEN_EXPERIENCE):
++        fail("a merged total stored on observed AI visibility was accepted")
++    on_readiness = copy.deepcopy(computed)
++    on_readiness[READINESS] = with_readiness
++    if "combined" not in score_errors(on_readiness, GOLDEN_VISIBILITY, GOLDEN_READINESS, GOLDEN_EXPERIENCE):
++        fail("a merged total stored on presence readiness was accepted")
++    on_experience = copy.deepcopy(computed)
++    on_experience[EXPERIENCE] = with_experience
++    if "combined" not in score_errors(on_experience, GOLDEN_VISIBILITY, GOLDEN_READINESS, GOLDEN_EXPERIENCE):
++        fail("a merged total stored on experience effectiveness was accepted")
++    for total in (with_readiness, with_experience):
++        beside = copy.deepcopy(computed)
++        beside["combined"] = total
++        if "combined" not in score_errors(beside, GOLDEN_VISIBILITY, GOLDEN_READINESS, GOLDEN_EXPERIENCE):
++            fail("a merged total stored beside the scores was accepted")
++    blended = copy.deepcopy(computed)
++    blended[SEARCH_PERFORMANCE] = GOLDEN_VISIBILITY
++    if "search_performance" not in score_errors(blended, GOLDEN_VISIBILITY, GOLDEN_READINESS, GOLDEN_EXPERIENCE):
++        fail("the visibility count written into search performance was accepted")
++    named = copy.deepcopy(computed)
++    named["model_id"] = "slot_1"
++    if "model_id" not in score_errors(named, GOLDEN_VISIBILITY, GOLDEN_READINESS, GOLDEN_EXPERIENCE):
++        fail("a model id was accepted")
++    print("OK: observed AI visibility stays apart from both scores")
++    print("OK: merged totals refused")
++    print("OK: visibility count is not written into search performance")
++
++
++def check_denominator() -> int:
++    fixture = load_json(FIXTURE_DIR / "valid-denominator.json")
++    if not isinstance(fixture, dict) or not isinstance(fixture.get("providers"), list) or not isinstance(fixture.get("counts"), dict):
++        fail("denominator fixture is missing providers or counts")
++    prompt_count = fixture.get("prompt_count")
++    providers = fixture["providers"]
++    if prompt_count != PROMPT_COUNT or not golden_slots(providers, GOLDEN_VALID_OUTCOMES):
++        fail("denominator fixture is not the 8 by 5 case")
++    computed = denominator_counts(prompt_count, providers)
++    if computed is None:
++        fail("denominator could not be computed")
++    if fixture["counts"] != computed:
++        fail(f"stored denominator does not match the computation: {count_errors(fixture['counts'], prompt_count, providers)}")
++    if computed["denominator"] != prompt_count * (computed["provider_count"] - computed["failed_provider_count"]):
++        fail("denominator was not prompt_count times the valid slots")
++    if computed["denominator"] != 24:
++        fail("computed denominator was not 24")
++    included = included_denominator(prompt_count, providers)
++    folded = copy.deepcopy(computed)
++    folded["denominator"] = included
++    if "included" not in count_errors(folded, prompt_count, providers) and "denominator" not in count_errors(folded, prompt_count, providers):
++        fail("a denominator of 40 was accepted")
++    failed = copy.deepcopy(providers[3])
++    failed["rate"] = ZERO_PERCENT
++    if "percent" not in slot_errors(failed):
++        fail("a failed slot stored as 0% was accepted")
++    failed_zero = copy.deepcopy(providers[3])
++    failed_zero["rate"] = 0
++    if "zero" not in slot_errors(failed_zero):
++        fail("a failed slot stored as 0 was accepted")
++    flipped = copy.deepcopy(providers)
++    flipped[3]["outcome"] = "valid"
++    flipped_counts = denominator_counts(prompt_count, flipped)
++    if flipped_counts != {
++        "prompt_count": 8,
++        "provider_count": 5,
++        "failed_provider_count": 1,
++        "denominator": 32,
++    }:
++        fail("a different failure count was not recomputed")
++    if fixture["counts"] == flipped_counts:
++        fail("the golden counts matched a different failure count")
++    print("OK: valid denominator is 24")
++    print("OK: a different failure count is recomputed")
++    print("OK: failed providers are not stored as 0% or 0")
++    return computed["denominator"]
++
++
++def check_all_fail() -> None:
++    fixture = load_json(FIXTURE_DIR / "all-failed.json")
++    if not isinstance(fixture, dict) or not isinstance(fixture.get("providers"), list):
++        fail("all-fail fixture is missing providers")
++    providers = fixture["providers"]
++    failed_outcomes = tuple("failed" for _ in GOLDEN_SLOTS)
++    if fixture.get("prompt_count") != PROMPT_COUNT or not golden_slots(providers, failed_outcomes):
++        fail("all-fail fixture is not five failed slots")
++    expected = classify_all_fail(providers)
++    if expected != UNAVAILABLE or fixture.get("rate") != expected:
++        fail(f"all-fail rate failed: {rate_errors(fixture.get('rate'), providers)}")
++    if "percent" not in rate_errors(ZERO_PERCENT, providers):
++        fail("an all-fail rate stored as 0% was accepted")
++    if "zero" not in rate_errors(0, providers):
++        fail("an all-fail rate stored as 0 was accepted")
++    print("OK: all-fail rate is unavailable")
++    print("OK: all-fail rate is not 0% or 0")
++
++
++def main() -> int:
++    check_denominator()
++    check_separate()
++    check_all_fail()
++    print("product spend 0.00 USD")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())

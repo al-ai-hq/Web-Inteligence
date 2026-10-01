@@ -1,0 +1,11 @@
+{
+  "prompt_count": 8,
+  "providers": [
+    {"slot": "slot_1", "outcome": "failed"},
+    {"slot": "slot_2", "outcome": "failed"},
+    {"slot": "slot_3", "outcome": "failed"},
+    {"slot": "slot_4", "outcome": "failed"},
+    {"slot": "slot_5", "outcome": "failed"}
+  ],
+  "rate": "unavailable"
+}
