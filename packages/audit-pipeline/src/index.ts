@@ -42,3 +42,10 @@ export type {
 export { MIGRATIONS_DIR, applyMigrations } from "./migrations/migrate.js";
 export { PostgresAuditStore } from "./postgres-audit-store.js";
 export type { MigrationResult } from "./migrations/migrate.js";
+export {
+  composeSections,
+  deriveActionItems,
+  deriveSeverity,
+  deriveUnavailable,
+} from "./composer.js";
+export type { ComposeResult } from "./composer.js";
