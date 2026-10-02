@@ -56,3 +56,5 @@ export type { AgentStageDeps, M4AgentName } from "./agent-stage.js";
 export { FsEvidenceStorage } from "./evidence-storage.js";
 export { agentConfigSchema, loadAgentConfig } from "./agent-config.js";
 export type { AgentYamlConfig } from "./agent-config.js";
+export { BASE_LIMITATION_KEYS, PipelineStoppedError, runAuditPipeline } from "./pipeline.js";
+export type { PipelineDeps, PipelineOutcome } from "./pipeline.js";
