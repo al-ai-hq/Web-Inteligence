@@ -49,3 +49,40 @@ Listed with owners in `docs/open-items.md`. The most important:
 3. Run the quick checks above. They should all pass green.
 4. Start Claude Code in this folder. It opens in plan mode (see `06-MODEL-PLAN.md`).
 5. Continue from the current milestone. Stop at each exit gate, review the phase report, then proceed.
+
+## M4-web: free audit (apps/web)
+
+### Prerequisites
+
+- Node.js 22+, pnpm 9+
+- PostgreSQL 13+ (only for `in_process` mode and the Postgres store tests; `WPI_DISPATCH_MODE=stub` needs no database)
+
+### Setup
+
+```bash
+pnpm install
+createdb wpi_dev
+createdb wpi_test
+WPI_DATABASE_URL="postgres://localhost:5432/wpi_dev" pnpm --filter @wpi/audit-pipeline exec wpi-migrate
+```
+
+### Environment variables (apps/web)
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `WPI_DISPATCH_MODE` | no (default `stub`) | `stub` runs a deterministic no-network pipeline for local dev and E2E; `in_process` runs the real pipeline |
+| `WPI_DATABASE_URL` | yes unless `WPI_DISPATCH_MODE=stub` | Postgres connection string for the audit store |
+| `AUDIT_COOKIE_SECRET` | yes unless `WPI_DISPATCH_MODE=stub` | HMAC secret for the signed eligibility cookie |
+| `WPI_GEMINI_API_KEY` | no | Enables the agent stage; without it agent sections render as `unavailable` with a reason |
+| `WPI_OUTPUT_DIR` | no (default `./output`) | Crawler/evidence output directory |
+| `WPI_TEST_DATABASE_URL` | no | Enables the `PostgresAuditStore` test suite |
+
+Note: `apps/web` caches its service container for the process lifetime. Restart `pnpm dev` after changing environment variables for them to take effect.
+
+### Tests
+
+```bash
+pnpm --filter @wpi/web exec playwright install chromium   # once
+pnpm -r --no-bail test                                    # unit + route tests
+pnpm --filter @wpi/web exec playwright test               # E2E (runs in stub mode)
+```
