@@ -1,5 +1,6 @@
 export { AgentLoader } from "./runtime/agent-loader.js";
 export { executeAgent } from "./runtime/agent-instance.js";
+export type { ExecuteAgentParams } from "./runtime/agent-instance.js";
 export { ToolRegistry } from "./tools/registry.js";
 export { GeminiAdapter } from "./providers/gemini-adapter.js";
 export { resolveModel } from "./providers/model-resolver.js";
@@ -9,6 +10,16 @@ export { buildSystemPrompt, buildUserPrompt } from "./providers/prompt-builder.j
 export { Orchestrator } from "./orchestration/orchestrator.js";
 export { DependencyGraph } from "./orchestration/dependency-graph.js";
 export { handleAgentTask } from "./orchestration/agent-task-handler.js";
+export { createGetEvidenceTool } from "./tools/get-evidence.js";
+export type { StorageReader } from "./tools/get-evidence.js";
+export { createImportKeywordsTool } from "./tools/import-keywords.js";
+export { createClusterKeywordsTool } from "./tools/cluster-keywords.js";
+export { createMapKeywordsTool } from "./tools/map-keywords.js";
+export { createCheckCannibalizationTool } from "./tools/check-cannibalization.js";
+export { createFindOpportunitiesTool } from "./tools/find-opportunities.js";
+export { createWriteBriefTool } from "./tools/write-brief.js";
+export { createDraftArticleTool } from "./tools/draft-article.js";
+export { createValidateSchemaTool } from "./tools/validate-schema.js";
 
 export type { AgentJob, AgentResult, Finding, AgentConfig } from "./runtime/types.js";
 export type { Tool, ToolContext, ToolResult } from "./tools/types.js";

@@ -51,3 +51,8 @@ export {
 export type { ComposeResult } from "./composer.js";
 export { buildReportModel, validateReportModel } from "./report-model.js";
 export type { BuildReportModelParams } from "./report-model.js";
+export { M4_AGENT_NAMES, runAgentStage } from "./agent-stage.js";
+export type { AgentStageDeps, M4AgentName } from "./agent-stage.js";
+export { FsEvidenceStorage } from "./evidence-storage.js";
+export { agentConfigSchema, loadAgentConfig } from "./agent-config.js";
+export type { AgentYamlConfig } from "./agent-config.js";

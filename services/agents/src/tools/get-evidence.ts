@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Tool, ToolContext, ToolResult } from "./types.js";
 
-interface StorageReader {
+export interface StorageReader {
   read(bucket: string, path: string): Promise<unknown>;
 }
 
