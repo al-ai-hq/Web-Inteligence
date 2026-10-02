@@ -1,8 +1,7 @@
 {
   "name": "@wpi/web",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,12 +10,26 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@wpi/agents": "workspace:*",
+    "@wpi/audit-pipeline": "workspace:*",
+    "@wpi/crawler": "workspace:*",
+    "@wpi/evidence-processor": "workspace:*",
+    "@wpi/render-job": "workspace:*",
+    "@wpi/security": "workspace:*",
     "next": "^15.1.0",
+    "next-intl": "^4.14.8",
+    "pg": "^8.23.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.49.0",
+    "@types/pg": "^8.23.0",
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react-dom": "^19.0.0",
+    "vitest": "^2.1.1"
   }
 }

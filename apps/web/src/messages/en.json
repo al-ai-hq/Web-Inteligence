@@ -1,0 +1,140 @@
+{
+  "common": {
+    "loading": "Loading…"
+  },
+  "nav": {
+    "brand": "WPI Audit",
+    "methodology": "Methodology",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "landing": {
+    "hero_title": "See how AI engines and search engines read your site",
+    "hero_subtitle": "A free, anonymous audit of your pages for SEO, AEO, and GEO — no signup, no email, results in minutes.",
+    "cta": "Start your free audit",
+    "how_title": "How it works",
+    "how_step1_title": "Tell us about your business",
+    "how_step1_body": "Share your site and a few facts about your offering, market, and customers.",
+    "how_step2_title": "We audit your pages",
+    "how_step2_body": "Our agents crawl a sample of your pages and analyze technical, keyword, and content signals.",
+    "how_step3_title": "Get your action board",
+    "how_step3_body": "Receive prioritized recommendations you can act on immediately.",
+    "no_signup": "No signup required. Reports are private and deleted after 7 days."
+  },
+  "form": {
+    "title": "Run a free audit",
+    "url_label": "Your website URL",
+    "url_placeholder": "https://example.com",
+    "organization": "Organization name",
+    "business_type": "Business type",
+    "offering": "Products or services offered",
+    "market": "Target market",
+    "customer_language": "Customer language",
+    "audience": "Target audience",
+    "competitors": "Main competitors (optional)",
+    "target_keywords": "Target keywords (optional, comma-separated)",
+    "target_keywords_hint": "Up to 10 keywords, separated by commas.",
+    "submit": "Run my audit",
+    "submitting": "Running…",
+    "error_url_invalid": "Please enter a valid URL starting with http:// or https://.",
+    "error_rate_limited": "You have used all of your free audits. Try again later.",
+    "error_generic": "Something went wrong. Please try again."
+  },
+  "status": {
+    "title": "Your audit is running",
+    "subtitle": "This usually takes a few minutes. You can keep this tab open.",
+    "stage_QUEUED": "Queued",
+    "stage_VALIDATING": "Validating URL",
+    "stage_CRAWLING": "Crawling pages",
+    "stage_EXTRACTING": "Extracting content",
+    "stage_AUDITING": "Running agents",
+    "stage_COMPOSING": "Composing report",
+    "stage_READY_PARTIAL": "Ready with limited scope",
+    "stage_READY_COMPLETE": "Ready",
+    "failed_title": "This audit failed",
+    "expired": "This report has expired. Reports are kept for 7 days.",
+    "deleted": "This report has been deleted.",
+    "not_found": "We could not find this report.",
+    "start_new": "Start a new audit"
+  },
+  "report": {
+    "sections_title": "Findings by area",
+    "section_technical": "Technical",
+    "section_keywords": "Keywords",
+    "section_content": "Content",
+    "findings_title": "Findings",
+    "action_board_title": "Action board",
+    "unavailable_title": "Unavailable sections",
+    "limitations_title": "Limitations",
+    "sample_disclosure": "Based on a sample of {pages} pages, not your full site.",
+    "evidence_label": "Evidence",
+    "claim_cta": "Claim this audit (coming soon)",
+    "delete_audit": "Delete this audit",
+    "delete_confirm": "Delete this audit permanently? This cannot be undone.",
+    "severity_critical": "Critical",
+    "severity_high": "High",
+    "severity_medium": "Medium",
+    "severity_low": "Low",
+    "severity_info": "Info",
+    "state_verified": "Verified",
+    "state_inferred": "Inferred",
+    "state_not_verified": "Not verified",
+    "confidence_high": "High confidence",
+    "confidence_medium": "Medium confidence",
+    "confidence_low": "Low confidence",
+    "summary_technical": "Technical summary",
+    "summary_keywords": "Keyword summary",
+    "summary_content": "Content summary"
+  },
+  "failure": {
+    "url_invalid": "The URL could not be validated.",
+    "pipeline_error": "The audit failed unexpectedly. Please start a new audit.",
+    "tier_refused": "You have used all of your free audits."
+  },
+  "unavailable": {
+    "score": "The scoring engine is not available in this release.",
+    "experience_effectiveness": "The experience effectiveness panel is not available in this release.",
+    "comparison": "Competitor comparison is not available at this tier.",
+    "ai_visibility_panel": "The AI visibility panel is not available at this tier.",
+    "budget_cap": "This section is unavailable because the audit reached its budget cap.",
+    "generic": "This section is unavailable.",
+    "technical": "The technical audit section could not be produced.",
+    "keywords": "The keyword section could not be produced.",
+    "content": "The content section could not be produced.",
+    "agent": {
+      "auditor": "The technical audit agent could not run.",
+      "keyword-analyst": "The keyword analysis agent could not run.",
+      "content-strategist": "The content strategy agent could not run."
+    }
+  },
+  "limitation": {
+    "sample_not_full_site": "Findings are based on a sample of pages, not the full site.",
+    "score_engine_deferred": "Numeric scores are deferred to a later release.",
+    "deterministic_rules_deferred": "Deterministic rule checks are deferred to a later release.",
+    "external_api_tools_unavailable": "External API tools were unavailable during this audit."
+  },
+  "error": {
+    "not_found": "Page not found.",
+    "generic": "Something went wrong."
+  },
+  "pages": {
+    "methodology": {
+      "title": "Methodology",
+      "p1": "We crawl a representative sample of your pages and analyze them with specialized agents for technical health, keyword strategy, and content quality.",
+      "p2": "Each finding carries a verification state and confidence level. Verified findings were directly observed on your pages; inferred findings are drawn from combined evidence.",
+      "p3": "Recommendations are prioritized on your action board so you can fix the highest-impact issues first."
+    },
+    "privacy": {
+      "title": "Privacy",
+      "p1": "This audit is anonymous. We do not ask for your name, email, or payment details.",
+      "p2": "Reports are private: they are not indexed by search engines and are deleted after 7 days.",
+      "p3": "We store only the audit findings, the pages sampled, and a cookie that counts your free audits."
+    },
+    "terms": {
+      "title": "Terms",
+      "p1": "The free audit is provided as-is, with no guarantee of completeness or accuracy.",
+      "p2": "Only audit sites you own or are authorized to review.",
+      "p3": "Do not use the service to probe sites that prohibit automated access."
+    }
+  }
+}
