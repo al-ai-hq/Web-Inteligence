@@ -30,3 +30,6 @@ __pycache__/
 # macOS
 .DS_Store
 Icon?
+
+# SDD worktrees
+.worktrees/
