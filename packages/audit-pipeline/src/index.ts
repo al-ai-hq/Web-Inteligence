@@ -58,3 +58,5 @@ export { agentConfigSchema, loadAgentConfig } from "./agent-config.js";
 export type { AgentYamlConfig } from "./agent-config.js";
 export { BASE_LIMITATION_KEYS, PipelineStoppedError, runAuditPipeline } from "./pipeline.js";
 export type { PipelineDeps, PipelineOutcome } from "./pipeline.js";
+export { InProcessDispatcher, scopedEnv, sleep, StubDispatcher } from "./dispatcher.js";
+export type { JobDispatcher } from "./dispatcher.js";
