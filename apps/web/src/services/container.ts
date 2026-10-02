@@ -38,17 +38,32 @@ export interface AuditServices {
   geminiApiKey: string | undefined;
 }
 
+// Next.js dev re-evaluates module state when a route compiles for the first
+// time, which would otherwise duplicate this singleton (and its in-memory
+// store) across route bundles. Cache on globalThis — the pattern Next.js
+// recommends for dev-time singletons — so every bundle shares one container.
+const globalForAuditServices = globalThis as unknown as {
+  __wpiAuditServices?: AuditServices | null;
+};
+
 let services: AuditServices | null = null;
 
 export function setAuditServicesForTests(value: AuditServices | null): void {
   services = value;
+  globalForAuditServices.__wpiAuditServices = value;
 }
 
 export async function getAuditServices(): Promise<AuditServices> {
   if (services !== null) {
     return services;
   }
+  const cached = globalForAuditServices.__wpiAuditServices;
+  if (cached != null) {
+    services = cached;
+    return cached;
+  }
   services = await buildServices();
+  globalForAuditServices.__wpiAuditServices = services;
   return services;
 }
 
