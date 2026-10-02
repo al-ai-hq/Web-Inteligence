@@ -14,3 +14,13 @@ export {
   createAuditRequestSchema,
 } from "./audit-context.js";
 export type { AuditContext, CreateAuditRequest, Locale } from "./audit-context.js";
+
+export {
+  ELIGIBILITY_COOKIE_NAME,
+  generateAuditSecret,
+  hashAuditSecret,
+  incrementEligibilityCookie,
+  signEligibilityCookie,
+  verifyEligibilityCookie,
+} from "./secrets.js";
+export type { EligibilityCounts } from "./secrets.js";
