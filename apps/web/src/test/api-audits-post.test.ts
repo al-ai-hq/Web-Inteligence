@@ -104,4 +104,15 @@ describe("POST /api/audits", () => {
 
     expect(response.status).toBe(400);
   });
+
+  it("still returns 201 when the dispatcher rejects", async () => {
+    const store = new InMemoryAuditStore();
+    setAuditServicesForTests({
+      ...makeServices(store),
+      dispatcher: { dispatch: async () => { throw new Error("boom"); } },
+    });
+    const response = await POST(makeRequest(VALID_BODY));
+    expect(response.status).toBe(201);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
 });

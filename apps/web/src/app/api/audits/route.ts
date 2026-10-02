@@ -53,7 +53,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     ttlDays: 7,
   });
 
-  void services.dispatcher.dispatch(record.id);
+  // The pipeline records terminal failure in the store; swallow the rejection so it cannot kill the process.
+  void services.dispatcher.dispatch(record.id).catch(() => undefined);
 
   const response = NextResponse.json(
     { id: record.id, secret, status_url: `/${parsed.data.locale}/audit/${record.id}` },
