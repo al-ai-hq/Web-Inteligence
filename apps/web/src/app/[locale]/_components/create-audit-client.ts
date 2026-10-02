@@ -52,6 +52,10 @@ export async function submitAudit(
     body = {};
   }
 
+  if (body === null || typeof body !== "object") {
+    body = {};
+  }
+
   if (response.status === 201) {
     const candidate = body as Partial<CreateAuditSuccess>;
     if (

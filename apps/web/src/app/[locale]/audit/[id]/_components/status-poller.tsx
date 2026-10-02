@@ -6,6 +6,10 @@ import { useEffect, useState } from "react";
 
 const POLL_INTERVAL_MS = 3000;
 
+export function isTerminalPollStatus(status: number): boolean {
+  return status === 404 || status === 410;
+}
+
 const STAGES = [
   "QUEUED",
   "VALIDATING",
@@ -35,6 +39,12 @@ export function StatusPoller({
             `/api/audits/${auditId}/status?s=${encodeURIComponent(secret)}`,
             { cache: "no-store" },
           );
+          if (isTerminalPollStatus(response.status)) {
+            stopped = true;
+            clearInterval(interval);
+            router.replace("/");
+            return;
+          }
           if (!response.ok || stopped) {
             return;
           }

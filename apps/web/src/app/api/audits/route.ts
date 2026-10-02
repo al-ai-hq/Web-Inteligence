@@ -34,7 +34,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   // reCAPTCHA enforcement lands with the identity decision (docs/decisions.md D-011).
-  void process.env["WPI_RECAPTCHA_SECRET"];
 
   const counts =
     verifyEligibilityCookie(

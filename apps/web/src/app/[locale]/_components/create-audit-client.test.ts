@@ -93,6 +93,17 @@ describe("submitAudit", () => {
 
     expect(result).toEqual({ ok: false, error: "generic" });
   });
+
+  it("returns a generic error when a 201 response body is null", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse(null, 201)),
+    );
+
+    const result = await submitAudit(PAYLOAD);
+
+    expect(result).toEqual({ ok: false, error: "generic" });
+  });
 });
 
 describe("mapCreateAuditError", () => {
