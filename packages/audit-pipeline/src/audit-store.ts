@@ -7,7 +7,7 @@ import type { AuditStatus } from "./workflow-states.js";
 
 const AUDIT_STATUS_STRINGS: readonly string[] = AUDIT_STATUSES;
 
-function isAuditStatus(value: string): value is AuditStatus {
+export function isAuditStatus(value: string): value is AuditStatus {
   return AUDIT_STATUS_STRINGS.includes(value);
 }
 
