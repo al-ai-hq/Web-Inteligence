@@ -45,6 +45,8 @@ export async function ReportView({
   secret: string;
 }) {
   const t = await getTranslations({ locale, namespace: "report" });
+  const tUnavailable = await getTranslations({ locale, namespace: "unavailable" });
+  const tLimitation = await getTranslations({ locale, namespace: "limitation" });
   const tStatus = await getTranslations({ locale, namespace: "status" });
   const envelope = record.report;
 
@@ -131,7 +133,7 @@ export async function ReportView({
           <h2 className="text-xl font-semibold">{t("unavailable_title")}</h2>
           <ul className="list-disc space-y-1 ps-6 text-sm text-neutral-600">
             {envelope.unavailable.map((block) => (
-              <li key={`${block.section}:${block.reason_key}`}>{t(block.reason_key)}</li>
+              <li key={`${block.section}:${block.reason_key}`}>{tUnavailable(block.reason_key.replace(/^unavailable\./, ""))}</li>
             ))}
           </ul>
         </section>
@@ -142,7 +144,7 @@ export async function ReportView({
           <h2 className="text-xl font-semibold">{t("limitations_title")}</h2>
           <ul className="list-disc space-y-1 ps-6 text-sm text-neutral-600">
             {envelope.report.content.limitations_keys.map((key) => (
-              <li key={key}>{t(key)}</li>
+              <li key={key}>{tLimitation(key.replace(/^limitation\./, ""))}</li>
             ))}
           </ul>
         </section>
