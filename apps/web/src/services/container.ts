@@ -1,0 +1,199 @@
+import { readdir } from "node:fs/promises";
+import { join } from "node:path";
+import { CostTracker } from "@wpi/agents";
+import {
+  InMemoryAuditStore,
+  InProcessDispatcher,
+  M4_AGENT_NAMES,
+  MIGRATIONS_DIR,
+  PostgresAuditStore,
+  REPO_ROOT,
+  runAgentStage,
+  runAuditPipeline,
+  StubDispatcher,
+  TIER_SCOPES,
+  scopedEnv,
+  loadTierScopes,
+  applyMigrations,
+  type AuditRecord,
+  type AuditStore,
+  type ComposerAgentOutcome,
+  type JobDispatcher,
+  type TierName,
+  type TierScope,
+} from "@wpi/audit-pipeline";
+import { runCrawlJob } from "@wpi/crawler";
+import { runEvidenceProcessor } from "@wpi/evidence-processor";
+import { runRenderJob } from "@wpi/render-job";
+import { validateUrl } from "@wpi/security";
+import { Pool } from "pg";
+
+export interface AuditServices {
+  store: AuditStore;
+  dispatcher: JobDispatcher;
+  tierScopes: Record<Exclude<TierName, "refused">, TierScope>;
+  cookieSecret: string;
+  validateUrl: (url: string) => Promise<{ ok: boolean; reason_key?: string }>;
+  outputDir: string;
+  geminiApiKey: string | undefined;
+}
+
+let services: AuditServices | null = null;
+
+export function setAuditServicesForTests(value: AuditServices | null): void {
+  services = value;
+}
+
+export async function getAuditServices(): Promise<AuditServices> {
+  if (services !== null) {
+    return services;
+  }
+  services = await buildServices();
+  return services;
+}
+
+type PipelineFields = Pick<
+  AuditServices,
+  "store" | "tierScopes" | "validateUrl" | "outputDir" | "geminiApiKey"
+>;
+
+function buildPipeline(fields: PipelineFields) {
+  return {
+    store: fields.store,
+    tierScopes: fields.tierScopes,
+    validateUrl: fields.validateUrl,
+    outputDir: fields.outputDir,
+    geminiApiKey: fields.geminiApiKey,
+    // PipelineDeps declares crawl/render as Promise<void>; the job runners
+    // resolve to result objects, which the pipeline contract discards.
+    crawl: async (record: AuditRecord, scope: TierScope) => {
+      await scopedEnv(
+        {
+          AUDIT_ID: record.id,
+          ROOT_URL: record.target_url,
+          SITEMAP_URL: `${new URL(record.target_url).origin}/sitemap.xml`,
+          SAMPLING_MODE: scope.maxPages <= 1 ? "single_page" : "representative_sample",
+          MAX_PAGES: String(scope.maxPages),
+          OUTPUT_DIR: fields.outputDir,
+        },
+        () => runCrawlJob(),
+      );
+    },
+    render: async (record: AuditRecord) => {
+      await scopedEnv(
+        { AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir },
+        () => runRenderJob(),
+      );
+    },
+    processEvidence: async (record: AuditRecord): Promise<string[]> => {
+      await runEvidenceProcessor();
+      const files = await readdir(join(fields.outputDir, record.id, "evidence"));
+      return files
+        .filter((file) => file.endsWith(".json"))
+        .map((file) => file.replace(/\.json$/, ""));
+    },
+    runAgents: async (
+      record: AuditRecord,
+      evidenceIds: string[],
+      _scope: TierScope,
+    ): Promise<ComposerAgentOutcome[]> => {
+      if (fields.geminiApiKey === undefined) {
+        return M4_AGENT_NAMES.map((agentName) => ({
+          agent_name: agentName,
+          ok: false,
+          findings: [],
+          limitations: [],
+          unavailable_reason_key: `unavailable.agent.${agentName}`,
+        }));
+      }
+      return runAgentStage({
+        auditId: record.id,
+        projectId: record.id,
+        targetUrl: record.target_url,
+        context: record.context,
+        evidenceIds,
+        outputDir: fields.outputDir,
+        geminiApiKey: fields.geminiApiKey,
+        costTracker: new CostTracker(),
+      });
+    },
+  };
+}
+
+function localValidateUrl(
+  url: string,
+): { ok: boolean; reason_key?: string } {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return { ok: true };
+    }
+    return { ok: false, reason_key: "failure.url_invalid" };
+  } catch {
+    return { ok: false, reason_key: "failure.url_invalid" };
+  }
+}
+
+async function buildServices(): Promise<AuditServices> {
+  // Stub is the safe default: buildServices must not require Postgres/cookie
+  // env until real dispatch is explicitly requested (matches the brief's
+  // tests, which build stub-mode services with no env set).
+  const dispatchMode = process.env["WPI_DISPATCH_MODE"] ?? "stub";
+  const outputDir = process.env["WPI_OUTPUT_DIR"] ?? "./output";
+
+  if (dispatchMode === "stub") {
+    const store = new InMemoryAuditStore();
+    const fields: PipelineFields = {
+      store,
+      tierScopes: TIER_SCOPES,
+      validateUrl: async (url) => localValidateUrl(url),
+      outputDir,
+      geminiApiKey: undefined,
+    };
+    return {
+      ...fields,
+      dispatcher: new StubDispatcher(store),
+      cookieSecret: process.env["AUDIT_COOKIE_SECRET"] ?? "stub-cookie-secret",
+    };
+  }
+
+  const databaseUrl = process.env["WPI_DATABASE_URL"];
+  const cookieSecret = process.env["AUDIT_COOKIE_SECRET"];
+  if (databaseUrl === undefined || cookieSecret === undefined) {
+    throw new Error(
+      "WPI_DATABASE_URL and AUDIT_COOKIE_SECRET are required when WPI_DISPATCH_MODE is not 'stub'",
+    );
+  }
+
+  const pool = new Pool({ connectionString: databaseUrl });
+  await applyMigrations(pool, MIGRATIONS_DIR);
+  const store = new PostgresAuditStore(pool);
+  await store.sweepExpired();
+
+  const fields: PipelineFields = {
+    store,
+    tierScopes: loadTierScopes(join(REPO_ROOT, "config", "anonymous-eligibility.yaml")),
+    validateUrl: async (url) => {
+      try {
+        const result = await validateUrl(url);
+        return result.valid
+          ? { ok: true }
+          : { ok: false, reason_key: "failure.url_invalid" };
+      } catch {
+        return { ok: false, reason_key: "failure.url_invalid" };
+      }
+    },
+    outputDir,
+    geminiApiKey: process.env["WPI_GEMINI_API_KEY"],
+  };
+
+  return {
+    ...fields,
+    // InProcessDispatcher expects (jobId) => Promise<void>; runAuditPipeline
+    // resolves to PipelineOutcome, which the dispatcher contract discards.
+    dispatcher: new InProcessDispatcher(async (jobId) => {
+      await runAuditPipeline(buildPipeline(fields), jobId);
+    }),
+    cookieSecret,
+  };
+}
