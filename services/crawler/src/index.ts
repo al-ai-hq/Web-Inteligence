@@ -8,6 +8,7 @@ import { DEFAULT_CRAWL_CONFIG } from "./config/defaults.js";
 import { planUrls, type SamplingMode } from "./url-planner.js";
 import { fetchUrl } from "./fetcher.js";
 import { extractContent } from "./extractor.js";
+import { resolveMaxPages } from "./max-pages.js";
 import { validateUrl } from "@wpi/security";
 import {
   createManifest,
@@ -123,7 +124,7 @@ export async function runCrawlJob(): Promise<CrawlResult> {
   const urls = await planUrls({
     rootUrl,
     samplingMode,
-    maxPages: config.max_pages,
+    maxPages: resolveMaxPages(config.max_pages, process.env["MAX_PAGES"]),
     maxDepth: config.max_depth,
     sitemapXml,
   });
@@ -190,3 +191,5 @@ export async function runCrawlJob(): Promise<CrawlResult> {
     outputDir,
   };
 }
+
+export { resolveMaxPages } from "./max-pages.js";
