@@ -71,8 +71,7 @@ describe.skipIf(!DATABASE_URL)("PostgresAuditStore", () => {
       const next = await store.transition(record.id, status);
       expect(next).not.toBe("terminal");
     }
-    const invalid = await store.transition(record.id, "QUEUED");
-    expect(invalid).toBe("terminal");
+    await expect(store.transition(record.id, "QUEUED")).rejects.toThrow(/Invalid transition/);
   });
 
   it("transition on a CANCELLED row returns terminal without writing", async () => {
