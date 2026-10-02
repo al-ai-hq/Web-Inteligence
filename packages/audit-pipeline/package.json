@@ -10,6 +10,9 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
+  "bin": {
+    "wpi-migrate": "./dist/migrations/migrate-cli.js"
+  },
   "dependencies": {
     "@wpi/agents": "workspace:*",
     "@wpi/crawler": "workspace:*",

@@ -39,3 +39,6 @@ export type {
   StoredReportEnvelope,
   UnavailableBlock,
 } from "./report-envelope.js";
+export { MIGRATIONS_DIR, applyMigrations } from "./migrations/migrate.js";
+export { PostgresAuditStore } from "./postgres-audit-store.js";
+export type { MigrationResult } from "./migrations/migrate.js";
