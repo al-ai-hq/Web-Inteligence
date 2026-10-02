@@ -24,3 +24,6 @@ export {
   verifyEligibilityCookie,
 } from "./secrets.js";
 export type { EligibilityCounts } from "./secrets.js";
+
+export { TIER_NAMES, TIER_SCOPES, decideTier, loadTierScopes } from "./eligibility.js";
+export type { TierName, TierScope } from "./eligibility.js";
