@@ -49,3 +49,5 @@ export {
   deriveUnavailable,
 } from "./composer.js";
 export type { ComposeResult } from "./composer.js";
+export { buildReportModel, validateReportModel } from "./report-model.js";
+export type { BuildReportModelParams } from "./report-model.js";
