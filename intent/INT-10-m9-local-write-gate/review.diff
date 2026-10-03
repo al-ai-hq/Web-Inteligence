@@ -1,0 +1,528 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index b4cd962..24eaace 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -6,7 +6,7 @@
+ # intent/INT-00-m0a-repository-bootstrap/intent.md.
+ #
+ # Jobs:
+-#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness, M6 AI visibility, M7 public footprint, M8 local content gate
++#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness, M6 AI visibility, M7 public footprint, M8 local content gate, M9 local write gate
+ #   secrets    - gitleaks over the full history
+ #   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
+ name: ci
+@@ -56,6 +56,8 @@ jobs:
+         run: python3 scripts/check_m7_footprint.py
+       - name: M8 local content gate
+         run: python3 scripts/check_m8_content.py
++      - name: M9 local write gate
++        run: python3 scripts/check_m9_write.py
+       - name: M2 readiness
+         run: python3 scripts/check_m2_readiness.py
+       - name: Action pins
+diff --git a/evals/m9/approved-write.json b/evals/m9/approved-write.json
+new file mode 100644
+index 0000000..f8dec2f
+--- /dev/null
++++ b/evals/m9/approved-write.json
+@@ -0,0 +1 @@
++{"approvals": ["synthetic_approval"]}
+diff --git a/evals/m9/draft-change.json b/evals/m9/draft-change.json
+new file mode 100644
+index 0000000..ced751e
+--- /dev/null
++++ b/evals/m9/draft-change.json
+@@ -0,0 +1 @@
++{"status": "DRAFT"}
+diff --git a/intent/INT-10-m9-local-write-gate/intent.md b/intent/INT-10-m9-local-write-gate/intent.md
+new file mode 100644
+index 0000000..93dfeff
+--- /dev/null
++++ b/intent/INT-10-m9-local-write-gate/intent.md
+@@ -0,0 +1,87 @@
++# Intent: M9 local write gate
++
++Status: draft.
++
++| Field | Value |
++| --- | --- |
++| ID | INT-10 |
++| Status | draft |
++| Author (originator) | <DECIDE_AT_M0: product owner name> |
++| Product owner | <DECIDE_AT_M0: name> |
++| Tech lead | <DECIDE_AT_M0: name> |
++| Milestone | M9 (05-PROJECT-PLAN §5) |
++| Ticket | none |
++| Created | 2026-10-03 |
++| Drafted from | Ibrahim, 2026-10-03. The first slice is a local gate only. A write with no approval is refused. Publication is refused when the change is only a draft. There is no CMS write, no client pull request, and no staging run. Product spend stays `0.00` USD. |
++| Text accepted | Ibrahim, 2026-10-03, by the message "I accept this INT-10 text." The status word stays `draft` because that message also says not to set `accepted`. |
++| Depends on | `origin/main` at `e12afd7`, which merges pull request 9 and includes the local M8 content gate. That fact does not finish the later M8 exit and does not authorize a further merge. |
++| Risk class | standard for this slice. A CMS write, a client pull request, and a staging connector run are high-risk. This slice does not add those. |
++
++Status values: `draft`, `accepted`, `rejected`, `superseded`. Only the product owner sets `accepted`. This session does not.
++
++## Problem
++
++A change can be stored as a write when nobody has approved it. A change that is only a draft can be stored as published. The product rules already say only the connector service writes, a write needs an approval bound to the target, and publication is a separate permission. Nobody has yet shown those two refusals in a local check, with no CMS write and no spend.
++
++## Proposed outcome
++
++A local check, with no CMS write and no screen, shows all of these:
++
++- A write with no approval is refused.
++- Publication is refused when the change is only a draft.
++- There is no client pull request and no staging run.
++- Product spend stays `0.00` USD.
++
++Cursor sessions run this milestone under `AGENTS.md` and `.cursor/`. `.claude/` remains the policy source. `fable` at max in `docs/spec/06-MODEL-PLAN.md` §3 is a Claude Code alias, not a Cursor picker value. The session records the model name it shows (D-020). This draft was written in a session that showed Grok 4.7.
++
++## Affected users and systems
++
++The integration engineer and the tech lead. No service is deployed. No page is written. No CMS is called. No client repository is opened.
++
++## Constraints
++
++- Only the connector service writes. A write needs an approval bound to the target. Publication is a separate permission. This slice does not write.
++- D-009: do not call Google Autocomplete or scrape search-result pages. Do not import `.claude/skills/marketing-seo-agent/scripts`.
++- D-014: every stored record stays scoped to its project. This slice does not add a cross-project read.
++- D-016: automatic rollback only under the governed conditions. This slice does not roll back a live change.
++- D-020: record the model the session shows.
++- `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.13 and §5.14: the correction center keeps edit and publish apart. The impact ledger is later.
++- `docs/spec/05-PROJECT-PLAN.md` §5 M9: the exit includes one connector, bound approvals, rollback, a separate publication permission, an impact ledger, and the staging scenarios. This slice is the local gate only.
++- `docs/test-strategy.md` §5: the M9 rows cover approval binding and the connector contract. Those staging scenarios are not this slice.
++- `schemas/change-set.schema.json`: publish is a separate permission. This slice does not edit that schema.
++- `pnpm test:e2e` stays recorded as not run. There is no screen.
++- `docs/spec/05-PROJECT-PLAN.md` §14 lists INT-10 as M8A and INT-13 as M9. Ibrahim named this file `intent/INT-10-m9-local-write-gate/intent.md` on 2026-10-03. This stage does not edit that table.
++
++## Out of scope
++
++- Reopening M0A, M0B, M1, M2, M3, M4, M5, M6, or M8. Starting M8A, M8B, M8C, or M10. Merging any pull request.
++- The later M8 exit: citation evals, schema work, and an approval workflow for content.
++- Closing OI-021. The secrets job fails because organization `al-ai-hq` has no `GITLEAKS_LICENSE`.
++- Choosing the first Git or CMS connector (D-011).
++- Exact live IDs, snapshots, hashes, canary, idempotency, read-back, public validation, rollback, webhooks, and the impact ledger.
++- A CMS write, a client-repository pull request, a staging run, and a connector credential.
++- A write-class tool in `config/agents/*.yaml`.
++- A live fetch, a client-site change, and product spend.
++
++## Exit gate
++
++From 05-PROJECT-PLAN §5, this first slice shows locally:
++
++1. one refusal when a write has no approval;
++2. one refusal when publication is stored for a change that is only a draft.
++
++The later M9 exit, the staging scenarios, and the impact ledger are not this slice. `pnpm test:e2e` stays recorded as not run.
++
++## Open questions
++
++These stay open. They do not block this draft. They block a real connector.
++
++- Which connector is first, Git or CMS. The choice remains `<DECIDE_AT_M0: first connector>` (D-011).
++- Who the integration engineer and the tech lead are. The names remain `<DECIDE_AT_M0: name>` (OI-002).
++- How the impact ledger links a finding to a later outcome. Owner: data engineer.
++
++## Links
++
++- Spec: `intent/INT-10-m9-local-write-gate/spec.md` (after acceptance)
++- Plan: `intent/INT-10-m9-local-write-gate/plan.md` (after spec approval)
++- Release: `intent/INT-10-m9-local-write-gate/release.md` (after implementation)
+diff --git a/intent/INT-10-m9-local-write-gate/plan.md b/intent/INT-10-m9-local-write-gate/plan.md
+new file mode 100644
+index 0000000..b0dbc45
+--- /dev/null
++++ b/intent/INT-10-m9-local-write-gate/plan.md
+@@ -0,0 +1,112 @@
++# Plan: M9 local write gate
++
++| Field | Value |
++| --- | --- |
++| Spec | `intent/INT-10-m9-local-write-gate/spec.md`. Ibrahim approved that spec on 2026-10-03 by the message "I approve spec.md." The status word in that file stays `draft` because this session does not set `approved`. |
++| Status | done |
++| Author | Cursor session (Grok 4.7), 2026-10-03 (D-020). Plan stage only. |
++| Engineer approval | Ibrahim, 2026-10-03, by the message "I approve plan.md." That message did not set the status word to `approved`. This session later set Status to `done` after the check was built. |
++| Tech lead approval | not required. This slice does not write to a CMS, open a client pull request, run a staging scenario, change the cost guard, or touch production infrastructure. |
++| Branch | `m9-local-write-gate`, cut from `origin/main` at `e12afd7` when implementation starts. Not created by this plan. |
++
++Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Ibrahim approved this plan on 2026-10-03. This session does not set `approved`. Status is `done` because the local check was built.
++
++## Scope of this slice
++
++Add one local command. Product spend stays `0.00` USD.
++
++The command exits 0 only when both of these pass:
++
++- A write has the approval list `["synthetic_approval"]`. A missing approval is refused. An empty approval list is refused. A missing approval and an empty list are both no approval.
++- A change has status `DRAFT` and is not published. Publication of that draft is refused. An edit approval on that draft is not publication permission.
++
++The check reads fixtures on this machine. It does not choose a connector. It does not add a write-class tool to `config/agents/*.yaml`. It does not write to a CMS, open a client pull request, or run a staging scenario. It does not close OI-021. It does not start M10. The later M9 exit in `docs/spec/05-PROJECT-PLAN.md` §5 stays out of this slice.
++
++## Files
++
++| Path | Change | Why |
++| --- | --- | --- |
++| `evals/m9/approved-write.json` | Create | One synthetic field: `approvals` `["synthetic_approval"]`. |
++| `evals/m9/draft-change.json` | Create | One synthetic field: `status` `DRAFT`. The row is not published. |
++| `scripts/check_m9_write.py` | Create | Local command. Python standard library only. It classifies the approval list and the unpublished draft. The stored rows must match that classification. |
++| `.github/workflows/ci.yml` | One governance step | Run `python3 scripts/check_m9_write.py` after the existing M8 local content gate step. Name the step `M9 local write gate`. Add that name to the workflow header comment. No new action SHA. The gitleaks step stays as it is. |
++
++`approved-write.json` is `{"approvals":["synthetic_approval"]}`. `draft-change.json` is `{"status":"DRAFT"}`. These fixtures are not a full change set.
++
++In-memory copies cover a missing `approvals` field, `approvals` `[]`, `{"status":"DRAFT","published":true}`, and `{"status":"DRAFT","approvals":["synthetic_approval"],"published":true}`. The command fails if any of those copies is accepted. A `connector` field and a `pull_request` field also fail.
++
++Do not edit `schemas/`, `config/`, `config/agents/`, `package.json`, `scripts/check_m0b_proofs.py`, `scripts/check_m2_readiness.py`, `scripts/check_m3_access.py`, `scripts/check_m4_sources.py`, `scripts/check_m5_experience.py`, `scripts/check_m6_visibility.py`, `scripts/check_m7_footprint.py`, or `scripts/check_m8_content.py`. Do not add a workflow action. Do not add a write-class tool. Do not close OI-021. Leave the untracked Icon file out. `pnpm test:e2e` stays not run. `pnpm test:ssrf` is not this exit.
++
++## Order of work
++
++Do not start this list until the plan is approved. This plan does not implement the check.
++
++1. Cut `m9-local-write-gate` from `origin/main` at `e12afd7`. Carry only `intent/INT-10-m9-local-write-gate/`. Do not commit this slice on `main`. Leave the untracked Icon file out.
++2. Add the two fixtures under `evals/m9/`. Synthetic values only. No secrets, no connector credentials, and no customer page text.
++3. Add `scripts/check_m9_write.py` so it exits 0 only when the approved write and the unpublished draft pass, and the in-memory failures are refused. Do not set `.claude/state/test-lock`. This is not a bug fix.
++4. Add the CI step. Run the proof commands below and paste the output. Record `pnpm test:e2e` as not run.
++5. Save `intent/INT-10-m9-local-write-gate/review.diff`. Run `security-reviewer` and `verifier`. They do not approve, merge, or spawn subagents. Fill `release.md` from the template. Stop. Do not start M10.
++
++## Behaviour the command must pin
++
++- Accept the golden write only when `approvals` is the one-item list `synthetic_approval`.
++- Refuse a missing `approvals` field. Refuse `approvals` `[]`.
++- Accept the change only when `status` is `DRAFT` and it is not published.
++- Refuse `{"status":"DRAFT","published":true}`.
++- Refuse `{"status":"DRAFT","approvals":["synthetic_approval"],"published":true}`. The edit approval does not permit publication.
++- Refuse a `connector` field and a `pull_request` field. This command does not choose Git or CMS and does not open a client pull request.
++- A fixture that only agrees with itself is not enough. The command classifies the approval list, the `DRAFT` state, and the unpublished draft. The stored row must match that classification.
++- Print `product spend 0.00 USD`. No network, no provider call, no Google Autocomplete, no search-result scrape, and no connector call.
++- Do not import `.claude/skills/marketing-seo-agent/scripts`.
++- Do not add `PUBLISHED` to `schemas/common.schema.json` `change_state`.
++
++## Risks
++
++| Risk | Likelihood | Mitigation | Owner |
++| --- | --- | --- | --- |
++| A write is stored with no approval | Medium | The command classifies the approval list and fails when the field is missing or the list is empty. | Integration engineer |
++| A draft is stored as published | Medium | The passing status is `DRAFT` and the row is not published. A copy with `published` true fails the check. | Integration engineer |
++| An edit approval is treated as publication permission | Medium | A draft that also carries `synthetic_approval` and `published` true fails the check. | Integration engineer |
++| A connector or a client pull request is treated as this check | Medium | A `connector` field and a `pull_request` field fail the check. This command does not call a CMS or open a pull request. | Integration engineer |
++| The check is treated as the full M9 exit | Medium | Staging scenarios and the impact ledger stay out. `pnpm test:e2e` stays not run. | Product owner |
++| A write-class tool is added | Low | `config/agents/` is not in the file list. | Engineer |
++| OI-021 is closed while editing CI | Low | The only CI edit is the new step and its header comment. The gitleaks step and OI-021 stay unchanged. | Tech lead |
++| The script compares a fixture only to itself | Medium | The command classifies the approval list and the unpublished draft. The stored row must match that result. | Engineer |
++
++## Proof
++
++Run from the repository root after implementation. Paste the output. Do not claim a command passed unless it was run.
++
++```bash
++python3 scripts/check_m9_write.py
++python3 scripts/check_action_pins.py
++python3 scripts/check_schemas.py
++python3 scripts/check_config.py
++python3 -m unittest discover -s .claude/hooks/tests
++python3 -m unittest discover -s .cursor/hooks/tests
++```
++
++`check_m9_write.py` uses the standard library, so `python3` does not need PyYAML. If `python3 scripts/check_schemas.py` fails because `jsonschema` is missing, rerun the schema and config checks with `./.venv/bin/python` and record that departure. `pnpm test:e2e` is not an exit command. Record it as not run. `pnpm test:ssrf` is the M1 suite and is not this exit.
++
++No Arabic or WCAG run. There is no screen. No golden-file eval. No live fetch. No staging run.
++
++## Security, privacy, cost, Arabic/accessibility review
++
++- `security-reviewer`: fixtures are synthetic; the command does not fetch, call a CMS, open a pull request, publish a page, or store a secret.
++- `verifier`: the diff matches this plan and the spec, a write with no approval is refused, publication of a `DRAFT` is refused, an edit approval is not publication permission, and the pasted command output is real.
++- Arabic and accessibility review is not run.
++- `seo-method-checker` is not run. This slice does not change a rule, a keyword method, or a golden SEO file.
++- Cost review is not a separate subagent. The diff must show no paid call, no hosting resource, and no new dependency. Product spend `0.00` USD.
++
++Reviewers do not approve, merge, or spawn subagents.
++
++No new decision row. No new assumption row. Leave the first connector, the impact ledger, and the owner names open. Leave OI-021 open.
++
++## Rollback
++
++No production path. After a commit, rollback is `git revert` of that commit. Removing `scripts/check_m9_write.py`, `evals/m9/`, and the CI step returns the tree to `origin/main` at `e12afd7`. Staging rehearsal is not part of this slice.
++
++## Departures from the plan
++
++- 2026-10-03: The branch `m9-local-write-gate` was created at `e12afd7`. It was not pushed.
++- 2026-10-03: `python3 scripts/check_schemas.py` and `python3 scripts/check_config.py` failed on Python 3.14.7 (`/opt/homebrew/opt/python@3.14/bin/python3.14`) because `jsonschema` and PyYAML are not installed for that interpreter. Those checks passed with `./.venv/bin/python`. `python3 scripts/check_m9_write.py` passed on that system interpreter because the command uses the standard library only. No package was added.
+diff --git a/intent/INT-10-m9-local-write-gate/spec.md b/intent/INT-10-m9-local-write-gate/spec.md
+new file mode 100644
+index 0000000..9494a4f
+--- /dev/null
++++ b/intent/INT-10-m9-local-write-gate/spec.md
+@@ -0,0 +1,116 @@
++# Spec: M9 local write gate
++
++| Field | Value |
++| --- | --- |
++| Intent | `intent/INT-10-m9-local-write-gate/intent.md` (status word: draft; text accepted by Ibrahim on 2026-10-03) |
++| Status | draft |
++| Author | Cursor session (Grok 4.7), 2026-10-03 |
++| Product owner sign-off | Ibrahim, 2026-10-03, by the message "I approve spec.md." The status word stays `draft` because this session does not set `approved`. The product-owner role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Policy owner sign-offs | pending: integration engineer (connector-safety), tech lead (write path), data engineer (data-integrity), security engineer (security-baseline) |
++| Spec prompt version | `.claude/skills/intent-spec-plan/SKILL.md` stage 2, skill version 0.1.0 |
++| Skill versions | intent-spec-plan 0.1.0; connector-safety 0.1.0; data-integrity 0.1.0; cost-guard 0.1.0; google-search-guidance 0.1.0; security-baseline 0.1.0; arabic-rtl-a11y 0.1.0; marketing-seo-agent has no version field and is reference only (scripts not imported, D-009) |
++| Source sections read | accepted INT-10 text; `docs/spec/05-PROJECT-PLAN.md` §5 M9 and §14; `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.13, §5.14; `docs/spec/03-PRODUCTION-CONTRACTS.md` change states; `schemas/change-set.schema.json` `mode` and `approvals`; `schemas/common.schema.json` `change_state`; `docs/test-strategy.md` §5 M9 row; `docs/decisions.md` D-009, D-011, D-014, D-016, D-020; connector-safety 0.1.0 |
++
++Status values: `draft`, `changes_requested`, `approved`, `superseded`. Ibrahim approved this spec on 2026-10-03. This session does not set `approved`.
++
++## Summary
++
++This spec defines a local gate with two refusals. A write with no approval is refused. Publication is refused when the change is only a draft.
++
++The check does not choose a connector. It does not write to a CMS, open a client pull request, or run a staging scenario. It does not add a write-class tool to `config/agents/*.yaml`. Product spend stays `0.00` USD.
++
++Cursor runs the work beside Claude Code. `.claude/` remains the policy source. `fable` at max is not a Cursor picker value. This spec was written in a session that showed Grok 4.7 (D-020).
++
++## Requirements
++
++### Functional
++
++1. A local command exits 0 only when the approval case and the publication case both pass. Any failure exits non-zero. Source: accepted INT-10 text; `docs/spec/05-PROJECT-PLAN.md` §5 M9.
++2. A passing write has an approval. A write with no approval is refused. A missing approval and an empty approval list are both no approval. Source: accepted INT-10 text; `schemas/change-set.schema.json` `approvals`; connector-safety 0.1.0.
++3. Publication is refused when the change is only a draft. The draft state is `DRAFT` from `schemas/common.schema.json` `change_state`. Storing that draft as published fails the check. An edit approval does not count as publication permission. Source: accepted INT-10 text; `schemas/change-set.schema.json` `mode` description "Publish is a separate permission with its own Approval."; connector-safety 0.1.0.
++4. The check does not choose Git or CMS. The first connector stays `<DECIDE_AT_M0: first connector>` (D-011). Source: accepted INT-10 text; D-011.
++5. No schema file, no `config/` file, and no `config/agents/*.yaml` file is added or changed. No write-class tool is added. The check does not edit the M8 command. Source: accepted INT-10 text.
++6. The check does not import `.claude/skills/marketing-seo-agent/scripts`. Source: D-009.
++
++### Non-functional
++
++1. The check runs on this machine. It does not call a CMS, open a client repository, or run a staging scenario. It does not call Google Autocomplete or scrape a search-result page. Product spend is `0.00` USD. Source: accepted INT-10 text; D-009; D-016.
++2. Fixtures are synthetic. They contain no secrets, no connector credentials, and no customer page text. Source: accepted INT-10 text.
++3. The check does not read or write another project's records. Source: D-014.
++4. There is no screen. `pnpm test:e2e` stays the placeholder recorded as not run. Source: accepted INT-10 text.
++5. Exact live IDs, snapshots, hashes, canary, idempotency, read-back, rollback, webhooks, the staging scenarios, and the impact ledger stay out of this check. Source: accepted INT-10 text; `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.13, §5.14; `docs/spec/05-PROJECT-PLAN.md` §5 M9; `docs/test-strategy.md` §5 M9 row.
++
++## Design
++
++### Components and boundaries
++
++The check is a local command. It reads fixtures. It does not call a connector and it does not hold a write credential. Stored rows are data. The command refuses a write with no approval and refuses publication of a draft. Only the connector service may write, and this slice does not write.
++
++### Data contracts
++
++No schema is added or changed. One fixture carries a write with one synthetic approval. One fixture carries a change whose state is `DRAFT` and that is not published. These fixtures are not a full change set. `schemas/common.schema.json` `change_state` has no `PUBLISHED` value. This check does not add one.
++
++A missing approval is an empty list. It is not a passing write.
++
++### State transitions
++
++No workflow state is added. A write with no approval ends as refused. A draft stays `DRAFT`. Nothing in this check moves that draft to a published state.
++
++### Configuration
++
++No `config/` file is edited. No agent tool list is edited. No connector name is written.
++
++### UI (if any)
++
++None.
++
++## Policy conformance
++
++| Policy skill | Applies? | How the design complies | Concern for owner |
++| --- | --- | --- | --- |
++| google-search-guidance | yes | No Autocomplete and no result-page scrape. | SEO lead: this check is not a search report. |
++| security-baseline | yes | No fetch, no secret, and no connector credential. | A later connector write stays out of this slice. |
++| arabic-rtl-a11y | no | No screen. | Arabic review stays out of this slice. |
++| data-integrity | yes | A write without an approval is refused. A draft is not stored as published. | Data engineer: these fixtures are not a full change set and not an impact-ledger row. |
++| cost-guard | yes | No paid call and no hosting. Spend is `0.00` USD. | The USD 150 cap stays unconfirmed (D-005, OI-001). |
++| connector-safety | yes | No CMS write, no client pull request, and no staging run. Publication of a draft is refused. Edit approval is not publication permission. No write-class tool is added. | Integration engineer: the first connector stays undecided (D-011). |
++
++## Areas of concern
++
++1. This spec stays `draft`. Ibrahim approved it on 2026-10-03 by the message "I approve spec.md" and this session does not set `approved`. The INT-10 status word also stays `draft`.
++2. The M9 exit in `docs/spec/05-PROJECT-PLAN.md` §5 also requires a connector, the staging scenarios, and an impact ledger. This check is the first slice only.
++3. `schemas/common.schema.json` `change_state` includes `DRAFT` and does not include `PUBLISHED`. This check refuses publication of a draft. It does not add a schema state.
++4. This check refuses a missing approval and an empty approval list. It does not bind an approval to a live target, a field, a before/after hash, an environment, or an expiry. That binding stays in the later M9 exit.
++5. The first connector stays open (D-011). This spec does not choose Git or CMS.
++6. OI-021 stays open. This spec does not close it.
++7. `docs/spec/05-PROJECT-PLAN.md` §14 lists INT-10 as M8A and INT-13 as M9. Ibrahim named this path. This spec does not edit that table.
++8. `origin/main` at `e12afd7` includes the local M8 check. This spec does not finish the later M8 exit and does not start M10.
++
++## Test and eval plan
++
++The local command covers:
++
++- a write that has an approval;
++- a refusal when the approval is missing;
++- a refusal when the approval list is empty;
++- a change whose state is `DRAFT` and that is not published;
++- a refusal when that draft is stored as published.
++
++No browser journey, no staging scenario, and no live fetch. `pnpm test:e2e` is not run.
++
++## Rollout and rollback
++
++No feature flag and no environment. Rollback is reverting the commit that adds the command and fixtures. No staging rehearsal is in this spec.
++
++## Cost
++
++Paid calls added: none. Hosting added: none. Product spend: `0.00` USD. The USD 150 cap stays an unconfirmed assumption (D-005, OI-001).
++
++## Assumptions and open items
++
++- ASSUMPTION: a write with no approval is either a missing approval or an empty approval list.
++- ASSUMPTION: the draft in this slice is the change state `DRAFT`. Publication of that draft is the refused store. This slice does not add `PUBLISHED` to `change_state`.
++- No new assumption row is appended in this stage.
++- Leave the first connector, the impact ledger, and the owner names open (D-011, OI-002).
++- Leave OI-021 open.
++- No new decision row.
+diff --git a/scripts/check_m9_write.py b/scripts/check_m9_write.py
+new file mode 100644
+index 0000000..ed4f940
+--- /dev/null
++++ b/scripts/check_m9_write.py
+@@ -0,0 +1,153 @@
++#!/usr/bin/env python3
++"""Refuse a write with no approval, and refuse publication of a draft.
++
++A write needs the synthetic approval. A draft stays DRAFT and is not published.
++An edit approval is not publication permission.
++
++No network, no CMS write, no client pull request, no staging run.
++Product spend is 0.00 USD. Standard library only.
++"""
++
++from __future__ import annotations
++
++import json
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++FIXTURE_DIR = ROOT / "evals" / "m9"
++
++GOLDEN_APPROVAL = "synthetic_approval"
++DRAFT = "DRAFT"
++WRITE_FIELDS = {"approvals"}
++DRAFT_FIELDS = {"status"}
++
++
++def fail(message: str) -> None:
++    print(f"FAIL: {message}")
++    raise SystemExit(1)
++
++
++def load_json(path: Path):
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def classify_write(approvals) -> dict | None:
++    """A passing write has one synthetic approval. Missing and empty are not that state."""
++    if approvals == [GOLDEN_APPROVAL]:
++        return {"approvals": [GOLDEN_APPROVAL]}
++    return None
++
++
++def write_errors(stored: dict) -> list[str]:
++    if not isinstance(stored, dict):
++        return ["write"]
++    errors = []
++    if "connector" in stored:
++        errors.append("connector")
++    if "pull_request" in stored:
++        errors.append("pull_request")
++    if set(stored) != WRITE_FIELDS:
++        errors.append("fields")
++    if "approvals" not in stored:
++        errors.append("missing")
++    elif stored.get("approvals") == []:
++        errors.append("empty")
++    classified = classify_write(stored.get("approvals"))
++    if classified is None or stored != classified:
++        errors.append("classified")
++    return errors
++
++
++def classify_draft(status) -> dict | None:
++    """A passing change is DRAFT and is not published."""
++    if status == DRAFT:
++        return {"status": DRAFT}
++    return None
++
++
++def draft_errors(stored: dict) -> list[str]:
++    if not isinstance(stored, dict):
++        return ["draft"]
++    errors = []
++    if "connector" in stored:
++        errors.append("connector")
++    if "pull_request" in stored:
++        errors.append("pull_request")
++    if stored.get("published") is True:
++        errors.append("published")
++    if set(stored) != DRAFT_FIELDS:
++        errors.append("fields")
++    classified = classify_draft(stored.get("status"))
++    if classified is None or stored != classified:
++        errors.append("classified")
++    return errors
++
++
++def check_write() -> None:
++    fixture = load_json(FIXTURE_DIR / "approved-write.json")
++    if not isinstance(fixture, dict):
++        fail("write fixture is not an object")
++    expected = classify_write([GOLDEN_APPROVAL])
++    if expected is None or fixture != expected:
++        fail(f"approved write failed: {write_errors(fixture)}")
++    if write_errors(fixture):
++        fail(f"approved write failed: {write_errors(fixture)}")
++    missing = {}
++    if "missing" not in write_errors(missing):
++        fail("a missing approval was accepted")
++    empty = {"approvals": []}
++    if "empty" not in write_errors(empty):
++        fail("an empty approval list was accepted")
++    other = {"approvals": ["other"]}
++    if write_errors(other) == []:
++        fail("a different approval was accepted")
++    named = {"approvals": [GOLDEN_APPROVAL], "connector": "undecided"}
++    if "connector" not in write_errors(named):
++        fail("a connector field was accepted")
++    print("OK: write approval is synthetic_approval")
++    print("OK: missing approval is refused")
++    print("OK: empty approval list is refused")
++
++
++def check_draft() -> None:
++    fixture = load_json(FIXTURE_DIR / "draft-change.json")
++    if not isinstance(fixture, dict):
++        fail("draft fixture is not an object")
++    expected = classify_draft(DRAFT)
++    if expected is None or fixture != expected:
++        fail(f"draft change failed: {draft_errors(fixture)}")
++    if draft_errors(fixture):
++        fail(f"draft change failed: {draft_errors(fixture)}")
++    if fixture.get("published") is True:
++        fail("the passing draft was stored as published")
++    published = {"status": DRAFT, "published": True}
++    if "published" not in draft_errors(published):
++        fail("a draft stored as published was accepted")
++    with_edit = {
++        "status": DRAFT,
++        "approvals": [GOLDEN_APPROVAL],
++        "published": True,
++    }
++    if "published" not in draft_errors(with_edit):
++        fail("an edit approval was treated as publication permission")
++    if classify_draft(DRAFT) == with_edit:
++        fail("an edit approval classified the draft as published")
++    with_pr = {"status": DRAFT, "pull_request": "client-pr"}
++    if "pull_request" not in draft_errors(with_pr):
++        fail("a pull_request field was accepted")
++    print("OK: change status is DRAFT")
++    print("OK: published draft is refused")
++    print("OK: edit approval is not publication permission")
++    print("OK: pull_request field is refused")
++
++
++def main() -> int:
++    check_write()
++    check_draft()
++    print("product spend 0.00 USD")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
