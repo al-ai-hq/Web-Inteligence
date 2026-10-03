@@ -1,0 +1,597 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 73b701e..b4cd962 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -6,7 +6,7 @@
+ # intent/INT-00-m0a-repository-bootstrap/intent.md.
+ #
+ # Jobs:
+-#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness, M6 AI visibility, M7 public footprint
++#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness, M6 AI visibility, M7 public footprint, M8 local content gate
+ #   secrets    - gitleaks over the full history
+ #   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
+ name: ci
+@@ -54,6 +54,8 @@ jobs:
+         run: python3 scripts/check_m6_visibility.py
+       - name: M7 public footprint
+         run: python3 scripts/check_m7_footprint.py
++      - name: M8 local content gate
++        run: python3 scripts/check_m8_content.py
+       - name: M2 readiness
+         run: python3 scripts/check_m2_readiness.py
+       - name: Action pins
+diff --git a/evals/m8/checked-page.json b/evals/m8/checked-page.json
+new file mode 100644
+index 0000000..23aedd0
+--- /dev/null
++++ b/evals/m8/checked-page.json
+@@ -0,0 +1 @@
++{"kind": "new_page", "cannibalization_result": "checked"}
+diff --git a/evals/m8/sourced-claim.json b/evals/m8/sourced-claim.json
+new file mode 100644
+index 0000000..efb83cb
+--- /dev/null
++++ b/evals/m8/sourced-claim.json
+@@ -0,0 +1 @@
++{"source": "synthetic_source"}
+diff --git a/evals/m8/unpublished-page.json b/evals/m8/unpublished-page.json
+new file mode 100644
+index 0000000..cd4b2ba
+--- /dev/null
++++ b/evals/m8/unpublished-page.json
+@@ -0,0 +1 @@
++{"status": "unpublished"}
+diff --git a/intent/INT-09-m8-local-content-gate/intent.md b/intent/INT-09-m8-local-content-gate/intent.md
+new file mode 100644
+index 0000000..307a9e3
+--- /dev/null
++++ b/intent/INT-09-m8-local-content-gate/intent.md
+@@ -0,0 +1,86 @@
++# Intent: M8 local content gate
++
++Status: draft.
++
++| Field | Value |
++| --- | --- |
++| ID | INT-09 |
++| Status | draft |
++| Author (originator) | <DECIDE_AT_M0: product owner name> |
++| Product owner | <DECIDE_AT_M0: name> |
++| Tech lead | <DECIDE_AT_M0: name> |
++| Milestone | M8 (05-PROJECT-PLAN §5) |
++| Ticket | none |
++| Created | 2026-10-01 |
++| Drafted from | Ibrahim, 2026-10-01. The first slice is a local check with three refusals. A claim with no source is refused. A new page is refused when the cannibalization result is missing. A missing cannibalization result is not stored as a pass. A page stored as published is refused. There is no CMS draft, no client pull request, and no automatic publishing. Product spend stays `0.00` USD. |
++| Text accepted | Ibrahim, 2026-10-02, by the message "I accept this INT-09 text." The status word stays `draft` because that message also says not to set `accepted`. |
++| Depends on | `origin/main` at `5dc6646`, which merges pull request 8 and includes the local M7 public-footprint check. That fact does not finish the later M7 exit and does not authorize a further merge. |
++| Risk class | standard for this slice. A CMS draft, a client pull request, and automatic publishing are connector writes. This slice does not add those. |
++
++Status values: `draft`, `accepted`, `rejected`, `superseded`. Only the product owner sets `accepted`. This session does not.
++
++## Problem
++
++A content claim can be stored with no source. A new page can be stored before anyone has checked whether it cannibalizes an existing page, and a missing cannibalization result can be stored as a pass. A page can be stored as published. The product rules already say a claim needs a source, a cannibalization check comes before a new page, and nothing is published automatically. Nobody has yet shown those three refusals in a local check, with no CMS write and no spend.
++
++## Proposed outcome
++
++A local check, with no CMS draft and no screen, shows all of these:
++
++- A claim with no source is refused.
++- A new page is refused when the cannibalization result is missing. That missing result is not stored as a pass.
++- A page stored as published is refused.
++- There is no client pull request and no automatic publishing.
++- Product spend stays `0.00` USD.
++
++Cursor sessions run this milestone under `AGENTS.md` and `.cursor/`. `.claude/` remains the policy source. `opusplan` at high in `docs/spec/06-MODEL-PLAN.md` §3 is a Claude Code alias, not a Cursor picker value. The session records the model name it shows (D-020). This draft was written in a session that showed Grok 4.7.
++
++## Affected users and systems
++
++The content approver and the methodology owner. No service is deployed. No page is written. No CMS is called.
++
++## Constraints
++
++- D-009: do not call Google Autocomplete or scrape search-result pages. Do not import `.claude/skills/marketing-seo-agent/scripts`. The cannibalization gate is not a copy of `cannibalization.py`.
++- D-012: Presence Readiness, Experience Effectiveness, observed AI visibility, and search performance stay apart. This slice does not blend a content claim into those scores.
++- D-016: a change is not applied unless the governed conditions hold. This slice does not publish.
++- D-020: record the model the session shows.
++- `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.11: content work is existing-page-first. This slice does not write a brief, a draft, or schema.
++- `docs/spec/02-DETAILED-SPECIFICATION.md` §8 and §10: cannibalization is checked before a new page and before a title or H1 change. Fabricated claims are forbidden.
++- `docs/spec/05-PROJECT-PLAN.md` §5 M8: the exit includes fabricated-claim checks, a cannibalization check before a new page, and no automatic publishing. This slice is the local gate only.
++- `docs/test-strategy.md` §5: M8 evidence includes fabricated claims rejected and cannibalization checks before new pages.
++- `pnpm test:e2e` stays recorded as not run. There is no screen.
++- Do not score `llms.txt`, require FAQ blocks, or promise rich results.
++
++## Out of scope
++
++- Reopening M0A, M0B, M1, M2, M3, M4, M5, M6, or M7. Starting M9, M8A, M8B, or M8C. Merging any pull request.
++- The later M7 exit: approved public-source discovery, the entity graph, and a live correction workflow.
++- Closing OI-021. The secrets job fails because organization `al-ai-hq` has no `GITLEAKS_LICENSE`.
++- Briefs, bilingual outlines, drafts, metadata, internal links, comparisons, direct answers, schema build or validation, fact manifests, regulated-claim flags, and Arabic editorial review.
++- A CMS draft, a client-repository pull request, a connector write, and automatic publishing.
++- A live fetch, a client-site change, and product spend.
++
++## Exit gate
++
++From 05-PROJECT-PLAN §5, this first slice shows locally:
++
++1. one refusal when a claim has no source;
++2. one refusal when a new page is stored while the cannibalization result is missing, and that missing result is not stored as a pass;
++3. one refusal when a page is stored as published.
++
++The later M8 exit, citation evals, schema work, and an approval workflow, is not this slice. `pnpm test:e2e` stays recorded as not run.
++
++## Open questions
++
++These stay open. They do not block this draft. They block briefs, schema, and publishing.
++
++- Who the content approver is. The name remains `<DECIDE_AT_M0: name>` (OI-002).
++- Which schema types the later studio may emit. Owner: methodology owner.
++- Arabic editorial review for drafts. Owner: Arabic editorial owner.
++
++## Links
++
++- Spec: `intent/INT-09-m8-local-content-gate/spec.md` (after acceptance)
++- Plan: `intent/INT-09-m8-local-content-gate/plan.md` (after spec approval)
++- Release: `intent/INT-09-m8-local-content-gate/release.md` (after implementation)
+diff --git a/intent/INT-09-m8-local-content-gate/plan.md b/intent/INT-09-m8-local-content-gate/plan.md
+new file mode 100644
+index 0000000..145249f
+--- /dev/null
++++ b/intent/INT-09-m8-local-content-gate/plan.md
+@@ -0,0 +1,117 @@
++# Plan: M8 local content gate
++
++| Field | Value |
++| --- | --- |
++| Spec | `intent/INT-09-m8-local-content-gate/spec.md`. Ibrahim approved that spec on 2026-10-02 by the message "I approve spec.md." The status word in that file stays `draft` because this session does not set `approved`. |
++| Status | done |
++| Author | Cursor session (Grok 4.7), 2026-10-02 (D-020). Plan stage only. The Cursor Plan mode switch was rejected, so this file was written without that switch. |
++| Engineer approval | Ibrahim, 2026-10-02, by the message "I approve plan.md." That message did not set the status word to `approved`. This session later set Status to `done` after the check was built. |
++| Tech lead approval | not required. This slice does not fetch a page, open a CMS draft, open a client pull request, publish a page, change the cost guard, or touch production infrastructure. |
++| Branch | `m8-local-content-gate`, cut from `origin/main` at `5dc6646` when implementation starts. Not created by this plan. |
++
++Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Ibrahim approved this plan on 2026-10-02. This session does not set `approved`. Status is `done` because the local check was built.
++
++## Scope of this slice
++
++Add one local command with three refusals. Product spend stays `0.00` USD.
++
++The command exits 0 only when all three of these pass:
++
++- A claim has the synthetic source `synthetic_source`. A missing source is refused. An empty source is refused. A missing source and an empty source are both no source.
++- A new page has the cannibalization result `checked`. A missing cannibalization result stays null and the new page is refused. Storing that missing result as `pass` is refused.
++- A page has status `unpublished`. A page stored as `published` is refused.
++
++The check reads fixtures on this machine. It does not write a CMS draft, open a client pull request, or publish a page. It does not close OI-021. It does not start M9. The later M8 exit in `docs/spec/05-PROJECT-PLAN.md` §5 (citation evals, schema work, and an approval workflow) stays out of this slice.
++
++## Files
++
++| Path | Change | Why |
++| --- | --- | --- |
++| `evals/m8/sourced-claim.json` | Create | One synthetic field: `source` `synthetic_source`. |
++| `evals/m8/checked-page.json` | Create | A new page whose `cannibalization_result` is `checked`. |
++| `evals/m8/unpublished-page.json` | Create | One synthetic field: `status` `unpublished`. |
++| `scripts/check_m8_content.py` | Create | Local command. Python standard library only. It classifies the claim, the cannibalization result, and the page status. The stored rows must match that classification. |
++| `.github/workflows/ci.yml` | One governance step | Run `python3 scripts/check_m8_content.py` after the existing M7 public footprint step. Name the step `M8 local content gate`. Add that name to the workflow header comment. No new action SHA. The gitleaks step stays as it is. |
++
++`sourced-claim.json` is `{"source":"synthetic_source"}`. `checked-page.json` is `{"kind":"new_page","cannibalization_result":"checked"}`. `unpublished-page.json` is `{"status":"unpublished"}`. These fixtures are not a content brief, a citation record, or a change operation.
++
++In-memory copies cover a missing source, an empty source, a whitespace-only source, a new page whose cannibalization result is null, a new page whose cannibalization result is `pass`, and a page whose status is `published`. The command fails if any of those copies is accepted. A `draft` status and a `pull_request` field also fail, because this slice has no CMS draft and no client pull request.
++
++Do not edit `schemas/`, `config/`, `package.json`, `scripts/check_m0b_proofs.py`, `scripts/check_m2_readiness.py`, `scripts/check_m3_access.py`, `scripts/check_m4_sources.py`, `scripts/check_m5_experience.py`, `scripts/check_m6_visibility.py`, or `scripts/check_m7_footprint.py`. Do not add a workflow action. Do not close OI-021. Leave the untracked Icon file out. `pnpm test:e2e` stays not run. `pnpm test:ssrf` is not this exit.
++
++## Order of work
++
++Do not start this list until the plan is approved. This plan does not implement the check.
++
++1. Cut `m8-local-content-gate` from `origin/main` at `5dc6646`. Carry only `intent/INT-09-m8-local-content-gate/`. Do not commit this slice on `main`. Leave the untracked Icon file out.
++2. Add the three fixtures under `evals/m8/`. Synthetic values only. No secrets and no customer page text.
++3. Add `scripts/check_m8_content.py` so it exits 0 only when the sourced claim, the checked page, and the unpublished page pass, and the in-memory failures are refused. Do not set `.claude/state/test-lock`. This is not a bug fix.
++4. Add the CI step. Run the proof commands below and paste the output. Record `pnpm test:e2e` as not run.
++5. Save `intent/INT-09-m8-local-content-gate/review.diff`. Run `security-reviewer` and `verifier`. They do not approve, merge, or spawn subagents. Fill `release.md` from the template. Stop. Do not start M9.
++
++## Behaviour the command must pin
++
++- Accept the golden claim only when `source` is `synthetic_source`.
++- Refuse a missing source. A missing source is a null value or a missing field.
++- Refuse an empty source. An empty source is `""` or a value that is empty after trimming.
++- Accept the new page only when `kind` is `new_page` and `cannibalization_result` is `checked`.
++- A missing cannibalization result is null. Classifying null returns `{cannibalization_result: null}`. That result is not a pass, and a new page with that result is refused.
++- Refuse a stored cannibalization result of `pass`. `pass` is not a substitute for null.
++- Accept the page only when `status` is `unpublished`. Refuse `published`. Refuse `draft`.
++- Refuse a `pull_request` field. This command does not open a client pull request.
++- A fixture that only agrees with itself is not enough. The command classifies a non-empty synthetic source, a cannibalization result of `checked`, a null missing result, and an `unpublished` status. The stored row must match that classification.
++- Print `product spend 0.00 USD`. No network, no provider call, no Google Autocomplete, no search-result scrape, and no client-site fetch.
++- Do not import `.claude/skills/marketing-seo-agent/scripts`, including `cannibalization.py`.
++- Do not score `llms.txt`, require an FAQ block, or promise a rich result.
++
++## Risks
++
++| Risk | Likelihood | Mitigation | Owner |
++| --- | --- | --- | --- |
++| A claim is stored with no source | Medium | The command classifies the source and fails when it is missing, empty, or whitespace only. | Data engineer |
++| A missing cannibalization result is stored as `pass` | Medium | The passing result is `checked`. Null stays null. A copy that stores `pass` fails the check. | Data engineer |
++| A page is stored as `published` | Medium | The passing status is `unpublished`. A copy with `published` fails the check. | Integration engineer |
++| A CMS draft or a client pull request is treated as this check | Medium | Status `draft` and a `pull_request` field fail the check. This command does not call a CMS or open a pull request. | Integration engineer |
++| The check is treated as the full M8 exit | Medium | Citation evals, schema work, and the approval workflow stay out. `pnpm test:e2e` stays not run. | Product owner |
++| `cannibalization.py` is imported | Low | The file list is the three fixtures, one standard-library script, and one CI step. | Engineer |
++| A live fetch or a connector write is added | Low | The file list has no connector and no fetch. Product spend stays `0.00` USD. | Engineer |
++| OI-021 is closed while editing CI | Low | The only CI edit is the new step and its header comment. The gitleaks step and OI-021 stay unchanged. | Tech lead |
++| The script compares a fixture only to itself | Medium | The command classifies the source, the cannibalization result, the null missing result, and the unpublished status. The stored row must match that result. | Engineer |
++
++## Proof
++
++Run from the repository root after implementation. Paste the output. Do not claim a command passed unless it was run.
++
++```bash
++python3 scripts/check_m8_content.py
++python3 scripts/check_action_pins.py
++python3 scripts/check_schemas.py
++python3 scripts/check_config.py
++python3 -m unittest discover -s .claude/hooks/tests
++python3 -m unittest discover -s .cursor/hooks/tests
++```
++
++`check_m8_content.py` uses the standard library, so `python3` does not need PyYAML. If `python3 scripts/check_schemas.py` fails because `jsonschema` is missing, rerun the schema and config checks with `./.venv/bin/python` and record that departure. `pnpm test:e2e` is not an exit command. Record it as not run. `pnpm test:ssrf` is the M1 suite and is not this exit.
++
++No Arabic or WCAG run. There is no screen. No golden-file eval. No live fetch.
++
++## Security, privacy, cost, Arabic/accessibility review
++
++- `security-reviewer`: fixtures are synthetic; the command does not fetch, call a CMS, open a pull request, publish a page, or store a secret.
++- `verifier`: the diff matches this plan and the spec, a claim with no source is refused, a missing cannibalization result stays null and is not stored as `pass`, a page stored as `published` is refused, and the pasted command output is real.
++- Arabic and accessibility review is not run.
++- `seo-method-checker` is not run. This slice does not change a rule, a keyword method, or a golden SEO file, and it does not import `cannibalization.py`.
++- Cost review is not a separate subagent. The diff must show no paid call, no hosting resource, and no new dependency. Product spend `0.00` USD.
++
++Reviewers do not approve, merge, or spawn subagents.
++
++No new decision row. No new assumption row. Leave the content-approver name, the later schema types, and Arabic editorial review open. Leave OI-021 open.
++
++## Rollback
++
++No production path. After a commit, rollback is `git revert` of that commit. Removing `scripts/check_m8_content.py`, `evals/m8/`, and the CI step returns the tree to `origin/main` at `5dc6646`. Staging rehearsal is not part of this slice.
++
++## Departures from the plan
++
++- 2026-10-02: The branch `m8-local-content-gate` was created at `5dc6646`. It was not pushed.
++- 2026-10-02: `python3 scripts/check_schemas.py` and `python3 scripts/check_config.py` failed on Python 3.14.7 (`/opt/homebrew/opt/python@3.14/bin/python3.14`) because `jsonschema` and PyYAML are not installed for that interpreter. Those checks passed with `./.venv/bin/python`. `python3 scripts/check_m8_content.py` passed on that system interpreter because the command uses the standard library only. No package was added.
+diff --git a/intent/INT-09-m8-local-content-gate/spec.md b/intent/INT-09-m8-local-content-gate/spec.md
+new file mode 100644
+index 0000000..cb159eb
+--- /dev/null
++++ b/intent/INT-09-m8-local-content-gate/spec.md
+@@ -0,0 +1,117 @@
++# Spec: M8 local content gate
++
++| Field | Value |
++| --- | --- |
++| Intent | `intent/INT-09-m8-local-content-gate/intent.md` (status word: draft; text accepted by Ibrahim on 2026-10-02) |
++| Status | draft |
++| Author | Cursor session (Grok 4.7), 2026-10-02 |
++| Product owner sign-off | Ibrahim, 2026-10-02, by the message "I approve spec.md." The status word stays `draft` because this session does not set `approved`. The product-owner role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Policy owner sign-offs | pending: methodology owner (content claims and cannibalization), data engineer (data-integrity), integration engineer (connector-safety), SEO lead (google-search-guidance) |
++| Spec prompt version | `.claude/skills/intent-spec-plan/SKILL.md` stage 2, skill version 0.1.0 |
++| Skill versions | intent-spec-plan 0.1.0; data-integrity 0.1.0; cost-guard 0.1.0; google-search-guidance 0.1.0; security-baseline 0.1.0; connector-safety 0.1.0; arabic-rtl-a11y 0.1.0; marketing-seo-agent has no version field and is reference only (scripts not imported, D-009) |
++| Source sections read | accepted INT-09 text; `docs/spec/05-PROJECT-PLAN.md` §5 M8; `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.11; `docs/spec/02-DETAILED-SPECIFICATION.md` §8, §10, §20 risk row "New content or a title change cannibalizes existing pages"; `docs/test-strategy.md` §5 M8 row; `docs/decisions.md` D-009, D-012, D-016, D-020 |
++
++Status values: `draft`, `changes_requested`, `approved`, `superseded`. Ibrahim approved this spec on 2026-10-02. This session does not set `approved`.
++
++## Summary
++
++This spec defines a local check with three refusals. A claim with no source is refused. A new page is refused when the cannibalization result is missing, and that missing result is not stored as a pass. A page stored as published is refused.
++
++The check does not write a CMS draft, open a client pull request, or publish a page. Product spend stays `0.00` USD.
++
++Cursor runs the work beside Claude Code. `.claude/` remains the policy source. `opusplan` at high is not a Cursor picker value. This spec was written in a session that showed Grok 4.7 (D-020).
++
++## Requirements
++
++### Functional
++
++1. A local command exits 0 only when the claim case, the new-page case, and the publication case all pass. Any failure exits non-zero. Source: accepted INT-09 text; `docs/spec/05-PROJECT-PLAN.md` §5 M8.
++2. A passing claim has a source. A claim with no source is refused. A missing source and an empty source are both no source. Source: accepted INT-09 text; `docs/spec/02-DETAILED-SPECIFICATION.md` fabricated-claim rule cited by the M8 exit; `docs/test-strategy.md` §5 M8 row.
++3. A new page is refused when its cannibalization result is missing. The missing result is null. Storing that missing result as a pass fails the check. Source: accepted INT-09 text; `docs/spec/02-DETAILED-SPECIFICATION.md` §8 and §10; `docs/spec/05-PROJECT-PLAN.md` §5 M8.
++4. A page stored as `published` is refused. The check does not store a CMS draft, open a client pull request, or publish the page. Source: accepted INT-09 text; `docs/spec/05-PROJECT-PLAN.md` §5 M8 and §5 M9; D-016.
++5. The check does not import `.claude/skills/marketing-seo-agent/scripts`, including `cannibalization.py`. Source: D-009; accepted INT-09 text.
++6. No schema file and no `config/` file is added or changed. The check does not edit the M7 command. Source: accepted INT-09 text.
++
++### Non-functional
++
++1. The check runs on this machine. It does not fetch a page, call a CMS, or open a client repository. It does not call Google Autocomplete or scrape a search-result page. Product spend is `0.00` USD. Source: accepted INT-09 text; D-009; D-016.
++2. Fixtures are synthetic. They contain no secrets and no customer page text. Source: accepted INT-09 text.
++3. The check does not blend a content claim into Presence Readiness, Experience Effectiveness, observed AI visibility, or search performance. Source: D-012.
++4. There is no screen. `pnpm test:e2e` stays the placeholder recorded as not run. Source: accepted INT-09 text.
++5. Briefs, bilingual drafts, schema build or validation, fact manifests, regulated-claim flags, Arabic editorial review, and the approval workflow stay out of this check. Source: accepted INT-09 text; `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.11; `docs/spec/05-PROJECT-PLAN.md` §5 M8.
++6. The check does not score `llms.txt`, require an FAQ block, or promise a rich result. Source: accepted INT-09 text; google-search-guidance 0.1.0.
++
++## Design
++
++### Components and boundaries
++
++The check is a local command. It reads fixtures. It does not fetch a page and it does not call a connector. Stored rows are data. The command refuses a claim with no source, a new page whose cannibalization result is missing, a missing cannibalization result stored as a pass, and a page stored as `published`.
++
++### Data contracts
++
++No schema is added or changed. One fixture carries a claim with a synthetic source. One fixture carries a new page whose cannibalization result is present and is not a pass standing in for a missing result. One fixture carries a page that is not stored as `published`. These fixtures are not a content brief, a citation record, or a change operation.
++
++A missing cannibalization result is null. It is not the value `pass`.
++
++### State transitions
++
++No workflow state is added. A claim with no source ends as refused. A missing cannibalization result stays null and does not become a pass. A page stays unpublished in this check. Nothing moves to `published`.
++
++### Configuration
++
++No `config/` file is edited. No model ID, price, or quota is written.
++
++### UI (if any)
++
++None.
++
++## Policy conformance
++
++| Policy skill | Applies? | How the design complies | Concern for owner |
++| --- | --- | --- | --- |
++| google-search-guidance | yes | No Autocomplete, no result-page scrape, no `llms.txt` score, no required FAQ block, and no rich-result promise. | SEO lead: this check is not a content brief and not a search report. |
++| security-baseline | yes | No fetch and no secret. | A later CMS or Git write stays out of this slice. |
++| arabic-rtl-a11y | no | No screen and no generated copy. | Arabic editorial review stays open for a later draft. |
++| data-integrity | yes | A claim without a source is refused. A missing cannibalization result is null, not a pass. | Data engineer: these fixtures are not a full content brief or a full lineage row. |
++| cost-guard | yes | No paid call and no hosting. Spend is `0.00` USD. | The USD 150 cap stays unconfirmed (D-005, OI-001). |
++| connector-safety | yes | No CMS draft, no client pull request, and no automatic publishing. A page stored as `published` is refused. | Integration engineer: the first connector stays at M9. |
++
++## Areas of concern
++
++1. This spec stays `draft`. Ibrahim accepted the INT-09 text on 2026-10-02 and said not to set `accepted`. That acceptance does not approve this spec. The INT-09 status word also stays `draft`.
++2. The M8 exit in `docs/spec/05-PROJECT-PLAN.md` §5 also requires citation evals, schema work, and an approval workflow. This check is the first slice only.
++3. This check refuses a claim with no source. It does not judge whether a present source is a real citation. Citation evals stay in the later M8 exit.
++4. This check refuses a missing cannibalization result and refuses storing that missing result as `pass`. It does not copy `cannibalization.py` and it does not decide which existing page owns a cluster. That decision stays with the later keyword and content work.
++5. The passing page in this check is a page that is not stored as `published`. The check does not invent a CMS draft status. A CMS draft and a client pull request belong to M9.
++6. OI-021 stays open. This spec does not close it.
++7. `origin/main` at `5dc6646` includes the local M7 check. This spec does not finish the later M7 exit and does not start M9.
++
++## Test and eval plan
++
++The local command covers:
++
++- a claim that has a source;
++- a refusal when the claim has no source, including a missing source and an empty source;
++- a refusal when a new page is stored while the cannibalization result is missing;
++- a refusal when that missing cannibalization result is stored as `pass`;
++- a page that is not stored as `published`;
++- a refusal when that page is stored as `published`.
++
++No browser journey, no golden-file eval, and no live fetch. `pnpm test:e2e` is not run.
++
++## Rollout and rollback
++
++No feature flag and no environment. Rollback is reverting the commit that adds the command and fixtures. No staging rehearsal is in this spec.
++
++## Cost
++
++Paid calls added: none. Hosting added: none. Product spend: `0.00` USD. The USD 150 cap stays an unconfirmed assumption (D-005, OI-001).
++
++## Assumptions and open items
++
++- ASSUMPTION: a missing cannibalization result is JSON null, and the refused stand-in for that missing result is the value `pass`.
++- ASSUMPTION: the passing page for this slice is any stored page whose status is not `published`. This slice does not name a CMS draft status.
++- No new assumption row is appended in this stage.
++- Leave the content-approver name, the later schema types, and Arabic editorial review open (OI-002).
++- Leave OI-021 open.
++- No new decision row.
+diff --git a/scripts/check_m8_content.py b/scripts/check_m8_content.py
+new file mode 100644
+index 0000000..0a04370
+--- /dev/null
++++ b/scripts/check_m8_content.py
+@@ -0,0 +1,210 @@
++#!/usr/bin/env python3
++"""Refuse an unsourced claim, a new page with no cannibalization result, and a published page.
++
++A claim needs the synthetic source. A missing cannibalization result stays null
++and is not stored as pass. A page stays unpublished.
++
++No network, no CMS draft, no client pull request, no automatic publishing.
++Product spend is 0.00 USD. Standard library only.
++"""
++
++from __future__ import annotations
++
++import json
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++FIXTURE_DIR = ROOT / "evals" / "m8"
++
++GOLDEN_SOURCE = "synthetic_source"
++NEW_PAGE = "new_page"
++CHECKED = "checked"
++PASS = "pass"
++UNPUBLISHED = "unpublished"
++PUBLISHED = "published"
++DRAFT = "draft"
++CLAIM_FIELDS = {"source"}
++PAGE_FIELDS = {"kind", "cannibalization_result"}
++STATUS_FIELDS = {"status"}
++
++
++def fail(message: str) -> None:
++    print(f"FAIL: {message}")
++    raise SystemExit(1)
++
++
++def load_json(path: Path):
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def classify_claim(source) -> dict | None:
++    """A passing claim has the synthetic source. Missing and empty are not that state."""
++    if source == GOLDEN_SOURCE:
++        return {"source": GOLDEN_SOURCE}
++    return None
++
++
++def claim_errors(stored: dict) -> list[str]:
++    if not isinstance(stored, dict):
++        return ["claim"]
++    errors = []
++    if "pull_request" in stored:
++        errors.append("pull_request")
++    if set(stored) != CLAIM_FIELDS:
++        errors.append("fields")
++    if "source" not in stored or stored.get("source") is None:
++        errors.append("source")
++    elif not isinstance(stored.get("source"), str) or stored.get("source").strip() == "":
++        errors.append("empty")
++    classified = classify_claim(stored.get("source"))
++    if classified is None or stored != classified:
++        errors.append("classified")
++    return errors
++
++
++def classify_page(kind, result) -> dict | None:
++    """A new page passes only when the cannibalization result is checked."""
++    if kind == NEW_PAGE and result == CHECKED:
++        return {"kind": NEW_PAGE, "cannibalization_result": CHECKED}
++    return None
++
++
++def classify_missing(result) -> dict | None:
++    """A missing cannibalization result is null. Pass is not that state."""
++    if result is None:
++        return {"cannibalization_result": None}
++    return None
++
++
++def page_errors(stored: dict) -> list[str]:
++    if not isinstance(stored, dict):
++        return ["page"]
++    errors = []
++    if "pull_request" in stored:
++        errors.append("pull_request")
++    if set(stored) != PAGE_FIELDS:
++        errors.append("fields")
++    if "cannibalization_result" not in stored or stored.get("cannibalization_result") is None:
++        errors.append("missing")
++    if stored.get("cannibalization_result") == PASS:
++        errors.append("pass")
++    classified = classify_page(stored.get("kind"), stored.get("cannibalization_result"))
++    if classified is None or stored != classified:
++        errors.append("classified")
++    return errors
++
++
++def classify_status(status) -> dict | None:
++    """A passing page is unpublished. Published and draft are not that state."""
++    if status == UNPUBLISHED:
++        return {"status": UNPUBLISHED}
++    return None
++
++
++def status_errors(stored: dict) -> list[str]:
++    if not isinstance(stored, dict):
++        return ["status"]
++    errors = []
++    if "pull_request" in stored:
++        errors.append("pull_request")
++    if set(stored) != STATUS_FIELDS:
++        errors.append("fields")
++    status = stored.get("status")
++    if status == PUBLISHED:
++        errors.append("published")
++    if status == DRAFT:
++        errors.append("draft")
++    classified = classify_status(status)
++    if classified is None or stored != classified:
++        errors.append("classified")
++    return errors
++
++
++def check_claim() -> None:
++    fixture = load_json(FIXTURE_DIR / "sourced-claim.json")
++    if not isinstance(fixture, dict):
++        fail("claim fixture is not an object")
++    expected = classify_claim(GOLDEN_SOURCE)
++    if expected is None or fixture != expected:
++        fail(f"sourced claim failed: {claim_errors(fixture)}")
++    if claim_errors(fixture):
++        fail(f"sourced claim failed: {claim_errors(fixture)}")
++    missing_field = {}
++    if "source" not in claim_errors(missing_field):
++        fail("a missing source was accepted")
++    missing_null = {"source": None}
++    if "source" not in claim_errors(missing_null):
++        fail("a null source was accepted")
++    empty = {"source": ""}
++    if "empty" not in claim_errors(empty):
++        fail("an empty source was accepted")
++    blank = {"source": "   "}
++    if "empty" not in claim_errors(blank):
++        fail("a whitespace source was accepted")
++    print("OK: claim source is synthetic_source")
++    print("OK: missing source is refused")
++    print("OK: empty source is refused")
++
++
++def check_page() -> None:
++    fixture = load_json(FIXTURE_DIR / "checked-page.json")
++    if not isinstance(fixture, dict):
++        fail("page fixture is not an object")
++    expected = classify_page(NEW_PAGE, CHECKED)
++    if expected is None or fixture != expected:
++        fail(f"checked page failed: {page_errors(fixture)}")
++    if page_errors(fixture):
++        fail(f"checked page failed: {page_errors(fixture)}")
++    missing = classify_missing(None)
++    if missing != {"cannibalization_result": None}:
++        fail("a missing cannibalization result was not classified as null")
++    if missing.get("cannibalization_result") == PASS:
++        fail("a missing cannibalization result was stored as pass")
++    if classify_missing(PASS) is not None:
++        fail("pass was classified as a missing cannibalization result")
++    missing_page = {"kind": NEW_PAGE, "cannibalization_result": None}
++    if "missing" not in page_errors(missing_page):
++        fail("a new page with a missing cannibalization result was accepted")
++    stored_pass = {"kind": NEW_PAGE, "cannibalization_result": PASS}
++    if "pass" not in page_errors(stored_pass):
++        fail("a missing cannibalization result stored as pass was accepted")
++    print("OK: new page cannibalization result is checked")
++    print("OK: missing cannibalization result is null")
++    print("OK: missing cannibalization result is not stored as pass")
++
++
++def check_status() -> None:
++    fixture = load_json(FIXTURE_DIR / "unpublished-page.json")
++    if not isinstance(fixture, dict):
++        fail("status fixture is not an object")
++    expected = classify_status(UNPUBLISHED)
++    if expected is None or fixture != expected:
++        fail(f"unpublished page failed: {status_errors(fixture)}")
++    if status_errors(fixture):
++        fail(f"unpublished page failed: {status_errors(fixture)}")
++    published = {"status": PUBLISHED}
++    if "published" not in status_errors(published):
++        fail("a page stored as published was accepted")
++    draft = {"status": DRAFT}
++    if "draft" not in status_errors(draft):
++        fail("a draft status was accepted")
++    with_pr = {"status": UNPUBLISHED, "pull_request": "client-pr"}
++    if "pull_request" not in status_errors(with_pr):
++        fail("a pull_request field was accepted")
++    print("OK: page status is unpublished")
++    print("OK: published page is refused")
++    print("OK: draft status is refused")
++    print("OK: pull_request field is refused")
++
++
++def main() -> int:
++    check_claim()
++    check_page()
++    check_status()
++    print("product spend 0.00 USD")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
