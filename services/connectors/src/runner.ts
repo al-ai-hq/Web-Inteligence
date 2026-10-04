@@ -10,14 +10,22 @@ export async function runConnectors(
     connectors.map((connector) => connector.run(url, context)),
   );
 
-  return results.map((result, index) => {
+  return connectors.map((connector, index) => {
+    const result = results[index];
+    if (!result) {
+      return {
+        ok: false as const,
+        connector: connector.name,
+        unavailable_reason_key: `unavailable.connector.${connector.name}`,
+      };
+    }
     if (result.status === "fulfilled") {
       return result.value;
     }
     return {
       ok: false as const,
-      connector: connectors[index].name,
-      unavailable_reason_key: `unavailable.connector.${connectors[index].name}`,
+      connector: connector.name,
+      unavailable_reason_key: `unavailable.connector.${connector.name}`,
     };
   });
 }
