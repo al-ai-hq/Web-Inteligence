@@ -22,6 +22,7 @@ import {
   type TierName,
   type TierScope,
 } from "@wpi/audit-pipeline";
+import { runConnectors as runAllConnectors, type AuditContext } from "@wpi/connectors";
 import { runCrawlJob } from "@wpi/crawler";
 import { runEvidenceProcessor } from "@wpi/evidence-processor";
 import { runRenderJob } from "@wpi/render-job";
@@ -132,6 +133,9 @@ function buildPipeline(fields: PipelineFields) {
         costTracker: new CostTracker(),
       });
     },
+    runConnectors: async (url: string, context: AuditContext) => {
+      return runAllConnectors(url, context);
+    },
   };
 }
 
@@ -154,6 +158,13 @@ async function buildServices(): Promise<AuditServices> {
   // env until real dispatch is explicitly requested (matches the brief's
   // tests, which build stub-mode services with no env set).
   const dispatchMode = process.env["WPI_DISPATCH_MODE"] ?? "stub";
+
+  if (process.env["NODE_ENV"] === "production" && dispatchMode === "stub") {
+    throw new Error(
+      "Refusing to start with WPI_DISPATCH_MODE=stub in production. Set WPI_DISPATCH_MODE=in_process.",
+    );
+  }
+
   const outputDir = process.env["WPI_OUTPUT_DIR"] ?? "./output";
 
   if (dispatchMode === "stub") {

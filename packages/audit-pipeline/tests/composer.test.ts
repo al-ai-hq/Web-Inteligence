@@ -119,6 +119,7 @@ describe("composeSections", () => {
           cost: { engine: "gemini-2.0-flash", tokens_in: 10, tokens_out: 5, usd: 0.01 },
         }),
       ],
+      [],
       TIER_SCOPES.rich,
     );
     expect(result.findings).toHaveLength(1);
@@ -148,6 +149,7 @@ describe("composeSections", () => {
         }),
         outcome({ agent_name: "mystery-agent", ok: false, unavailable_reason_key: "unavailable.generic" }),
       ],
+      [],
       TIER_SCOPES.preview,
     );
     expect(result.findings).toHaveLength(0);
@@ -161,6 +163,7 @@ describe("composeSections", () => {
         outcome({ agent_name: "keyword-analyst", ok: false, unavailable_reason_key: "unavailable.agent.keyword-analyst" }),
         outcome({ agent_name: "content-strategist" }),
       ],
+      [],
       TIER_SCOPES.reduced,
     );
     expect(result.summary_bullets).toEqual(["report.summary.technical", "report.summary.content"]);
