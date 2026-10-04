@@ -107,6 +107,9 @@
       "keyword-analyst": "تعذّر تشغيل وكيل تحليل الكلمات المفتاحية.",
       "content-strategist": "تعذّر تشغيل وكيل استراتيجية المحتوى."
     },
+    "auth": {
+      "missing": "حساب Google غير متصل"
+    },
     "connector": {
       "psi": {
         "missing_api_key": "بيانات الأداء غير متاحة: لم يتم تكوين مفتاح API",
@@ -114,7 +117,12 @@
       },
       "crux": {
         "api_error": "مقاييس المستخدمين الحقيقيين غير متاحة: خطأ في API"
-      }
+      },
+      "gsc": "بيانات Google Search Console غير متاحة",
+      "ga4": "بيانات Google Analytics غير متاحة"
+    },
+    "ga4": {
+      "property_not_configured": "خاصية GA4 غير مُعدّة"
     }
   },
   "limitation": {

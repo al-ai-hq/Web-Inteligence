@@ -107,6 +107,9 @@
       "keyword-analyst": "The keyword analysis agent could not run.",
       "content-strategist": "The content strategy agent could not run."
     },
+    "auth": {
+      "missing": "Google account not connected"
+    },
     "connector": {
       "psi": {
         "missing_api_key": "Performance data unavailable: API key not configured",
@@ -114,7 +117,12 @@
       },
       "crux": {
         "api_error": "Real-user metrics unavailable: API error"
-      }
+      },
+      "gsc": "Google Search Console data unavailable",
+      "ga4": "Google Analytics data unavailable"
+    },
+    "ga4": {
+      "property_not_configured": "GA4 property not configured"
     }
   },
   "limitation": {
