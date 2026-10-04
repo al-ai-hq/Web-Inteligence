@@ -1,26 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { runAuditPipeline, InMemoryAuditStore } from "../src/index.js";
 import { TIER_SCOPES } from "../src/eligibility.js";
-import type { ConnectorResult } from "@wpi/connectors";
-
-function makeDeps(overrides: { runConnectors: (url: string, context: { locale: string; tier: string }) => Promise<ConnectorResult[]> }) {
-  return {
-    store: new InMemoryAuditStore(),
-    validateUrl: async () => ({ ok: true as const }),
-    crawl: async () => {},
-    render: async () => {},
-    processEvidence: async () => [],
-    runAgents: async () => [],
-    runConnectors: overrides.runConnectors,
-    tierScopes: TIER_SCOPES,
-  };
-}
 
 async function seedAudit(store: InMemoryAuditStore): Promise<string> {
   const record = await store.create({
     targetUrl: "https://example.com",
     locale: "en",
-    tier: "free",
+    tier: "preview",
     context: {
       organization: "Test",
       business_type: "test",
