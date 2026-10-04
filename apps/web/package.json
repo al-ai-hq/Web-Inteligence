@@ -16,6 +16,7 @@
     "@wpi/connectors": "workspace:*",
     "@wpi/crawler": "workspace:*",
     "@wpi/evidence-processor": "workspace:*",
+    "@wpi/oauth": "workspace:*",
     "@wpi/render-job": "workspace:*",
     "@wpi/security": "workspace:*",
     "next": "^15.1.0",

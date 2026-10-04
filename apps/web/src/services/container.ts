@@ -27,6 +27,7 @@ import { runCrawlJob } from "@wpi/crawler";
 import { runEvidenceProcessor } from "@wpi/evidence-processor";
 import { runRenderJob } from "@wpi/render-job";
 import { validateUrl } from "@wpi/security";
+import { TokenStore } from "@wpi/oauth";
 import { Pool } from "pg";
 
 export interface AuditServices {
@@ -71,7 +72,9 @@ export async function getAuditServices(): Promise<AuditServices> {
 type PipelineFields = Pick<
   AuditServices,
   "store" | "tierScopes" | "validateUrl" | "outputDir" | "geminiApiKey"
->;
+> & {
+  tokenStore?: TokenStore;
+};
 
 function buildPipeline(fields: PipelineFields) {
   return {
@@ -136,6 +139,8 @@ function buildPipeline(fields: PipelineFields) {
     runConnectors: async (url: string, context: AuditContext) => {
       return runAllConnectors(url, context);
     },
+    tokenStore: fields.tokenStore,
+    userId: fields.tokenStore ? "placeholder" : undefined, // Stubbed until user auth is implemented
   };
 }
 
@@ -195,6 +200,7 @@ async function buildServices(): Promise<AuditServices> {
   await applyMigrations(pool, MIGRATIONS_DIR);
   const store = new PostgresAuditStore(pool);
   await store.sweepExpired();
+  const tokenStore = new TokenStore(pool);
 
   const fields: PipelineFields = {
     store,
@@ -211,6 +217,7 @@ async function buildServices(): Promise<AuditServices> {
     },
     outputDir,
     geminiApiKey: process.env["WPI_GEMINI_API_KEY"],
+    tokenStore,
   };
 
   return {

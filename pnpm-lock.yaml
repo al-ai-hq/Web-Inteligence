@@ -50,6 +50,9 @@ importers:
       '@wpi/evidence-processor':
         specifier: workspace:*
         version: link:../../services/evidence-processor
+      '@wpi/oauth':
+        specifier: workspace:*
+        version: link:../../packages/oauth
       '@wpi/render-job':
         specifier: workspace:*
         version: link:../../services/render-job
@@ -108,6 +111,9 @@ importers:
       '@wpi/evidence-processor':
         specifier: workspace:*
         version: link:../../services/evidence-processor
+      '@wpi/oauth':
+        specifier: workspace:*
+        version: link:../oauth
       '@wpi/render-job':
         specifier: workspace:*
         version: link:../../services/render-job
@@ -143,6 +149,25 @@ importers:
   packages/config-loaders: {}
 
   packages/contracts: {}
+
+  packages/oauth:
+    dependencies:
+      pg:
+        specifier: ^8.13.0
+        version: 8.23.1
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.4
+      '@types/pg':
+        specifier: ^8.11.0
+        version: 8.23.1
+      typescript:
+        specifier: ^5.6.0
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
 
   packages/security:
     dependencies:
@@ -3225,7 +3250,7 @@ snapshots:
   '@types/request@2.48.13':
     dependencies:
       '@types/caseless': 0.12.5
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
       '@types/tough-cookie': 4.0.5
       form-data: 2.5.6
 
@@ -3330,6 +3355,22 @@ snapshots:
       '@vitest/utils': 2.1.9
       chai: 5.3.3
       tinyrainbow: 1.2.0
+
+  '@vitest/mocker@2.1.9(vite@5.4.21(@types/node@22.20.4)(lightningcss@1.32.0))':
+    dependencies:
+      '@vitest/spy': 2.1.9
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 5.4.21(@types/node@22.20.4)(lightningcss@1.32.0)
+
+  '@vitest/mocker@2.1.9(vite@5.4.21(@types/node@26.6.3)(lightningcss@1.32.0))':
+    dependencies:
+      '@vitest/spy': 2.1.9
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 5.4.21(@types/node@26.6.3)(lightningcss@1.32.0)
 
   '@vitest/mocker@2.1.9(vite@5.4.21(@types/node@26.6.4)(lightningcss@1.32.0))':
     dependencies:
@@ -4293,7 +4334,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.2
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
       long: 5.3.2
 
   punycode@2.3.1: {}
@@ -4611,7 +4652,7 @@ snapshots:
   vitest@2.1.9(@types/node@22.20.4)(lightningcss@1.32.0):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@26.6.4)(lightningcss@1.32.0))
+      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@22.20.4)(lightningcss@1.32.0))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9
@@ -4646,7 +4687,7 @@ snapshots:
   vitest@2.1.9(@types/node@26.6.3)(lightningcss@1.32.0):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@26.6.4)(lightningcss@1.32.0))
+      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@26.6.3)(lightningcss@1.32.0))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9
