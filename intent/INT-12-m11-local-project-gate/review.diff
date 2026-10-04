@@ -1,0 +1,445 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index af7e09a..8d8bc51 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -6,7 +6,7 @@
+ # intent/INT-00-m0a-repository-bootstrap/intent.md.
+ #
+ # Jobs:
+-#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness, M6 AI visibility, M7 public footprint, M8 local content gate, M9 local write gate, M10 local monitor gate
++#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness, M6 AI visibility, M7 public footprint, M8 local content gate, M9 local write gate, M10 local monitor gate, M11 local project gate
+ #   secrets    - gitleaks over the full history
+ #   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
+ name: ci
+@@ -60,6 +60,8 @@ jobs:
+         run: python3 scripts/check_m9_write.py
+       - name: M10 local monitor gate
+         run: python3 scripts/check_m10_monitor.py
++      - name: M11 local project gate
++        run: python3 scripts/check_m11_project.py
+       - name: M2 readiness
+         run: python3 scripts/check_m2_readiness.py
+       - name: Action pins
+diff --git a/evals/m11/project-a-read.json b/evals/m11/project-a-read.json
+new file mode 100644
+index 0000000..f0b8647
+--- /dev/null
++++ b/evals/m11/project-a-read.json
+@@ -0,0 +1 @@
++{"caller":"project_a","project_id":"project_a"}
+diff --git a/intent/INT-12-m11-local-project-gate/intent.md b/intent/INT-12-m11-local-project-gate/intent.md
+new file mode 100644
+index 0000000..77c50ad
+--- /dev/null
++++ b/intent/INT-12-m11-local-project-gate/intent.md
+@@ -0,0 +1,82 @@
++# Intent: M11 local project gate
++
++Status: draft.
++
++| Field | Value |
++| --- | --- |
++| ID | INT-12 |
++| Status | draft |
++| Author (originator) | <DECIDE_AT_M0: product owner name> |
++| Product owner | <DECIDE_AT_M0: name> |
++| Tech lead | <DECIDE_AT_M0: name> |
++| Milestone | M11 (05-PROJECT-PLAN §5) |
++| Ticket | none |
++| Created | 2026-10-04 |
++| Drafted from | Ibrahim, 2026-10-04. The first slice is only a local check. It refuses a read of project B while the caller is in project A. There is no invitation, no live workspace, and no bulk schedule. Product spend stays `0.00` USD. |
++| Text accepted | Ibrahim, 2026-10-04, by the message "I accept this INT-12 text." The status word stays `draft` because that message also says not to set `accepted`. |
++| Depends on | `origin/main` at `fd23f59`, which merges pull request 11 and includes the local M10 monitor gate. That fact does not finish the later M10 exit and does not authorize a further merge. |
++| Risk class | standard for this slice. An organization, an invitation, a live workspace, and a bulk schedule are high-risk. This slice does not add those. |
++
++Status values: `draft`, `accepted`, `rejected`, `superseded`. Only the product owner sets `accepted`. This session does not.
++
++## Problem
++
++A caller in project A can be shown a record that belongs to project B. The product rules already say every record belongs to one project and a query for one project must not return another project's record. Nobody has yet shown that refusal in a local check, with no invitation and no spend.
++
++## Proposed outcome
++
++A local check, with no live workspace and no screen, shows all of these:
++
++- A read of project B is refused while the caller is in project A.
++- There is no invitation and no bulk schedule.
++- Product spend stays `0.00` USD.
++
++Cursor sessions run this milestone under `AGENTS.md` and `.cursor/`. `.claude/` remains the policy source. `fable` at xhigh in `docs/spec/06-MODEL-PLAN.md` §3 is a Claude Code alias, not a Cursor picker value. The session records the model name it shows (D-020). This draft was written in a session that showed Grok 4.7.
++
++## Affected users and systems
++
++The security engineer and the tech lead. No service is deployed. No organization is created. No invitation is sent. No bulk schedule runs.
++
++## Constraints
++
++- Until this agency work, every record belongs to one project. A query for one project must not return another project's record (D-014). This slice checks that rule locally.
++- D-004: identity starts as `User → Project → Site`. Organizations, invitations, and advanced roles arrive with the later agency work. Claiming an anonymous audit does not prove domain ownership. This slice does not send an invitation.
++- D-020: record the model the session shows.
++- `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.16: the agency workspace includes roles, portfolios, bulk schedules, and client review links. Those stay later.
++- `docs/spec/05-PROJECT-PLAN.md` §5 M11: the exit is that cross-tenant tests pass and bulk work stays budgeted and scoped. This slice is the local gate only.
++- `docs/test-strategy.md` §5: the M11 row is the cross-tenant authorization test and budgeted bulk work. Bulk work is not this slice.
++- `pnpm test:e2e` stays recorded as not run. There is no screen.
++- `docs/spec/05-PROJECT-PLAN.md` §14 still lists INT-15 as M11. Ibrahim named this file `intent/INT-12-m11-local-project-gate/intent.md` on 2026-10-04. This stage does not edit that table.
++- This slice does not add `organization_id`.
++
++## Out of scope
++
++- Reopening M0A, M0B, M1, M2, M3, M4, M5, M6, M8, M9, or M10. Starting M8A, M8B, M8C, or M12. Merging any pull request.
++- The later M10 exit: a running schedule, evidence-linked material alerts, deletion, and cost breakers.
++- Closing OI-021. The secrets job fails because organization `al-ai-hq` has no `GITLEAKS_LICENSE`.
++- An organization, an invitation, an agency role, a live workspace, a portfolio, a bulk schedule, a branded report, a client review link, a template, an evidence export, and an audit log.
++- `organization_id`.
++- A write-class tool in `config/agents/*.yaml`.
++- A live fetch, a client-site change, and product spend.
++
++## Exit gate
++
++From 05-PROJECT-PLAN §5, this first slice shows locally:
++
++1. one refusal when a caller in project A reads a record that belongs to project B.
++
++The later M11 exit, invitations, and bulk schedules are not this slice. `pnpm test:e2e` stays recorded as not run.
++
++## Open questions
++
++These stay open. They do not block this draft. They block a live workspace.
++
++- Which agency roles exist. The names remain `<DECIDE_AT_M0: name>` for the owners (OI-002).
++- How a bulk schedule stays inside the budget. Owner: cloud billing owner.
++- Who the security engineer and the tech lead are. The names remain `<DECIDE_AT_M0: name>` (OI-002).
++
++## Links
++
++- Spec: `intent/INT-12-m11-local-project-gate/spec.md` (after acceptance)
++- Plan: `intent/INT-12-m11-local-project-gate/plan.md` (after spec approval)
++- Release: `intent/INT-12-m11-local-project-gate/release.md` (after implementation)
+diff --git a/intent/INT-12-m11-local-project-gate/plan.md b/intent/INT-12-m11-local-project-gate/plan.md
+new file mode 100644
+index 0000000..2ea14ea
+--- /dev/null
++++ b/intent/INT-12-m11-local-project-gate/plan.md
+@@ -0,0 +1,110 @@
++# Plan: M11 local project gate
++
++| Field | Value |
++| --- | --- |
++| Spec | `intent/INT-12-m11-local-project-gate/spec.md`. Ibrahim approved that spec on 2026-10-04 by the message "I approve spec.md." The status word in that file stays `draft` because this session does not set `approved`. |
++| Status | done |
++| Author | Cursor session (Grok 4.7), 2026-10-04 (D-020). Plan stage only. The Cursor Plan mode switch was rejected, so this file was written without that switch. |
++| Engineer approval | Ibrahim, 2026-10-04, by the message "I approve plan.md." That message did not set the status word to `approved`. This session later set Status to `done` after the check was built. |
++| Tech lead approval | not required. This slice does not create an organization, send an invitation, open a live workspace, run a bulk schedule, add a write-class tool, or touch production infrastructure. |
++| Branch | `m11-local-project-gate`, cut from `origin/main` at `fd23f59` when implementation starts. Not created by this plan. |
++
++Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Ibrahim approved this plan on 2026-10-04. This session does not set `approved`. Status is `done` because the local check was built.
++
++## Scope of this slice
++
++Add one local command. Product spend stays `0.00` USD.
++
++The command exits 0 only when both of these pass:
++
++- The caller is `project_a`. A record whose `project_id` is `project_a` may be read.
++- A record whose `project_id` is `project_b` is refused while that caller is in `project_a`.
++
++The check reads fixtures on this machine. It does not add `organization_id`. It does not add a write-class tool to `config/agents/*.yaml`. It does not send an invitation, open a live workspace, or run a bulk schedule. It does not edit `docs/spec/05-PROJECT-PLAN.md` §14. It does not close OI-021. It does not start M12. The later M11 exit in `docs/spec/05-PROJECT-PLAN.md` §5 stays out of this slice.
++
++`project_a` and `project_b` are synthetic labels. They are not live project identifiers.
++
++## Files
++
++| Path | Change | Why |
++| --- | --- | --- |
++| `evals/m11/project-a-read.json` | Create | Caller `project_a` and record `project_id` `project_a`. |
++| `scripts/check_m11_project.py` | Create | Local command. Python standard library only. It keeps the read to the caller's project. The stored row must match that result. |
++| `.github/workflows/ci.yml` | One governance step | Run `python3 scripts/check_m11_project.py` after the existing M10 local monitor gate step. Name the step `M11 local project gate`. Add that name to the workflow header comment. No new action SHA. The gitleaks step stays as it is. |
++
++`project-a-read.json` is `{"caller":"project_a","project_id":"project_a"}`. This fixture is not a workspace and not an invitation.
++
++An in-memory copy `{"caller":"project_a","project_id":"project_b"}` is refused. A copy that adds `organization_id` is also refused.
++
++Do not edit `schemas/`, `config/`, `config/agents/`, `package.json`, `docs/spec/05-PROJECT-PLAN.md`, `scripts/check_m0b_proofs.py`, `scripts/check_m2_readiness.py`, `scripts/check_m3_access.py`, `scripts/check_m4_sources.py`, `scripts/check_m5_experience.py`, `scripts/check_m6_visibility.py`, `scripts/check_m7_footprint.py`, `scripts/check_m8_content.py`, `scripts/check_m9_write.py`, or `scripts/check_m10_monitor.py`. Do not add a workflow action. Do not add a write-class tool. Do not close OI-021. Leave the untracked Icon file out. `pnpm test:e2e` stays not run. `pnpm test:ssrf` is not this exit.
++
++## Order of work
++
++Do not start this list until the plan is approved. This plan does not implement the check.
++
++1. Cut `m11-local-project-gate` from `origin/main` at `fd23f59`. Carry only `intent/INT-12-m11-local-project-gate/`. Do not commit this slice on `main`. Leave the untracked Icon file out.
++2. Add the fixture under `evals/m11/`. Synthetic labels only. No secrets and no live project identifiers.
++3. Add `scripts/check_m11_project.py` so it exits 0 only when the project A read passes and the project B read is refused. Do not set `.claude/state/test-lock`. This is not a bug fix.
++4. Add the CI step. Run the proof commands below and paste the output. Record `pnpm test:e2e` as not run.
++5. Save `intent/INT-12-m11-local-project-gate/review.diff`. Run `security-reviewer` and `verifier`. They do not approve, merge, or spawn subagents. Fill `release.md` from the template. Stop. Do not start M12.
++
++## Behaviour the command must pin
++
++- Accept the golden read only when `caller` is `project_a` and `project_id` is `project_a`.
++- Refuse `{"caller":"project_a","project_id":"project_b"}`.
++- Refuse a row that contains `organization_id`.
++- A fixture that only agrees with itself is not enough. The command keeps a read when the record's `project_id` equals the caller's project. The stored row must match that result.
++- Print `product spend 0.00 USD`. No network, no invitation, no live workspace, and no bulk schedule.
++- Do not import `.claude/skills/marketing-seo-agent/scripts`.
++
++## Risks
++
++| Risk | Likelihood | Mitigation | Owner |
++| --- | --- | --- | --- |
++| A caller in project A reads project B | Medium | The command compares `project_id` with the caller and fails when they differ. | Security engineer |
++| `organization_id` is added in this slice | Medium | A row that contains `organization_id` fails the check. No schema edit adds that field. | Tech lead |
++| The labels are treated as live projects | Medium | `project_a` and `project_b` are fixture labels. No project is created. | Security engineer |
++| The check is treated as the full M11 exit | Medium | Invitations, roles, and bulk schedules stay out. `pnpm test:e2e` stays not run. | Product owner |
++| A write-class tool is added | Low | `config/agents/` is not in the file list. | Engineer |
++| §14 is edited while naming this intent INT-12 | Low | `docs/spec/05-PROJECT-PLAN.md` is not in the file list. INT-15 remains the table's M11 row. | Product owner |
++| OI-021 is closed while editing CI | Low | The only CI edit is the new step and its header comment. The gitleaks step and OI-021 stay unchanged. | Tech lead |
++| The script compares a fixture only to itself | Medium | The command compares the record's project with the caller. The stored row must match that result. | Engineer |
++
++## Proof
++
++Run from the repository root after implementation. Paste the output. Do not claim a command passed unless it was run.
++
++```bash
++python3 scripts/check_m11_project.py
++python3 scripts/check_action_pins.py
++python3 scripts/check_schemas.py
++python3 scripts/check_config.py
++python3 -m unittest discover -s .claude/hooks/tests
++python3 -m unittest discover -s .cursor/hooks/tests
++```
++
++`check_m11_project.py` uses the standard library, so `python3` does not need PyYAML. If `python3 scripts/check_schemas.py` fails because `jsonschema` is missing, rerun the schema and config checks with `./.venv/bin/python` and record that departure. `pnpm test:e2e` is not an exit command. Record it as not run. `pnpm test:ssrf` is the M1 suite and is not this exit.
++
++No Arabic or WCAG run. There is no screen. No golden-file eval. No invitation. No bulk schedule.
++
++## Security, privacy, cost, Arabic/accessibility review
++
++- `security-reviewer`: fixtures are synthetic labels; the command does not query a database, create a project, send an invitation, or store a secret.
++- `verifier`: the diff matches this plan and the spec, a project A record may be read, a project B record is refused, `organization_id` is absent, and the pasted command output is real.
++- Arabic and accessibility review is not run.
++- `seo-method-checker` is not run. This slice does not change a rule, a keyword method, or a golden SEO file.
++- Cost review is not a separate subagent. The diff must show no paid call, no hosting resource, and no new dependency. Product spend `0.00` USD.
++
++Reviewers do not approve, merge, or spawn subagents.
++
++No new decision row. No new assumption row. Leave agency roles, invitations, bulk budgets, and the owner names open. Leave OI-021 open. Leave §14 unchanged.
++
++## Rollback
++
++No production path. After a commit, rollback is `git revert` of that commit. Removing `scripts/check_m11_project.py`, `evals/m11/`, and the CI step returns the tree to `origin/main` at `fd23f59`. Staging rehearsal is not part of this slice.
++
++## Departures from the plan
++
++- 2026-10-04: The branch `m11-local-project-gate` was created at `fd23f59`. It was not pushed.
++- 2026-10-04: `python3 scripts/check_schemas.py` and `python3 scripts/check_config.py` failed on Python 3.14.7 (`/opt/homebrew/opt/python@3.14/bin/python3.14`) because `jsonschema` and PyYAML are not installed for that interpreter. Those checks passed with `./.venv/bin/python`. `python3 scripts/check_m11_project.py` passed on that system interpreter because the command uses the standard library only. No package was added.
++- 2026-10-04: `security-reviewer` and `verifier` ran. The check script was not changed after that review. Two medium notes stay open because this plan pins the caller to `project_a` and stores that caller on the same golden row. They are recorded in `release.md`.
+diff --git a/intent/INT-12-m11-local-project-gate/spec.md b/intent/INT-12-m11-local-project-gate/spec.md
+new file mode 100644
+index 0000000..823941c
+--- /dev/null
++++ b/intent/INT-12-m11-local-project-gate/spec.md
+@@ -0,0 +1,108 @@
++# Spec: M11 local project gate
++
++| Field | Value |
++| --- | --- |
++| Intent | `intent/INT-12-m11-local-project-gate/intent.md` (status word: draft; text accepted by Ibrahim on 2026-10-04) |
++| Status | draft |
++| Author | Cursor session (Grok 4.7), 2026-10-04 |
++| Product owner sign-off | Ibrahim, 2026-10-04, by the message "I approve spec.md." The status word stays `draft` because this session does not set `approved`. The product-owner role name remains `<DECIDE_AT_M0: name>` (OI-002). |
++| Policy owner sign-offs | pending: security engineer (security-baseline), tech lead (project isolation), data engineer (data-integrity) |
++| Spec prompt version | `.claude/skills/intent-spec-plan/SKILL.md` stage 2, skill version 0.1.0 |
++| Skill versions | intent-spec-plan 0.1.0; security-baseline 0.1.0; data-integrity 0.1.0; cost-guard 0.1.0; connector-safety 0.1.0; google-search-guidance 0.1.0; arabic-rtl-a11y 0.1.0 |
++| Source sections read | accepted INT-12 text; `docs/spec/05-PROJECT-PLAN.md` §5 M11 and §14; `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.16; `docs/test-strategy.md` §5 M11 row and TS-AUTHZ; `docs/decisions.md` D-004, D-014, D-020; security-baseline 0.1.0 |
++
++Status values: `draft`, `changes_requested`, `approved`, `superseded`. Ibrahim approved this spec on 2026-10-04. This session does not set `approved`.
++
++## Summary
++
++This spec defines a local check with one refusal. A read of project B is refused while the caller is in project A.
++
++The check does not send an invitation, open a live workspace, or run a bulk schedule. It does not add `organization_id`. It does not add a write-class tool to `config/agents/*.yaml`. Product spend stays `0.00` USD.
++
++Cursor runs the work beside Claude Code. `.claude/` remains the policy source. `fable` at xhigh is not a Cursor picker value. This spec was written in a session that showed Grok 4.7 (D-020).
++
++## Requirements
++
++### Functional
++
++1. A local command exits 0 only when a caller in project A is kept to project A, and a read of project B is refused. Any failure exits non-zero. Source: accepted INT-12 text; `docs/spec/05-PROJECT-PLAN.md` §5 M11.
++2. The caller is in project A. A record that belongs to project A may be read. A record that belongs to project B is refused. Source: accepted INT-12 text; D-014; security-baseline 0.1.0.
++3. The check does not add `organization_id`. Identity stays `User → Project → Site`. Source: accepted INT-12 text; D-004; D-014.
++4. No schema file, no `config/` file, and no `config/agents/*.yaml` file is added or changed. No write-class tool is added. The check does not edit the M10 command. Source: accepted INT-12 text.
++5. The check does not import `.claude/skills/marketing-seo-agent/scripts`. Source: D-009.
++
++### Non-functional
++
++1. The check runs on this machine. It does not create an organization, send an invitation, open a live workspace, or run a bulk schedule. It does not call Google Autocomplete or scrape a search-result page. Product spend is `0.00` USD. Source: accepted INT-12 text; D-009.
++2. Fixtures are synthetic. They contain no secrets, no customer records, and no live project identifiers. Project A and project B are labels in the fixture. Source: accepted INT-12 text.
++3. There is no screen. `pnpm test:e2e` stays the placeholder recorded as not run. Source: accepted INT-12 text.
++4. Agency roles, portfolios, branded reports, client review links, templates, evidence export, audit logs, and budgeted bulk work stay out of this check. Source: accepted INT-12 text; `docs/spec/01-PRODUCT-REQUIREMENTS.md` §5.16; `docs/spec/05-PROJECT-PLAN.md` §5 M11; `docs/test-strategy.md` §5 M11 row.
++
++## Design
++
++### Components and boundaries
++
++The check is a local command. It reads fixtures. It does not query a database and it does not hold a credential. Stored rows are data. The command returns the project A record to the caller in project A and refuses the project B record. A query for one project does not return another project's record.
++
++### Data contracts
++
++No schema is added or changed. One fixture carries a caller in project A, one record owned by project A, and one record owned by project B. These rows are not a workspace, an invitation, or a full stored record. `organization_id` is absent.
++
++### State transitions
++
++No workflow state is added. A cross-project read ends as refused. The caller stays in project A.
++
++### Configuration
++
++No `config/` file is edited. No agent tool list is edited. No organization is registered.
++
++### UI (if any)
++
++None.
++
++## Policy conformance
++
++| Policy skill | Applies? | How the design complies | Concern for owner |
++| --- | --- | --- | --- |
++| google-search-guidance | yes | No Autocomplete and no result-page scrape. | SEO lead: this check is not a search report. |
++| security-baseline | yes | A read of project B is refused while the caller is in project A. No secret and no write tool. | Security engineer: this fixture is not a live authorization check. |
++| arabic-rtl-a11y | no | No screen. | Arabic review stays out of this slice. |
++| data-integrity | yes | The returned record stays the project A record. Project B is not mixed into that result. | Data engineer: these fixtures are not a full project record. |
++| cost-guard | yes | No paid call and no bulk schedule. Spend is `0.00` USD. | The USD 150 cap stays unconfirmed (D-005, OI-001). |
++| connector-safety | yes | No connector write and no write-class tool. | Integration engineer: a later client workspace stays out of this slice. |
++
++## Areas of concern
++
++1. This spec stays `draft`. Ibrahim approved it on 2026-10-04 by the message "I approve spec.md" and this session does not set `approved`. The INT-12 status word also stays `draft`.
++2. The M11 exit in `docs/spec/05-PROJECT-PLAN.md` §5 also requires cross-tenant tests on a live workspace and bulk work that stays budgeted and scoped. This check is the first slice only.
++3. This check uses the labels project A and project B. It does not create those projects and it does not add `organization_id`.
++4. A record with no `project_id` is not this case. The later agency work still has to decide how a missing owner is stored. This check covers a record that belongs to project B.
++5. OI-021 stays open. This spec does not close it.
++6. `docs/spec/05-PROJECT-PLAN.md` §14 still lists INT-15 as M11. Ibrahim named this path. This spec does not edit that table.
++7. `origin/main` at `fd23f59` includes the local M10 check. This spec does not finish the later M10 exit and does not start M12.
++
++## Test and eval plan
++
++The local command covers:
++
++- a caller in project A;
++- a record owned by project A that the caller may read;
++- a refusal when that caller reads a record owned by project B.
++
++No browser journey, no invitation, and no bulk schedule. `pnpm test:e2e` is not run.
++
++## Rollout and rollback
++
++No feature flag and no environment. Rollback is reverting the commit that adds the command and fixtures. No staging rehearsal is in this spec.
++
++## Cost
++
++Paid calls added: none. Hosting added: none. Product spend: `0.00` USD. The USD 150 cap stays an unconfirmed assumption (D-005, OI-001).
++
++## Assumptions and open items
++
++- ASSUMPTION: project A and project B are synthetic labels. They are not live project identifiers.
++- No new assumption row is appended in this stage.
++- Leave agency roles, invitations, bulk budgets, and the owner names open (OI-002).
++- Leave OI-021 open.
++- No new decision row. `docs/spec/05-PROJECT-PLAN.md` §14 is not edited.
+diff --git a/scripts/check_m11_project.py b/scripts/check_m11_project.py
+new file mode 100644
+index 0000000..d9fde92
+--- /dev/null
++++ b/scripts/check_m11_project.py
+@@ -0,0 +1,92 @@
++#!/usr/bin/env python3
++"""Keep a read inside the caller's project.
++
++The caller is project_a. A record whose project_id is project_a may be read.
++A record whose project_id is project_b is refused. A row that contains
++organization_id is refused.
++
++project_a and project_b are synthetic labels. No invitation, no live
++workspace, no bulk schedule, no network.
++Product spend is 0.00 USD. Standard library only.
++"""
++
++from __future__ import annotations
++
++import json
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++FIXTURE_DIR = ROOT / "evals" / "m11"
++
++CALLER = "project_a"
++OTHER = "project_b"
++READ_FIELDS = {"caller", "project_id"}
++
++
++def fail(message: str) -> None:
++    print(f"FAIL: {message}")
++    raise SystemExit(1)
++
++
++def load_json(path: Path):
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def classify_read(caller, project_id) -> dict | None:
++    """Keep the read only when the record's project equals the caller."""
++    if caller == CALLER and project_id == caller:
++        return {"caller": CALLER, "project_id": CALLER}
++    return None
++
++
++def read_errors(stored: dict) -> list[str]:
++    if not isinstance(stored, dict):
++        return ["read"]
++    errors = []
++    if "organization_id" in stored:
++        errors.append("organization_id")
++    if set(stored) != READ_FIELDS:
++        errors.append("fields")
++    if stored.get("caller") == CALLER and stored.get("project_id") == OTHER:
++        errors.append("other")
++    classified = classify_read(stored.get("caller"), stored.get("project_id"))
++    if classified is None or stored != classified:
++        errors.append("classified")
++    return errors
++
++
++def check_read() -> None:
++    fixture = load_json(FIXTURE_DIR / "project-a-read.json")
++    if not isinstance(fixture, dict):
++        fail("read fixture is not an object")
++    expected = classify_read(CALLER, CALLER)
++    if expected is None or fixture != expected:
++        fail(f"project A read failed: {read_errors(fixture)}")
++    if read_errors(fixture):
++        fail(f"project A read failed: {read_errors(fixture)}")
++    other = {"caller": CALLER, "project_id": OTHER}
++    if "other" not in read_errors(other):
++        fail("a read of project_b was accepted")
++    if classify_read(CALLER, OTHER) is not None:
++        fail("project_b classified as a kept read")
++    with_org = {
++        "caller": CALLER,
++        "project_id": CALLER,
++        "organization_id": "synthetic_org",
++    }
++    if "organization_id" not in read_errors(with_org):
++        fail("a row that contains organization_id was accepted")
++    print("OK: project A record may be read")
++    print("OK: project B record is refused")
++    print("OK: organization_id is refused")
++
++
++def main() -> int:
++    check_read()
++    print("product spend 0.00 USD")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
