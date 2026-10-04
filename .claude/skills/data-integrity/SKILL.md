@@ -23,12 +23,12 @@ Required fields (03-PRODUCTION-CONTRACTS "Evidence and fidelity"): `record_id, p
 
 ## Vocabulary (use exactly)
 
-| Field | Values |
-| --- | --- |
-| `fidelity_label` | `observed`, `computed`, `assessed`, `attested`, `user_supplied`, `estimated`, `unavailable` |
-| `integrity_state` | `not_supplied`, `supplied_invalid`, `missing_field`, `measured_zero`, `filter_empty`, `valid`, `stale`, `error`, `not_applicable` |
-| `evidence_state` (user-facing) | `verified`, `inferred`, `client_stated`, `estimated`, `not_verified`, `unavailable` |
-| `rule_result` | `pass` (1.00), `partial` (0.50), `fail` (0.00), `not_applicable`, `unavailable`, `error` |
+| Field                          | Values                                                                                                                            |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `fidelity_label`               | `observed`, `computed`, `assessed`, `attested`, `user_supplied`, `estimated`, `unavailable`                                       |
+| `integrity_state`              | `not_supplied`, `supplied_invalid`, `missing_field`, `measured_zero`, `filter_empty`, `valid`, `stale`, `error`, `not_applicable` |
+| `evidence_state` (user-facing) | `verified`, `inferred`, `client_stated`, `estimated`, `not_verified`, `unavailable`                                               |
+| `rule_result`                  | `pass` (1.00), `partial` (0.50), `fail` (0.00), `not_applicable`, `unavailable`, `error`                                          |
 
 Mapping: observed and computed → `verified`; assessed → `inferred`; attested and user_supplied → `client_stated`; estimated → `estimated`; unavailable → `unavailable`; a check that could not complete → `not_verified`. Keep the original label; the mapping never erases it (01-PRODUCT-REQUIREMENTS §16).
 

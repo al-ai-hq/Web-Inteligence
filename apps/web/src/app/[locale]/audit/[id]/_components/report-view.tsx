@@ -33,7 +33,7 @@ function findingDetail(finding: StoredFinding): string | undefined {
   return firstString(finding.data, ["recommendation", "description", "detail"]);
 }
 
-type AuditRecordWithReport = AuditRecord & { report: StoredReportEnvelope };
+type AuditRecordWithReport = Omit<AuditRecord, "secret_hash"> & { report: StoredReportEnvelope };
 
 export async function ReportView({
   record,

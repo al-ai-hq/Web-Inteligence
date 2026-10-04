@@ -424,14 +424,14 @@ Exit: fixtures prove no cross-source backlink totals, no automated disavow, no p
 
 Every change moves through the same artifact chain. Each stage commits a file the next stage reads, and a named human approves at each gate (AI-Native SDLC Playbook, supplied by the owner).
 
-| Stage | Artifact committed | Human gate | Starts the next stage |
-| --- | --- | --- | --- |
-| Plan | `intent/<id>/intent.md` | Product owner accepts it | Accepted intent starts design |
-| Design | `intent/<id>/spec.md` | Product owner signs off; flagged concerns go to the named policy owner | Approved spec starts plan mode |
-| Build | `intent/<id>/plan.md`, code and tests | An engineer approves every plan; a code owner approves the PR, never the agent that wrote it | Merged PR starts the pipeline |
-| Test | Test output in the PR; eval results in the check run | Merge check on the eval pass rate | Green checks allow merge |
-| Deploy | Release record `intent/<id>/release.md` | Release manager authorizes production | Deploy starts monitoring |
-| Maintain | `lessons/*.md` and a new intent | Service owner triages | A breach or ticket writes the next intent |
+| Stage    | Artifact committed                                   | Human gate                                                                                   | Starts the next stage                     |
+| -------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| Plan     | `intent/<id>/intent.md`                              | Product owner accepts it                                                                     | Accepted intent starts design             |
+| Design   | `intent/<id>/spec.md`                                | Product owner signs off; flagged concerns go to the named policy owner                       | Approved spec starts plan mode            |
+| Build    | `intent/<id>/plan.md`, code and tests                | An engineer approves every plan; a code owner approves the PR, never the agent that wrote it | Merged PR starts the pipeline             |
+| Test     | Test output in the PR; eval results in the check run | Merge check on the eval pass rate                                                            | Green checks allow merge                  |
+| Deploy   | Release record `intent/<id>/release.md`              | Release manager authorizes production                                                        | Deploy starts monitoring                  |
+| Maintain | `lessons/*.md` and a new intent                      | Service owner triages                                                                        | A breach or ticket writes the next intent |
 
 Auto mode is for routine work once hooks and tests are in place: UI copy, rule fixtures, docs and non-security refactors. Never use it for connector write paths, auth, project isolation, SSRF, the cost guard or infrastructure.
 
@@ -465,26 +465,26 @@ Exit: the SEO lead signs off the corrected reports as the eval baseline.
 
 One intent per milestone to start; large milestones split into several intents during design.
 
-| Intent | Milestone | Scope summary | Main spec sections | Exit gate |
-| --- | --- | --- | --- | --- |
-| INT-00 | M0A | Repository and governance bootstrap | 01 §15; this plan §11 | §11 M0A exit |
-| INT-01 | M0B | Contracts, threat model, IAM, cost proof | 03; `schemas/`; `docs/threat-model.md`; `docs/cost-model.md` | §11 M0B exit |
-| INT-02 | M1 | Secure crawler and evidence capture | 01 §8; 02 §5, §12, §17 | §5 M1 exit |
-| INT-03 | M2 | Integrity and Presence Readiness | 02 §6, §15; `config/rules/`, `config/scoring.yaml` | §5 M2 exit |
-| INT-04 | M3 | Reports, comparison, action board | 01 §5.0, §5.4, §5.12; 02 §8 | §5 M3 exit |
-| INT-05 | M4 | Keywords, Search Console, GA4, minimal registration | 02 §7, §13 | §5 M4 exit |
-| INT-06 | M5 | Experience Effectiveness | 01 §5.3; `docs/rubrics/experience-effectiveness.md` | §5 M5 exit |
-| INT-07 | M6 | AI visibility laboratory | 01 §5.8; 02 §6, §18; `config/prompt-panels/` | §5 M6 exit |
-| INT-08 | M7 | Public footprint, entity graph, brand truth | 01 §5.9, §5.10 | §5 M7 exit |
-| INT-09 | M8 | Content and schema studio | 02 §9 | §5 M8 exit |
-| INT-10 | M8A | Commerce, local, entity, platform packs | 01 §16 | §10 M8A exit |
-| INT-11 | M8B | Migration control plane | 01 §16 | §10 M8B exit |
-| INT-12 | M8C | Architecture, backlinks, scaled content, change monitoring | 01 §17 | §11 M8C exit |
-| INT-13 | M9 | First safe connector and impact ledger | 02 §10; `config/connectors/` | §5 M9 exit |
-| INT-14 | M10 | Monitoring and automation | 02 §11 | §5 M10 exit |
-| INT-15 | M11 | Agency platform and advanced tenancy | 01 §5.16 | §5 M11 exit |
-| INT-16 | M12 | Public gallery, benchmarks, tones | 01 §5.17, §5.18 | §5 M12 exit |
-| INT-17 | M13 | Controlled production launch | 01 §12, §15 | §5 M13 exit |
+| Intent | Milestone | Scope summary                                              | Main spec sections                                           | Exit gate    |
+| ------ | --------- | ---------------------------------------------------------- | ------------------------------------------------------------ | ------------ |
+| INT-00 | M0A       | Repository and governance bootstrap                        | 01 §15; this plan §11                                        | §11 M0A exit |
+| INT-01 | M0B       | Contracts, threat model, IAM, cost proof                   | 03; `schemas/`; `docs/threat-model.md`; `docs/cost-model.md` | §11 M0B exit |
+| INT-02 | M1        | Secure crawler and evidence capture                        | 01 §8; 02 §5, §12, §17                                       | §5 M1 exit   |
+| INT-03 | M2        | Integrity and Presence Readiness                           | 02 §6, §15; `config/rules/`, `config/scoring.yaml`           | §5 M2 exit   |
+| INT-04 | M3        | Reports, comparison, action board                          | 01 §5.0, §5.4, §5.12; 02 §8                                  | §5 M3 exit   |
+| INT-05 | M4        | Keywords, Search Console, GA4, minimal registration        | 02 §7, §13                                                   | §5 M4 exit   |
+| INT-06 | M5        | Experience Effectiveness                                   | 01 §5.3; `docs/rubrics/experience-effectiveness.md`          | §5 M5 exit   |
+| INT-07 | M6        | AI visibility laboratory                                   | 01 §5.8; 02 §6, §18; `config/prompt-panels/`                 | §5 M6 exit   |
+| INT-08 | M7        | Public footprint, entity graph, brand truth                | 01 §5.9, §5.10                                               | §5 M7 exit   |
+| INT-09 | M8        | Content and schema studio                                  | 02 §9                                                        | §5 M8 exit   |
+| INT-10 | M8A       | Commerce, local, entity, platform packs                    | 01 §16                                                       | §10 M8A exit |
+| INT-11 | M8B       | Migration control plane                                    | 01 §16                                                       | §10 M8B exit |
+| INT-12 | M8C       | Architecture, backlinks, scaled content, change monitoring | 01 §17                                                       | §11 M8C exit |
+| INT-13 | M9        | First safe connector and impact ledger                     | 02 §10; `config/connectors/`                                 | §5 M9 exit   |
+| INT-14 | M10       | Monitoring and automation                                  | 02 §11                                                       | §5 M10 exit  |
+| INT-15 | M11       | Agency platform and advanced tenancy                       | 01 §5.16                                                     | §5 M11 exit  |
+| INT-16 | M12       | Public gallery, benchmarks, tones                          | 01 §5.17, §5.18                                              | §5 M12 exit  |
+| INT-17 | M13       | Controlled production launch                               | 01 §12, §15                                                  | §5 M13 exit  |
 
 INT-00 and INT-01 are already drafted in `intent/`.
 
@@ -499,14 +499,14 @@ ASSUMPTION: option 2 for learning, with no public anonymous traffic before M7. E
 
 ## 16. Measures
 
-| Stage | Leading | Lagging |
-| --- | --- | --- |
-| Plan | Time to a committed intent | Share of intents accepted |
-| Design | Time from intent to spec | Spec edits after planning starts |
-| Build | Share merged from the first pass | Rework cycles per change |
-| Test | First-pass CI success | Review time per PR; change failure rate |
-| Deploy | Time to first review; gate wait time | Defects caught before merge versus escaped |
-| Maintain | Breach-to-intent time | Findings merged as fixes; repeat incidents |
+| Stage    | Leading                              | Lagging                                    |
+| -------- | ------------------------------------ | ------------------------------------------ |
+| Plan     | Time to a committed intent           | Share of intents accepted                  |
+| Design   | Time from intent to spec             | Spec edits after planning starts           |
+| Build    | Share merged from the first pass     | Rework cycles per change                   |
+| Test     | First-pass CI success                | Review time per PR; change failure rate    |
+| Deploy   | Time to first review; gate wait time | Defects caught before merge versus escaped |
+| Maintain | Breach-to-intent time                | Findings merged as fixes; repeat incidents |
 
 Do not set targets until pilot evidence exists (01 §13).
 

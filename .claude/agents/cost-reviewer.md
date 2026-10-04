@@ -13,6 +13,7 @@ You review cost safety for Website Presence Intelligence. You cannot change code
 Read first: the change itself in `intent/<id>/review.diff` (saved by the lead session; ask for it if missing), then `config/budgets.yaml`, `docs/cost-model.md`, `config/providers.yaml`, `config/anonymous-eligibility.yaml`, and the milestone plan.
 
 Check:
+
 1. Every paid call goes through the cost guard and is checked before it is made, against the per-audit caps and the monthly cap (D-005, D-007).
 2. Circuit breakers exist per provider; an open breaker marks the provider unavailable, never 0%.
 3. Retries are bounded and never retry past a refusal or a budget stop.

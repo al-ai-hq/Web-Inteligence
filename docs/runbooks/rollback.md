@@ -17,15 +17,15 @@ a release. For client-site changes use `docs/runbooks/connector-mismatch.md` ins
 2. If users are being harmed now, first flip the matching kill switch (`docs/rollback-plan.md` §7).
 3. Classify what to roll back:
 
-   | Type | Action |
-   |---|---|
-   | Service revision | Shift 100% of traffic to the previous revision |
-   | Job | Reset the job to the previous image digest |
-   | Configuration | Redeploy the previous config version |
-   | Methodology | Redeploy the previous methodology version (affects new audits only) |
-   | Migration | Run the tested down script if the change is reversible; otherwise apply the forward fix |
+   | Type               | Action                                                                                                               |
+   | ------------------ | -------------------------------------------------------------------------------------------------------------------- |
+   | Service revision   | Shift 100% of traffic to the previous revision                                                                       |
+   | Job                | Reset the job to the previous image digest                                                                           |
+   | Configuration      | Redeploy the previous config version                                                                                 |
+   | Methodology        | Redeploy the previous methodology version (affects new audits only)                                                  |
+   | Migration          | Run the tested down script if the change is reversible; otherwise apply the forward fix                              |
    | Data (last resort) | Point-in-time restore with the incident commander and privacy owner, then re-apply the deletion queue before serving |
-   | Infrastructure | Revert the Terraform commit; plan; apply through the pipeline |
+   | Infrastructure     | Revert the Terraform commit; plan; apply through the pipeline                                                        |
 
 4. Run the smoke checks from `docs/runbooks/deploy.md` step 9 against the restored state.
 5. Watch metrics until they return to their bands.

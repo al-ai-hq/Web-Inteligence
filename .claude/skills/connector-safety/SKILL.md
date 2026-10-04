@@ -33,12 +33,12 @@ The first CMS or Git connector is an open decision (D-011): write `<DECIDE_AT_M0
 
 From 02 §10 and 03 "Change risk baseline". Tiers are versioned policy and need calibration before production.
 
-| Tier | Examples | Approval | Rollout |
-| --- | --- | --- | --- |
-| 1 | Meta description, image alt text, Open Graph tags | One approver | Canary of 1-2 pages, read back, then bounded batches (ASSUMPTION: up to 25 pages) |
-| 2 | Title, H1, JSON-LD, internal links, content blocks on existing pages | One approver after per-page diff review | Page by page |
-| 3 | robots.txt, meta robots/noindex, canonical, redirects, hreflang, sitemap, slugs, templates or theme code, site-wide rules | Two approvers; the requester cannot approve | Staging or pull request, one change at a time, in a change window |
-| forbidden | Deleting pages, new pages without a named human author, fabricated reviews, ratings or claims, hidden text, cloaking, link schemes, writes outside the approved target, hash or expiry | Never | Never |
+| Tier      | Examples                                                                                                                                                                               | Approval                                    | Rollout                                                                           |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------- |
+| 1         | Meta description, image alt text, Open Graph tags                                                                                                                                      | One approver                                | Canary of 1-2 pages, read back, then bounded batches (ASSUMPTION: up to 25 pages) |
+| 2         | Title, H1, JSON-LD, internal links, content blocks on existing pages                                                                                                                   | One approver after per-page diff review     | Page by page                                                                      |
+| 3         | robots.txt, meta robots/noindex, canonical, redirects, hreflang, sitemap, slugs, templates or theme code, site-wide rules                                                              | Two approvers; the requester cannot approve | Staging or pull request, one change at a time, in a change window                 |
+| forbidden | Deleting pages, new pages without a named human author, fabricated reviews, ratings or claims, hidden text, cloaking, link schemes, writes outside the approved target, hash or expiry | Never                                       | Never                                                                             |
 
 ## Change lifecycle
 

@@ -19,14 +19,14 @@ validation fails; a conflict is detected; or the verifier requests rollback.
    keys and platform responses.
 3. **Classify.**
 
-   | Case | What it means | Action |
-   |---|---|---|
-   | Not applied | The write failed | No rollback. Retry only with the same idempotency key and an unexpired approval, if the plan allows |
-   | Partially applied | Some operations in a batch succeeded | Handle each operation on its own |
-   | Transformed by the platform | Applied, but the platform changed it (sanitizing, truncating, encoding) | No automatic rollback. Human review; update the connector capability record |
-   | Changed by someone else | The live value differs from what we applied and from the snapshot | Conflict. Never overwrite. Human review with the site owner |
-   | Not yet public | Stored in the CMS but the public page differs (draft, cache, template binding) | No rollback. Check publish state and caches; keep "live on site" separate from "seen by Google" (02 §10) |
-   | Wrong value applied | Our change was wrong | Roll back under `docs/rollback-plan.md` §6 |
+   | Case                        | What it means                                                                  | Action                                                                                                   |
+   | --------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+   | Not applied                 | The write failed                                                               | No rollback. Retry only with the same idempotency key and an unexpired approval, if the plan allows      |
+   | Partially applied           | Some operations in a batch succeeded                                           | Handle each operation on its own                                                                         |
+   | Transformed by the platform | Applied, but the platform changed it (sanitizing, truncating, encoding)        | No automatic rollback. Human review; update the connector capability record                              |
+   | Changed by someone else     | The live value differs from what we applied and from the snapshot              | Conflict. Never overwrite. Human review with the site owner                                              |
+   | Not yet public              | Stored in the CMS but the public page differs (draft, cache, template binding) | No rollback. Check publish state and caches; keep "live on site" separate from "seen by Google" (02 §10) |
+   | Wrong value applied         | Our change was wrong                                                           | Roll back under `docs/rollback-plan.md` §6                                                               |
 
 4. **Decide.** Automatic rollback only when all five conditions in `docs/rollback-plan.md` §6
    hold. Otherwise the approver decides. Tier 3 always needs a human decision.

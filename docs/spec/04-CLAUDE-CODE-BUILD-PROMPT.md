@@ -42,24 +42,24 @@ Do not treat this prompt as permission to deploy, spend, crawl unrelated sites, 
 
 Use the following target unless an approved architecture decision changes it:
 
-| Capability | Google Cloud service |
-|---|---|
-| Next.js frontend and API | Cloud Run |
-| Isolated crawl/render workers | Cloud Run Jobs |
-| Asynchronous dispatch | Cloud Tasks and Pub/Sub where justified |
-| Durable orchestration | Workflows |
-| PostgreSQL | Cloud SQL for PostgreSQL |
-| Report/evidence objects | Cloud Storage |
-| AI and grounded generation | Vertex AI, plus approved external providers |
-| Secrets | Secret Manager |
-| Edge protection | External Application Load Balancer and Cloud Armor |
-| Administrative access | IAP where supported and appropriate |
-| Identity | Identity Platform or approved identity provider |
-| Scheduling | Cloud Scheduler |
-| Observability | Cloud Logging, Monitoring, Trace, Error Reporting |
-| Key management | Cloud KMS where customer-managed keys are required |
-| Data loss controls | Sensitive Data Protection where applicable |
-| Budget controls | Cloud Billing budgets plus application circuit breakers |
+| Capability                    | Google Cloud service                                    |
+| ----------------------------- | ------------------------------------------------------- |
+| Next.js frontend and API      | Cloud Run                                               |
+| Isolated crawl/render workers | Cloud Run Jobs                                          |
+| Asynchronous dispatch         | Cloud Tasks and Pub/Sub where justified                 |
+| Durable orchestration         | Workflows                                               |
+| PostgreSQL                    | Cloud SQL for PostgreSQL                                |
+| Report/evidence objects       | Cloud Storage                                           |
+| AI and grounded generation    | Vertex AI, plus approved external providers             |
+| Secrets                       | Secret Manager                                          |
+| Edge protection               | External Application Load Balancer and Cloud Armor      |
+| Administrative access         | IAP where supported and appropriate                     |
+| Identity                      | Identity Platform or approved identity provider         |
+| Scheduling                    | Cloud Scheduler                                         |
+| Observability                 | Cloud Logging, Monitoring, Trace, Error Reporting       |
+| Key management                | Cloud KMS where customer-managed keys are required      |
+| Data loss controls            | Sensitive Data Protection where applicable              |
+| Budget controls               | Cloud Billing budgets plus application circuit breakers |
 
 Keep third-party model providers behind a typed provider gateway. The system must remain useful when every generative provider is unavailable.
 

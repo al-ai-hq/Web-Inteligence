@@ -72,14 +72,15 @@ export default async function AuditPage({
     );
   }
 
-  const report = outcome.record.report;
+  const { secret_hash, ...safeRecord } = outcome.record;
+  const report = safeRecord.report;
   if (view.kind === "running" || report === null) {
     return <StatusPoller auditId={id} secret={s ?? ""} />;
   }
 
   return (
     <ReportView
-      record={{ ...outcome.record, report }}
+      record={{ ...safeRecord, report }}
       locale={locale}
       secret={s ?? ""}
     />

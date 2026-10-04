@@ -30,19 +30,19 @@ Sizes are configuration (D-006). Values below mirror `config/anonymous-eligibili
 (version 0.1.0-draft) and are ASSUMPTIONS until the M0B cost proof (`docs/cost-model.md` §7)
 confirms them. Rows the config does not yet hold are marked "proposed".
 
-| | `rich` | `reduced` | `preview` | `refused` |
-|---|---|---|---|---|
-| When | First audit in this browser, low risk, budget normal | Second audit in this browser, or rich downgraded by risk or budget | Later audits in this browser, or reduced downgraded | Unsafe target, active abuse, or intake closed by a global breaker |
-| Crawl scope | Up to 20 representative pages (D-006) | ASSUMPTION: up to 10 representative pages (half the rich default) | ASSUMPTION: 1 page, the quick single-page mode (04 §5) | None |
-| Presence Readiness | Yes, with coverage and confidence | Yes, with coverage and confidence | Yes, shown with low confidence and "checked X of Y" | No |
-| Experience Effectiveness | Yes, `assessed`, with confidence | No (ASSUMPTION: omitted to control cost) | No | No |
-| Performance, accessibility, public-footprint and template findings | Yes | Yes | No | No |
-| Comparison | One equivalent competitor or dual-URL comparison (01 §5.0) | No (ASSUMPTION) | No | No |
-| AI observations | 8 prompts x configured providers x 1 run, shown as counts (D-006; `config/prompt-panels/free-panel.yaml`) | No new observations (ASSUMPTION); valid recent observations for the same domain may be shown with their original capture time | None | None |
-| Action board and roadmap | 8-12 evidence-linked actions and a preliminary 30/60/90 roadmap | 8-12 actions and a preliminary roadmap | ASSUMPTION: up to 3 top actions, no roadmap | None |
-| Paid-call cap per audit (proposed) | Soft USD 3.00, hard USD 4.00 (D-007) | USD 0 for AI observations; any other paid call `<DECIDE_AT_M0B>` | USD 0 (ASSUMPTION) | USD 0 |
-| Retention | 7 days maximum (D-002) | 7 days maximum | 7 days maximum | No audit is created; only counters |
-| Exports | None | None | None | n/a |
+|                                                                    | `rich`                                                                                                    | `reduced`                                                                                                                     | `preview`                                              | `refused`                                                         |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------- |
+| When                                                               | First audit in this browser, low risk, budget normal                                                      | Second audit in this browser, or rich downgraded by risk or budget                                                            | Later audits in this browser, or reduced downgraded    | Unsafe target, active abuse, or intake closed by a global breaker |
+| Crawl scope                                                        | Up to 20 representative pages (D-006)                                                                     | ASSUMPTION: up to 10 representative pages (half the rich default)                                                             | ASSUMPTION: 1 page, the quick single-page mode (04 §5) | None                                                              |
+| Presence Readiness                                                 | Yes, with coverage and confidence                                                                         | Yes, with coverage and confidence                                                                                             | Yes, shown with low confidence and "checked X of Y"    | No                                                                |
+| Experience Effectiveness                                           | Yes, `assessed`, with confidence                                                                          | No (ASSUMPTION: omitted to control cost)                                                                                      | No                                                     | No                                                                |
+| Performance, accessibility, public-footprint and template findings | Yes                                                                                                       | Yes                                                                                                                           | No                                                     | No                                                                |
+| Comparison                                                         | One equivalent competitor or dual-URL comparison (01 §5.0)                                                | No (ASSUMPTION)                                                                                                               | No                                                     | No                                                                |
+| AI observations                                                    | 8 prompts x configured providers x 1 run, shown as counts (D-006; `config/prompt-panels/free-panel.yaml`) | No new observations (ASSUMPTION); valid recent observations for the same domain may be shown with their original capture time | None                                                   | None                                                              |
+| Action board and roadmap                                           | 8-12 evidence-linked actions and a preliminary 30/60/90 roadmap                                           | 8-12 actions and a preliminary roadmap                                                                                        | ASSUMPTION: up to 3 top actions, no roadmap            | None                                                              |
+| Paid-call cap per audit (proposed)                                 | Soft USD 3.00, hard USD 4.00 (D-007)                                                                      | USD 0 for AI observations; any other paid call `<DECIDE_AT_M0B>`                                                              | USD 0 (ASSUMPTION)                                     | USD 0                                                             |
+| Retention                                                          | 7 days maximum (D-002)                                                                                    | 7 days maximum                                                                                                                | 7 days maximum                                         | No audit is created; only counters                                |
+| Exports                                                            | None                                                                                                      | None                                                                                                                          | None                                                   | n/a                                                               |
 
 Counting window: the cookie lifetime is `<DECIDE_AT_M0>` in `config/retention.yaml`, with legal
 review of whether it counts as essential (v1-baseline §9.9). ASSUMPTION for planning: 30 days.
@@ -56,13 +56,13 @@ AI observations M6, public footprint M7). Until a module is enabled, its section
 
 Only these signals are used. Each is documented, minimal and first-party. Config IDs in brackets.
 
-| ID | Signal | How it is collected | Privacy limits | Used for |
-|---|---|---|---|---|
-| S1 | Signed first-audit cookie (`signed_first_audit_cookie`) | First-party cookie set by our site: version, issue time, counts of rich and reduced audits used, key ID and signature. HttpOnly, Secure, SameSite | Holds counters, not a cross-site identifier. ASSUMPTION: no server-side profile keyed by the cookie. Counsel confirms whether it is strictly necessary (`docs/legal/README.md`) | Promotional tier |
-| S2 | Recent-domain state (`recent_domain_audit_state`) | Keyed hash of the normalized target domain with recent audit times and evidence freshness | No visitor identity attached | Evidence reuse; per-domain rate limit (protects the target site too) |
-| S3 | Request velocity (`request_velocity`) | Counters per keyed hash of the IP address (IPv4) or /64 prefix (IPv6), per domain, and global, over short windows. ASSUMPTION on prefix sizes, decide at M0B | Counters only; security-log retention 30 days (v1-baseline §10) | Escalation to challenge or slower queue |
-| S4 | Automation indicators (`automation_indicators`) | Server-observable request properties, a first-party form token, and the challenge result when a challenge is shown | No client-side fingerprinting scripts | Escalation |
-| S5 | Limited network-risk signals (`limited_network_risk`) | A short documented list, for example edge security signals from Cloud Armor. Exact sources `<DECIDE_AT_M0B>` | Never used alone to refuse | Escalation to challenge |
+| ID  | Signal                                                  | How it is collected                                                                                                                                          | Privacy limits                                                                                                                                                                  | Used for                                                             |
+| --- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| S1  | Signed first-audit cookie (`signed_first_audit_cookie`) | First-party cookie set by our site: version, issue time, counts of rich and reduced audits used, key ID and signature. HttpOnly, Secure, SameSite            | Holds counters, not a cross-site identifier. ASSUMPTION: no server-side profile keyed by the cookie. Counsel confirms whether it is strictly necessary (`docs/legal/README.md`) | Promotional tier                                                     |
+| S2  | Recent-domain state (`recent_domain_audit_state`)       | Keyed hash of the normalized target domain with recent audit times and evidence freshness                                                                    | No visitor identity attached                                                                                                                                                    | Evidence reuse; per-domain rate limit (protects the target site too) |
+| S3  | Request velocity (`request_velocity`)                   | Counters per keyed hash of the IP address (IPv4) or /64 prefix (IPv6), per domain, and global, over short windows. ASSUMPTION on prefix sizes, decide at M0B | Counters only; security-log retention 30 days (v1-baseline §10)                                                                                                                 | Escalation to challenge or slower queue                              |
+| S4  | Automation indicators (`automation_indicators`)         | Server-observable request properties, a first-party form token, and the challenge result when a challenge is shown                                           | No client-side fingerprinting scripts                                                                                                                                           | Escalation                                                           |
+| S5  | Limited network-risk signals (`limited_network_risk`)   | A short documented list, for example edge security signals from Cloud Armor. Exact sources `<DECIDE_AT_M0B>`                                                 | Never used alone to refuse                                                                                                                                                      | Escalation to challenge                                              |
 
 ## 5. Fairness for shared IPs
 
@@ -96,16 +96,16 @@ first-audit eligibility). The order follows `decision_order` in the config.
    rejection, v1-baseline §6.4), or an active abuse block applies. Result: `refused`.
 3. **Global spending breakers** (`docs/cost-model.md` §5, §6). The config fixes only the 100%
    step and leaves the others as `<DECIDE_AT_M0: degradation step at which new anonymous audits
-   are capped at reduced, then preview, then refused>`. The rows below are the proposal
+are capped at reduced, then preview, then refused>`. The rows below are the proposal
    (ASSUMPTION):
 
-   | Budget state | Effect |
-   |---|---|
-   | Normal | No change |
-   | Pressure (forecast 85% or more) | Rich audits drop optional enrichment and repeat observations |
-   | Anonymous daily allowance short, or forecast 95% | Rich becomes reduced (no new AI observations) |
-   | Paid-call budget exhausted | No paid calls in any tier; deterministic audits continue; AI sections read "unavailable: monthly limit" |
-   | Hosting forecast at cap minus reserve | New anonymous intake closes: `refused` with a capacity reason |
+   | Budget state                                     | Effect                                                                                                  |
+   | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+   | Normal                                           | No change                                                                                               |
+   | Pressure (forecast 85% or more)                  | Rich audits drop optional enrichment and repeat observations                                            |
+   | Anonymous daily allowance short, or forecast 95% | Rich becomes reduced (no new AI observations)                                                           |
+   | Paid-call budget exhausted                       | No paid calls in any tier; deterministic audits continue; AI sections read "unavailable: monthly limit" |
+   | Hosting forecast at cap minus reserve            | New anonymous intake closes: `refused` with a capacity reason                                           |
 
 4. **Suspicious request** (S3, S4, S5): challenge first; then slower queue, reduced scope or
    temporary refusal (01 §5.19). IP velocity alone stops at the challenge or slower queue (§5).
@@ -123,16 +123,16 @@ first-audit eligibility). The order follows `decision_order` in the config.
 
 All messages are written natively in Arabic and English, not mechanically mirrored (04 §2). Message intent:
 
-| Situation | The user sees |
-|---|---|
-| `rich` | The full report; a scope line "N representative pages checked out of M found; not full coverage"; AI observations as counts with numerators and denominators; the expiry date; a delete button; no download controls |
-| `reduced` | The report with a banner naming the reason category ("this browser has used its complimentary full audit" or "reduced because of current demand"), what is reduced, and what registration adds (M4+) |
-| `preview` | A short report with the same banner style and a clear statement that this is a preview |
-| Challenge | A short human check with an accessible alternative |
-| Slower queue | Honest queue status; no invented wait times |
-| `refused` | "We cannot start this audit right now", a reason category (unsafe address, temporary limit, service capacity), when to try again, and no blame |
-| Evidence reused | "Some evidence was captured at <time> and reused" |
-| Section not available | The section, marked `unavailable`, with the reason (monthly limit, provider unavailable, not yet available) |
+| Situation             | The user sees                                                                                                                                                                                                        |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rich`                | The full report; a scope line "N representative pages checked out of M found; not full coverage"; AI observations as counts with numerators and denominators; the expiry date; a delete button; no download controls |
+| `reduced`             | The report with a banner naming the reason category ("this browser has used its complimentary full audit" or "reduced because of current demand"), what is reduced, and what registration adds (M4+)                 |
+| `preview`             | A short report with the same banner style and a clear statement that this is a preview                                                                                                                               |
+| Challenge             | A short human check with an accessible alternative                                                                                                                                                                   |
+| Slower queue          | Honest queue status; no invented wait times                                                                                                                                                                          |
+| `refused`             | "We cannot start this audit right now", a reason category (unsafe address, temporary limit, service capacity), when to try again, and no blame                                                                       |
+| Evidence reused       | "Some evidence was captured at <time> and reused"                                                                                                                                                                    |
+| Section not available | The section, marked `unavailable`, with the reason (monthly limit, provider unavailable, not yet available)                                                                                                          |
 
 Screenshots and printing work normally. The product does not block them with
 accessibility-hostile techniques (04 §3.1).
@@ -170,13 +170,13 @@ Still to add before M3 (owner: config owner; tracked as open items):
 
 ## 10. Tests
 
-| Suite | Proves |
-|---|---|
-| TS-ELIG | First, second, later and suspicious pathways; shared-IP fairness; cookie loss; tampered cookie; evidence reuse without visitor-context leakage; challenge escalation and accessible fallback; per-domain limits |
-| TS-COST | Budget states change tiers as §6 says; hard stop; anonymous sub-budget holds under a scripted abuse run |
-| TS-ANON-ACCESS | Unguessable link, signed secret, noindex, 7-day expiry, deletion, claim after registration without ownership |
-| TS-ANON-EXPORT | Every anonymous export attempt is denied server-side |
-| TS-E2E, TS-A11Y-MANUAL | Messages in both languages; challenge alternative is usable by keyboard and screen reader |
+| Suite                  | Proves                                                                                                                                                                                                          |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TS-ELIG                | First, second, later and suspicious pathways; shared-IP fairness; cookie loss; tampered cookie; evidence reuse without visitor-context leakage; challenge escalation and accessible fallback; per-domain limits |
+| TS-COST                | Budget states change tiers as §6 says; hard stop; anonymous sub-budget holds under a scripted abuse run                                                                                                         |
+| TS-ANON-ACCESS         | Unguessable link, signed secret, noindex, 7-day expiry, deletion, claim after registration without ownership                                                                                                    |
+| TS-ANON-EXPORT         | Every anonymous export attempt is denied server-side                                                                                                                                                            |
+| TS-E2E, TS-A11Y-MANUAL | Messages in both languages; challenge alternative is usable by keyboard and screen reader                                                                                                                       |
 
 01 §12 acceptance: "one rich, second reduced, later preview, and suspicious-request pathways
 preserve their defined value and cost controls."

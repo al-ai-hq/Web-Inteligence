@@ -27,18 +27,9 @@
   "recommended": false,
   "brand_url_cited": false,
   "match_confidence": null,
-  "competitors_mentioned": [
-    "Example Studio A",
-    "Example Studio B"
-  ],
-  "cited_urls": [
-    "https://example.org/ar/web-design",
-    "https://example.net/kuwait/agencies"
-  ],
-  "citation_ids": [
-    "af2b4d6e-8a0c-4d2f-9b4d-6e8a0c2f4b79",
-    "b03c5e7f-9b1d-4e3a-8c5e-7f9b1d3a5c80"
-  ],
+  "competitors_mentioned": ["Example Studio A", "Example Studio B"],
+  "cited_urls": ["https://example.org/ar/web-design", "https://example.net/kuwait/agencies"],
+  "citation_ids": ["af2b4d6e-8a0c-4d2f-9b4d-6e8a0c2f4b79", "b03c5e7f-9b1d-4e3a-8c5e-7f9b1d3a5c80"],
   "accuracy_issue_ids": [],
   "injection_suspected": false,
   "analysis_method": "assessed",
@@ -65,9 +56,7 @@
     "methodology_version": "0.1.0",
     "fidelity_label": "observed",
     "content_hash": "sha256:83f07328609faff17c3638d559fa1e0b4979d9fffe25b195d118bb554d51727b",
-    "parent_ids": [
-      "9e1a3c5d-7f9b-4c1e-8a3c-5d7f9b1e3a68"
-    ],
+    "parent_ids": ["9e1a3c5d-7f9b-4c1e-8a3c-5d7f9b1e3a68"],
     "validation_state": "valid"
   }
 }

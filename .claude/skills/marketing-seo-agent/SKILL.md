@@ -13,13 +13,13 @@ Every deliverable is a **report document** that decision-makers can act on. SEO 
 
 Work out which of these jobs the request needs. Most requests combine two or more:
 
-| Job | Typical asks | Read |
-|---|---|---|
-| Site audit | "audit our site", "why isn't this page indexed", "check our hreflang" | `references/site-audit.md` |
-| Keyword & competitor research | "what should we rank for", "keyword list", "who are we competing with on Google" | `references/keyword-research.md` |
-| Content brief & copy | "brief for a new page", "write the service page", "fix our meta titles" | `references/content-briefs.md` |
-| Performance reporting | "why did traffic drop", "monthly SEO report", "what did Google bring us this quarter" | `references/performance-reporting.md` |
-| AI search visibility (AEO / GEO) & agent readiness | "are we showing in ChatGPT / AI Overviews", "why does AI recommend our competitor", "should we block GPTBot", "do we need llms.txt", "can AI agents book on our site" | `references/ai-search-aeo-geo.md` |
+| Job                                                | Typical asks                                                                                                                                                          | Read                                  |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| Site audit                                         | "audit our site", "why isn't this page indexed", "check our hreflang"                                                                                                 | `references/site-audit.md`            |
+| Keyword & competitor research                      | "what should we rank for", "keyword list", "who are we competing with on Google"                                                                                      | `references/keyword-research.md`      |
+| Content brief & copy                               | "brief for a new page", "write the service page", "fix our meta titles"                                                                                               | `references/content-briefs.md`        |
+| Performance reporting                              | "why did traffic drop", "monthly SEO report", "what did Google bring us this quarter"                                                                                 | `references/performance-reporting.md` |
+| AI search visibility (AEO / GEO) & agent readiness | "are we showing in ChatGPT / AI Overviews", "why does AI recommend our competitor", "should we block GPTBot", "do we need llms.txt", "can AI agents book on our site" | `references/ai-search-aeo-geo.md`     |
 
 Read only the references the job needs. When Arabic content or any Arabic-speaking market is involved, also read `references/arabic-market-seo.md`. That covers most requests, because it includes hreflang, RTL, spelling variants and dialect.
 
@@ -51,7 +51,7 @@ Save raw evidence (crawl JSON, cleaned exports, SERP notes) in a working folder,
 Follow the reference for the job. Some principles apply to all of them:
 
 - **Diagnose before prescribing.** A traffic drop could come from indexing, rankings, CTR, seasonality, tracking, or a real change in demand. Work out which one the data supports before recommending fixes.
-- **Separate what you saw from what you infer.** Tag findings as *Verified* (observed in a fetch or export), *Inferred* (a reasonable reading of the evidence), or *Not verified* (you couldn't check it).
+- **Separate what you saw from what you infer.** Tag findings as _Verified_ (observed in a fetch or export), _Inferred_ (a reasonable reading of the evidence), or _Not verified_ (you couldn't check it).
 - **Prioritize by business impact.** A missing alt attribute on a blog image matters far less than a `noindex` on the main service page. Rank each action by impact on business-critical pages, then by effort, then by confidence.
 - **Stay current, and grade your sources.** Google's guidance changes: for example, FAQ rich results were dropped for all sites in May 2026. AI search changes even faster and is full of vendor claims. Check the platforms' own documentation before recommending anything whose status you're unsure of (crawler names, llms.txt, WebMCP, structured data eligibility). Treat vendor studies and "X% citation lift" posts as hypotheses, not facts. `ai-search-aeo-geo.md` explains how to grade sources.
 - **Check cannibalization before changing titles or H1s.** Make sure the change doesn't move a query away from the page that already owns it (`scripts/cannibalization.py`).
@@ -61,7 +61,7 @@ Follow the reference for the job. Some principles apply to all of them:
 
 Use the structure in `references/report-template.md`. Every audit, research task, brief or report ends in a report, including keyword lists and issue lists, which go in as tables. If the user asks a single quick question (for example "how long should a title tag be?"), just answer it. That isn't a deliverable.
 
-1. **Write the report once, as Markdown** (`report.md`), next to the CSVs it draws on. Put findings in Markdown tables. Add charts as ```` ```chart ```` blocks that read those same CSVs, so each chart shows exactly the numbers in the text. `references/report-export.md` has the chart spec, which charts suit which job, and the honesty rules for charts.
+1. **Write the report once, as Markdown** (`report.md`), next to the CSVs it draws on. Put findings in Markdown tables. Add charts as ` ```chart ` blocks that read those same CSVs, so each chart shows exactly the numbers in the text. `references/report-export.md` has the chart spec, which charts suit which job, and the honesty rules for charts.
 2. **Export the HTML page and PDF** with `python scripts/build_report.py report.md --out-dir <folder>`. This produces a self-contained `report.html` (charts, tables, table of contents, light and dark mode, right-to-left for Arabic), `report.pdf` (A4, page numbers) and a PNG of each chart. Render a few PDF pages to images and look at them before sending.
 3. **Create the report document** as well:
    - If the environment offers a native document artifact (such as a Docs type), create the report there. Otherwise build a `.docx` (following the docx skill if one is available).
@@ -70,6 +70,7 @@ Use the structure in `references/report-template.md`. Every audit, research task
 4. **Deliver all three versions**: the document, the HTML page and the PDF. Skip a version only if the user asks for fewer. The HTML page is a file to share; publish it as a hosted page only if the user asks for a link.
 
 How to write it:
+
 - Write in the language the user used to make the request. In Arabic reports, keep technical terms, platform names, code and URLs in English. Arabic examples (titles, meta descriptions, headings) stay in Arabic in every report.
 - Put the conclusion first. The summary must still make sense to a marketing director who reads nothing else. A KPI row at the top helps, when real headline numbers exist.
 - If a table would run past about 40 rows, keep the prioritized top rows in the report and attach the full list as a CSV.
@@ -77,6 +78,7 @@ How to write it:
 ## Step 5: Check before delivering
 
 Before sending the report, confirm all of these:
+
 - Every metric in the report exists in a source file or fetch, and matches it after rounding. Recompute the headline numbers from the saved files with a script instead of reading them back by eye.
 - Money uses the right decimals everywhere, including approximate figures in prose: KWD, JOD and BHD take 3 decimals; SAR, QAR and AED take 2.
 - AI-visibility claims are backed by real observations: Search Console's Generative AI report (impressions in Google's AI features), an observed prompt panel, or a tool export. Readiness checks alone never support a claim about presence in AI answers.

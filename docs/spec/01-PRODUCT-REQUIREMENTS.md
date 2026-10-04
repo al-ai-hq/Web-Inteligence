@@ -546,20 +546,20 @@ These requirements incorporate the 30 September 2026 skill release. They supplem
 
 This document states what the product must do. `02-DETAILED-SPECIFICATION.md` states how, where this document is silent. Where they differ, this document wins (D-001).
 
-| Topic | Requirements here | Implementation detail |
-| --- | --- | --- |
-| Scoring method and audit rules | §5.2; §8 "Scoring" | 02 §6 |
-| Keyword and rank intelligence | §5.6; §5.7 | 02 §7 |
-| Optimization plan and action board | §5.12 | 02 §8 |
-| Content briefs and drafts | §5.11; §8 "Content" | 02 §9 |
-| Correction engine and connectors | §5.13; §8 "Changes" | 02 §10 |
-| Automations and workflows | §5.15 | 02 §11 |
-| Google Cloud architecture | §10 | 02 §12 |
-| Runtime agents, skills and guardrails | §15 "Adopted" | 02 §13 |
-| Data integrity and fidelity | §8 "Evidence and methodology"; §15 | 02 §15 |
-| Data requirements and retention | §7; §9 | 02 §16 |
-| Security, privacy and compliance | §9 | 02 §17 |
-| Cost controls and circuit breakers | §5.19; §9 | 02 §18 |
+| Topic                                 | Requirements here                  | Implementation detail |
+| ------------------------------------- | ---------------------------------- | --------------------- |
+| Scoring method and audit rules        | §5.2; §8 "Scoring"                 | 02 §6                 |
+| Keyword and rank intelligence         | §5.6; §5.7                         | 02 §7                 |
+| Optimization plan and action board    | §5.12                              | 02 §8                 |
+| Content briefs and drafts             | §5.11; §8 "Content"                | 02 §9                 |
+| Correction engine and connectors      | §5.13; §8 "Changes"                | 02 §10                |
+| Automations and workflows             | §5.15                              | 02 §11                |
+| Google Cloud architecture             | §10                                | 02 §12                |
+| Runtime agents, skills and guardrails | §15 "Adopted"                      | 02 §13                |
+| Data integrity and fidelity           | §8 "Evidence and methodology"; §15 | 02 §15                |
+| Data requirements and retention       | §7; §9                             | 02 §16                |
+| Security, privacy and compliance      | §9                                 | 02 §17                |
+| Cost controls and circuit breakers    | §5.19; §9                          | 02 §18                |
 
 Machine-readable and supporting artifacts:
 
@@ -572,17 +572,17 @@ Machine-readable and supporting artifacts:
 
 Source: V4 `PRODUCT_REQUIREMENTS_V4_CLAUDE_CODE.md`. All text not listed below is unchanged.
 
-| # | Where | Change | Reason |
-| --- | --- | --- | --- |
-| 1 | Title | "Website Presence Intelligence V4 — Final Production Product Requirements (Claude Code Build)" → "Website Presence Intelligence — Product Requirements (V5 start-ready, based on V4)" | V5 repository naming |
-| 2 | Header | Added the line "V5 adaptation status: draft for review". The V4 version and status lines are kept | Writing rules: mark unreviewed edits |
-| 3 | Header | Added the authority note and pointers to 02, 03, 05 and 09 | D-001 |
-| 4 | §9 | "USD 150 monthly application budget until revised." kept, followed by: one hard cap covering Google Cloud hosting plus paid AI-model and data-provider calls (ASSUMPTION: owner to confirm), tracked as separate lines, see `docs/cost-model.md` | D-005 |
-| 5 | §14 | "Exceptions to retention and USD 150 budget." kept, followed by the same budget-scope sentence and pointer | D-005 |
-| 6 | Section order | "16. V4 production closure" renumbered to 15. Its position (after §14) and text are unchanged | Numbers run 1 to 17 in order |
-| 7 | Section order | "15. Latest marketing SEO skill integration requirements" renumbered to 16 and moved from the end of the file to sit between §15 and §17. Text unchanged | Numbers run 1 to 17 in order |
-| 8 | Section order | "17. Latest reference expansion" keeps its number; it is now the last V4 section. Text unchanged | Numbers run 1 to 17 in order |
-| 9 | Internal references | None needed updating. The V4 text has no numbered cross-references; "the ... rules above" in §16 still points to earlier sections | Checked |
-| 10 | Leftover wording | No leftover "V2" wording and no reference to the other V4 build package found in the V4 source. "V3" in §15 is kept because it names the preserved V3 decisions | Checked |
-| 11 | New §18 | Added "Where the detail lives" | Navigation for Claude Code |
-| 12 | New section | Added this "Changes from V4" list | Traceability |
+| #   | Where               | Change                                                                                                                                                                                                                                           | Reason                               |
+| --- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
+| 1   | Title               | "Website Presence Intelligence V4 — Final Production Product Requirements (Claude Code Build)" → "Website Presence Intelligence — Product Requirements (V5 start-ready, based on V4)"                                                            | V5 repository naming                 |
+| 2   | Header              | Added the line "V5 adaptation status: draft for review". The V4 version and status lines are kept                                                                                                                                                | Writing rules: mark unreviewed edits |
+| 3   | Header              | Added the authority note and pointers to 02, 03, 05 and 09                                                                                                                                                                                       | D-001                                |
+| 4   | §9                  | "USD 150 monthly application budget until revised." kept, followed by: one hard cap covering Google Cloud hosting plus paid AI-model and data-provider calls (ASSUMPTION: owner to confirm), tracked as separate lines, see `docs/cost-model.md` | D-005                                |
+| 5   | §14                 | "Exceptions to retention and USD 150 budget." kept, followed by the same budget-scope sentence and pointer                                                                                                                                       | D-005                                |
+| 6   | Section order       | "16. V4 production closure" renumbered to 15. Its position (after §14) and text are unchanged                                                                                                                                                    | Numbers run 1 to 17 in order         |
+| 7   | Section order       | "15. Latest marketing SEO skill integration requirements" renumbered to 16 and moved from the end of the file to sit between §15 and §17. Text unchanged                                                                                         | Numbers run 1 to 17 in order         |
+| 8   | Section order       | "17. Latest reference expansion" keeps its number; it is now the last V4 section. Text unchanged                                                                                                                                                 | Numbers run 1 to 17 in order         |
+| 9   | Internal references | None needed updating. The V4 text has no numbered cross-references; "the ... rules above" in §16 still points to earlier sections                                                                                                                | Checked                              |
+| 10  | Leftover wording    | No leftover "V2" wording and no reference to the other V4 build package found in the V4 source. "V3" in §15 is kept because it names the preserved V3 decisions                                                                                  | Checked                              |
+| 11  | New §18             | Added "Where the detail lives"                                                                                                                                                                                                                   | Navigation for Claude Code           |
+| 12  | New section         | Added this "Changes from V4" list                                                                                                                                                                                                                | Traceability                         |

@@ -13,6 +13,7 @@ You keep the registers in `docs/` current for Website Presence Intelligence.
 Files: `docs/decisions.md`, `docs/assumptions.md`, `docs/open-items.md`, `docs/sources.md`.
 
 Rules:
+
 - Append entries using each file's existing format and next ID. Never delete or rewrite earlier entries; mark them superseded instead.
 - Record only what the phase report, spec or plan states. Do not add your own conclusions.
 - Every source entry has a URL or repository path and the date it was checked.

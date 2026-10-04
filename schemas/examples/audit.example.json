@@ -6,9 +6,7 @@
   "owner_user_id": null,
   "mode": "representative_template",
   "target_url": "https://example.com/ar/",
-  "comparison_target_urls": [
-    "https://example.org/ar/"
-  ],
+  "comparison_target_urls": ["https://example.org/ar/"],
   "audit_tier": "rich",
   "status": "READY_COMPLETE",
   "anonymous_access_state": "ACTIVE",

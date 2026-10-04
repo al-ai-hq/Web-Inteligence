@@ -7,16 +7,16 @@ Artifact chain (05-PROJECT-PLAN section 1):
 intent.md -> spec.md -> plan.md -> code/tests/evals -> review -> release.md -> lessons -> new intent
 -->
 
-| Field | Value |
-| --- | --- |
-| ID | INT-<nn> |
-| Status | draft |
-| Author (originator) | <name and role> |
-| Product owner | <DECIDE_AT_M0: name> |
-| Milestone | <M0A, M0B, M1, ...> |
-| Ticket | <tracker ID, or "none"> |
-| Created | <YYYY-MM-DD> |
-| Risk class | <standard, or high-risk: connector write paths, auth, tenant isolation, SSRF, cost guard, rule weights, production infrastructure> |
+| Field               | Value                                                                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| ID                  | INT-<nn>                                                                                                                           |
+| Status              | draft                                                                                                                              |
+| Author (originator) | <name and role>                                                                                                                    |
+| Product owner       | <DECIDE_AT_M0: name>                                                                                                               |
+| Milestone           | <M0A, M0B, M1, ...>                                                                                                                |
+| Ticket              | <tracker ID, or "none">                                                                                                            |
+| Created             | <YYYY-MM-DD>                                                                                                                       |
+| Risk class          | <standard, or high-risk: connector write paths, auth, tenant isolation, SSRF, cost guard, rule weights, production infrastructure> |
 
 Status values: `draft`, `accepted`, `rejected`, `superseded`. The product owner accepts an intent by merging it or by recording acceptance in the pull request. Claude Code never sets `accepted`.
 

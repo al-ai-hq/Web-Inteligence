@@ -8,16 +8,16 @@ strategist and fixer read it for drafted copy (02-DETAILED-SPECIFICATION §9,
 guessing.
 -->
 
-| Field | Value |
-| --- | --- |
-| Project / site | <project_id> / <site URL> |
-| Language | `en` or a regional tag such as `en-SA` (BCP 47) |
-| Markets | <ISO 3166-1 alpha-2 codes, or `global`> |
-| Owner (client) | <name, role> |
-| Localization reviewer | <name> |
-| Version | 0.1.0 |
-| Approved on | <YYYY-MM-DD> |
-| Review date | <YYYY-MM-DD> |
+| Field                 | Value                                           |
+| --------------------- | ----------------------------------------------- |
+| Project / site        | <project_id> / <site URL>                       |
+| Language              | `en` or a regional tag such as `en-SA` (BCP 47) |
+| Markets               | <ISO 3166-1 alpha-2 codes, or `global`>         |
+| Owner (client)        | <name, role>                                    |
+| Localization reviewer | <name>                                          |
+| Version               | 0.1.0                                           |
+| Approved on           | <YYYY-MM-DD>                                    |
+| Review date           | <YYYY-MM-DD>                                    |
 
 ## Brand voice
 
@@ -37,9 +37,9 @@ guessing.
 
 ## Terminology
 
-| Preferred term | Do not use | Notes |
-| --- | --- | --- |
-| <term> | <avoided term> | <context> |
+| Preferred term | Do not use     | Notes     |
+| -------------- | -------------- | --------- |
+| <term>         | <avoided term> | <context> |
 
 ## Brand and product names
 

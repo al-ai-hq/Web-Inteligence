@@ -16,7 +16,8 @@ connector_id: webflow
 display_name: "Webflow"
 status: candidate
 milestone: M9
-reference_urls: ["https://developers.webflow.com/data/reference/pages-and-components/pages/update-page-settings"]
+reference_urls:
+  ["https://developers.webflow.com/data/reference/pages-and-components/pages/update-page-settings"]
 
 auth:
   method: oauth
@@ -83,7 +84,8 @@ publish_rules:
   site_publish_scope_warning: "A site publish pushes all staged changes, including other people's, so staged changes are checked first (02-DETAILED-SPECIFICATION §10; policy fact pf-webflow-site-publish-scope)."
   pre_publish_check: "List every staged change on the site; publish only when the staged set equals the approved set, otherwise stop for human review."
   rule: "Edit approval is not publish approval (01-PRODUCT-REQUIREMENTS §5.13)."
-  approval_binding: [target, field, before_hash, after_hash, environment, edit_or_publish_mode, approver, expiry]
+  approval_binding:
+    [target, field, before_hash, after_hash, environment, edit_or_publish_mode, approver, expiry]
 
 rollout:
   tier_1: "Canary of 1-2 pages, read back, then batches of up to 25 pages (ASSUMPTION in 02-DETAILED-SPECIFICATION §10)."
@@ -109,4 +111,20 @@ rate_limits:
 
 contract_tests:
   sandbox: "A Webflow test site (02-DETAILED-SPECIFICATION §19)."
-  scenarios: [stale_state, conflict, replay, wrong_tenant, denial, partial_failure, read_back_mismatch, slug_redirect, rollback, foreign_staged_changes, timeout_mid_write, token_revoked_mid_run, rate_limited, publish_fails_after_write]
+  scenarios:
+    [
+      stale_state,
+      conflict,
+      replay,
+      wrong_tenant,
+      denial,
+      partial_failure,
+      read_back_mismatch,
+      slug_redirect,
+      rollback,
+      foreign_staged_changes,
+      timeout_mid_write,
+      token_revoked_mid_run,
+      rate_limited,
+      publish_fails_after_write,
+    ]

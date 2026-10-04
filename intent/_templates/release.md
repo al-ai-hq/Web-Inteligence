@@ -7,15 +7,15 @@ Template. Save as intent/<ID>-<slug>/release.md. Fields follow
 its own release (05-PROJECT-PLAN section 8).
 -->
 
-| Field | Value |
-| --- | --- |
-| Intent / spec / plan | `intent/<ID>-<slug>/` |
-| Milestone | <M0A, M0B, ...> |
-| Status | draft |
-| Environment | <dev, staging, prod> |
-| Release approver | <DECIDE_AT_M0: release manager name>, <date> |
-| Release time (UTC) | <RFC 3339> |
-| Change ticket (prod) | <KEY-123 or "not prod"> |
+| Field                | Value                                        |
+| -------------------- | -------------------------------------------- |
+| Intent / spec / plan | `intent/<ID>-<slug>/`                        |
+| Milestone            | <M0A, M0B, ...>                              |
+| Status               | draft                                        |
+| Environment          | <dev, staging, prod>                         |
+| Release approver     | <DECIDE_AT_M0: release manager name>, <date> |
+| Release time (UTC)   | <RFC 3339>                                   |
+| Change ticket (prod) | <KEY-123 or "not prod">                      |
 
 Status values: `draft`, `authorized`, `released`, `rolled_back`, `abandoned`. Only the release approver sets `authorized`.
 
@@ -41,14 +41,14 @@ Status values: `draft`, `authorized`, `released`, `rolled_back`, `abandoned`. On
 
 ## Tests and evals
 
-| Suite | Passed | Failed | Not run | Notes |
-| --- | --- | --- | --- | --- |
-| Hook tests | | | | |
-| Unit / integration | | | | |
-| SSRF suite | | | | |
-| Golden files | | | | |
-| Product-agent evals | | | | |
-| Build-agent evals | | | | |
+| Suite               | Passed | Failed | Not run | Notes |
+| ------------------- | ------ | ------ | ------- | ----- |
+| Hook tests          |        |        |         |       |
+| Unit / integration  |        |        |         |       |
+| SSRF suite          |        |        |         |       |
+| Golden files        |        |        |         |       |
+| Product-agent evals |        |        |         |       |
+| Build-agent evals   |        |        |         |       |
 
 ## Security, privacy and cost review
 

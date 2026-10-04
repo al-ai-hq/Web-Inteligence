@@ -8,12 +8,12 @@ Golden files are expected outputs produced by the vendored skill's reference scr
 
 The generators are the scripts of `.claude/skills/marketing-seo-agent/`, the version fixed on 30 September 2026. Expected SHA-256 values:
 
-| File | SHA-256 |
-| --- | --- |
+| File                         | SHA-256                                                            |
+| ---------------------------- | ------------------------------------------------------------------ |
 | `scripts/arabic_keywords.py` | `b13b5cd2a14f01e87456746a57ef67053e34a2782a91d73d2f03ee204898a19d` |
 | `scripts/cannibalization.py` | `faf74ecd2eaf6a19517713970b6dcd05bce816cd27cb142acf267d0ebeb4ecfc` |
-| `scripts/build_report.py` | `047f4f3184c4c19041e9cbaf204d726c34c33feca2dc0d0ac7520c18d689afc0` |
-| `SKILL.md` | `a02923628256cea91c36e0f3a733c9f8cebcec1cc1b2ea719da77397bd5a1924` |
+| `scripts/build_report.py`    | `047f4f3184c4c19041e9cbaf204d726c34c33feca2dc0d0ac7520c18d689afc0` |
+| `SKILL.md`                   | `a02923628256cea91c36e0f3a733c9f8cebcec1cc1b2ea719da77397bd5a1924` |
 
 Check before regenerating:
 
@@ -75,11 +75,11 @@ Regenerating is a manual step by the SEO lead or data engineer on their own mach
 
 ## How outputs are compared
 
-| Script | Compared | Not compared |
-| --- | --- | --- |
+| Script               | Compared                                                                                                                                                | Not compared                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | `arabic_keywords.py` | Normalized keys, variant groups, summed clicks, impressions and volume, CTR recomputed from totals, impression-weighted position, `prefix_merged` flags | Row order, float formatting beyond an agreed tolerance (ASSUMPTION: 1e-9) |
-| `cannibalization.py` | Flagged queries, competing pages, suggested owner, active flag, with the recorded thresholds | Row order |
-| `build_report.py` | HTML structure: RTL detection and `dir`, table alignment, severity markers, chart data, currency decimals | Bytes, embedded fonts, dates |
+| `cannibalization.py` | Flagged queries, competing pages, suggested owner, active flag, with the recorded thresholds                                                            | Row order                                                                 |
+| `build_report.py`    | HTML structure: RTL detection and `dir`, table alignment, severity markers, chart data, currency decimals                                               | Bytes, embedded fonts, dates                                              |
 
 ## When product output differs
 

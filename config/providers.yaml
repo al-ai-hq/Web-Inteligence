@@ -23,9 +23,15 @@ review_cadence: "monthly (v1-baseline §11.3; 02-DETAILED-SPECIFICATION §18)"
 
 # Data classes. ASSUMPTION: names to be aligned with docs/data-classification.md at M0B.
 data_class_policy:
-  source_reference: ["v1-baseline §9.8", "02-DETAILED-SPECIFICATION §13 (Hard restrictions)", "02-DETAILED-SPECIFICATION §17"]
+  source_reference:
+    [
+      "v1-baseline §9.8",
+      "02-DETAILED-SPECIFICATION §13 (Hard restrictions)",
+      "02-DETAILED-SPECIFICATION §17",
+    ]
   default_allowed: [public_site_content, generated_prompts]
-  require_project_opt_in: [search_console_data, analytics_data, fact_sheet, keyword_uploads, cms_content]
+  require_project_opt_in:
+    [search_console_data, analytics_data, fact_sheet, keyword_uploads, cms_content]
   never_sent: [cms_credentials, oauth_tokens, api_keys, email_address, ip_address, personal_data]
   final_decision: "<DECIDE_AT_M0: allowed data classes per provider (01-PRODUCT-REQUIREMENTS §14)>"
 
@@ -66,7 +72,8 @@ providers:
     enabled_by_default: false
     v4_default_engine: true
     degradation_priority: keep
-    source_reference: ["v1-baseline §8.1", "02-DETAILED-SPECIFICATION §6", "02-DETAILED-SPECIFICATION §17"]
+    source_reference:
+      ["v1-baseline §8.1", "02-DETAILED-SPECIFICATION §6", "02-DETAILED-SPECIFICATION §17"]
 
   - id: claude
     family: "Anthropic Claude"

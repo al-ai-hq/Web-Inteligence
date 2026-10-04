@@ -24,14 +24,14 @@ Allowed fidelity labels:
 
 Map each fidelity label to one user-facing evidence state (`evidence_state`) for reports. The mapping never erases the stored fidelity label.
 
-| `fidelity_label` | `evidence_state` |
-| --- | --- |
-| `observed`, `computed` | `verified` |
-| `assessed` | `inferred` |
-| `attested`, `user_supplied` | `client_stated` |
-| `estimated` | `estimated` |
-| `unavailable` | `unavailable` |
-| A check that could not complete (no fidelity label applies) | `not_verified` |
+| `fidelity_label`                                            | `evidence_state` |
+| ----------------------------------------------------------- | ---------------- |
+| `observed`, `computed`                                      | `verified`       |
+| `assessed`                                                  | `inferred`       |
+| `attested`, `user_supplied`                                 | `client_stated`  |
+| `estimated`                                                 | `estimated`      |
+| `unavailable`                                               | `unavailable`    |
+| A check that could not complete (no fidelity label applies) | `not_verified`   |
 
 Preserve separate integrity states: `not_supplied`, `supplied_invalid`, `missing_field`, `measured_zero`, `filter_empty`, `valid`, `stale`, `error`, `not_applicable`.
 
@@ -84,19 +84,19 @@ Every transition specifies actor, preconditions, authorization, idempotency key,
 
 ## Agent tool boundaries
 
-| Agent | Allowed tool classes | Prohibited |
-|---|---|---|
-| Intake coordinator | validate intake, build capability manifest | crawl, model/provider, write |
-| Audit assessor | read normalized evidence, apply semantic rubric | technical score mutation, connector/write |
-| Keyword analyst | validated imports, GSC reader, clustering/mapping, cannibalization | invented metrics, write |
-| Performance analyst | source readers, deterministic metric calculator, calendar/status evidence | manual arithmetic, cross-source totals, write |
-| Visibility observer | deterministic provider adapter results, entity/citation normalization | direct credentials, retries beyond policy, write |
-| Commerce/local/entity analyst | normalized specialist evidence and confirmed facts | unverified edits, platform write |
-| Planner | findings, opportunities, deterministic priority inputs | approval, apply, unsupported forecasts |
-| Content strategist | evidence, approved fact register, style guide, gated brief/draft | publication, fabricated claims |
-| Change planner | connector capabilities, current structured fields, exact diff | apply/publish credentials |
-| Verifier | fresh fetch, rule evaluation, read-back, request rollback | direct arbitrary write |
-| Report composer | canonical normalized report model | adding new facts/metrics |
+| Agent                         | Allowed tool classes                                                      | Prohibited                                       |
+| ----------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------ |
+| Intake coordinator            | validate intake, build capability manifest                                | crawl, model/provider, write                     |
+| Audit assessor                | read normalized evidence, apply semantic rubric                           | technical score mutation, connector/write        |
+| Keyword analyst               | validated imports, GSC reader, clustering/mapping, cannibalization        | invented metrics, write                          |
+| Performance analyst           | source readers, deterministic metric calculator, calendar/status evidence | manual arithmetic, cross-source totals, write    |
+| Visibility observer           | deterministic provider adapter results, entity/citation normalization     | direct credentials, retries beyond policy, write |
+| Commerce/local/entity analyst | normalized specialist evidence and confirmed facts                        | unverified edits, platform write                 |
+| Planner                       | findings, opportunities, deterministic priority inputs                    | approval, apply, unsupported forecasts           |
+| Content strategist            | evidence, approved fact register, style guide, gated brief/draft          | publication, fabricated claims                   |
+| Change planner                | connector capabilities, current structured fields, exact diff             | apply/publish credentials                        |
+| Verifier                      | fresh fetch, rule evaluation, read-back, request rollback                 | direct arbitrary write                           |
+| Report composer               | canonical normalized report model                                         | adding new facts/metrics                         |
 
 Only the connector service may hold write credentials. It is deterministic and policy-enforced, not an LLM agent.
 
@@ -133,11 +133,11 @@ Every milestone release includes artifact versions, migrations, changed files, c
 
 Source: V4 `PRODUCTION_CONTRACTS_V4.md`. All text not listed below is unchanged.
 
-| # | Where | Change | Reason |
-| --- | --- | --- | --- |
-| 1 | Header | Added the line "V5 adaptation status: draft for review" | Writing rules: mark unreviewed edits |
-| 2 | Intro | The V4 sentence saying the contracts are shared by the other V4 build package and Claude Code builds → "These contracts govern this Claude Code build of Website Presence Intelligence." | This repository is a Claude Code build only |
-| 3 | Intro | Added: JSON Schemas live in `schemas/` (`schemas/<kebab-name>.schema.json`), validated by `scripts/check_schemas.py`; transition tables in `docs/state-machines.md` | Repository layout |
-| 4 | Evidence and fidelity | Added the `fidelity_label` → `evidence_state` mapping table, including `not_verified` for a check that could not complete | Canonical vocabulary; 01 §15 ("mapped to user-facing evidence states without erasing the original label") |
-| 5 | Workflow states | Added "The transition tables are in `docs/state-machines.md`." | Repository layout |
-| 6 | New section | Added this "Changes from V4" list | Traceability |
+| #   | Where                 | Change                                                                                                                                                                                   | Reason                                                                                                    |
+| --- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1   | Header                | Added the line "V5 adaptation status: draft for review"                                                                                                                                  | Writing rules: mark unreviewed edits                                                                      |
+| 2   | Intro                 | The V4 sentence saying the contracts are shared by the other V4 build package and Claude Code builds → "These contracts govern this Claude Code build of Website Presence Intelligence." | This repository is a Claude Code build only                                                               |
+| 3   | Intro                 | Added: JSON Schemas live in `schemas/` (`schemas/<kebab-name>.schema.json`), validated by `scripts/check_schemas.py`; transition tables in `docs/state-machines.md`                      | Repository layout                                                                                         |
+| 4   | Evidence and fidelity | Added the `fidelity_label` → `evidence_state` mapping table, including `not_verified` for a check that could not complete                                                                | Canonical vocabulary; 01 §15 ("mapped to user-facing evidence states without erasing the original label") |
+| 5   | Workflow states       | Added "The transition tables are in `docs/state-machines.md`."                                                                                                                           | Repository layout                                                                                         |
+| 6   | New section           | Added this "Changes from V4" list                                                                                                                                                        | Traceability                                                                                              |

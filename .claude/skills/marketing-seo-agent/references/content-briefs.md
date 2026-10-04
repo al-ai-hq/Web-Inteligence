@@ -7,6 +7,7 @@ Before briefing a new page, confirm no existing page already owns the topic (see
 ## Before writing: look at the SERP
 
 Search for the primary keyword in each target language and market. Record the date, then note:
+
 - The page types that rank (service page, blog guide, listicle, marketplace, directory, video) and what that says about intent.
 - The angles, sections, and questions the top results share. Also note what they all miss, because that gap is your chance to differentiate.
 - Any trust signals the ranking pages show: prices, credentials, reviews, location details, photos.
@@ -57,6 +58,6 @@ These habits make a page easier for readers to use and for answer engines to quo
 Present each change as a table:
 
 | URL | Element | Current | Proposed | Reason |
-|---|---|---|---|---|
+| --- | ------- | ------- | -------- | ------ |
 
 Get the current values from the crawl, not from memory. If a CMS is connected and the user wants the changes applied, follow `cms-changes.md`.

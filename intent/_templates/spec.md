@@ -7,16 +7,16 @@ Apply the policy skills in .claude/skills/ and state every area of concern,
 especially where two policies cannot both be satisfied.
 -->
 
-| Field | Value |
-| --- | --- |
-| Intent | `intent/<ID>-<slug>/intent.md` (status: accepted) |
-| Status | draft |
-| Author | <name, or "Claude Code session <id>"> |
-| Product owner sign-off | <name, date, or "pending"> |
-| Policy owner sign-offs | <owner: skill, date> for each flagged concern |
-| Spec prompt version | <path or hash of the prompt used> |
-| Skill versions | <skill name and version for each skill applied, including marketing-seo-agent> |
-| Source sections read | <docs/spec/... sections> |
+| Field                  | Value                                                                          |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| Intent                 | `intent/<ID>-<slug>/intent.md` (status: accepted)                              |
+| Status                 | draft                                                                          |
+| Author                 | <name, or "Claude Code session <id>">                                          |
+| Product owner sign-off | <name, date, or "pending">                                                     |
+| Policy owner sign-offs | <owner: skill, date> for each flagged concern                                  |
+| Spec prompt version    | <path or hash of the prompt used>                                              |
+| Skill versions         | <skill name and version for each skill applied, including marketing-seo-agent> |
+| Source sections read   | <docs/spec/... sections>                                                       |
 
 Status values: `draft`, `changes_requested`, `approved`, `superseded`. Only the product owner sets `approved`.
 
@@ -58,14 +58,14 @@ Status values: `draft`, `changes_requested`, `approved`, `superseded`. Only the 
 
 ## Policy conformance
 
-| Policy skill | Applies? | How the design complies | Concern for owner |
-| --- | --- | --- | --- |
-| google-search-guidance | | | |
-| security-baseline | | | |
-| arabic-rtl-a11y | | | |
-| data-integrity | | | |
-| cost-guard | | | |
-| connector-safety | | | |
+| Policy skill           | Applies? | How the design complies | Concern for owner |
+| ---------------------- | -------- | ----------------------- | ----------------- |
+| google-search-guidance |          |                         |                   |
+| security-baseline      |          |                         |                   |
+| arabic-rtl-a11y        |          |                         |                   |
+| data-integrity         |          |                         |                   |
+| cost-guard             |          |                         |                   |
+| connector-safety       |          |                         |                   |
 
 ## Areas of concern
 

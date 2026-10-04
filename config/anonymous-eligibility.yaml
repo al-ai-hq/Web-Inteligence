@@ -27,7 +27,7 @@ tiers:
       comparisons: 1
       comparisons_note: "One equivalent competitor or dual-URL comparison (04-CLAUDE-CODE-BUILD-PROMPT §3.1)."
       ai_visibility_panel: "config/prompt-panels/free-panel.yaml"
-      action_board: {min: 8, max: 12}
+      action_board: { min: 8, max: 12 }
       preliminary_roadmap: true
     report: in_app_web_only
     retention: P7D
@@ -43,7 +43,7 @@ tiers:
       comparisons: 0
       ai_visibility_panel: none
       ai_visibility_status: "ASSUMPTION: no new AI observations; valid recent observations for the same domain may be shown with their capture time."
-      action_board: {min: 8, max: 12}
+      action_board: { min: 8, max: 12 }
       preliminary_roadmap: true
     report: in_app_web_only
     retention: P7D
@@ -58,7 +58,7 @@ tiers:
       performance_accessibility_public_footprint_template_findings: false
       comparisons: 0
       ai_visibility_panel: none
-      action_board: {min: 0, max: 3}
+      action_board: { min: 0, max: 3 }
       action_board_status: "ASSUMPTION: short preview list of the top actions."
       preliminary_roadmap: false
     report: in_app_web_only

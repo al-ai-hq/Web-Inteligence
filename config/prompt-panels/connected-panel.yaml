@@ -14,7 +14,7 @@ version: "0.1.0-draft"
 applies_to: "Registered projects with the prompt-panel capability (connected tier)."
 
 size:
-  prompts_per_market_and_language: {min: 20, max: 40}
+  prompts_per_market_and_language: { min: 20, max: 40 }
   runs_per_prompt: 3
   runs_note: "At least 3 runs per prompt, or runs on 3 different days, with a fixed location and language."
   status: "ASSUMPTION (D-006, from 02-DETAILED-SPECIFICATION §6)"
@@ -29,12 +29,12 @@ cadence:
 
 # 02-DETAILED-SPECIFICATION §6 six categories. Brand-free prompts test visibility; brand prompts test accuracy.
 categories:
-  recommendation: {branded: false, purpose: visibility, counts_toward_recommendation_rate: true}
-  comparison: {branded: false, purpose: visibility, counts_toward_recommendation_rate: true}
-  how_to_choose: {branded: false, purpose: visibility, counts_toward_recommendation_rate: true}
-  price: {branded: false, purpose: visibility, counts_toward_recommendation_rate: true}
-  local: {branded: false, purpose: visibility, counts_toward_recommendation_rate: true}
-  brand_facts: {branded: true, purpose: accuracy, counts_toward_recommendation_rate: false}
+  recommendation: { branded: false, purpose: visibility, counts_toward_recommendation_rate: true }
+  comparison: { branded: false, purpose: visibility, counts_toward_recommendation_rate: true }
+  how_to_choose: { branded: false, purpose: visibility, counts_toward_recommendation_rate: true }
+  price: { branded: false, purpose: visibility, counts_toward_recommendation_rate: true }
+  local: { branded: false, purpose: visibility, counts_toward_recommendation_rate: true }
+  brand_facts: { branded: true, purpose: accuracy, counts_toward_recommendation_rate: false }
 
 # 04-CLAUDE-CODE-BUILD-PROMPT §10 lists more families. Disabled until the M6 spec decides (conflict noted).
 additional_families_v4:
@@ -45,7 +45,8 @@ additional_families_v4:
 prompt_design:
   seeding: "Build prompts from priority keyword clusters, observed queries, customer questions, site facts, intent, funnel stage, language and market (02-DETAILED-SPECIFICATION §6; 01-PRODUCT-REQUIREMENTS §16)."
   wording: "Written the way customers ask, in the dialect they use; Arabic prompts are flagged for native review."
-  prompt_fields: [prompt_id, category, intent, funnel_stage, market, language, text, branded, version]
+  prompt_fields:
+    [prompt_id, category, intent, funnel_stage, market, language, text, branded, version]
   seed_templates:
     en: "config/prompt-panels/templates/en.yaml"
     ar: "config/prompt-panels/templates/ar.yaml"
@@ -83,7 +84,15 @@ run_record_fields:
 
 metrics:
   source_reference: "v1-baseline §6.7; 02-DETAILED-SPECIFICATION §6"
-  list: [mention_rate, recommendation_rate, domain_citation_rate, provider_coverage, share_of_observed_mentions, accuracy_issue_count]
+  list:
+    [
+      mention_rate,
+      recommendation_rate,
+      domain_citation_rate,
+      provider_coverage,
+      share_of_observed_mentions,
+      accuracy_issue_count,
+    ]
   small_cell_rule: "Cells with fewer than 10 runs show counts, not percentages."
   denominators: "Provider failures are excluded from valid denominators; show numerator and denominator beside every rate."
   accuracy_issues: "Each quotes the wrong statement and the fact ID it contradicts (brand_facts prompts only)."

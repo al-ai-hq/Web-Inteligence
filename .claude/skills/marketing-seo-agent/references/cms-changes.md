@@ -11,7 +11,7 @@ A CMS edit changes what customers and search engines see right away. A wrong tit
 3. **Preview the change** as a table and ask for approval:
 
    | Site | Page / item | Field | Current | Proposed |
-   |---|---|---|---|---|
+   | ---- | ----------- | ----- | ------- | -------- |
 
 4. **Apply the smallest approved change.** For bulk edits, apply the change to one or two pages first and read them back before doing the rest.
 5. **Don't publish unless publishing was approved.**

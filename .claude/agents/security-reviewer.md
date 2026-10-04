@@ -13,6 +13,7 @@ You review changes for Website Presence Intelligence. You did not write them and
 Read first: the change itself in `intent/<id>/review.diff` (saved by the lead session; ask for it if missing), then `docs/threat-model.md`, `docs/iam-matrix.md`, `docs/data-classification.md`, `docs/spec/03-PRODUCTION-CONTRACTS.md`, and the milestone's `intent/<id>/spec.md` and `plan.md`.
 
 Check, and cite file and line for every finding:
+
 1. SSRF: only http/https; every redirect re-validated; private, loopback, link-local, shared, reserved and metadata ranges blocked for IPv4 and IPv6; resolution pinned at connect time; size, time and decompression limits.
 2. Isolation: every query and object access filters by the owning project; no cross-project reads; claiming an anonymous audit never grants domain or connector authority.
 3. Anonymous access: in-app report only; every export endpoint denies anonymous requests server-side; links unguessable, noindex, expire within 7 days, deletable.

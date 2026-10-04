@@ -18,17 +18,17 @@ evidence). A release without a tested rollback path does not ship.
 
 ## 2. Summary
 
-| What | Mechanism | Who decides | Target time | Rehearsed |
-|---|---|---|---|---|
-| Web/API and other Cloud Run services | Shift traffic to the previous revision | Release manager or incident commander | ASSUMPTION: minutes | Weekly in staging (ASSUMPTION) |
-| Cloud Run Jobs (crawl, render, deletion, processing) | Point the job at the previous image digest | Same | Minutes | Weekly |
-| Feature behavior | Kill-switch flag (§6) | Same | Minutes | Weekly |
-| Configuration (eligibility, providers, caps, freshness) | Redeploy the previous config version | Config owner with release manager | Minutes | Weekly |
-| Methodology (rules, weights, caps) | Redeploy the previous methodology version; never relabel stored scores | Methodology owner | One release | Per methodology change |
-| Database schema | Expand/contract migrations; down migration if safe; otherwise forward fix | Engineering lead | Per migration plan | On a staging copy before each prod migration |
-| Database data (last resort) | Point-in-time restore plus deletion-queue re-apply | Incident commander with privacy owner | Hours | Monthly restore drill (ASSUMPTION) |
-| Infrastructure | Revert the Terraform commit and apply through the pipeline | Cloud platform owner | One pipeline run | Per infrastructure change in staging |
-| Client-site change (M9+) | Connector rollback from the stored snapshot (§5) | Per risk tier | Per tier | In sandbox for every connector |
+| What                                                    | Mechanism                                                                 | Who decides                           | Target time         | Rehearsed                                    |
+| ------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------- | ------------------- | -------------------------------------------- |
+| Web/API and other Cloud Run services                    | Shift traffic to the previous revision                                    | Release manager or incident commander | ASSUMPTION: minutes | Weekly in staging (ASSUMPTION)               |
+| Cloud Run Jobs (crawl, render, deletion, processing)    | Point the job at the previous image digest                                | Same                                  | Minutes             | Weekly                                       |
+| Feature behavior                                        | Kill-switch flag (§6)                                                     | Same                                  | Minutes             | Weekly                                       |
+| Configuration (eligibility, providers, caps, freshness) | Redeploy the previous config version                                      | Config owner with release manager     | Minutes             | Weekly                                       |
+| Methodology (rules, weights, caps)                      | Redeploy the previous methodology version; never relabel stored scores    | Methodology owner                     | One release         | Per methodology change                       |
+| Database schema                                         | Expand/contract migrations; down migration if safe; otherwise forward fix | Engineering lead                      | Per migration plan  | On a staging copy before each prod migration |
+| Database data (last resort)                             | Point-in-time restore plus deletion-queue re-apply                        | Incident commander with privacy owner | Hours               | Monthly restore drill (ASSUMPTION)           |
+| Infrastructure                                          | Revert the Terraform commit and apply through the pipeline                | Cloud platform owner                  | One pipeline run    | Per infrastructure change in staging         |
+| Client-site change (M9+)                                | Connector rollback from the stored snapshot (§5)                          | Per risk tier                         | Per tier            | In sandbox for every connector               |
 
 ## 3. Application and jobs
 
@@ -119,19 +119,19 @@ of that pull request.
 Flag names are proposals. The authoritative list and defaults live in configuration (`config/`, owner: config owner); no flag file exists yet.
 High-risk modules default to off (05 §8). Flipping a flag is audit-logged with who, when and why.
 
-| Flag (proposed) | Effect when off |
-|---|---|
-| `anonymous_intake_enabled` | New anonymous audits show the capacity message (`refused`) |
-| `anonymous_rich_tier_enabled` | First audits run as `reduced` |
-| `paid_calls_enabled` (global) and `provider_<id>_enabled` | No paid calls, or none to that provider; sections `unavailable` |
-| `render_job_enabled` | HTML-only crawling; rendered checks `unavailable` |
-| `evidence_reuse_enabled` | Every audit crawls fresh |
-| `registered_exports_enabled` | Exports unavailable for everyone (anonymous exports are always denied regardless) |
-| `connector_writes_enabled` (global) and `connector_<id>_writes_enabled` | No client-site writes; drafts and previews only |
-| `publish_enabled` | No publish actions, even with approval |
-| `scheduled_automations_enabled` | Schedules pause; retention deletion is exempt and keeps running |
-| `public_gallery_enabled` | Gallery hidden; publications withdrawn from view |
-| `agent_<name>_enabled` | That agent's steps are skipped and marked `unavailable` |
+| Flag (proposed)                                                         | Effect when off                                                                   |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `anonymous_intake_enabled`                                              | New anonymous audits show the capacity message (`refused`)                        |
+| `anonymous_rich_tier_enabled`                                           | First audits run as `reduced`                                                     |
+| `paid_calls_enabled` (global) and `provider_<id>_enabled`               | No paid calls, or none to that provider; sections `unavailable`                   |
+| `render_job_enabled`                                                    | HTML-only crawling; rendered checks `unavailable`                                 |
+| `evidence_reuse_enabled`                                                | Every audit crawls fresh                                                          |
+| `registered_exports_enabled`                                            | Exports unavailable for everyone (anonymous exports are always denied regardless) |
+| `connector_writes_enabled` (global) and `connector_<id>_writes_enabled` | No client-site writes; drafts and previews only                                   |
+| `publish_enabled`                                                       | No publish actions, even with approval                                            |
+| `scheduled_automations_enabled`                                         | Schedules pause; retention deletion is exempt and keeps running                   |
+| `public_gallery_enabled`                                                | Gallery hidden; publications withdrawn from view                                  |
+| `agent_<name>_enabled`                                                  | That agent's steps are skipped and marked `unavailable`                           |
 
 Retention and deletion jobs have no kill switch in normal operation. Pausing them needs the
 privacy owner's approval and a recorded reason.
@@ -146,14 +146,14 @@ privacy owner's approval and a recorded reason.
 
 ## 9. Rehearsal cadence
 
-| Rehearsal | Where | Cadence |
-|---|---|---|
-| App revision rollback, job digest rollback, kill-switch flip and restore | Staging | ASSUMPTION: weekly |
-| Config and methodology version rollback | Staging | ASSUMPTION: weekly, with the app rehearsal |
-| Migration up/down/up on a copy | CI and staging | Every migration |
-| Point-in-time restore with deletion-queue re-apply | Isolated staging instance | ASSUMPTION: monthly, and before M13 |
-| Connector rollback, including conflict and partial failure | Vendor sandbox | Every connector change; before each connector release |
-| Full release rollback on the release candidate | Staging | Before every production release |
+| Rehearsal                                                                | Where                     | Cadence                                               |
+| ------------------------------------------------------------------------ | ------------------------- | ----------------------------------------------------- |
+| App revision rollback, job digest rollback, kill-switch flip and restore | Staging                   | ASSUMPTION: weekly                                    |
+| Config and methodology version rollback                                  | Staging                   | ASSUMPTION: weekly, with the app rehearsal            |
+| Migration up/down/up on a copy                                           | CI and staging            | Every migration                                       |
+| Point-in-time restore with deletion-queue re-apply                       | Isolated staging instance | ASSUMPTION: monthly, and before M13                   |
+| Connector rollback, including conflict and partial failure               | Vendor sandbox            | Every connector change; before each connector release |
+| Full release rollback on the release candidate                           | Staging                   | Before every production release                       |
 
 05 M0 exit needs one harmless change to complete the full chain including rollback; 01 §15 needs
 a rollback rehearsal for release. Record each rehearsal (date, what, result, time taken) in the

@@ -2,19 +2,19 @@
 
 Status: draft for review.
 
-| Field | Value |
-| --- | --- |
-| ID | INT-01 |
-| Status | draft |
-| Author (originator) | <DECIDE_AT_M0: product owner name> |
-| Product owner | <DECIDE_AT_M0: name> |
-| Tech lead | <DECIDE_AT_M0: name> |
-| Security engineer | <DECIDE_AT_M0: name> |
-| Milestone | M0B (05-PROJECT-PLAN §11) |
-| Ticket | <tracker ID, or "none"> |
-| Created | 2026-09-30 |
-| Depends on | INT-00 (M0A exit gate passed) |
-| Risk class | high-risk: defines authorization, anonymous access, write approvals, cost limits and rule weights |
+| Field               | Value                                                                                             |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| ID                  | INT-01                                                                                            |
+| Status              | draft                                                                                             |
+| Author (originator) | <DECIDE_AT_M0: product owner name>                                                                |
+| Product owner       | <DECIDE_AT_M0: name>                                                                              |
+| Tech lead           | <DECIDE_AT_M0: name>                                                                              |
+| Security engineer   | <DECIDE_AT_M0: name>                                                                              |
+| Milestone           | M0B (05-PROJECT-PLAN §11)                                                                         |
+| Ticket              | <tracker ID, or "none">                                                                           |
+| Created             | 2026-09-30                                                                                        |
+| Depends on          | INT-00 (M0A exit gate passed)                                                                     |
+| Risk class          | high-risk: defines authorization, anonymous access, write approvals, cost limits and rule weights |
 
 ## Problem
 

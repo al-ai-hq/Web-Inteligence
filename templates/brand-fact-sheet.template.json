@@ -14,13 +14,20 @@
     { "value": "<short or former name>", "language": "en", "kind": "alias" },
     { "value": "<اسم مختصر أو سابق>", "language": "ar", "kind": "alias" },
     { "value": "<common misspelling>", "language": "en", "kind": "misspelling" },
-    { "value": "<Arabic brand name written in Latin letters>", "language": "ar-Latn", "kind": "transliteration" },
+    {
+      "value": "<Arabic brand name written in Latin letters>",
+      "language": "ar-Latn",
+      "kind": "transliteration"
+    },
     { "value": "<ABBREVIATION>", "language": null, "kind": "abbreviation" }
   ],
   "logo_url": "https://<canonical domain>/<path to logo file>",
   "canonical_domain": "<canonical host name, lower case, e.g. www.example.com>",
   "official_profiles": [
-    { "platform": "<Google Business Profile | LinkedIn | Instagram | X | other>", "url": "https://<official profile URL>" }
+    {
+      "platform": "<Google Business Profile | LinkedIn | Instagram | X | other>",
+      "url": "https://<official profile URL>"
+    }
   ],
   "addresses": [
     {
@@ -41,9 +48,21 @@
     }
   ],
   "contacts": [
-    { "kind": "phone", "value": "<published business phone in international format>", "purpose": "<e.g. sales>" },
-    { "kind": "email", "value": "<published business email>", "purpose": "<e.g. general enquiries>" },
-    { "kind": "contact_form_url", "value": "https://<contact page URL>", "purpose": "<e.g. quotes>" }
+    {
+      "kind": "phone",
+      "value": "<published business phone in international format>",
+      "purpose": "<e.g. sales>"
+    },
+    {
+      "kind": "email",
+      "value": "<published business email>",
+      "purpose": "<e.g. general enquiries>"
+    },
+    {
+      "kind": "contact_form_url",
+      "value": "https://<contact page URL>",
+      "purpose": "<e.g. quotes>"
+    }
   ],
   "approved_claims": [
     {

@@ -7,7 +7,7 @@
 **Date:** 29 September 2026  
 **Initial scale:** Approximately 30 completed audits per month  
 **Interface and report languages:** Arabic and English  
-**Market coverage:** Worldwide  
+**Market coverage:** Worldwide
 
 ---
 
@@ -223,16 +223,16 @@ The product exposes four independent outputs:
 
 ### 6.2 Website Readiness categories
 
-| Category | Weight |
-|---|---:|
-| Crawlability and indexability | 20% |
-| On-page technical SEO | 15% |
-| Structured data and machine readability | 10% |
-| Answer Engine Optimization content | 20% |
-| GEO entity clarity, authority, and citations | 15% |
-| Internationalization, accessibility, and mobile UX | 10% |
-| Performance, security, and delivery quality | 10% |
-| **Total** | **100%** |
+| Category                                           |   Weight |
+| -------------------------------------------------- | -------: |
+| Crawlability and indexability                      |      20% |
+| On-page technical SEO                              |      15% |
+| Structured data and machine readability            |      10% |
+| Answer Engine Optimization content                 |      20% |
+| GEO entity clarity, authority, and citations       |      15% |
+| Internationalization, accessibility, and mobile UX |      10% |
+| Performance, security, and delivery quality        |      10% |
+| **Total**                                          | **100%** |
 
 ### 6.3 Rule result scale
 
@@ -267,14 +267,14 @@ Calculate with full precision. Display the nearest whole number only at the pres
 
 Critical conditions apply transparent caps after the weighted score:
 
-| Critical condition | Maximum overall score |
-|---|---:|
-| Homepage cannot be retrieved after safe retries | 20 |
-| Site-wide `noindex` or equivalent on canonical pages | 25 |
-| `robots.txt` blocks all general search crawling | 30 |
-| Canonical domain resolves only to an unsafe/private address | No audit; security rejection |
-| Valid homepage but main content is empty to both HTML and rendered extraction | 45 |
-| HTTPS unavailable or certificate invalid | 60 |
+| Critical condition                                                            |        Maximum overall score |
+| ----------------------------------------------------------------------------- | ---------------------------: |
+| Homepage cannot be retrieved after safe retries                               |                           20 |
+| Site-wide `noindex` or equivalent on canonical pages                          |                           25 |
+| `robots.txt` blocks all general search crawling                               |                           30 |
+| Canonical domain resolves only to an unsafe/private address                   | No audit; security rejection |
+| Valid homepage but main content is empty to both HTML and rendered extraction |                           45 |
+| HTTPS unavailable or certificate invalid                                      |                           60 |
 
 The report must show both the pre-cap weighted score and the applied cap.
 
@@ -376,108 +376,108 @@ confidence
 
 ### 7.1 Crawlability and indexability, 20%
 
-| ID | Rule | Weight | Pass standard |
-|---|---|---:|---|
-| CRW-001 | Homepage reachable | 5 | Canonical homepage returns usable HTML after safe redirects |
-| CRW-002 | Important pages reachable | 4 | At least 90% of selected important pages return usable 2xx responses |
-| CRW-003 | Site-wide indexability | 5 | No unintended site-wide `noindex` or `X-Robots-Tag` block |
-| CRW-004 | robots.txt availability and syntax | 3 | File is reachable or validly absent and contains no unintended general block |
-| CRW-005 | XML sitemap | 3 | Valid sitemap exists and contains canonical indexable URLs |
-| CRW-006 | Canonical consistency | 4 | Canonicals are absolute, valid, and consistent with final URLs |
-| CRW-007 | Redirect health | 2 | No loops and no chain longer than two redirects for important pages |
-| CRW-008 | Crawlable internal links | 3 | Important navigation uses resolvable links rather than inaccessible client-only actions |
-| CRW-009 | Status-code integrity | 3 | No material soft 404 or important 4xx/5xx pages |
-| CRW-010 | AI/search bot policy visibility | 2 | Relevant crawler directives are explicit and non-conflicting |
+| ID      | Rule                               | Weight | Pass standard                                                                           |
+| ------- | ---------------------------------- | -----: | --------------------------------------------------------------------------------------- |
+| CRW-001 | Homepage reachable                 |      5 | Canonical homepage returns usable HTML after safe redirects                             |
+| CRW-002 | Important pages reachable          |      4 | At least 90% of selected important pages return usable 2xx responses                    |
+| CRW-003 | Site-wide indexability             |      5 | No unintended site-wide `noindex` or `X-Robots-Tag` block                               |
+| CRW-004 | robots.txt availability and syntax |      3 | File is reachable or validly absent and contains no unintended general block            |
+| CRW-005 | XML sitemap                        |      3 | Valid sitemap exists and contains canonical indexable URLs                              |
+| CRW-006 | Canonical consistency              |      4 | Canonicals are absolute, valid, and consistent with final URLs                          |
+| CRW-007 | Redirect health                    |      2 | No loops and no chain longer than two redirects for important pages                     |
+| CRW-008 | Crawlable internal links           |      3 | Important navigation uses resolvable links rather than inaccessible client-only actions |
+| CRW-009 | Status-code integrity              |      3 | No material soft 404 or important 4xx/5xx pages                                         |
+| CRW-010 | AI/search bot policy visibility    |      2 | Relevant crawler directives are explicit and non-conflicting                            |
 
 ### 7.2 On-page technical SEO, 15%
 
-| ID | Rule | Weight | Pass standard |
-|---|---|---:|---|
-| SEO-001 | Unique page title | 4 | Important pages have descriptive, unique titles |
-| SEO-002 | Meta description | 2 | Important pages have useful, non-duplicated descriptions |
-| SEO-003 | Single descriptive H1 | 3 | Each important page has a clear primary heading |
-| SEO-004 | Heading hierarchy | 2 | Headings form an understandable hierarchy without major skips |
-| SEO-005 | Internal linking | 4 | Important pages are linked contextually and through navigation |
-| SEO-006 | Descriptive anchors | 2 | Links explain their destination outside isolated UI context |
-| SEO-007 | Image alternatives | 2 | Informative images have useful alt text; decorative images are empty-alt |
-| SEO-008 | Duplicate content indicators | 3 | Important pages do not materially duplicate each other without canonical handling |
-| SEO-009 | Metadata consistency | 2 | Title, H1, description, canonical, and visible topic agree |
-| SEO-010 | Open Graph/social metadata | 1 | Share metadata is complete and consistent |
+| ID      | Rule                         | Weight | Pass standard                                                                     |
+| ------- | ---------------------------- | -----: | --------------------------------------------------------------------------------- |
+| SEO-001 | Unique page title            |      4 | Important pages have descriptive, unique titles                                   |
+| SEO-002 | Meta description             |      2 | Important pages have useful, non-duplicated descriptions                          |
+| SEO-003 | Single descriptive H1        |      3 | Each important page has a clear primary heading                                   |
+| SEO-004 | Heading hierarchy            |      2 | Headings form an understandable hierarchy without major skips                     |
+| SEO-005 | Internal linking             |      4 | Important pages are linked contextually and through navigation                    |
+| SEO-006 | Descriptive anchors          |      2 | Links explain their destination outside isolated UI context                       |
+| SEO-007 | Image alternatives           |      2 | Informative images have useful alt text; decorative images are empty-alt          |
+| SEO-008 | Duplicate content indicators |      3 | Important pages do not materially duplicate each other without canonical handling |
+| SEO-009 | Metadata consistency         |      2 | Title, H1, description, canonical, and visible topic agree                        |
+| SEO-010 | Open Graph/social metadata   |      1 | Share metadata is complete and consistent                                         |
 
 ### 7.3 Structured data and machine readability, 10%
 
-| ID | Rule | Weight | Pass standard |
-|---|---|---:|---|
-| STR-001 | Parseable structured data | 5 | JSON-LD, RDFa, or Microdata parses without syntax errors |
-| STR-002 | Appropriate organization/entity type | 4 | Entity type matches visible organization and page content |
-| STR-003 | Required properties | 4 | Applicable Google-supported type contains required properties |
-| STR-004 | Recommended factual properties | 2 | Useful confirmed properties are present |
-| STR-005 | Visible-content consistency | 5 | Markup claims match visible page content |
-| STR-006 | Stable entity identifiers | 3 | Entity uses consistent URL, name, logo, and `@id` where appropriate |
-| STR-007 | Breadcrumb markup | 1 | Important hierarchical pages include valid breadcrumbs where useful |
-| STR-008 | Unsupported/spam markup | 5 | No fabricated ratings, reviews, prices, or irrelevant schema |
+| ID      | Rule                                 | Weight | Pass standard                                                       |
+| ------- | ------------------------------------ | -----: | ------------------------------------------------------------------- |
+| STR-001 | Parseable structured data            |      5 | JSON-LD, RDFa, or Microdata parses without syntax errors            |
+| STR-002 | Appropriate organization/entity type |      4 | Entity type matches visible organization and page content           |
+| STR-003 | Required properties                  |      4 | Applicable Google-supported type contains required properties       |
+| STR-004 | Recommended factual properties       |      2 | Useful confirmed properties are present                             |
+| STR-005 | Visible-content consistency          |      5 | Markup claims match visible page content                            |
+| STR-006 | Stable entity identifiers            |      3 | Entity uses consistent URL, name, logo, and `@id` where appropriate |
+| STR-007 | Breadcrumb markup                    |      1 | Important hierarchical pages include valid breadcrumbs where useful |
+| STR-008 | Unsupported/spam markup              |      5 | No fabricated ratings, reviews, prices, or irrelevant schema        |
 
 Structured data recommendations must follow current Google-supported requirements. Correct structured data can improve understanding and eligibility, but never guarantees a rich result.
 
 ### 7.4 AEO content, 20%
 
-| ID | Rule | Weight | Pass standard |
-|---|---|---:|---|
-| AEO-001 | Clear offering | 5 | Site states what it provides in concrete language |
-| AEO-002 | Audience clarity | 3 | Site identifies who the offering serves |
-| AEO-003 | Geographic availability | 3 | Service area or worldwide availability is explicit where relevant |
-| AEO-004 | Pricing or pricing explanation | 3 | Price, range, quote process, or reason for absence is clear |
-| AEO-005 | Process explanation | 3 | Important services explain how engagement or purchase works |
-| AEO-006 | Direct question answers | 5 | Key customer questions receive concise answers near descriptive headings |
-| AEO-007 | FAQ quality | 2 | FAQ content is useful, non-duplicative, and visible |
-| AEO-008 | Comparison and selection guidance | 2 | Site explains suitability, trade-offs, or selection criteria |
-| AEO-009 | Answer extractability | 4 | Pages contain self-contained passages that retain meaning when quoted |
-| AEO-010 | Content freshness | 2 | Time-sensitive content shows meaningful update information |
-| AEO-011 | Contact and next-step clarity | 2 | Users and machines can identify a clear next action |
+| ID      | Rule                              | Weight | Pass standard                                                            |
+| ------- | --------------------------------- | -----: | ------------------------------------------------------------------------ |
+| AEO-001 | Clear offering                    |      5 | Site states what it provides in concrete language                        |
+| AEO-002 | Audience clarity                  |      3 | Site identifies who the offering serves                                  |
+| AEO-003 | Geographic availability           |      3 | Service area or worldwide availability is explicit where relevant        |
+| AEO-004 | Pricing or pricing explanation    |      3 | Price, range, quote process, or reason for absence is clear              |
+| AEO-005 | Process explanation               |      3 | Important services explain how engagement or purchase works              |
+| AEO-006 | Direct question answers           |      5 | Key customer questions receive concise answers near descriptive headings |
+| AEO-007 | FAQ quality                       |      2 | FAQ content is useful, non-duplicative, and visible                      |
+| AEO-008 | Comparison and selection guidance |      2 | Site explains suitability, trade-offs, or selection criteria             |
+| AEO-009 | Answer extractability             |      4 | Pages contain self-contained passages that retain meaning when quoted    |
+| AEO-010 | Content freshness                 |      2 | Time-sensitive content shows meaningful update information               |
+| AEO-011 | Contact and next-step clarity     |      2 | Users and machines can identify a clear next action                      |
 
 ### 7.5 GEO entity clarity, authority, and citations, 15%
 
-| ID | Rule | Weight | Pass standard |
-|---|---|---:|---|
-| GEO-001 | Consistent entity name | 5 | Organization name is consistent across major pages and markup |
-| GEO-002 | About/entity page | 4 | Site explains the organization, ownership, purpose, and history as applicable |
-| GEO-003 | Contact identity | 4 | Legitimate contact details and service location are available where appropriate |
-| GEO-004 | Author/editor identity | 3 | Advice or editorial content identifies responsible authors or reviewers |
-| GEO-005 | Evidence for claims | 5 | Material claims have primary evidence, methodology, or attributable sources |
-| GEO-006 | Source quality | 4 | Citations link to relevant authoritative or primary sources |
-| GEO-007 | Original information | 3 | Site contributes specific facts, data, examples, or expert knowledge |
-| GEO-008 | Entity connections | 2 | Official profiles and related entities are linked consistently |
-| GEO-009 | Reputation signals on site | 2 | Credentials and case evidence are specific and verifiable, not fabricated |
-| GEO-010 | Optional machine-readable summary | 1 | A maintained `llms.txt` may earn limited credit; absence is not a failure |
+| ID      | Rule                              | Weight | Pass standard                                                                   |
+| ------- | --------------------------------- | -----: | ------------------------------------------------------------------------------- |
+| GEO-001 | Consistent entity name            |      5 | Organization name is consistent across major pages and markup                   |
+| GEO-002 | About/entity page                 |      4 | Site explains the organization, ownership, purpose, and history as applicable   |
+| GEO-003 | Contact identity                  |      4 | Legitimate contact details and service location are available where appropriate |
+| GEO-004 | Author/editor identity            |      3 | Advice or editorial content identifies responsible authors or reviewers         |
+| GEO-005 | Evidence for claims               |      5 | Material claims have primary evidence, methodology, or attributable sources     |
+| GEO-006 | Source quality                    |      4 | Citations link to relevant authoritative or primary sources                     |
+| GEO-007 | Original information              |      3 | Site contributes specific facts, data, examples, or expert knowledge            |
+| GEO-008 | Entity connections                |      2 | Official profiles and related entities are linked consistently                  |
+| GEO-009 | Reputation signals on site        |      2 | Credentials and case evidence are specific and verifiable, not fabricated       |
+| GEO-010 | Optional machine-readable summary |      1 | A maintained `llms.txt` may earn limited credit; absence is not a failure       |
 
 ### 7.6 Internationalization, accessibility, and mobile UX, 10%
 
-| ID | Rule | Weight | Pass standard |
-|---|---|---:|---|
-| I18N-001 | Document language | 4 | Every audited page declares the correct BCP 47 language |
-| I18N-002 | Directionality | 4 | RTL pages use correct document direction and mixed-direction handling |
-| I18N-003 | hreflang | 3 | Localized equivalents use reciprocal valid annotations where applicable |
-| I18N-004 | Localized metadata | 3 | Titles, descriptions, headings, and structured data use the intended locale |
-| A11Y-001 | Semantic landmarks | 2 | Main page regions use appropriate semantics |
-| A11Y-002 | Accessible names | 3 | Interactive controls have meaningful accessible names |
-| A11Y-003 | Keyboard/focus basics | 3 | Key flows are operable and visibly focused by keyboard |
-| A11Y-004 | Contrast and reflow sample | 2 | Sampled pages meet baseline contrast and narrow-width reflow expectations |
-| MOB-001 | Mobile viewport and layout | 3 | Pages declare viewport and avoid material horizontal overflow |
+| ID       | Rule                       | Weight | Pass standard                                                               |
+| -------- | -------------------------- | -----: | --------------------------------------------------------------------------- |
+| I18N-001 | Document language          |      4 | Every audited page declares the correct BCP 47 language                     |
+| I18N-002 | Directionality             |      4 | RTL pages use correct document direction and mixed-direction handling       |
+| I18N-003 | hreflang                   |      3 | Localized equivalents use reciprocal valid annotations where applicable     |
+| I18N-004 | Localized metadata         |      3 | Titles, descriptions, headings, and structured data use the intended locale |
+| A11Y-001 | Semantic landmarks         |      2 | Main page regions use appropriate semantics                                 |
+| A11Y-002 | Accessible names           |      3 | Interactive controls have meaningful accessible names                       |
+| A11Y-003 | Keyboard/focus basics      |      3 | Key flows are operable and visibly focused by keyboard                      |
+| A11Y-004 | Contrast and reflow sample |      2 | Sampled pages meet baseline contrast and narrow-width reflow expectations   |
+| MOB-001  | Mobile viewport and layout |      3 | Pages declare viewport and avoid material horizontal overflow               |
 
 Do not claim full WCAG conformance from automated testing alone.
 
 ### 7.7 Performance, security, and delivery quality, 10%
 
-| ID | Rule | Weight | Pass standard |
-|---|---|---:|---|
-| PRF-001 | HTTPS | 5 | Valid HTTPS is available and canonical |
-| PRF-002 | Response timing | 3 | Sampled response and render measurements fall within disclosed thresholds |
-| PRF-003 | Asset efficiency | 2 | No severe image, script, or stylesheet waste in sampled pages |
-| PRF-004 | Layout stability sample | 2 | No major observed layout shift during sampled rendering |
-| SEC-001 | Mixed content | 4 | No active mixed content on HTTPS pages |
-| SEC-002 | Security headers | 2 | Baseline headers are present or absence is explained without overstating risk |
-| SEC-003 | Broken resource load | 2 | No material first-party resource failures on sampled pages |
-| DEL-001 | Rendered content parity | 4 | Core content is available to the configured renderer and not hidden behind failed execution |
+| ID      | Rule                    | Weight | Pass standard                                                                               |
+| ------- | ----------------------- | -----: | ------------------------------------------------------------------------------------------- |
+| PRF-001 | HTTPS                   |      5 | Valid HTTPS is available and canonical                                                      |
+| PRF-002 | Response timing         |      3 | Sampled response and render measurements fall within disclosed thresholds                   |
+| PRF-003 | Asset efficiency        |      2 | No severe image, script, or stylesheet waste in sampled pages                               |
+| PRF-004 | Layout stability sample |      2 | No major observed layout shift during sampled rendering                                     |
+| SEC-001 | Mixed content           |      4 | No active mixed content on HTTPS pages                                                      |
+| SEC-002 | Security headers        |      2 | Baseline headers are present or absence is explained without overstating risk               |
+| SEC-003 | Broken resource load    |      2 | No material first-party resource failures on sampled pages                                  |
+| DEL-001 | Rendered content parity |      4 | Core content is available to the configured renderer and not hidden behind failed execution |
 
 ---
 
@@ -485,13 +485,13 @@ Do not claim full WCAG conformance from automated testing alone.
 
 ### 8.1 Required provider adapters
 
-| Adapter | Required capability | Report label |
-|---|---|---|
-| OpenAI | Responses API with web search forced when the test requires current web evidence | “OpenAI API with web search” |
-| Google | Gemini API with Google Search grounding | “Gemini API grounded with Google Search” |
-| Anthropic | Claude API with web search and a strict maximum search count | “Claude API with web search” |
-| Perplexity | Current Sonar/search-grounded API with citations | “Perplexity API with web search” |
-| xAI | Grok Responses API with web search; X Search is excluded from baseline unless explicitly selected | “Grok API with web search” |
+| Adapter    | Required capability                                                                               | Report label                             |
+| ---------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| OpenAI     | Responses API with web search forced when the test requires current web evidence                  | “OpenAI API with web search”             |
+| Google     | Gemini API with Google Search grounding                                                           | “Gemini API grounded with Google Search” |
+| Anthropic  | Claude API with web search and a strict maximum search count                                      | “Claude API with web search”             |
+| Perplexity | Current Sonar/search-grounded API with citations                                                  | “Perplexity API with web search”         |
+| xAI        | Grok Responses API with web search; X Search is excluded from baseline unless explicitly selected | “Grok API with web search”               |
 
 The OpenAI Responses API supports web search with sourced answers. Gemini grounding returns search steps and URL citations. Claude web search returns citations and supports `max_uses`. xAI returns citations from its agent search tools. Provider capabilities and prices must be configuration, not hard-coded assumptions.
 
@@ -651,20 +651,20 @@ The service is not directed to children. Do not knowingly collect optional deliv
 
 Use a short default because the service has no account requirement and Google Search grounding may impose provider-specific storage and display restrictions.
 
-| Data | Active retention | Deletion behavior |
-|---|---:|---|
-| Raw fetched HTML and rendered snapshots | 24 hours | Delete after extraction; retain hashes and necessary evidence snippets only |
-| Normalized crawl evidence and findings | 30 days | Delete with audit or automatically at expiry |
-| Raw LLM prompts and responses | 30 days maximum | Delete earlier when provider terms require it |
-| Generated web report | 30 days | Private URL expires; data deleted |
-| Generated PDF | 30 days | Object deleted and signed links invalidated |
-| Optional delivery email address | 30 days after last delivery attempt | Delete unless separately consented for another purpose |
-| Delivery logs without message content | 30 days | Aggregate success metrics may remain non-identifying |
-| IP/security and rate-limit logs | 30 days | Delete or irreversibly aggregate |
-| Application error logs | 30 days | Redact URLs, page content, prompts, and email addresses |
-| Encrypted backups | Up to 35 days after source deletion | Expire automatically; restore process reapplies deletion queue |
-| Aggregated anonymous metrics | Indefinite | Must not permit re-identification |
-| Separate marketing consent record, if introduced | Until withdrawal plus required legal proof period | Store separately from audit content |
+| Data                                             |                                  Active retention | Deletion behavior                                                           |
+| ------------------------------------------------ | ------------------------------------------------: | --------------------------------------------------------------------------- |
+| Raw fetched HTML and rendered snapshots          |                                          24 hours | Delete after extraction; retain hashes and necessary evidence snippets only |
+| Normalized crawl evidence and findings           |                                           30 days | Delete with audit or automatically at expiry                                |
+| Raw LLM prompts and responses                    |                                   30 days maximum | Delete earlier when provider terms require it                               |
+| Generated web report                             |                                           30 days | Private URL expires; data deleted                                           |
+| Generated PDF                                    |                                           30 days | Object deleted and signed links invalidated                                 |
+| Optional delivery email address                  |               30 days after last delivery attempt | Delete unless separately consented for another purpose                      |
+| Delivery logs without message content            |                                           30 days | Aggregate success metrics may remain non-identifying                        |
+| IP/security and rate-limit logs                  |                                           30 days | Delete or irreversibly aggregate                                            |
+| Application error logs                           |                                           30 days | Redact URLs, page content, prompts, and email addresses                     |
+| Encrypted backups                                |               Up to 35 days after source deletion | Expire automatically; restore process reapplies deletion queue              |
+| Aggregated anonymous metrics                     |                                        Indefinite | Must not permit re-identification                                           |
+| Separate marketing consent record, if introduced | Until withdrawal plus required legal proof period | Store separately from audit content                                         |
 
 Requirements:
 
@@ -707,19 +707,19 @@ This is an estimate. Actual cost depends on model IDs, output length, provider s
 
 ### 11.3 Estimated monthly envelope
 
-| Cost area | Expected range |
-|---|---:|
-| Five-provider LLM visibility tests | USD 20–60 |
-| One economical model for report summarization/translation | USD 2–10 |
-| Web application and worker compute | USD 10–25 |
-| Managed PostgreSQL | USD 0–15 |
-| Object storage and bandwidth | USD 0–5 |
-| Transactional email | USD 0–2 |
-| Monitoring/error reporting | USD 0–10 |
-| Domain and miscellaneous monthly equivalent | USD 2–5 |
-| **Expected total** | **USD 34–132** |
-| **Recommended operating target** | **USD 55–100** |
-| **Configured maximum** | **USD 150** |
+| Cost area                                                 | Expected range |
+| --------------------------------------------------------- | -------------: |
+| Five-provider LLM visibility tests                        |      USD 20–60 |
+| One economical model for report summarization/translation |       USD 2–10 |
+| Web application and worker compute                        |      USD 10–25 |
+| Managed PostgreSQL                                        |       USD 0–15 |
+| Object storage and bandwidth                              |        USD 0–5 |
+| Transactional email                                       |        USD 0–2 |
+| Monitoring/error reporting                                |       USD 0–10 |
+| Domain and miscellaneous monthly equivalent               |        USD 2–5 |
+| **Expected total**                                        | **USD 34–132** |
+| **Recommended operating target**                          | **USD 55–100** |
+| **Configured maximum**                                    |    **USD 150** |
 
 The upper range protects against search tools issuing multiple calls and against provider price changes. Current public pricing illustrates why configuration is necessary: OpenAI web search is priced per search call plus model tokens; Anthropic lists a separate per-search charge plus tokens; Gemini grounding may charge per executed search query after an allowance; xAI prices server-side search tools separately. Prices must be read from official provider pricing pages before launch and reviewed monthly.
 
@@ -922,15 +922,15 @@ Automated checks do not establish full WCAG conformance. Manual keyboard, screen
 
 Use first-party, privacy-conscious events:
 
-| Event | Trigger | Allowed parameters |
-|---|---|---|
-| `audit_started` | Audit accepted | interface language, target market type |
-| `audit_stage_completed` | A stage completes | stage, duration bucket, status |
-| `audit_completed` | Report becomes available | status, pages bucket, providers completed count |
-| `report_pdf_downloaded` | Signed PDF download starts | report language |
-| `report_email_requested` | User submits optional email | report language; never the address |
-| `report_deleted` | User deletes audit | age bucket |
-| `audit_failed` | Terminal failure | safe error class |
+| Event                    | Trigger                     | Allowed parameters                              |
+| ------------------------ | --------------------------- | ----------------------------------------------- |
+| `audit_started`          | Audit accepted              | interface language, target market type          |
+| `audit_stage_completed`  | A stage completes           | stage, duration bucket, status                  |
+| `audit_completed`        | Report becomes available    | status, pages bucket, providers completed count |
+| `report_pdf_downloaded`  | Signed PDF download starts  | report language                                 |
+| `report_email_requested` | User submits optional email | report language; never the address              |
+| `report_deleted`         | User deletes audit          | age bucket                                      |
+| `audit_failed`           | Terminal failure            | safe error class                                |
 
 Do not send submitted URLs, organization names, page content, prompts, citations, report IDs, email addresses, IP addresses, or raw error messages to analytics destinations.
 
@@ -1254,18 +1254,18 @@ Do not use a fabricated benchmark for success. Establish the first-month baselin
 
 ## 21. Material risks and responses
 
-| Risk | Response |
-|---|---|
-| LLM answers vary | Timestamp results, name models, preserve prompts, separate visibility from readiness |
-| API output differs from consumer products | Label API test method explicitly |
-| Global privacy requirements differ | Minimize data, obtain legal review, disclose subprocessors and transfers |
-| Google grounded-result terms restrict storage/use | Enforce provider-specific retention and display rules |
-| SSRF exposes internal systems | Isolate workers and validate every connection and redirect |
-| Prompt injection changes analysis | Deterministic rules, tool isolation, strict schemas, untrusted-content boundaries |
-| Free usage is abused | Per-domain/IP limits, quotas, budget caps, circuit breakers |
-| A score appears more certain than evidence | Show formulas, coverage, confidence, caps, and unavailable states |
-| Suggestions invent facts | Generate only from confirmed evidence and require human review labels |
-| Provider prices change | Configuration-based models, monthly price review, hard budget limit |
+| Risk                                              | Response                                                                             |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| LLM answers vary                                  | Timestamp results, name models, preserve prompts, separate visibility from readiness |
+| API output differs from consumer products         | Label API test method explicitly                                                     |
+| Global privacy requirements differ                | Minimize data, obtain legal review, disclose subprocessors and transfers             |
+| Google grounded-result terms restrict storage/use | Enforce provider-specific retention and display rules                                |
+| SSRF exposes internal systems                     | Isolate workers and validate every connection and redirect                           |
+| Prompt injection changes analysis                 | Deterministic rules, tool isolation, strict schemas, untrusted-content boundaries    |
+| Free usage is abused                              | Per-domain/IP limits, quotas, budget caps, circuit breakers                          |
+| A score appears more certain than evidence        | Show formulas, coverage, confidence, caps, and unavailable states                    |
+| Suggestions invent facts                          | Generate only from confirmed evidence and require human review labels                |
+| Provider prices change                            | Configuration-based models, monthly price review, hard budget limit                  |
 
 ---
 
@@ -1305,4 +1305,3 @@ None of these decisions changes the scoring methodology described here. They aff
 ## 24. Recommended next action
 
 Create the repository and implement Phase 0 followed by Phase 1. Before connecting paid APIs, build the provider-neutral adapter contract, cost ledger, deterministic rule registry, and test fixtures. This prevents provider-specific behavior from defining the product methodology.
-

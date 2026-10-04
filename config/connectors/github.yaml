@@ -81,7 +81,8 @@ publish_rules:
   publish_is_separate_step: true
   requires_separate_approval: true
   rule: "Merging and deploying are the site owner's steps outside the product. Approving the pull-request content is not approval to merge or release (01-PRODUCT-REQUIREMENTS §5.13; 07-SKILLS-AND-AGENTS §6)."
-  approval_binding: [target, field, before_hash, after_hash, environment, edit_or_publish_mode, approver, expiry]
+  approval_binding:
+    [target, field, before_hash, after_hash, environment, edit_or_publish_mode, approver, expiry]
 
 rollout:
   tier_1: "One approver; at most 25 pages per pull request (ASSUMPTION: the 02-DETAILED-SPECIFICATION §10 tier 1 batch limit applied per pull request)."
@@ -109,4 +110,17 @@ rate_limits:
 
 contract_tests:
   sandbox: "A GitHub test repository (02-DETAILED-SPECIFICATION §19)."
-  scenarios: [stale_state, conflict, replay, wrong_tenant, denial, partial_failure, read_back_mismatch, slug_redirect, rollback, token_revoked_mid_run, rate_limited]
+  scenarios:
+    [
+      stale_state,
+      conflict,
+      replay,
+      wrong_tenant,
+      denial,
+      partial_failure,
+      read_back_mismatch,
+      slug_redirect,
+      rollback,
+      token_revoked_mid_run,
+      rate_limited,
+    ]

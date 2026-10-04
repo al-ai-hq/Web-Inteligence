@@ -44,10 +44,19 @@ limits:
     owner_role: ai_engineer
 
 registry_reviews:
-  crawler_registry: {cadence: monthly, source_reference: "02-DETAILED-SPECIFICATION §6"}
-  provider_prices_and_models: {cadence: monthly, source_reference: "v1-baseline §11.3; 02-DETAILED-SPECIFICATION §18"}
-  policy_facts: {cadence: "per entry review_by and expires_on in config/policy-facts.yaml", source_reference: "01-PRODUCT-REQUIREMENTS §8, §15"}
-  schema_requirements: {cadence: "<DECIDE_AT_M0: review cadence>", note: "Also on any Google structured-data change."}
+  crawler_registry: { cadence: monthly, source_reference: "02-DETAILED-SPECIFICATION §6" }
+  provider_prices_and_models:
+    { cadence: monthly, source_reference: "v1-baseline §11.3; 02-DETAILED-SPECIFICATION §18" }
+  policy_facts:
+    {
+      cadence: "per entry review_by and expires_on in config/policy-facts.yaml",
+      source_reference: "01-PRODUCT-REQUIREMENTS §8, §15",
+    }
+  schema_requirements:
+    {
+      cadence: "<DECIDE_AT_M0: review cadence>",
+      note: "Also on any Google structured-data change.",
+    }
 
 time_alignment:
   search_console:

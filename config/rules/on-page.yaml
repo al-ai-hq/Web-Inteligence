@@ -30,7 +30,11 @@ rules:
     evaluation: deterministic
     fidelity_label: computed
     change: unchanged
-    source_reference: ["v1-baseline §7.2", "https://developers.google.com/search/docs/fundamentals/seo-starter-guide"]
+    source_reference:
+      [
+        "v1-baseline §7.2",
+        "https://developers.google.com/search/docs/fundamentals/seo-starter-guide",
+      ]
 
   - id: SEO-002
     title: "Meta description"

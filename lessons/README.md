@@ -28,31 +28,36 @@ A lesson closes the loop: an incident, a near miss, a breached detection band or
 ```markdown
 # Lesson: <short title>
 
-| Field | Value |
-| --- | --- |
-| Status | draft / reviewed / closed |
-| Severity | <per docs/runbooks/incident.md> |
-| Service owner | <name> |
-| Incident commander | <name, or "not an incident"> |
-| Started / detected / resolved (UTC) | <RFC 3339> / <RFC 3339> / <RFC 3339> |
-| Environments | <dev, staging, prod> |
-| Related release | <intent/<ID>-<slug>/release.md, commit SHA> |
+| Field                               | Value                                       |
+| ----------------------------------- | ------------------------------------------- |
+| Status                              | draft / reviewed / closed                   |
+| Severity                            | <per docs/runbooks/incident.md>             |
+| Service owner                       | <name>                                      |
+| Incident commander                  | <name, or "not an incident">                |
+| Started / detected / resolved (UTC) | <RFC 3339> / <RFC 3339> / <RFC 3339>        |
+| Environments                        | <dev, staging, prod>                        |
+| Related release                     | <intent/<ID>-<slug>/release.md, commit SHA> |
 
 ## Summary
+
 <Three to five sentences: what happened, impact, how it ended.>
 
 ## Impact
+
 <Users, projects or audits affected; data affected; cost; duration. Counts with their source.>
 
 ## Detection
+
 <Which signal fired (band, alert, user report, review). How long from start to detection.
 If a band fired, which tier (1σ, 2σ, 3σ) and which Western Electric rule.>
 
 ## Timeline (UTC)
+
 | Time | Event | Evidence |
-| --- | --- | --- |
+| ---- | ----- | -------- |
 
 ## Root cause
+
 <Technical and process causes. Separate confirmed causes from hypotheses.>
 
 ## What went well
@@ -62,13 +67,16 @@ If a band fired, which tier (1σ, 2σ, 3σ) and which Western Electric rule.>
 ## Where we got lucky
 
 ## Actions
+
 | Action | Type (fix, test/eval, detection, docs, process) | Intent / PR | Owner | Due |
-| --- | --- | --- | --- | --- |
+| ------ | ----------------------------------------------- | ----------- | ----- | --- |
 
 ## Test or eval added
+
 <Suite and case ID (for example TS-EVAL-AGENT case, golden case, unit test), or why none.>
 
 ## Follow-up
+
 <Changes to bands, runbooks, CLAUDE.md "Things Claude gets wrong", hooks or policy skills.>
 ```
 

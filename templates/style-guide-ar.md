@@ -9,16 +9,16 @@ values in Arabic. Leave a field as "not set" rather than guessing.
 Arabic copy is written from Arabic evidence, not translated from English.
 -->
 
-| Field | Value |
-| --- | --- |
-| Project / site | <project_id> / <site URL> |
-| Language | `ar` or a regional tag such as `ar-SA`, `ar-KW`, `ar-QA`, `ar-JO` (BCP 47) |
-| Markets | <ISO 3166-1 alpha-2 codes, or `global`> |
-| Owner (client) | <name, role> |
-| Native Arabic reviewer | <name> |
-| Version | 0.1.0 |
-| Approved on | <YYYY-MM-DD> |
-| Review date | <YYYY-MM-DD> |
+| Field                  | Value                                                                      |
+| ---------------------- | -------------------------------------------------------------------------- |
+| Project / site         | <project_id> / <site URL>                                                  |
+| Language               | `ar` or a regional tag such as `ar-SA`, `ar-KW`, `ar-QA`, `ar-JO` (BCP 47) |
+| Markets                | <ISO 3166-1 alpha-2 codes, or `global`>                                    |
+| Owner (client)         | <name, role>                                                               |
+| Native Arabic reviewer | <name>                                                                     |
+| Version                | 0.1.0                                                                      |
+| Approved on            | <YYYY-MM-DD>                                                               |
+| Review date            | <YYYY-MM-DD>                                                               |
 
 ## Register and dialect
 
@@ -56,9 +56,9 @@ Arabic copy is written from Arabic evidence, not translated from English.
 
 ## Terminology
 
-| المصطلح المعتمد (preferred) | لا يُستخدم (do not use) | Notes |
-| --- | --- | --- |
-| <term> | <avoided term> | <context> |
+| المصطلح المعتمد (preferred) | لا يُستخدم (do not use) | Notes     |
+| --------------------------- | ----------------------- | --------- |
+| <term>                      | <avoided term>          | <context> |
 
 ## Forbidden phrases and claims
 

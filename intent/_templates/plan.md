@@ -8,14 +8,14 @@ production infrastructure also need the tech lead. When the implementation
 departs from the plan, update this file in the same commit.
 -->
 
-| Field | Value |
-| --- | --- |
-| Spec | `intent/<ID>-<slug>/spec.md` (status: approved) |
-| Status | draft |
-| Author | <name, or "Claude Code session <id>"> |
-| Engineer approval | <name, date, or "pending"> |
-| Tech lead approval | <name, date, "pending", or "not required"> |
-| Branch | <branch name> |
+| Field              | Value                                           |
+| ------------------ | ----------------------------------------------- |
+| Spec               | `intent/<ID>-<slug>/spec.md` (status: approved) |
+| Status             | draft                                           |
+| Author             | <name, or "Claude Code session <id>">           |
+| Engineer approval  | <name, date, or "pending">                      |
+| Tech lead approval | <name, date, "pending", or "not required">      |
+| Branch             | <branch name>                                   |
 
 Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Only a human sets `approved`.
 
@@ -26,8 +26,8 @@ Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Only a h
 ## Files
 
 | Path | Change | Why |
-| --- | --- | --- |
-| | | |
+| ---- | ------ | --- |
+|      |        |     |
 
 ## Order of work
 
@@ -37,8 +37,8 @@ Status values: `draft`, `approved`, `in_progress`, `done`, `abandoned`. Only a h
 ## Risks
 
 | Risk | Likelihood | Mitigation | Owner |
-| --- | --- | --- | --- |
-| | | | |
+| ---- | ---------- | ---------- | ----- |
+|      |            |            |       |
 
 ## Proof
 

@@ -94,7 +94,8 @@ publish_rules:
   publish_is_separate_step: true
   requires_separate_approval: true
   rule: "Edit approval is not publish approval. Changing a draft to published is its own approved step (01-PRODUCT-REQUIREMENTS §5.13; 07-SKILLS-AND-AGENTS §6)."
-  approval_binding: [target, field, before_hash, after_hash, environment, edit_or_publish_mode, approver, expiry]
+  approval_binding:
+    [target, field, before_hash, after_hash, environment, edit_or_publish_mode, approver, expiry]
 
 rollout:
   tier_1: "Canary of 1-2 pages, read back, then batches of up to 25 pages (ASSUMPTION in 02-DETAILED-SPECIFICATION §10)."
@@ -120,4 +121,19 @@ rate_limits:
 
 contract_tests:
   sandbox: "WordPress in a container (02-DETAILED-SPECIFICATION §19)."
-  scenarios: [stale_state, conflict, replay, wrong_tenant, denial, partial_failure, read_back_mismatch, slug_redirect, rollback, timeout_mid_write, token_revoked_mid_run, rate_limited, publish_fails_after_write]
+  scenarios:
+    [
+      stale_state,
+      conflict,
+      replay,
+      wrong_tenant,
+      denial,
+      partial_failure,
+      read_back_mismatch,
+      slug_redirect,
+      rollback,
+      timeout_mid_write,
+      token_revoked_mid_run,
+      rate_limited,
+      publish_fails_after_write,
+    ]

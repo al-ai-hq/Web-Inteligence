@@ -15,6 +15,7 @@ You check SEO method correctness for Website Presence Intelligence. You do not f
 Read first: the relevant sections of `docs/spec/02-DETAILED-SPECIFICATION.md` (§6 rules, §7 keywords, §8 plan, §9 content, §15 integrity), `config/rules/`, `config/scoring.yaml`, and `evals/golden/README.md`.
 
 Check:
+
 1. Metric rules: CTR from totals; impression-weighted position; rate changes in percentage points; zero denominators handled; sources never added together.
 2. Arabic normalization matches the skill's default; article and preposition merging only where the spec allows and always flagged for review.
 3. Cannibalization checked before title, H1 or canonical changes.

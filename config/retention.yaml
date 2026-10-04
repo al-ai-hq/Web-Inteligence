@@ -25,7 +25,8 @@ principles:
 
 anonymous:
   max_retention: P7D
-  source_reference: ["D-002", "01-PRODUCT-REQUIREMENTS §5.0, §9, §16", "04-CLAUDE-CODE-BUILD-PROMPT §3.1, §19"]
+  source_reference:
+    ["D-002", "01-PRODUCT-REQUIREMENTS §5.0, §9, §16", "04-CLAUDE-CODE-BUILD-PROMPT §3.1, §19"]
   exports: none
   exports_note: "No PDF, document, CSV, JSON, evidence or task download for anonymous users; denied server-side (D-002)."
   items:

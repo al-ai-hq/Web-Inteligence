@@ -11,24 +11,24 @@ Six Google Cloud projects: one application project and one crawl-sandbox project
 environment (02 §12). V4 asks for separate development, staging and production projects where
 feasible and a distinct least-privilege identity per service (01 §10).
 
-| Project | Purpose | Main services |
-|---|---|---|
-| `<prefix>-dev-app` | Development application | Cloud Run services, Cloud SQL, Cloud Storage, Workflows, Cloud Tasks, Pub/Sub, Secret Manager |
-| `<prefix>-dev-crawl` | Development crawl sandbox | Cloud Run Jobs (HTTP fetcher, renderer), Cloud NAT, landing bucket |
-| `<prefix>-staging-app` | Staging application | Same as dev-app, production-like sizing where cost allows |
-| `<prefix>-staging-crawl` | Staging crawl sandbox | Same as dev-crawl |
-| `<prefix>-prod-app` | Production application | Same, plus load balancer and Cloud Armor |
-| `<prefix>-prod-crawl` | Production crawl sandbox | Same as dev-crawl |
+| Project                  | Purpose                   | Main services                                                                                 |
+| ------------------------ | ------------------------- | --------------------------------------------------------------------------------------------- |
+| `<prefix>-dev-app`       | Development application   | Cloud Run services, Cloud SQL, Cloud Storage, Workflows, Cloud Tasks, Pub/Sub, Secret Manager |
+| `<prefix>-dev-crawl`     | Development crawl sandbox | Cloud Run Jobs (HTTP fetcher, renderer), Cloud NAT, landing bucket                            |
+| `<prefix>-staging-app`   | Staging application       | Same as dev-app, production-like sizing where cost allows                                     |
+| `<prefix>-staging-crawl` | Staging crawl sandbox     | Same as dev-crawl                                                                             |
+| `<prefix>-prod-app`      | Production application    | Same, plus load balancer and Cloud Armor                                                      |
+| `<prefix>-prod-crawl`    | Production crawl sandbox  | Same as dev-crawl                                                                             |
 
 `<prefix>` is `<DECIDE_AT_M0: project ID prefix>`.
 
 Shared projects, ASSUMPTION, decide at M0B:
 
-| Project | Purpose | Why separate |
-|---|---|---|
-| `<prefix>-billing` | Cloud Billing export dataset (BigQuery) and budget notification topic | The cost guard in each environment reads one billing source; engineers do not need billing admin |
-| `<prefix>-artifacts` | Artifact Registry for container images | Images are built once and promoted by digest |
-| `<prefix>-tfstate` | Terraform state bucket | State is sensitive; no runtime identity can read it |
+| Project              | Purpose                                                               | Why separate                                                                                     |
+| -------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `<prefix>-billing`   | Cloud Billing export dataset (BigQuery) and budget notification topic | The cost guard in each environment reads one billing source; engineers do not need billing admin |
+| `<prefix>-artifacts` | Artifact Registry for container images                                | Images are built once and promoted by digest                                                     |
+| `<prefix>-tfstate`   | Terraform state bucket                                                | State is sensitive; no runtime identity can read it                                              |
 
 All projects sit in one folder under the organization, with org policies: no service-account
 key creation, allowed resource locations, and any model-feature constraints the chosen providers
@@ -54,19 +54,19 @@ USD 150 combined cap (D-005, `docs/cost-model.md`).
 
 ## 3. What each environment may contain
 
-| Item | dev | staging | prod |
-|---|---|---|---|
-| Data | Synthetic only (05 §8) | Test tenants; public labelled sites whose owners agreed; synthetic Search Console/GA4 fixtures | Real users and projects |
-| Personal data | None | Test accounts only (team members, with consent) | Yes, per `docs/data-classification.md` |
-| Crawl targets | Local fixture sites and the SSRF test range | Fixture sites, labelled sites, malicious-site fixtures | Any public site that passes validation |
-| AI provider calls | Off by default; mocks and recorded fixtures. ASSUMPTION: real calls only with a per-run approval and a small dev sub-budget | Real calls within the staging sub-budget, for evals and cost proof | Real calls within production budgets |
-| Provider credentials | Non-production keys or none | Non-production keys (05 §8) | Production keys |
-| CMS/Git connectors | Local sandboxes (for example a WordPress container) | Vendor sandboxes and test sites (02 §19) | Real client connections (M9+) |
-| Search Console/GA4 | Fixtures | Test properties the team owns | Client properties |
-| Public gallery | Off | Off except M12 tests | Off by default (01 §5.17) |
-| Feature flags | Anything may be on | Mirrors the planned prod state plus the change under test | High-risk modules off by default (05 §8) |
-| Human access | Developers may use the console | Read-only console; changes through the pipeline | No standing human write access; break-glass only |
-| Claude Code | May deploy to dev through the pipeline (ASSUMPTION) | No direct access | No access |
+| Item                 | dev                                                                                                                         | staging                                                                                        | prod                                             |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Data                 | Synthetic only (05 §8)                                                                                                      | Test tenants; public labelled sites whose owners agreed; synthetic Search Console/GA4 fixtures | Real users and projects                          |
+| Personal data        | None                                                                                                                        | Test accounts only (team members, with consent)                                                | Yes, per `docs/data-classification.md`           |
+| Crawl targets        | Local fixture sites and the SSRF test range                                                                                 | Fixture sites, labelled sites, malicious-site fixtures                                         | Any public site that passes validation           |
+| AI provider calls    | Off by default; mocks and recorded fixtures. ASSUMPTION: real calls only with a per-run approval and a small dev sub-budget | Real calls within the staging sub-budget, for evals and cost proof                             | Real calls within production budgets             |
+| Provider credentials | Non-production keys or none                                                                                                 | Non-production keys (05 §8)                                                                    | Production keys                                  |
+| CMS/Git connectors   | Local sandboxes (for example a WordPress container)                                                                         | Vendor sandboxes and test sites (02 §19)                                                       | Real client connections (M9+)                    |
+| Search Console/GA4   | Fixtures                                                                                                                    | Test properties the team owns                                                                  | Client properties                                |
+| Public gallery       | Off                                                                                                                         | Off except M12 tests                                                                           | Off by default (01 §5.17)                        |
+| Feature flags        | Anything may be on                                                                                                          | Mirrors the planned prod state plus the change under test                                      | High-risk modules off by default (05 §8)         |
+| Human access         | Developers may use the console                                                                                              | Read-only console; changes through the pipeline                                                | No standing human write access; break-glass only |
+| Claude Code          | May deploy to dev through the pipeline (ASSUMPTION)                                                                         | No direct access                                                                               | No access                                        |
 
 Never copy production data into dev or staging. Bugs are reproduced with synthetic fixtures.
 
@@ -110,13 +110,13 @@ branch -> pull request (CI merge gate) -> main
 The combined cap is shared by all projects (D-005). ASSUMPTION: split as below until the M0B
 cost proof replaces it with measured numbers (`docs/cost-model.md` §7).
 
-| Line | Allocation |
-|---|---|
-| dev hosting and calls | `<DECIDE_AT_M0B>` |
-| staging hosting and calls | `<DECIDE_AT_M0B>` |
-| prod hosting | `<DECIDE_AT_M0B>` |
-| prod paid calls (anonymous and registered) | Remainder after hosting and reserve |
-| reserve | USD 10 (ASSUMPTION, `docs/cost-model.md`) |
+| Line                                       | Allocation                                |
+| ------------------------------------------ | ----------------------------------------- |
+| dev hosting and calls                      | `<DECIDE_AT_M0B>`                         |
+| staging hosting and calls                  | `<DECIDE_AT_M0B>`                         |
+| prod hosting                               | `<DECIDE_AT_M0B>`                         |
+| prod paid calls (anonymous and registered) | Remainder after hosting and reserve       |
+| reserve                                    | USD 10 (ASSUMPTION, `docs/cost-model.md`) |
 
 ASSUMPTION: dev and staging scale to zero outside working hours where the service allows it,
 to lower the hosting baseline.

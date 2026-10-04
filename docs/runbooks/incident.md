@@ -14,11 +14,11 @@ suspicion of data exposure or an unauthorized write.
 
 ASSUMPTION: levels confirmed at M13.
 
-| Level | Examples |
-|---|---|
-| SEV1 | Cross-tenant or anonymous-report data exposure; secret or token leak; unauthorized write to a client site; crawler reaching internal addresses; spend past the monthly cap |
-| SEV2 | Major outage; wrong scores or numbers shown to users; deletion job failing; data sent to a provider without opt-in; a code path spending outside the provider gateway |
-| SEV3 | Degraded optional feature; one provider down (see `docs/runbooks/provider-outage.md`) |
+| Level | Examples                                                                                                                                                                   |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SEV1  | Cross-tenant or anonymous-report data exposure; secret or token leak; unauthorized write to a client site; crawler reaching internal addresses; spend past the monthly cap |
+| SEV2  | Major outage; wrong scores or numbers shown to users; deletion job failing; data sent to a provider without opt-in; a code path spending outside the provider gateway      |
+| SEV3  | Degraded optional feature; one provider down (see `docs/runbooks/provider-outage.md`)                                                                                      |
 
 ## Steps
 

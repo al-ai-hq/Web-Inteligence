@@ -27,6 +27,7 @@ These are working notes for Arabic content and for Arabic-speaking markets, part
 A single topic in Arabic can reach search as many different strings. Collect them during research. Then merge them with `scripts/arabic_keywords.py` when you measure, so one topic doesn't look like several small ones.
 
 What the script merges:
+
 - **By default:** the orthography variants below (alef forms, ة/ه, ى/ي, hamza seats, diacritics, tatweel, Arabic-Indic digits).
 - **With `--merge-prefixes`:** also the definite article and attached prepositions (ال، وال، بال، كال، فال، لل) and a standalone في, so بالرياض and في الرياض group together. This is light stemming and can occasionally merge unrelated words, so review every group marked `prefix_merged`.
 - **Never:** singular vs plural and dialect synonyms. Group those at clustering, by SERP overlap.

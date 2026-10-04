@@ -6,12 +6,12 @@ The user asked to "fix lint error". There is no application code yet, so `pnpm l
 
 What I ran (read-only), on Python 3.14.7:
 
-| Check | Result |
-|---|---|
-| `python3 -m unittest discover -s .claude/hooks/tests` | OK, 72 tests |
-| `python3 scripts/check_schemas.py --structural-only` | OK, 87 schema files |
-| `python3 scripts/check_schemas.py` | FAIL: `jsonschema` package not installed, so examples and negative tests were not validated |
-| `python3 scripts/check_config.py` | FAIL: PyYAML is missing |
+| Check                                                 | Result                                                                                      |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `python3 -m unittest discover -s .claude/hooks/tests` | OK, 72 tests                                                                                |
+| `python3 scripts/check_schemas.py --structural-only`  | OK, 87 schema files                                                                         |
+| `python3 scripts/check_schemas.py`                    | FAIL: `jsonschema` package not installed, so examples and negative tests were not validated |
+| `python3 scripts/check_config.py`                     | FAIL: PyYAML is missing                                                                     |
 
 Both failures come from missing dependencies, not from repo content. Also, `requirements-dev.txt` exists but is **empty**, even though CLAUDE.md and CI both depend on `pyyaml` and `jsonschema`. So nothing records the dependencies, and a fresh machine fails the same way.
 
@@ -43,6 +43,7 @@ Real content errors (bad examples, bad config) may still be hiding. The full che
 ## Verification
 
 Show each command with its output:
+
 - `.venv/bin/python3 -m unittest discover -s .claude/hooks/tests`: OK
 - `.venv/bin/python3 scripts/check_schemas.py`: "OK: all schema checks passed" with example validation run, not skipped
 - `.venv/bin/python3 scripts/check_config.py`: passes

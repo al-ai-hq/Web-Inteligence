@@ -7,6 +7,7 @@ The goal is a set of topics the site can realistically win. Each topic has a cle
 Without an uploaded export, you **do not have** search volume, keyword difficulty, CPC, click-through estimates, or competitor traffic. Every column that would hold one of these must say `Not available (needs export)`. Do not substitute "estimated" numbers, "low/medium/high volume" guesses written as if they were data, or figures you remember from training. Those guesses end up in budget decisions.
 
 What you can use honestly:
+
 - **The user's own Search Console data**, if provided. It shows impressions, clicks, and average position for queries the site already appears for. This is real demand evidence, but only for queries where the site already shows.
 - **SEO-tool exports** (Semrush, Ahrefs, Keyword Planner). Use their volume and difficulty figures, and name the tool, the database or country, and the export date.
 - **Live SERP observation** through web search. This shows who ranks, which page types rank (service page, listicle, marketplace, directory, government site, video), how commercial the intent is, and which angles repeat. Record the date and the location or market you searched for.
@@ -49,7 +50,7 @@ If the user wants volumes and hasn't provided an export, say which export would 
 Main cluster table:
 
 | Cluster | Primary keyword (AR / EN) | Variants | Intent | Volume | Current position | Mapped URL | Priority | Rationale |
-|---|---|---|---|---|---|---|---|---|
+| ------- | ------------------------- | -------- | ------ | ------ | ---------------- | ---------- | -------- | --------- |
 
 - **Volume** holds the export figure plus the source, or `Not available (needs export)`.
 - **Current position** comes from Search Console (average position and date range), or reads `Not ranking / no data`.

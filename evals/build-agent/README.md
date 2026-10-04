@@ -36,19 +36,19 @@ evals/build-agent/tasks/<task-id>/
 
 `task.yaml` fields (ASSUMPTION, draft):
 
-| Field | Meaning |
-| --- | --- |
-| `id` | `BA-<nnn>` |
-| `title` | Short description |
-| `source` | Intent ID and pull request number |
-| `base_commit` | Commit SHA the task starts from |
-| `prompt` | The request as given, or `intent/<id>/intent.md` |
-| `kind` | `change` or `refusal` |
-| `allowed_paths` | Globs the change may touch |
-| `checks` | Commands with expected exit codes (for example the hook tests, schema check, `pnpm test`) |
-| `expected_stop` | For refusals: the hook or policy that should stop the agent |
-| `rubric` | Short reviewer rubric for what the checks cannot see |
-| `owner`, `added_on` | Who maintains the task, and when it was added |
+| Field               | Meaning                                                                                   |
+| ------------------- | ----------------------------------------------------------------------------------------- |
+| `id`                | `BA-<nnn>`                                                                                |
+| `title`             | Short description                                                                         |
+| `source`            | Intent ID and pull request number                                                         |
+| `base_commit`       | Commit SHA the task starts from                                                           |
+| `prompt`            | The request as given, or `intent/<id>/intent.md`                                          |
+| `kind`              | `change` or `refusal`                                                                     |
+| `allowed_paths`     | Globs the change may touch                                                                |
+| `checks`            | Commands with expected exit codes (for example the hook tests, schema check, `pnpm test`) |
+| `expected_stop`     | For refusals: the hook or policy that should stop the agent                               |
+| `rubric`            | Short reviewer rubric for what the checks cannot see                                      |
+| `owner`, `added_on` | Who maintains the task, and when it was added                                             |
 
 ## Grading
 

@@ -66,12 +66,12 @@ Prefer `"csv"` pointing at the file you actually analyzed. The chart is then tra
 
 ### Chart types
 
-| `type` | Use it for | Notes |
-|---|---|---|
-| `line` | Trends over time: daily clicks, impressions, position | Up to 4 series. `annotations` draws a hairline and a label at an x value, such as a release date or a Google update. For position, `"format": "position"` inverts the axis so up means better. `"area": true` adds a light fill for a single series. |
-| `bar` | Comparing a few categories, or before vs after (e.g. July vs August by cluster) | Up to about 8 categories and 3 series. The y-axis always starts at zero. Long category names wrap onto two lines; if they're longer still, use `hbar`. |
-| `hbar` | Ranked lists with long labels: pages, queries, domains; changes that can be negative | Negative values make it a diverging chart (blue up, red down). `"highlight": ["label"]` shows the story item in color and the rest in gray. |
-| `kpi` | The 3–5 headline numbers at the top of the summary | Takes `items` with `label`, `value`, `format`, and optionally `delta`, `delta_format`, `period`, and `good` (`"up"` or `"down"`, the direction that counts as good), plus a `note`. |
+| `type` | Use it for                                                                           | Notes                                                                                                                                                                                                                                                |
+| ------ | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `line` | Trends over time: daily clicks, impressions, position                                | Up to 4 series. `annotations` draws a hairline and a label at an x value, such as a release date or a Google update. For position, `"format": "position"` inverts the axis so up means better. `"area": true` adds a light fill for a single series. |
+| `bar`  | Comparing a few categories, or before vs after (e.g. July vs August by cluster)      | Up to about 8 categories and 3 series. The y-axis always starts at zero. Long category names wrap onto two lines; if they're longer still, use `hbar`.                                                                                               |
+| `hbar` | Ranked lists with long labels: pages, queries, domains; changes that can be negative | Negative values make it a diverging chart (blue up, red down). `"highlight": ["label"]` shows the story item in color and the rest in gray.                                                                                                          |
+| `kpi`  | The 3–5 headline numbers at the top of the summary                                   | Takes `items` with `label`, `value`, `format`, and optionally `delta`, `delta_format`, `period`, and `good` (`"up"` or `"down"`, the direction that counts as good), plus a `note`.                                                                  |
 
 ### Common options
 
@@ -88,6 +88,7 @@ Prefer `"csv"` pointing at the file you actually analyzed. The chart is then tra
   - `money:JOD`, `money:KWD`, `money:SAR` and so on. KWD, JOD and BHD show 3 decimals; SAR, QAR and AED show 2.
 
   Add `+` to force a sign, for example `int+` or `pct+`.
+
 - `height`: the height of line and bar charts, in pixels.
 
 ## What to chart, and the honesty rules
@@ -96,12 +97,12 @@ A chart should earn its place. Use one when the shape of the data is the finding
 
 Typical charts for each job:
 
-| Job | Charts that usually earn their place |
-|---|---|
-| Performance report | KPI tiles (clicks, orders, revenue, the key page's position). A daily `line` with the change date annotated. An `hbar` of click change by page. A `bar` of clicks by cluster, before vs after. |
-| Site audit | An `hbar` or `bar` of issue counts by severity or by template, but only with a real crawl or export count behind it. A KPI row of crawl totals (URLs checked, indexable, errors). |
-| Keyword and competitor research | An `hbar` of how many tested queries each domain appears in. A `bar` of SERP page types (clinic site, social, directory…) by language. Never chart search volume without an export. |
-| AI visibility (AEO / GEO) | A `bar` of mention or citation rate by engine, or share of voice against competitors, only from an observed prompt panel. Put n (runs) in the subtitle. The readiness scorecard and crawler access belong in tables, not charts. |
+| Job                             | Charts that usually earn their place                                                                                                                                                                                             |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Performance report              | KPI tiles (clicks, orders, revenue, the key page's position). A daily `line` with the change date annotated. An `hbar` of click change by page. A `bar` of clicks by cluster, before vs after.                                   |
+| Site audit                      | An `hbar` or `bar` of issue counts by severity or by template, but only with a real crawl or export count behind it. A KPI row of crawl totals (URLs checked, indexable, errors).                                                |
+| Keyword and competitor research | An `hbar` of how many tested queries each domain appears in. A `bar` of SERP page types (clinic site, social, directory…) by language. Never chart search volume without an export.                                              |
+| AI visibility (AEO / GEO)       | A `bar` of mention or citation rate by engine, or share of voice against competitors, only from an observed prompt panel. Put n (runs) in the subtitle. The readiness scorecard and crawler access belong in tables, not charts. |
 
 Rules that apply to every chart:
 

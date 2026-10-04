@@ -22,29 +22,29 @@ If you find a conflict, do not pick silently: record it in `docs/open-items.md` 
 
 ## Documents
 
-| File | What it is | Read when |
-| --- | --- | --- |
-| `01-PRODUCT-REQUIREMENTS.md` | What the product must do, for whom, and the acceptance criteria | Always first |
-| `02-DETAILED-SPECIFICATION.md` | Rules, scoring, keywords, plans, content, corrections, automations, architecture, agents, integrity, data, security, cost | Designing any feature |
-| `03-PRODUCTION-CONTRACTS.md` | Fidelity labels, evidence states, schema list, workflow states, agent tool boundaries, change risk tiers, release evidence | Any data or workflow work |
-| `04-CLAUDE-CODE-BUILD-PROMPT.md` | The build prompt for Claude Code, with runtime agent instructions (Appendix A), data contracts (B) and tool allowlists (C) | Starting a session; building a runtime agent |
-| `05-PROJECT-PLAN.md` | Milestones M0A-M13 with exit gates, Phase 0, intent backlog, human gates | Planning a milestone |
-| `06-MODEL-PLAN.md` | Which Claude model builds each milestone, subagents and effort levels | Starting a milestone |
-| `07-SKILLS-AND-AGENTS.md` | Runtime skills and agents, approval boundaries, build-time skills and subagents | Agent or skill work |
-| `08-REFERENCE-LIBRARY.md` | Primary sources with checked dates | Before relying on any external fact |
-| `09-MERGE-DECISIONS.md` | How V3, V4 and the detailed spec were merged, and what was rejected | Understanding why something is the way it is |
-| `10-COMPETITOR-REVIEW.md` | SavageAudit feature and method review | Product decisions |
-| `v1-baseline/aeo-geo-seo-audit-prd.md` | The original rule catalog, formulas, prompt set, privacy and retention baseline | Rule and scoring work |
+| File                                   | What it is                                                                                                                 | Read when                                    |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `01-PRODUCT-REQUIREMENTS.md`           | What the product must do, for whom, and the acceptance criteria                                                            | Always first                                 |
+| `02-DETAILED-SPECIFICATION.md`         | Rules, scoring, keywords, plans, content, corrections, automations, architecture, agents, integrity, data, security, cost  | Designing any feature                        |
+| `03-PRODUCTION-CONTRACTS.md`           | Fidelity labels, evidence states, schema list, workflow states, agent tool boundaries, change risk tiers, release evidence | Any data or workflow work                    |
+| `04-CLAUDE-CODE-BUILD-PROMPT.md`       | The build prompt for Claude Code, with runtime agent instructions (Appendix A), data contracts (B) and tool allowlists (C) | Starting a session; building a runtime agent |
+| `05-PROJECT-PLAN.md`                   | Milestones M0A-M13 with exit gates, Phase 0, intent backlog, human gates                                                   | Planning a milestone                         |
+| `06-MODEL-PLAN.md`                     | Which Claude model builds each milestone, subagents and effort levels                                                      | Starting a milestone                         |
+| `07-SKILLS-AND-AGENTS.md`              | Runtime skills and agents, approval boundaries, build-time skills and subagents                                            | Agent or skill work                          |
+| `08-REFERENCE-LIBRARY.md`              | Primary sources with checked dates                                                                                         | Before relying on any external fact          |
+| `09-MERGE-DECISIONS.md`                | How V3, V4 and the detailed spec were merged, and what was rejected                                                        | Understanding why something is the way it is |
+| `10-COMPETITOR-REVIEW.md`              | SavageAudit feature and method review                                                                                      | Product decisions                            |
+| `v1-baseline/aeo-geo-seo-audit-prd.md` | The original rule catalog, formulas, prompt set, privacy and retention baseline                                            | Rule and scoring work                        |
 
 ## Outside `docs/spec/`
 
-| Path | What it is |
-| --- | --- |
-| `schemas/` | JSON Schemas (draft 2020-12) for every contract, with examples and negative tests |
-| `config/` | Rules, scoring, agents, providers, crawlers, budgets, retention, eligibility, prompt panels, connectors, policy facts |
-| `docs/*.md` | Threat model, data classification, environments, IAM, retention map, cost model, test strategy, rollback plan, eligibility policy, state machines, registers |
-| `docs/rubrics/`, `docs/runbooks/`, `docs/legal/` | Experience rubric draft, operations runbooks, legal requirements list |
-| `intent/` | Templates and the first two milestone intents |
-| `evals/`, `lessons/`, `ops/` | Evaluation plans, post-mortem template, detection bands |
-| `.claude/` | Claude Code settings, hooks, skills and subagents |
-| `templates/` | Style guides, brand fact sheet, brand terms, keyword upload, content brief |
+| Path                                             | What it is                                                                                                                                                   |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `schemas/`                                       | JSON Schemas (draft 2020-12) for every contract, with examples and negative tests                                                                            |
+| `config/`                                        | Rules, scoring, agents, providers, crawlers, budgets, retention, eligibility, prompt panels, connectors, policy facts                                        |
+| `docs/*.md`                                      | Threat model, data classification, environments, IAM, retention map, cost model, test strategy, rollback plan, eligibility policy, state machines, registers |
+| `docs/rubrics/`, `docs/runbooks/`, `docs/legal/` | Experience rubric draft, operations runbooks, legal requirements list                                                                                        |
+| `intent/`                                        | Templates and the first two milestone intents                                                                                                                |
+| `evals/`, `lessons/`, `ops/`                     | Evaluation plans, post-mortem template, detection bands                                                                                                      |
+| `.claude/`                                       | Claude Code settings, hooks, skills and subagents                                                                                                            |
+| `templates/`                                     | Style guides, brand fact sheet, brand terms, keyword upload, content brief                                                                                   |

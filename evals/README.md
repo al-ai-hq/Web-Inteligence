@@ -4,11 +4,11 @@ Status: draft for review. Owner: tech lead, with the SEO lead for golden files a
 
 Three suites check that the build agent (Claude Code) and the product's runtime agents keep behaving as intended. They complement unit, integration and security tests (`docs/test-strategy.md`).
 
-| Suite | Folder | Checks | Runs on | Gate | Test ID |
-| --- | --- | --- | --- | --- | --- |
-| Build-agent evals | `evals/build-agent/` | 20-50 real tasks from this repository with accepted outcomes | Changes to `CLAUDE.md` or `.claude/**`; nightly | Pass rate at or above `<DECIDE_AT_M0: build-agent threshold>` as a merge check; any drop is reviewed before merge | TS-EVAL-BUILD |
-| Product-agent evals | `evals/product-agent/` | Each runtime agent on the Phase 0 labelled site set and adversarial fixtures | Changes to prompts, `config/providers.yaml`, `config/agents/*.yaml` or `config/rules/*.yaml`; nightly | No fact-check or injection regressions; pass rate at or above `<DECIDE_AT_M0: product-agent threshold>` | TS-EVAL-AGENT |
-| Golden files | `evals/golden/` | Arabic normalization, cannibalization and report rendering against outputs of the vendored skill's scripts | Changes to keyword, performance or report code; changes to the vendored skill | Output matches, or the difference is logged as a decision | TS-GOLDEN |
+| Suite               | Folder                 | Checks                                                                                                     | Runs on                                                                                               | Gate                                                                                                              | Test ID       |
+| ------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------- |
+| Build-agent evals   | `evals/build-agent/`   | 20-50 real tasks from this repository with accepted outcomes                                               | Changes to `CLAUDE.md` or `.claude/**`; nightly                                                       | Pass rate at or above `<DECIDE_AT_M0: build-agent threshold>` as a merge check; any drop is reviewed before merge | TS-EVAL-BUILD |
+| Product-agent evals | `evals/product-agent/` | Each runtime agent on the Phase 0 labelled site set and adversarial fixtures                               | Changes to prompts, `config/providers.yaml`, `config/agents/*.yaml` or `config/rules/*.yaml`; nightly | No fact-check or injection regressions; pass rate at or above `<DECIDE_AT_M0: product-agent threshold>`           | TS-EVAL-AGENT |
+| Golden files        | `evals/golden/`        | Arabic normalization, cannibalization and report rendering against outputs of the vendored skill's scripts | Changes to keyword, performance or report code; changes to the vendored skill                         | Output matches, or the difference is logged as a decision                                                         | TS-GOLDEN     |
 
 ## Rules for every suite
 

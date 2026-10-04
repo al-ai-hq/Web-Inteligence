@@ -16,7 +16,7 @@ methodology_version: "0.1.0-draft"
 score_name: presence_readiness
 display_name:
   en: "Presence Readiness"
-  ar: "جاهزية الحضور"  # needs_native_review: true
+  ar: "جاهزية الحضور" # needs_native_review: true
 scale:
   min: 0
   max: 100
@@ -171,12 +171,12 @@ confidence:
 priority:
   formula: "priority_value = impact * reach * confidence_factor / effort"
   inputs:
-    impact: {min: 1, max: 5, note: "Judgment, shown as High, Medium or Low; not a forecast."}
+    impact: { min: 1, max: 5, note: "Judgment, shown as High, Medium or Low; not a forecast." }
     reach:
       min: 1
       max: 5
       note: "Number or share of important pages affected, normalized 1-5. Uses keyword volume or Search Console impressions when available, never mixing sources in one figure."
-    effort: {min: 1, max: 5, note: "1 is easiest. Judgment, shown as High, Medium or Low."}
+    effort: { min: 1, max: 5, note: "1 is easiest. Judgment, shown as High, Medium or Low." }
     confidence_factor:
       high: 1.0
       medium: 0.75
@@ -187,7 +187,7 @@ priority:
   plan_ordering: "Order by business impact on key pages, then effort, then confidence (02-DETAILED-SPECIFICATION §8)."
   plan_groups: [critical_blocker, quick_win, strategic_opportunity, measurement_fix, polish]
   horizons: ["0-30", "31-60", "61-90"]
-  executive_board_size: {min: 8, max: 12, source_reference: "01-PRODUCT-REQUIREMENTS §5.12"}
+  executive_board_size: { min: 8, max: 12, source_reference: "01-PRODUCT-REQUIREMENTS §5.12" }
   forbidden: "Never forecast rankings, traffic, citations or revenue (02-DETAILED-SPECIFICATION §8)."
 
 # D-012 and 01-PRODUCT-REQUIREMENTS §5.3, §8. These measurements are separate outputs.
@@ -210,7 +210,14 @@ separation:
 separate_outputs:
   experience_effectiveness:
     status: "Defined at M5 (01-PRODUCT-REQUIREMENTS §5.3; 05-PROJECT-PLAN M5)."
-    dimensions: [design_hierarchy, copy_and_positioning_clarity, ux_and_navigation, trust_and_proof, conversion_path_and_measurement]
+    dimensions:
+      [
+        design_hierarchy,
+        copy_and_positioning_clarity,
+        ux_and_navigation,
+        trust_and_proof,
+        conversion_path_and_measurement,
+      ]
     weights: "<DECIDE_AT_M0: experience rubric and weights need approval (01-PRODUCT-REQUIREMENTS §14)>"
     fidelity_label: assessed
     requires: "Rubric, evidence, confidence and reviewer trace for every subjective check."
@@ -236,7 +243,14 @@ separate_outputs:
       - "Never describe results as a universal AI ranking; label them API observations, not consumer-app reproductions."
   search_performance:
     source_reference: "02-DETAILED-SPECIFICATION §7"
-    contents: [clusters_with_mapped_page, share_of_clusters_average_position_10_or_better, click_trend, impression_trend, imported_generative_ai_impressions]
+    contents:
+      [
+        clusters_with_mapped_page,
+        share_of_clusters_average_position_10_or_better,
+        click_trend,
+        impression_trend,
+        imported_generative_ai_impressions,
+      ]
     rules:
       - "CTR computed from totals; average position is an impression-weighted average, not a fixed rank."
       - "Rate changes in percentage points."

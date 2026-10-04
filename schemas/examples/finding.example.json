@@ -18,9 +18,7 @@
   "message_key": "finding.seo_002.meta_description_missing",
   "methodology_version": "0.1.0",
   "evidence_state": "verified",
-  "rule_result_ids": [
-    "4e6a8c0d-2f4b-4d6e-8a0c-1e3b5d7f9a42"
-  ],
+  "rule_result_ids": ["4e6a8c0d-2f4b-4d6e-8a0c-1e3b5d7f9a42"],
   "template_cluster_key": "service-page-template",
   "affected_scope": {
     "pages_checked": 14,

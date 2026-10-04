@@ -9,6 +9,7 @@ This reference covers three related jobs. Measure and report each one separately
 Ordinary SEO is the base layer for all three. Google's AI features draw on Google's index, and Copilot draws on Bing's. ChatGPT, Perplexity and Claude run their own crawlers and search indexes. A page that can't be crawled, indexed or read won't be cited, however well it's written.
 
 **For Google specifically, AEO/GEO is SEO.** Google's AI optimization guide (Search Central, last updated 10 July 2026) says three things:
+
 - optimizing for its generative AI search "is optimizing for the search experience, and thus still SEO";
 - you don't need llms.txt, special markup or Markdown files;
 - you don't need to break content into small chunks or write in a special way for AI.
@@ -19,11 +20,11 @@ So never sell "chunking" or AI-only rewrites as a Google tactic. The answer-firs
 
 This field changes monthly and is full of vendor claims. Grade every source you rely on:
 
-| Tier | Source | How to use it |
-|---|---|---|
-| 1 | Primary platform docs: Google Search Central (including its AI optimization guide), Bing Webmaster, OpenAI / Anthropic / Perplexity crawler docs, Chrome for Developers | Can support a recommendation. Cite it with its date. |
-| 2 | Independent studies that publish their method and sample | Can support a recommendation. State the sample and period. |
-| 3 | Vendor blogs, tool marketing, "we saw X% lift" posts | A hypothesis to test, never a fact. Say so. |
+| Tier | Source                                                                                                                                                                  | How to use it                                              |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 1    | Primary platform docs: Google Search Central (including its AI optimization guide), Bing Webmaster, OpenAI / Anthropic / Perplexity crawler docs, Chrome for Developers | Can support a recommendation. Cite it with its date.       |
+| 2    | Independent studies that publish their method and sample                                                                                                                | Can support a recommendation. State the sample and period. |
+| 3    | Vendor blogs, tool marketing, "we saw X% lift" posts                                                                                                                    | A hypothesis to test, never a fact. Say so.                |
 
 - **Trace statistics to their origin.** Ten articles quoting one vendor study are still one data point.
 - **Don't promise outcomes.** AI answers are non-deterministic and models change. Write "improves the likelihood of being cited", never "will get cited", and never attach a projected citation or traffic lift.
@@ -31,30 +32,31 @@ This field changes monthly and is full of vendor claims. Grade every source you 
 
 ## The five layers
 
-Work through the layers in order, because a failure in an early layer makes later work pointless. Record each check in the scorecard as *Pass*, *Partial*, *Fail* or *Not checked*, with its evidence.
+Work through the layers in order, because a failure in an early layer makes later work pointless. Record each check in the scorecard as _Pass_, _Partial_, _Fail_ or _Not checked_, with its evidence.
 
 ### 1. Access: can AI systems reach the content?
 
 - **robots.txt, per crawler.** `page_audit.py` applies the robots.txt rules (RFC 9309 matching) to every crawled URL, not just the homepage. Each vendor documents different behavior, so describe the effect of blocking vendor by vendor. Blocking a training crawler is a legitimate business choice. Blocking a search crawler reduces or removes the site from that engine's answers. Present both as decisions for the user, not errors.
 
-  | Operator | Crawler or token | Used for | robots.txt | Effect of blocking |
-  |---|---|---|---|---|
-  | Google | `Googlebot` | Search, including AI Overviews and AI Mode | Followed | Removes the page from Search and its AI features |
-  | Google | `Google-Extended` (token only) | Gemini training, and grounding in Gemini Apps and Vertex AI | Followed | No effect on Google Search; may reduce use in Gemini answers |
-  | Google | `Google-Agent` | Agents on Google infrastructure acting for a user | Generally ignored (user-requested) | Little; handle agent traffic at the server if needed |
-  | Microsoft | `Bingbot` | Bing, which Copilot draws on | Followed | Removes the site from Bing and weakens Copilot visibility |
-  | OpenAI | `OAI-SearchBot` | ChatGPT search | Followed | Not shown in ChatGPT search answers, though it can still appear as a navigational link |
-  | OpenAI | `ChatGPT-User` | Actions a user asks ChatGPT to take | "May not apply"; not used for search inclusion | Limited |
-  | OpenAI | `GPTBot` | Model training | Followed | Training only |
-  | Anthropic | `Claude-SearchBot` | Search indexing | Followed | May reduce visibility in Claude's search results |
-  | Anthropic | `Claude-User` | Fetches when a user asks | Followed | May reduce visibility for user-directed searches |
-  | Anthropic | `ClaudeBot` | Model training | Followed | Training only; doesn't stop the other two |
-  | Perplexity | `PerplexityBot` | Perplexity search results (not training) | Followed | Reduces appearance in Perplexity results |
-  | Perplexity | `Perplexity-User` | Fetches when a user asks | Generally ignored (user-requested) | Limited |
-  | Others | `Applebot-Extended` (token only), `CCBot`, `Bytespider`, `meta-externalagent` | Training / datasets | Varies | Training only |
+  | Operator   | Crawler or token                                                              | Used for                                                    | robots.txt                                     | Effect of blocking                                                                     |
+  | ---------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------- |
+  | Google     | `Googlebot`                                                                   | Search, including AI Overviews and AI Mode                  | Followed                                       | Removes the page from Search and its AI features                                       |
+  | Google     | `Google-Extended` (token only)                                                | Gemini training, and grounding in Gemini Apps and Vertex AI | Followed                                       | No effect on Google Search; may reduce use in Gemini answers                           |
+  | Google     | `Google-Agent`                                                                | Agents on Google infrastructure acting for a user           | Generally ignored (user-requested)             | Little; handle agent traffic at the server if needed                                   |
+  | Microsoft  | `Bingbot`                                                                     | Bing, which Copilot draws on                                | Followed                                       | Removes the site from Bing and weakens Copilot visibility                              |
+  | OpenAI     | `OAI-SearchBot`                                                               | ChatGPT search                                              | Followed                                       | Not shown in ChatGPT search answers, though it can still appear as a navigational link |
+  | OpenAI     | `ChatGPT-User`                                                                | Actions a user asks ChatGPT to take                         | "May not apply"; not used for search inclusion | Limited                                                                                |
+  | OpenAI     | `GPTBot`                                                                      | Model training                                              | Followed                                       | Training only                                                                          |
+  | Anthropic  | `Claude-SearchBot`                                                            | Search indexing                                             | Followed                                       | May reduce visibility in Claude's search results                                       |
+  | Anthropic  | `Claude-User`                                                                 | Fetches when a user asks                                    | Followed                                       | May reduce visibility for user-directed searches                                       |
+  | Anthropic  | `ClaudeBot`                                                                   | Model training                                              | Followed                                       | Training only; doesn't stop the other two                                              |
+  | Perplexity | `PerplexityBot`                                                               | Perplexity search results (not training)                    | Followed                                       | Reduces appearance in Perplexity results                                               |
+  | Perplexity | `Perplexity-User`                                                             | Fetches when a user asks                                    | Generally ignored (user-requested)             | Limited                                                                                |
+  | Others     | `Applebot-Extended` (token only), `CCBot`, `Bytespider`, `meta-externalagent` | Training / datasets                                         | Varies                                         | Training only                                                                          |
 
   Recheck the vendors' crawler pages before quoting this table, because these details change. Control tokens such as `Google-Extended` and `Applebot-Extended` have no user agent of their own, so they never appear in logs.
-- **What the server actually returns.** robots.txt is only a request. CDNs and firewalls can block AI bots whatever robots.txt says, and some CDNs offer one-click or default AI-bot blocking. Run `page_audit.py <url> --compare-agents` on a handful of key URLs to fetch them as a browser, Googlebot, Bingbot and the main AI crawlers, then compare the status, title, language, word count and structured data each one gets. Keep it to a few URLs. If a site blocks you, record the result; never retry with tricks to get around the block. A 403, a challenge page or much thinner content for one agent is a finding. Label it *Inferred*: CDNs may verify real bots by IP, so a test with a spoofed user agent can differ from what the real crawler sees. Confirm in CDN or server logs, or in the CDN's bot settings.
+
+- **What the server actually returns.** robots.txt is only a request. CDNs and firewalls can block AI bots whatever robots.txt says, and some CDNs offer one-click or default AI-bot blocking. Run `page_audit.py <url> --compare-agents` on a handful of key URLs to fetch them as a browser, Googlebot, Bingbot and the main AI crawlers, then compare the status, title, language, word count and structured data each one gets. Keep it to a few URLs. If a site blocks you, record the result; never retry with tricks to get around the block. A 403, a challenge page or much thinner content for one agent is a finding. Label it _Inferred_: CDNs may verify real bots by IP, so a test with a spoofed user agent can differ from what the real crawler sees. Confirm in CDN or server logs, or in the CDN's bot settings.
 - **Crawl logs.** If the user provides server or CDN logs, count requests and status codes per AI crawler for key URLs. That shows what bots actually receive. Verify real bots against the vendors' published IP ranges, since user agents can be faked.
 - **Index eligibility.** Google says a page must be indexed and eligible to show with a snippet to appear as a link in its AI features. `noindex`, `nosnippet` and restrictive `max-snippet` values limit this.
 - **Search Console inclusion setting.** A site must also be included in "Search generative AI features" in Search Console to be eligible for Google's generative AI features. Ask the user to confirm this setting; you can't see it without access.
@@ -83,6 +85,7 @@ Work through the layers in order, because a failure in an early layer makes late
   - **Imperative API:** `document.modelContext.registerTool()`, unregistered by aborting the `AbortSignal` passed at registration.
 
   Recommend it only for sites whose key tasks run through forms and whose team can ship and maintain it. Don't use attribute or API names from third-party templates that don't match Chrome's documentation.
+
 - **Lighthouse.** The Agentic browsing category is experimental and needs Chrome 150 or later. Its WebMCP audits also need origin-trial registration. It reports a fraction of checks passed rather than a score, and audits:
   - registered WebMCP tools;
   - forms missing declarative WebMCP;
@@ -92,6 +95,7 @@ Work through the layers in order, because a failure in an early layer makes late
   - layout stability.
 
   If Lighthouse is available, run it and cite the version and date.
+
 - **Testing with a real browser agent.** Do this only with the user's permission. Never submit a form, place an order or make a booking during a test. Stop at the final confirmation step unless the user explicitly authorizes a specific, named test submission.
 
 ### 4. Footprint: what do third-party sources say?
@@ -118,6 +122,7 @@ Presence can't be inferred from search results or readiness checks. There are fi
     - brand facts ("does [brand] deliver to …").
 
     Brand-free prompts are the real test. Brand prompts check accuracy.
+
   - **Engines:** the ones the audience uses, stated explicitly. Options are Google AI Overviews / AI Mode, ChatGPT with search, Gemini, Perplexity, Copilot and Claude.
   - **Repeats:** answers vary, so run each prompt at least 3 times (or on 3 different days). Use a clean or logged-out profile where possible, and a fixed location and language.
   - **Record for every run:** date, engine and mode, location, prompt, brand mentioned (Y/N), brand URL cited (URL), competitors mentioned, cited URLs, and accuracy problems.
@@ -140,11 +145,11 @@ Report by engine and by prompt category. With small n (under about 10 runs in a 
 
 ## Scorecard format (in the report)
 
-| Layer | Check | Status | Verification | Evidence | Fix |
-|---|---|---|---|---|---|
-| Access | Search AI crawlers allowed by robots.txt on crawled URLs | *Pass* | *Verified* | robots.txt fetched 2026-09-30; 24 crawled URLs checked | — |
-| Access | Server response to AI crawlers | *Fail* | *Inferred* | Spoofed OAI-SearchBot gets 403 on /ar/ (`--compare-agents`); CDN may treat the real bot differently | Check the CDN bot settings and logs; allow verified search crawlers |
-| Parse | Main content in raw HTML | *Partial* | *Verified* | Only Googlebot gets prerendered HTML | Serve the prerender to all verified crawlers or use SSR |
+| Layer  | Check                                                    | Status    | Verification | Evidence                                                                                            | Fix                                                                 |
+| ------ | -------------------------------------------------------- | --------- | ------------ | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Access | Search AI crawlers allowed by robots.txt on crawled URLs | _Pass_    | _Verified_   | robots.txt fetched 2026-09-30; 24 crawled URLs checked                                              | —                                                                   |
+| Access | Server response to AI crawlers                           | _Fail_    | _Inferred_   | Spoofed OAI-SearchBot gets 403 on /ar/ (`--compare-agents`); CDN may treat the real bot differently | Check the CDN bot settings and logs; allow verified search crawlers |
+| Parse  | Main content in raw HTML                                 | _Partial_ | _Verified_   | Only Googlebot gets prerendered HTML                                                                | Serve the prerender to all verified crawlers or use SSR             |
 
 Show "checked X of Y" instead of an overall percentage score unless every check was actually run.
 

@@ -33,28 +33,28 @@ sub-budget and pacing, reduced/preview per-audit caps, and the hosting-overrun b
 appear in the Cloud Billing export, so the ledger and the provider's own usage report are the
 sources for those lines.
 
-| Line | Kind | Billed through | Measured by | Stoppable by application breakers |
-|---|---|---|---|---|
-| Cloud Run services (web/API, gateway, agents, connector, cost guard) | Hosting, fixed and variable | Google Cloud | Billing export by service and label | Partly (scale limits); stopping serves an outage |
-| Cloud Run Jobs (crawl, render, deletion, evidence processing) | Hosting, variable | Google Cloud | Billing export; per-audit job duration in the ledger | Yes, by closing intake or reducing scope |
-| Cloud SQL for PostgreSQL (instance, storage, backups) | Hosting, fixed | Google Cloud | Billing export | No |
-| Cloud Storage (storage, operations, egress) | Hosting, variable | Google Cloud | Billing export | Partly (lifecycle, retention) |
-| Load balancer and Cloud Armor | Hosting, fixed and per-request | Google Cloud | Billing export | No |
-| Cloud NAT and static egress IP for the crawler | Hosting, fixed and variable | Google Cloud | Billing export | Partly |
-| Network egress | Hosting, variable | Google Cloud | Billing export | Partly |
-| Cloud Logging, Monitoring, Trace, Error Reporting | Hosting, variable | Google Cloud | Billing export; log volume per service | Partly (log levels, exclusions) |
-| Workflows, Cloud Tasks, Pub/Sub, Cloud Scheduler | Hosting, variable | Google Cloud | Billing export | Partly |
-| Secret Manager, Cloud KMS | Hosting, small fixed and per-operation | Google Cloud | Billing export | No |
-| BigQuery (Billing export dataset, cost ledger copy, analytics) | Hosting, variable | Google Cloud | Billing export | Partly |
-| Artifact Registry and CI builds | Hosting, variable | Google Cloud or CI vendor | Billing export or CI invoice | Partly |
-| Identity provider (M4+) | Hosting, per-user | `<DECIDE_AT_M0: identity provider>` | Invoice or Billing export | No |
-| CAPTCHA | Per assessment | `<DECIDE_AT_M0B: CAPTCHA provider>` | Invoice or Billing export | Yes (only used when suspicious) |
-| Prompt and response screening, sensitive-data inspection (if adopted) | Per call | Google Cloud | Billing export; ledger | Yes |
-| AI model calls on Vertex AI | Paid call | Google Cloud | Ledger (pre-call estimate, then actual usage); Billing export | Yes, pre-call check |
-| AI model calls on external providers | Paid call | Each provider | Ledger; provider usage report or invoice | Yes, pre-call check |
-| Search and grounding calls (provider web search, grounding) | Paid call | Provider | Ledger (search count per call, v1-baseline §12.5); provider usage | Yes, pre-call check |
-| Keyword and rank data (Keyword Planner, licensed provider) (M4+) | Paid call or subscription | Provider | Ledger; invoice | Yes for per-call; no for subscriptions |
-| Domain and DNS | Fixed | Registrar or Google Cloud | Invoice | No |
+| Line                                                                  | Kind                                   | Billed through                      | Measured by                                                       | Stoppable by application breakers                |
+| --------------------------------------------------------------------- | -------------------------------------- | ----------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------ |
+| Cloud Run services (web/API, gateway, agents, connector, cost guard)  | Hosting, fixed and variable            | Google Cloud                        | Billing export by service and label                               | Partly (scale limits); stopping serves an outage |
+| Cloud Run Jobs (crawl, render, deletion, evidence processing)         | Hosting, variable                      | Google Cloud                        | Billing export; per-audit job duration in the ledger              | Yes, by closing intake or reducing scope         |
+| Cloud SQL for PostgreSQL (instance, storage, backups)                 | Hosting, fixed                         | Google Cloud                        | Billing export                                                    | No                                               |
+| Cloud Storage (storage, operations, egress)                           | Hosting, variable                      | Google Cloud                        | Billing export                                                    | Partly (lifecycle, retention)                    |
+| Load balancer and Cloud Armor                                         | Hosting, fixed and per-request         | Google Cloud                        | Billing export                                                    | No                                               |
+| Cloud NAT and static egress IP for the crawler                        | Hosting, fixed and variable            | Google Cloud                        | Billing export                                                    | Partly                                           |
+| Network egress                                                        | Hosting, variable                      | Google Cloud                        | Billing export                                                    | Partly                                           |
+| Cloud Logging, Monitoring, Trace, Error Reporting                     | Hosting, variable                      | Google Cloud                        | Billing export; log volume per service                            | Partly (log levels, exclusions)                  |
+| Workflows, Cloud Tasks, Pub/Sub, Cloud Scheduler                      | Hosting, variable                      | Google Cloud                        | Billing export                                                    | Partly                                           |
+| Secret Manager, Cloud KMS                                             | Hosting, small fixed and per-operation | Google Cloud                        | Billing export                                                    | No                                               |
+| BigQuery (Billing export dataset, cost ledger copy, analytics)        | Hosting, variable                      | Google Cloud                        | Billing export                                                    | Partly                                           |
+| Artifact Registry and CI builds                                       | Hosting, variable                      | Google Cloud or CI vendor           | Billing export or CI invoice                                      | Partly                                           |
+| Identity provider (M4+)                                               | Hosting, per-user                      | `<DECIDE_AT_M0: identity provider>` | Invoice or Billing export                                         | No                                               |
+| CAPTCHA                                                               | Per assessment                         | `<DECIDE_AT_M0B: CAPTCHA provider>` | Invoice or Billing export                                         | Yes (only used when suspicious)                  |
+| Prompt and response screening, sensitive-data inspection (if adopted) | Per call                               | Google Cloud                        | Billing export; ledger                                            | Yes                                              |
+| AI model calls on Vertex AI                                           | Paid call                              | Google Cloud                        | Ledger (pre-call estimate, then actual usage); Billing export     | Yes, pre-call check                              |
+| AI model calls on external providers                                  | Paid call                              | Each provider                       | Ledger; provider usage report or invoice                          | Yes, pre-call check                              |
+| Search and grounding calls (provider web search, grounding)           | Paid call                              | Provider                            | Ledger (search count per call, v1-baseline §12.5); provider usage | Yes, pre-call check                              |
+| Keyword and rank data (Keyword Planner, licensed provider) (M4+)      | Paid call or subscription              | Provider                            | Ledger; invoice                                                   | Yes for per-call; no for subscriptions           |
+| Domain and DNS                                                        | Fixed                                  | Registrar or Google Cloud           | Invoice                                                           | No                                               |
 
 Check at M0B which services bill while idle (for example a database instance, a minimum
 instance setting, a load-balancer forwarding rule or a static IP). Those form the fixed part of
@@ -127,10 +127,10 @@ formula, not estimates. Reserve USD 10. Hard cap USD 4.00 (D-007). Worst case: e
 its hard cap and nothing else spends from the paid budget.
 
 | hosting_baseline | reserve | paid_call_budget (150 - h - r) | per_audit_hard_cap | rich_audits_per_month (floor) |
-|---|---|---|---|---|
-| USD 40 | USD 10 | USD 100 | USD 4.00 | 25 |
-| USD 70 | USD 10 | USD 70 | USD 4.00 | 17 |
-| USD 100 | USD 10 | USD 40 | USD 4.00 | 10 |
+| ---------------- | ------- | ------------------------------ | ------------------ | ----------------------------- |
+| USD 40           | USD 10  | USD 100                        | USD 4.00           | 25                            |
+| USD 70           | USD 10  | USD 70                         | USD 4.00           | 17                            |
+| USD 100          | USD 10  | USD 40                         | USD 4.00           | 10                            |
 
 Reading the table: every extra USD 4.00 of hosting removes one worst-case rich audit. Average
 per-audit cost is expected to sit below the hard cap, but capacity planning uses the cap because
@@ -138,27 +138,27 @@ the cap is the only number the system guarantees.
 
 ## 5. Enforcement
 
-| Mechanism | Acts on | Speed |
-|---|---|---|
-| Pre-call check in the provider gateway | Every paid call: per-audit, daily anonymous allowance, monthly paid budget | Immediate, before the call |
-| Per-audit caps (D-007) | Soft: skip optional retries and summaries. Hard: stop paid calls, mark sections `unavailable` | Immediate |
-| Circuit breaker per provider (D-007) | Opens after 3 consecutive timeouts or 5xx; 15-minute cool-down; one probe; results `unavailable`, never 0% | Immediate |
-| Cloud Billing budgets | Alert only; notifications go to Pub/Sub and the cost guard (02 §18) | Delayed by Billing export latency; measure it at M0B |
-| Cost guard | Computes month-end forecast = hosting forecast + paid spent + paid committed; sets budget state and global breakers | On each notification and on a schedule (ASSUMPTION: hourly) |
-| Reconciliation | Ledger versus Billing export and provider usage reports; alert if variance exceeds 5% (ASSUMPTION, 02 §15) | Monthly (`config/budgets.yaml`); ASSUMPTION: plus a daily check |
+| Mechanism                              | Acts on                                                                                                             | Speed                                                           |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Pre-call check in the provider gateway | Every paid call: per-audit, daily anonymous allowance, monthly paid budget                                          | Immediate, before the call                                      |
+| Per-audit caps (D-007)                 | Soft: skip optional retries and summaries. Hard: stop paid calls, mark sections `unavailable`                       | Immediate                                                       |
+| Circuit breaker per provider (D-007)   | Opens after 3 consecutive timeouts or 5xx; 15-minute cool-down; one probe; results `unavailable`, never 0%          | Immediate                                                       |
+| Cloud Billing budgets                  | Alert only; notifications go to Pub/Sub and the cost guard (02 §18)                                                 | Delayed by Billing export latency; measure it at M0B            |
+| Cost guard                             | Computes month-end forecast = hosting forecast + paid spent + paid committed; sets budget state and global breakers | On each notification and on a schedule (ASSUMPTION: hourly)     |
+| Reconciliation                         | Ledger versus Billing export and provider usage reports; alert if variance exceeds 5% (ASSUMPTION, 02 §15)          | Monthly (`config/budgets.yaml`); ASSUMPTION: plus a daily check |
 
 Degradation order against the month-end forecast of total spend, as in `config/budgets.yaml`
 (`degradation_order`, percentages of the USD 150 cap, projected spend including hosting,
 ASSUMPTION). Rows marked "proposal" are ASSUMPTIONS the config leaves open.
 
-| Forecast reaches | Action |
-|---|---|
-| USD 100 | Alert admins (02 §18 monthly alert) |
-| 70% | Disable automatic provider retries (v1-baseline §11.4) |
-| 85% | Reduce optional summarization tokens (v1-baseline §11.4). Proposal: anonymous rich audits also drop optional enrichment and repeat observations |
-| 95% | Mark providers with `degradation_priority: drop_first` in `config/providers.yaml` temporarily unavailable (v1-baseline §11.4). Proposal: anonymous rich audits run without AI observations |
+| Forecast reaches                                                            | Action                                                                                                                                                                                                                                                                      |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| USD 100                                                                     | Alert admins (02 §18 monthly alert)                                                                                                                                                                                                                                         |
+| 70%                                                                         | Disable automatic provider retries (v1-baseline §11.4)                                                                                                                                                                                                                      |
+| 85%                                                                         | Reduce optional summarization tokens (v1-baseline §11.4). Proposal: anonymous rich audits also drop optional enrichment and repeat observations                                                                                                                             |
+| 95%                                                                         | Mark providers with `degradation_priority: drop_first` in `config/providers.yaml` temporarily unavailable (v1-baseline §11.4). Proposal: anonymous rich audits run without AI observations                                                                                  |
 | Paid-call budget exhausted (total forecast reaches `monthly_cap - reserve`) | Stop all paid calls; deterministic audits continue; AI sections read "unavailable: monthly limit" (v1-baseline §11.4). The config's final degradation step and `paid_calls_stop_at` both use cap minus reserve, so Billing export delay cannot push real spend past USD 150 |
-| Hosting forecast alone reaches `monthly_cap - reserve` | Proposal (config `hosting_overrun` is `<DECIDE_AT_M0>`): close new anonymous intake (tier `refused`, capacity reason) and page the cloud billing owner (`docs/runbooks/budget-hard-stop.md`) |
+| Hosting forecast alone reaches `monthly_cap - reserve`                      | Proposal (config `hosting_overrun` is `<DECIDE_AT_M0>`): close new anonymous intake (tier `refused`, capacity reason) and page the cloud billing owner (`docs/runbooks/budget-hard-stop.md`)                                                                                |
 
 The application never unlinks billing, deletes resources or stops production services as an
 automatic cost control. Hosting reductions are human decisions.
@@ -182,7 +182,7 @@ no deployed services, crawler or provider gateway yet (`intent/INT-01-.../intent
 proof runs in two stages (D-019):
 
 - **Stage 1, modelled proof at M0B.** Use the formulas in §3, `config/budgets.yaml`, synthetic
-  ledger entries and an *estimated* hosting baseline for the planned topology, built from Google
+  ledger entries and an _estimated_ hosting baseline for the planned topology, built from Google
   Cloud's published pricing and labelled `estimated`. Show in a test harness that the pre-call
   check refuses the next paid call at `monthly_cap - reserve`, that AI sections become
   `unavailable` (never 0%), and that deterministic results still complete. Compute the range of

@@ -12,17 +12,17 @@ vendor change, or a provider notice.
 
 ## Inventory
 
-| Secret | Held by | Rotation method | Overlap |
-|---|---|---|---|
-| AI and data-provider API keys | `provider-gateway` (Secret Manager) | Create a new key at the provider; add a new secret version; gateway picks it up; verify; revoke the old key at the provider; disable the old version | Minutes |
-| Report access-secret hash key | `web-api` | Add a new key version; store the key ID with every hash; new hashes use the new key; keep the old key until every report hashed with it has expired | Up to 7 days (report lifetime, D-002) |
-| Report session and eligibility cookie signing keys | `web-api` | Key ID in each cookie; sign with the new key; accept both during overlap; retire the old key | Cookie lifetime, or accept a reset |
-| Domain-hash key for logs | `web-api`, services | New key version; correlation breaks across the boundary, so rotate on schedule only | None needed |
-| Platform OAuth client secrets (CMS, Search Console) | `connector`, `source-reader` | Rotate at the platform; add a new secret version; verify callback | Per platform |
-| Tenant OAuth tokens and CMS credentials | `connector`, `source-reader` | Tenant-owned. On suspected exposure, revoke at the platform and ask the tenant to reconnect | None |
-| Webhook secrets (M9) | `webhook-receiver` | Per connection, with overlap where the platform supports two secrets | Per platform |
-| Cloud KMS keys (CMEK) | KMS | Scheduled rotation (ASSUMPTION: enabled); old key versions stay enabled for decryption until data under them is re-encrypted or expired | Automatic |
-| CI access | Workload Identity Federation | No keys to rotate; review trust conditions on schedule | n/a |
+| Secret                                              | Held by                             | Rotation method                                                                                                                                      | Overlap                               |
+| --------------------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| AI and data-provider API keys                       | `provider-gateway` (Secret Manager) | Create a new key at the provider; add a new secret version; gateway picks it up; verify; revoke the old key at the provider; disable the old version | Minutes                               |
+| Report access-secret hash key                       | `web-api`                           | Add a new key version; store the key ID with every hash; new hashes use the new key; keep the old key until every report hashed with it has expired  | Up to 7 days (report lifetime, D-002) |
+| Report session and eligibility cookie signing keys  | `web-api`                           | Key ID in each cookie; sign with the new key; accept both during overlap; retire the old key                                                         | Cookie lifetime, or accept a reset    |
+| Domain-hash key for logs                            | `web-api`, services                 | New key version; correlation breaks across the boundary, so rotate on schedule only                                                                  | None needed                           |
+| Platform OAuth client secrets (CMS, Search Console) | `connector`, `source-reader`        | Rotate at the platform; add a new secret version; verify callback                                                                                    | Per platform                          |
+| Tenant OAuth tokens and CMS credentials             | `connector`, `source-reader`        | Tenant-owned. On suspected exposure, revoke at the platform and ask the tenant to reconnect                                                          | None                                  |
+| Webhook secrets (M9)                                | `webhook-receiver`                  | Per connection, with overlap where the platform supports two secrets                                                                                 | Per platform                          |
+| Cloud KMS keys (CMEK)                               | KMS                                 | Scheduled rotation (ASSUMPTION: enabled); old key versions stay enabled for decryption until data under them is re-encrypted or expired              | Automatic                             |
+| CI access                                           | Workload Identity Federation        | No keys to rotate; review trust conditions on schedule                                                                                               | n/a                                   |
 
 ## Steps
 

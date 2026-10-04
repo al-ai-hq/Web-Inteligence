@@ -4,7 +4,7 @@ Bilingual (Arabic/English) platform that audits websites for SEO, AEO and GEO, o
 
 ## Status
 
-M0A complete (2026-10-01): pnpm workspace, strict TypeScript, ESLint/Prettier, Vitest, Playwright, skeleton packages and services, bilingual placeholder page. Governance toolchain (schemas, config, hooks) is operational. Release draft in `intent/INT-00-m0a-repository-bootstrap/release.md`. M0B is next (`intent/INT-01-m0b-contracts-threat-model-cost-proof/intent.md`); it does not start automatically.
+M0A complete and verified (2026-10-01): pnpm workspace, strict TypeScript, ESLint/Prettier, Vitest, Playwright, skeleton packages and services, bilingual placeholder page. Governance toolchain (schemas, config, hooks) is operational. All commands pass: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:ssrf`, `pnpm format:check`. Release authorized in `intent/INT-00-m0a-repository-bootstrap/release.md`. M0B is next (`intent/INT-01-m0b-contracts-threat-model-cost-proof/intent.md`); it does not start automatically.
 
 ## Read before any change
 

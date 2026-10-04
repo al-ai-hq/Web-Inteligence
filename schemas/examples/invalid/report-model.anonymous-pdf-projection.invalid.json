@@ -5,10 +5,7 @@
     {
       "op": "replace",
       "path": "/allowed_projections",
-      "value": [
-        "web_interactive",
-        "pdf"
-      ]
+      "value": ["web_interactive", "pdf"]
     }
   ]
 }

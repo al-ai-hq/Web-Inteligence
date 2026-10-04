@@ -15,17 +15,17 @@ Rules while filling it:
 Method reference: .claude/skills/marketing-seo-agent/references/content-briefs.md
 -->
 
-| Field | Value |
-| --- | --- |
-| `brief_id` | <uuid> |
-| `cluster_id` | <uuid of the keyword cluster> |
-| `opportunity_id` | <uuid of the content opportunity, or none> |
-| `status` | BRIEF_DRAFT |
-| `author_id` | <named human author (user uuid); required before any draft> |
-| `approved_by_user_id` / `approved_at` | <set by the approver, not by an agent> |
-| `needs_native_review` | <true for any Arabic output until a native reviewer signs off> |
-| `created_at` | <RFC 3339 UTC> |
-| `review_date` | <YYYY-MM-DD: when this page is re-checked against its cluster data> |
+| Field                                 | Value                                                               |
+| ------------------------------------- | ------------------------------------------------------------------- |
+| `brief_id`                            | <uuid>                                                              |
+| `cluster_id`                          | <uuid of the keyword cluster>                                       |
+| `opportunity_id`                      | <uuid of the content opportunity, or none>                          |
+| `status`                              | BRIEF_DRAFT                                                         |
+| `author_id`                           | <named human author (user uuid); required before any draft>         |
+| `approved_by_user_id` / `approved_at` | <set by the approver, not by an agent>                              |
+| `needs_native_review`                 | <true for any Arabic output until a native reviewer signs off>      |
+| `created_at`                          | <RFC 3339 UTC>                                                      |
+| `review_date`                         | <YYYY-MM-DD: when this page is re-checked against its cluster data> |
 
 ## 1. Page goal and audience
 
@@ -36,9 +36,9 @@ Method reference: .claude/skills/marketing-seo-agent/references/content-briefs.m
 
 - `target_cluster`: primary keyword and variants in each language.
 
-| Keyword | Language | Market | Avg. monthly volume | Source and period | Avg. position | Source and period |
-| --- | --- | --- | --- | --- | --- | --- |
-| <primary> | <ar-SA> | <SA> | <number, or "Not available (needs export)"> | <e.g. Google Keyword Planner, 2025-10 to 2026-09> | <number, or "Not available (needs export)"> | <Search Console, dates, Pacific Time> |
+| Keyword   | Language | Market | Avg. monthly volume                         | Source and period                                 | Avg. position                               | Source and period                     |
+| --------- | -------- | ------ | ------------------------------------------- | ------------------------------------------------- | ------------------------------------------- | ------------------------------------- |
+| <primary> | <ar-SA>  | <SA>   | <number, or "Not available (needs export)"> | <e.g. Google Keyword Planner, 2025-10 to 2026-09> | <number, or "Not available (needs export)"> | <Search Console, dates, Pacific Time> |
 
 - `intent`: <informational | commercial | transactional | navigational>
 - `market`: <ISO 3166-1 alpha-2 or `global`>. `language`: <BCP 47>.
@@ -54,9 +54,9 @@ Method reference: .claude/skills/marketing-seo-agent/references/content-briefs.m
 
 - `observations`: what ranks or gets cited, from licensed SERP data or observed AI citations. Never from scraped Google result pages (D-009).
 
-| Date | URL examined | Note |
-| --- | --- | --- |
-| <YYYY-MM-DD> | <URL> | <page type, angle, trust signals> |
+| Date         | URL examined | Note                              |
+| ------------ | ------------ | --------------------------------- |
+| <YYYY-MM-DD> | <URL>        | <page type, angle, trust signals> |
 
 - `competitor_coverage`: <cited sources only>
 
@@ -72,8 +72,8 @@ Method reference: .claude/skills/marketing-seo-agent/references/content-briefs.m
 
 - `questions`: each with its source (Search Console query, keyword upload, visibility prompt). Do not claim "People Also Ask" unless a PAA box was observed.
 
-| Question | Source |
-| --- | --- |
+| Question   | Source            |
+| ---------- | ----------------- |
 | <question> | <source and date> |
 
 ## 8. Entities and terms

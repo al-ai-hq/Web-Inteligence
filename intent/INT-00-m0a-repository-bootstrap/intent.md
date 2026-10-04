@@ -2,17 +2,17 @@
 
 Status: accepted (recorded in-session; no pull request in this local-only repository).
 
-| Field | Value |
-| --- | --- |
-| ID | INT-00 |
-| Status | accepted — by Ibrahim Abedrabboh, product owner, in conversation on 2026-10-01 (per `.claude/skills/intent-spec-plan/SKILL.md`: human approved in conversation, recorded here) |
-| Author (originator) | Ibrahim Abedrabboh (product owner) |
-| Product owner | Ibrahim Abedrabboh (D-020: holds all owner roles until others are named) |
-| Tech lead | Ibrahim Abedrabboh (D-020) |
-| Milestone | M0A (05-PROJECT-PLAN §11) |
-| Ticket | <tracker ID, or "none"> |
-| Created | 2026-09-30 |
-| Risk class | high-risk: sets permissions, hooks, CI and the path to production infrastructure |
+| Field               | Value                                                                                                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ID                  | INT-00                                                                                                                                                                         |
+| Status              | accepted — by Ibrahim Abedrabboh, product owner, in conversation on 2026-10-01 (per `.claude/skills/intent-spec-plan/SKILL.md`: human approved in conversation, recorded here) |
+| Author (originator) | Ibrahim Abedrabboh (product owner)                                                                                                                                             |
+| Product owner       | Ibrahim Abedrabboh (D-020: holds all owner roles until others are named)                                                                                                       |
+| Tech lead           | Ibrahim Abedrabboh (D-020)                                                                                                                                                     |
+| Milestone           | M0A (05-PROJECT-PLAN §11)                                                                                                                                                      |
+| Ticket              | <tracker ID, or "none">                                                                                                                                                        |
+| Created             | 2026-09-30                                                                                                                                                                     |
+| Risk class          | high-risk: sets permissions, hooks, CI and the path to production infrastructure                                                                                               |
 
 ## Problem
 

@@ -25,6 +25,7 @@ The script's `issues` list is a first pass. Read the extracted data yourself bef
 ## Checklist, grouped by what it protects
 
 ### 1. Crawlability and indexability (usually the highest impact)
+
 - HTTP status of key URLs. Look for redirect chains, redirect loops, soft 404s (a 200 status with "not found" content), and 5xx errors.
 - robots.txt: check whether it blocks important paths, CSS or JS, and whether it declares a sitemap. The script applies the rules to every crawled URL. It reports "unknown" when robots.txt returns HTML (often a bot challenge) or a server error; check those by hand.
 - Meta robots and `X-Robots-Tag`: look for `noindex` or `nofollow` on pages that should rank.
@@ -35,7 +36,9 @@ The script's `issues` list is a first pass. Read the extracted data yourself bef
 - Different content for different agents: compare the `--compare-agents` output. A different language, title, word count or structured data for Googlebot than for other agents means dynamic rendering or bot rules are in play. Report what each agent gets.
 
 ### 2. International and Arabic setup
+
 See `arabic-market-seo.md` for detail. Check these:
+
 - `<html lang>`, and `dir="rtl"` on Arabic pages.
 - hreflang: valid language-region codes, a self-reference on each page, return tags between alternates, `x-default` where it makes sense, and consistency with canonicals.
 - A consistent URL structure for each language and market.
@@ -43,6 +46,7 @@ See `arabic-market-seo.md` for detail. Check these:
 - One language per URL. A page that mixes Arabic and English body copy with no clear primary language gives search engines an ambiguous document. Split it into per-language URLs.
 
 ### 3. On-page relevance
+
 - Title: present, unique across pages, front-loads the main topic, and is not truncated badly. As a rule of thumb, stay near 60 characters or fewer. Google truncates by pixel width, so Arabic lengths are only a rough guide.
 - Meta description: present, unique, and useful. Google often rewrites descriptions, so a weak one is a low-priority issue.
 - H1: one clear H1 that matches the intent of the page, with a sensible H2/H3 hierarchy.
@@ -56,33 +60,37 @@ See `arabic-market-seo.md` for detail. Check these:
   - The page with the most clicks and impressions on a query owns it. Other pages should link to the owner rather than compete with it.
 
 ### 4. Structured data
+
 - Parse the JSON-LD types on each template and compare them with what the page is: `Organization` with `logo` and `sameAs` on the homepage, `LocalBusiness` or a subtype for physical locations, `Product` with offers on product pages, `Article` on blog posts, `BreadcrumbList` wherever breadcrumbs appear.
 - Check required and recommended properties against Google's current structured data docs before you call a page eligible for a rich result.
 - Google stopped showing FAQ rich results for all sites, including government and health sites, in May 2026. HowTo rich results were deprecated before that. `FAQPage` is still a valid Schema.org type and existing markup does no harm, but never promise a rich result from it.
 - Markup must describe content that is visible on the page. Never add reviews or ratings to markup unless they exist on the page and are genuine.
 
 ### 5. Page experience and performance
+
 - A fetch can't measure Core Web Vitals. Use a PageSpeed Insights, CrUX or Lighthouse export if one is provided. If the shell can reach the PageSpeed Insights API, you may query it and cite the run date. Otherwise list CWV as **not verified**.
 - Judge field data (CrUX, the 75th percentile of real users) against Google's "good" thresholds: LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1. Lab results (Lighthouse) help debugging but aren't what Google assesses, so label which one you're quoting.
 - Things the HTML can show (label these as weak proxies): HTML size, number of scripts and stylesheets, a missing viewport meta tag, images without dimensions, and render-blocking resources in `<head>`.
 
 ### 6. AI search readiness (AEO / GEO)
+
 Include this in every audit, at least the Access and Parse layers, and expand it when the user asks about AI visibility. `ai-search-aeo-geo.md` has the five-layer method and the scorecard.
 
 The script reports robots.txt access per crawler, whether `/llms.txt` exists, and (with `--compare-agents`) what AI crawlers actually receive. If Lighthouse is available, its Agentic browsing category adds agent-accessibility and WebMCP checks.
 
 ## Severity
 
-| Severity | Meaning | Example |
-|---|---|---|
+| Severity | Meaning                                                               | Example                                                                                       |
+| -------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Critical | Stops key pages being indexed or found, site-wide or on revenue pages | `noindex` on service pages, robots.txt blocking `/ar/`, Arabic canonicals pointing to English |
-| High | Significantly weakens rankings or CTR for important pages | duplicate titles across a category template, broken hreflang between markets |
-| Medium | Real issue, limited scope or impact | missing `BreadcrumbList` schema, thin content on secondary pages |
-| Low | Polish | long meta descriptions, missing alt text on decorative images |
+| High     | Significantly weakens rankings or CTR for important pages             | duplicate titles across a category template, broken hreflang between markets                  |
+| Medium   | Real issue, limited scope or impact                                   | missing `BreadcrumbList` schema, thin content on secondary pages                              |
+| Low      | Polish                                                                | long meta descriptions, missing alt text on decorative images                                 |
 
 Each issue in the report states:
+
 - **Evidence**: the example URLs and what was observed.
 - **Scope**: sample count, or a site-wide count if you have an export.
 - **Why it matters**: one sentence.
 - **Fix**: specific enough that a developer or content editor can act on it.
-- **Verification**: whether it was *Verified*, *Inferred* or *Not verified*.
+- **Verification**: whether it was _Verified_, _Inferred_ or _Not verified_.
