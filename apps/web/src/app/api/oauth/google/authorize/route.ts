@@ -22,6 +22,7 @@ export function GET(request: Request) {
     redirect_uri: `${appUrl}/api/oauth/google/callback`,
     response_type: "code",
     scope: [
+      "openid",
       "https://www.googleapis.com/auth/webmasters.readonly",
       "https://www.googleapis.com/auth/analytics.readonly",
     ].join(" "),

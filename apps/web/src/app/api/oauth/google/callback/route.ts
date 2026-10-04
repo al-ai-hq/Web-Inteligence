@@ -67,13 +67,17 @@ export async function GET(request: Request) {
     access_token: string;
     refresh_token?: string;
     expires_in: number;
+    id_token?: string;
   };
   const expiresAt = new Date(Date.now() + tokens.expires_in * 1000);
 
+  const userId = extractUserIdFromIdToken(tokens.id_token);
+  if (!userId) {
+    return NextResponse.redirect("/en/settings/integrations?error=missing_identity");
+  }
+
   const pool = new Pool({ connectionString: databaseUrl });
   const tokenStore = new TokenStore(pool);
-
-  const userId = "placeholder";
 
   await tokenStore.save({
     userId,
@@ -90,4 +94,18 @@ export async function GET(request: Request) {
   response.cookies.delete("oauth_state");
   response.cookies.delete("oauth_site_url");
   return response;
+}
+
+function extractUserIdFromIdToken(idToken: string | undefined): string | null {
+  if (!idToken) return null;
+  try {
+    const payload = idToken.split(".")[1];
+    if (!payload) return null;
+    const decoded = JSON.parse(
+      Buffer.from(payload, "base64url").toString("utf-8"),
+    ) as { email?: string };
+    return decoded.email ?? null;
+  } catch {
+    return null;
+  }
 }
