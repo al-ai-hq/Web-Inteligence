@@ -71,6 +71,7 @@
     "claim_cta": "Claim this audit (coming soon)",
     "delete_audit": "Delete this audit",
     "delete_confirm": "Delete this audit permanently? This cannot be undone.",
+    "delete_failed": "Could not delete this audit. It may have already been deleted.",
     "severity_critical": "Critical",
     "severity_high": "High",
     "severity_medium": "Medium",
@@ -105,6 +106,15 @@
       "auditor": "The technical audit agent could not run.",
       "keyword-analyst": "The keyword analysis agent could not run.",
       "content-strategist": "The content strategy agent could not run."
+    },
+    "connector": {
+      "psi": {
+        "missing_api_key": "Performance data unavailable: API key not configured",
+        "api_error": "Performance data unavailable: API error"
+      },
+      "crux": {
+        "api_error": "Real-user metrics unavailable: API error"
+      }
     }
   },
   "limitation": {
