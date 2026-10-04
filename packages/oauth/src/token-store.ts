@@ -46,7 +46,7 @@ export class TokenStore {
     return result.rows[0] ?? null;
   }
 
-  async decryptAccessToken(stored: StoredToken): Promise<string> {
+  decryptAccessToken(stored: StoredToken): string {
     return decrypt(stored.access_token_encrypted);
   }
 

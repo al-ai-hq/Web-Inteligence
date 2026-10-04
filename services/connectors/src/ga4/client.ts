@@ -43,7 +43,7 @@ export class Ga4Client {
       },
     );
     if (!response.ok) {
-      throw new Error(`GA4 Data API error: ${response.status}`);
+      throw new Error(`GA4 Data API error: ${String(response.status)}`);
     }
     return (await response.json()) as Ga4DataResponse;
   }

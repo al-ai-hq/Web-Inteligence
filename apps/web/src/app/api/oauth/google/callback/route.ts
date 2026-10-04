@@ -63,8 +63,12 @@ export async function GET(request: Request) {
     return NextResponse.redirect("/en/settings/integrations?error=token_exchange_failed");
   }
 
-  const tokens = await tokenResponse.json();
-  const expiresAt = new Date(Date.now() + (tokens.expires_in as number) * 1000);
+  const tokens = (await tokenResponse.json()) as {
+    access_token: string;
+    refresh_token?: string;
+    expires_in: number;
+  };
+  const expiresAt = new Date(Date.now() + tokens.expires_in * 1000);
 
   const pool = new Pool({ connectionString: databaseUrl });
   const tokenStore = new TokenStore(pool);
@@ -75,8 +79,8 @@ export async function GET(request: Request) {
     userId,
     provider: "google",
     siteUrl: decodeURIComponent(siteUrlCookie),
-    accessToken: tokens.access_token as string,
-    refreshToken: tokens.refresh_token as string | undefined,
+    accessToken: tokens.access_token,
+    refreshToken: tokens.refresh_token,
     expiresAt,
   });
 

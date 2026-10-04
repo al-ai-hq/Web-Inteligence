@@ -26,7 +26,7 @@ export class GscClient {
       },
     );
     if (!response.ok) {
-      throw new Error(`GSC Search Analytics API error: ${response.status}`);
+      throw new Error(`GSC Search Analytics API error: ${String(response.status)}`);
     }
     return (await response.json()) as GscSearchAnalyticsResponse;
   }
@@ -50,7 +50,7 @@ export class GscClient {
       },
     );
     if (!response.ok) {
-      throw new Error(`GSC URL Inspection API error: ${response.status}`);
+      throw new Error(`GSC URL Inspection API error: ${String(response.status)}`);
     }
     return (await response.json()) as GscUrlInspectionResponse;
   }

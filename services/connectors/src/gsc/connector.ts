@@ -19,8 +19,8 @@ export class GscConnector implements Connector {
       const client = new GscClient(context.auth.google.accessToken);
       const siteUrl = new URL(url).origin;
       const dateRange = {
-        start: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]!,
-        end: new Date().toISOString().split("T")[0]!,
+        start: (new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString().split("T")[0] ?? ""),
+        end: (new Date().toISOString().split("T")[0] ?? ""),
       };
 
       const [analytics, indexCoverage] = await Promise.all([

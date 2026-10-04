@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 
-export async function GET(request: Request) {
+export function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const siteUrl = searchParams.get("site_url");
   if (!siteUrl) {
