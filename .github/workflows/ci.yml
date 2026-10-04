@@ -6,7 +6,7 @@
 # intent/INT-00-m0a-repository-bootstrap/intent.md.
 #
 # Jobs:
-#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness, M6 AI visibility, M7 public footprint, M8 local content gate, M9 local write gate, M10 local monitor gate
+#   governance - hook tests, schema check, config check, action-pin check, M0B proofs, M2 readiness, M3 access, M4 source separation, M5 experience effectiveness, M6 AI visibility, M7 public footprint, M8 local content gate, M9 local write gate, M10 local monitor gate, M11 local project gate
 #   secrets    - gitleaks over the full history
 #   app        - lint, typecheck, unit tests, SSRF placeholder, browser placeholder
 name: ci
@@ -60,6 +60,8 @@ jobs:
         run: python3 scripts/check_m9_write.py
       - name: M10 local monitor gate
         run: python3 scripts/check_m10_monitor.py
+      - name: M11 local project gate
+        run: python3 scripts/check_m11_project.py
       - name: M2 readiness
         run: python3 scripts/check_m2_readiness.py
       - name: Action pins
