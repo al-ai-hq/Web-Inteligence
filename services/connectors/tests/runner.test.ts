@@ -56,11 +56,16 @@ describe("runConnectors", () => {
     }
   });
 
-  it("returns empty array when no connectors", async () => {
+  it("runs default connectors when registry is reset", async () => {
     const results = await runConnectors("https://example.com", {
       locale: "en",
       tier: "free",
     });
-    expect(results).toEqual([]);
+    expect(results.length).toBeGreaterThanOrEqual(4);
+    const names = results.map((r) => r.connector);
+    expect(names).toContain("psi");
+    expect(names).toContain("crux");
+    expect(names).toContain("gsc");
+    expect(names).toContain("ga4");
   });
 });

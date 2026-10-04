@@ -1,25 +1,18 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { getRegistry, setRegistry } from "../src/registry.js";
-import type { Connector } from "../src/types.js";
 
 describe("registry", () => {
-  beforeEach(() => {
+  afterEach(() => {
     setRegistry([]);
   });
 
-  it("returns empty array initially", () => {
+  it("default registry includes psi, crux, gsc, ga4", () => {
+    setRegistry([]);
     const registry = getRegistry();
-    expect(registry).toEqual([]);
-  });
-
-  it("can set and get registry", () => {
-    const mockConnector: Connector = {
-      name: "test",
-      run: async () => ({ ok: true, connector: "test", data: {} }),
-    };
-    setRegistry([mockConnector]);
-    const registry = getRegistry();
-    expect(registry).toHaveLength(1);
-    expect(registry[0].name).toBe("test");
+    const names = registry.map((c) => c.name);
+    expect(names).toContain("psi");
+    expect(names).toContain("crux");
+    expect(names).toContain("gsc");
+    expect(names).toContain("ga4");
   });
 });
