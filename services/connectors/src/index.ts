@@ -6,5 +6,7 @@ export type {
   ConnectorData,
   PsiData,
   CruxData,
+  GscData,
+  Ga4Data,
   AuditContext,
 } from "./types.js";
