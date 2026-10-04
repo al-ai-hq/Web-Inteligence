@@ -6,6 +6,7 @@ import { REPO_ROOT } from "./paths.js";
 import { buildReportModel, validateReportModel } from "./report-model.js";
 import type { ComposerAgentOutcome } from "./report-envelope.js";
 import type { ConnectorResult, AuditContext } from "@wpi/connectors";
+import type { TokenStore } from "@wpi/oauth";
 
 export const BASE_LIMITATION_KEYS = [
   "limitation.score_engine_deferred",
@@ -38,6 +39,8 @@ export interface PipelineDeps {
     context: AuditContext,
   ) => Promise<ConnectorResult[]>;
   tierScopes: Record<Exclude<TierName, "refused">, TierScope>;
+  tokenStore?: TokenStore;
+  userId?: string;
 }
 
 async function requireTransition(store: AuditStore, auditId: string, to: string): Promise<void> {
@@ -80,12 +83,30 @@ export async function runAuditPipeline(
     await deps.render(raw);
     const evidenceIds = await deps.processEvidence(raw);
 
+    // Resolve OAuth token before the AUDITING stage
+    let accessToken: string | undefined;
+    if (deps.tokenStore && deps.userId) {
+      const googleToken = await deps.tokenStore.findByUserAndSite(
+        deps.userId,
+        "google",
+        raw.target_url,
+      );
+      if (googleToken) {
+        try {
+          accessToken = await deps.tokenStore.decryptAccessToken(googleToken);
+        } catch {
+          // Token decryption failed, connectors will run without auth
+        }
+      }
+    }
+
     await requireTransition(deps.store, auditId, "AUDITING");
     const [outcomes, connectorResults] = await Promise.all([
       deps.runAgents(raw, evidenceIds, scope),
       deps.runConnectors(raw.target_url, {
         locale: raw.locale,
         tier: raw.tier as "free" | "rich" | "reduced" | "preview",
+        auth: accessToken ? { google: { accessToken } } : undefined,
       }),
     ]);
 
