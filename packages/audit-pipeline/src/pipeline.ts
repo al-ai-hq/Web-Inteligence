@@ -5,6 +5,7 @@ import type { TierName, TierScope } from "./eligibility.js";
 import { REPO_ROOT } from "./paths.js";
 import { buildReportModel, validateReportModel } from "./report-model.js";
 import type { ComposerAgentOutcome } from "./report-envelope.js";
+import type { ConnectorResult, AuditContext } from "@wpi/connectors";
 
 export const BASE_LIMITATION_KEYS = [
   "limitation.score_engine_deferred",
@@ -32,6 +33,10 @@ export interface PipelineDeps {
     evidenceIds: string[],
     scope: TierScope,
   ) => Promise<ComposerAgentOutcome[]>;
+  runConnectors: (
+    url: string,
+    context: AuditContext,
+  ) => Promise<ConnectorResult[]>;
   tierScopes: Record<Exclude<TierName, "refused">, TierScope>;
 }
 
@@ -76,10 +81,16 @@ export async function runAuditPipeline(
     const evidenceIds = await deps.processEvidence(raw);
 
     await requireTransition(deps.store, auditId, "AUDITING");
-    const outcomes = await deps.runAgents(raw, evidenceIds, scope);
+    const [outcomes, connectorResults] = await Promise.all([
+      deps.runAgents(raw, evidenceIds, scope),
+      deps.runConnectors(raw.target_url, {
+        locale: raw.locale,
+        tier: raw.tier as "free" | "rich" | "reduced" | "preview",
+      }),
+    ]);
 
     await requireTransition(deps.store, auditId, "COMPOSING");
-    const composed = composeSections(outcomes, scope);
+    const composed = composeSections(outcomes, connectorResults, scope);
     const limitationsKeys = [
       ...BASE_LIMITATION_KEYS,
       ...(evidenceIds.length > 0 ? ["limitation.sample_not_full_site"] : []),

@@ -54,6 +54,7 @@ function makeDeps(
       outcome("keyword-analyst", true),
       outcome("content-strategist", true),
     ],
+    runConnectors: async () => [],
     tierScopes: TIER_SCOPES,
     ...overrides,
   };

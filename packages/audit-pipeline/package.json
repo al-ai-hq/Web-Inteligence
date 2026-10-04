@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@wpi/agents": "workspace:*",
+    "@wpi/connectors": "workspace:*",
     "@wpi/crawler": "workspace:*",
     "@wpi/evidence-processor": "workspace:*",
     "@wpi/render-job": "workspace:*",

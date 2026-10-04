@@ -20,7 +20,7 @@ export interface StoredFinding {
 }
 
 export interface UnavailableBlock {
-  section: FindingSection | "comparison" | "ai_visibility_panel";
+  section: FindingSection | "comparison" | "ai_visibility_panel" | "performance";
   reason_key: string;
 }
 

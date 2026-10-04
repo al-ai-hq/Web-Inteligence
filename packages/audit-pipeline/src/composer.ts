@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import type { ConnectorResult } from "@wpi/connectors";
 import type { TierScope } from "./eligibility.js";
 import type {
   ComposerAgentOutcome,
@@ -25,7 +26,7 @@ const CONFIDENCE_ORDER: Record<"high" | "medium" | "low", number> = {
   low: 1,
 };
 
-const SECTION_ORDER = ["technical", "keywords", "content"] as const;
+const SECTION_ORDER = ["technical", "keywords", "content", "performance"] as const;
 
 export function deriveSeverity(data: Record<string, unknown>): FindingSeverity {
   const value = data["severity"];
@@ -97,6 +98,7 @@ export interface ComposeResult {
 
 export function composeSections(
   outcomes: ComposerAgentOutcome[],
+  connectorResults: ConnectorResult[],
   scope: TierScope,
 ): ComposeResult {
   const findings: StoredFinding[] = [];
@@ -138,6 +140,17 @@ export function composeSections(
         usd: outcome.cost.usd,
       });
     }
+  }
+
+  for (const result of connectorResults) {
+    if (!result.ok) {
+      unavailable.push({
+        section: "performance",
+        reason_key: result.unavailable_reason_key,
+      });
+      continue;
+    }
+    availableSections.add("performance");
   }
 
   return {
