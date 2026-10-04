@@ -28,6 +28,13 @@ const CONFIDENCE_ORDER: Record<"high" | "medium" | "low", number> = {
 
 const SECTION_ORDER = ["technical", "keywords", "content", "performance"] as const;
 
+const CONNECTOR_SECTION: Record<string, "keywords" | "performance"> = {
+  psi: "performance",
+  crux: "performance",
+  gsc: "keywords",
+  ga4: "performance",
+};
+
 export function deriveSeverity(data: Record<string, unknown>): FindingSeverity {
   const value = data["severity"];
   if (
@@ -143,14 +150,15 @@ export function composeSections(
   }
 
   for (const result of connectorResults) {
+    const section = CONNECTOR_SECTION[result.connector] ?? "performance";
     if (!result.ok) {
       unavailable.push({
-        section: "performance",
+        section,
         reason_key: result.unavailable_reason_key,
       });
       continue;
     }
-    availableSections.add("performance");
+    availableSections.add(section);
   }
 
   return {

@@ -168,4 +168,28 @@ describe("composeSections", () => {
     );
     expect(result.summary_bullets).toEqual(["report.summary.technical", "report.summary.content"]);
   });
+
+  it("maps GSC connector to keywords section", () => {
+    const result = composeSections(
+      [],
+      [{ ok: false, connector: "gsc", unavailable_reason_key: "unavailable.connector.gsc" }],
+      { comparisons: 0, aiVisibilityPanel: false, maxPages: 1, actionBoardCap: 10 },
+    );
+    expect(result.unavailable).toContainEqual({
+      section: "keywords",
+      reason_key: "unavailable.connector.gsc",
+    });
+  });
+
+  it("maps GA4 connector to performance section", () => {
+    const result = composeSections(
+      [],
+      [{ ok: false, connector: "ga4", unavailable_reason_key: "unavailable.connector.ga4" }],
+      { comparisons: 0, aiVisibilityPanel: false, maxPages: 1, actionBoardCap: 10 },
+    );
+    expect(result.unavailable).toContainEqual({
+      section: "performance",
+      reason_key: "unavailable.connector.ga4",
+    });
+  });
 });
