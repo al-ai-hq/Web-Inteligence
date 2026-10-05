@@ -6,18 +6,7 @@
  */
 
 import type { EvidenceBundle, PageEvidence } from "../evidence.js";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export interface RuleEvaluation {
-  result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error";
-  evidence_ids: string[];
-  rationale?: string;
-  cap_trigger?: boolean;
-}
-
-type Evaluator = (bundle: EvidenceBundle) => RuleEvaluation;
-type PageEvaluator = (page: PageEvidence, bundle: EvidenceBundle) => RuleEvaluation;
+import type { RuleEvaluation, Evaluator, PageEvaluator } from "../types.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

@@ -1,3 +1,5 @@
+import type { EvidenceBundle, PageEvidence } from "./evidence.js";
+
 export type RuleCategory =
   | "crawlability"
   | "on_page"
@@ -36,3 +38,15 @@ export class ConfigError extends Error {
     this.name = "ConfigError";
   }
 }
+
+// ─── Evaluator types ──────────────────────────────────────────────────────────
+
+export interface RuleEvaluation {
+  result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error";
+  evidence_ids: string[];
+  rationale?: string;
+  cap_trigger?: boolean;
+}
+
+export type Evaluator = (bundle: EvidenceBundle) => RuleEvaluation;
+export type PageEvaluator = (page: PageEvidence, bundle: EvidenceBundle) => RuleEvaluation;

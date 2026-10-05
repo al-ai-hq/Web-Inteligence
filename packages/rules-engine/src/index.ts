@@ -1,5 +1,5 @@
 export { loadConfig, ConfigError } from "./config-loader.js";
-export type { LoadedRule, ScoringConfig, RuleCategory } from "./types.js";
+export type { LoadedRule, ScoringConfig, RuleCategory, RuleEvaluation, Evaluator, PageEvaluator } from "./types.js";
 export { RuleCatalog } from "./rule-catalog.js";
 export type {
   EvidenceBundle,
@@ -25,4 +25,18 @@ export {
   evalCRW011,
   evalCRW012,
 } from "./evaluators/crawl.js";
-export type { RuleEvaluation } from "./evaluators/crawl.js";
+export {
+  evalSEO001,
+  evalSEO002,
+  evalSEO003,
+  evalSEO004,
+  evalSEO005,
+  evalSEO006,
+  evalSEO007,
+  evalSEO008,
+  evalSEO009,
+  evalSEO010,
+  evalSEO011,
+  evalSEO012,
+  evalSPAM001,
+} from "./evaluators/seo.js";
