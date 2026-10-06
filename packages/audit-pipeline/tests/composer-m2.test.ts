@@ -2,14 +2,11 @@ import { describe, expect, it } from "vitest";
 import { composeSections } from "../src/composer.js";
 import type {
   ComposerAgentOutcome,
-  StoredFinding,
 } from "../src/report-envelope.js";
 import type { RulesEngineOutput } from "../src/composer.js";
 import type {
   Finding,
-  LoadedRule,
   PriorityItem,
-  RuleResult,
   ScoreResult,
 } from "@wpi/rules-engine";
 import { TIER_SCOPES } from "../src/eligibility.js";
@@ -30,20 +27,6 @@ function outcome(
   };
 }
 
-function finding(overrides: Partial<StoredFinding> = {}): StoredFinding {
-  return {
-    id: "f1",
-    agent: "auditor",
-    section: "technical",
-    severity: "high",
-    state: "verified",
-    confidence: "high",
-    evidence_ids: ["ev1"],
-    data: {},
-    ...overrides,
-  };
-}
-
 function rulesEngineOutput(
   overrides: Partial<RulesEngineOutput> = {},
 ): RulesEngineOutput {
@@ -52,23 +35,6 @@ function rulesEngineOutput(
     priority_items: [],
     score: null,
     unavailable_categories: [],
-    ...overrides,
-  };
-}
-
-/** Minimal LoadedRule stub for tests that need generateFindings results. */
-function stubRule(overrides: Partial<LoadedRule> = {}): LoadedRule {
-  return {
-    id: "CRW-001",
-    category: "crawlability",
-    title: "Robots.txt",
-    importance_weight: 4,
-    scored: true,
-    evaluation: "deterministic",
-    connected_tier_only: false,
-    applicability: "all",
-    standards: { pass: "ok" },
-    fidelity_label: "verified",
     ...overrides,
   };
 }
@@ -207,6 +173,9 @@ describe("composeSections with rules engine findings", () => {
     );
 
     expect(composed.findings).toHaveLength(2);
+    // Deterministic-first ordering: rules engine findings before agent findings
+    expect(composed.findings[0]!.agent).toBe("rules-engine");
+    expect(composed.findings[1]!.agent).toBe("auditor");
     const agents = composed.findings.filter((f) => f.agent === "auditor");
     const rules = composed.findings.filter((f) => f.agent === "rules-engine");
     expect(agents).toHaveLength(1);
