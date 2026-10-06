@@ -9,7 +9,9 @@ export type {
   PageRuleResult,
   RuleResult,
   TemplateCluster,
+  Lineage,
 } from "./types.js";
+export { IntegrityError } from "./types.js";
 export { RuleCatalog } from "./rule-catalog.js";
 export type {
   EvidenceBundle,
@@ -132,3 +134,11 @@ export {
   evalSEC003,
   evalDEL001,
 } from "./evaluators/performance-security.js";
+export {
+  computeContentHash,
+  attachLineage,
+  checkFreshness,
+  findStaleEvidence,
+  verifyEvidenceHashes,
+  mapFidelity,
+} from "./integrity.js";

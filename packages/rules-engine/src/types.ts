@@ -39,6 +39,23 @@ export class ConfigError extends Error {
   }
 }
 
+export class IntegrityError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "IntegrityError";
+  }
+}
+
+// ─── Lineage types ────────────────────────────────────────────────────────────
+
+export interface Lineage {
+  parent_ids: string[];
+  fidelity_label: string;
+  content_hash: string;
+  method: string;
+  validation_state: string;
+}
+
 // ─── Evaluator types ──────────────────────────────────────────────────────────
 
 export interface RuleEvaluation {
