@@ -76,3 +76,16 @@ export {
   evalGEO010,
   evalGEO011,
 } from "./evaluators/geo.js";
+export {
+  evalI18N001,
+  evalI18N002,
+  evalI18N003,
+  evalI18N004,
+  evalA11Y001,
+  evalA11Y002,
+  evalA11Y003,
+  evalA11Y004,
+  evalMOB001,
+  evalAGT001,
+  evalAGT002,
+} from "./evaluators/i18n-accessibility.js";
