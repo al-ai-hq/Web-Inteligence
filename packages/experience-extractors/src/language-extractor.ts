@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import type { EvidencePackage, LanguageAlternate, LanguageSwitch } from "./types";
+import type { EvidencePackage, LanguageAlternate, LanguageSwitch } from "./types.js";
 
 export function extractLanguageSwitch(evidence: EvidencePackage): LanguageSwitch {
   const $ = cheerio.load(evidence.html);

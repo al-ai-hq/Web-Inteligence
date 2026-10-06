@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import type { ContactLink, ContactLinks, EvidencePackage } from "./types";
+import type { ContactLink, ContactLinks, EvidencePackage } from "./types.js";
 
 export function extractContactLinks(evidence: EvidencePackage): ContactLinks {
   const $ = cheerio.load(evidence.html);

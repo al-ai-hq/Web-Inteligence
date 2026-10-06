@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import type { EvidencePackage, ViewportMetrics } from "./types";
+import type { EvidencePackage, ViewportMetrics } from "./types.js";
 
 export function extractViewportMetrics(evidence: EvidencePackage): ViewportMetrics {
   const $ = cheerio.load(evidence.html);
@@ -16,7 +16,7 @@ export function extractViewportMetrics(evidence: EvidencePackage): ViewportMetri
     const maxWidthMatch = style.match(/max-width:\s*(\d+)px/i);
 
     if (widthMatch) {
-      const width = parseInt(widthMatch[1], 10);
+      const width = parseInt(widthMatch[1]!, 10);
       if (width > evidence.viewportWidth) {
         overflowElements.push(`${tagName}[style*="width: ${width}px"]`);
         maxContentWidth = Math.max(maxContentWidth, width);
@@ -24,7 +24,7 @@ export function extractViewportMetrics(evidence: EvidencePackage): ViewportMetri
     }
 
     if (minWidthMatch) {
-      const minWidth = parseInt(minWidthMatch[1], 10);
+      const minWidth = parseInt(minWidthMatch[1]!, 10);
       if (minWidth > evidence.viewportWidth) {
         overflowElements.push(`${tagName}[style*="min-width: ${minWidth}px"]`);
         maxContentWidth = Math.max(maxContentWidth, minWidth);
@@ -32,7 +32,7 @@ export function extractViewportMetrics(evidence: EvidencePackage): ViewportMetri
     }
 
     if (maxWidthMatch) {
-      const maxWidth = parseInt(maxWidthMatch[1], 10);
+      const maxWidth = parseInt(maxWidthMatch[1]!, 10);
       maxContentWidth = Math.max(maxContentWidth, Math.min(maxWidth, evidence.viewportWidth));
     }
   });

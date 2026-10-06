@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import type { EvidencePackage, FormAnalysis, FormField, FormInfo } from "./types";
+import type { EvidencePackage, FormAnalysis, FormField, FormInfo } from "./types.js";
 
 export function extractFormAnalysis(evidence: EvidencePackage): FormAnalysis {
   const $ = cheerio.load(evidence.html);
@@ -19,7 +19,7 @@ export function extractFormAnalysis(evidence: EvidencePackage): FormAnalysis {
       const name = $field.attr("name") || "";
       const type = tagName === "input" ? $field.attr("type") || "text" : tagName;
       const id = $field.attr("id");
-      const required = $field.prop("required") || $field.attr("required") !== undefined;
+      const required = Boolean($field.prop("required")) || $field.attr("required") !== undefined;
 
       let label: string | undefined;
       let hasLabel = false;
@@ -61,11 +61,11 @@ export function extractFormAnalysis(evidence: EvidencePackage): FormAnalysis {
   const totalForms = forms.length;
   const totalFields = forms.reduce((sum, form) => sum + form.fieldCount, 0);
   const fieldsWithLabels = forms.reduce(
-    (sum, form) => sum + form.fields.filter((f) => f.hasLabel).length,
+    (sum, form) => sum + form.fields.filter((f: FormField) => f.hasLabel).length,
     0
   );
   const fieldsRequired = forms.reduce(
-    (sum, form) => sum + form.fields.filter((f) => f.required).length,
+    (sum, form) => sum + form.fields.filter((f: FormField) => f.required).length,
     0
   );
   const formsWithPrivacyText = forms.filter((f) => f.hasPrivacyTextNearby).length;
@@ -80,7 +80,7 @@ export function extractFormAnalysis(evidence: EvidencePackage): FormAnalysis {
   };
 }
 
-function detectPrivacyText($form: cheerio.Cheerio<cheerio.Element>): boolean {
+function detectPrivacyText($form: cheerio.Cheerio<any>): boolean {
   const privacyKeywords = [
     "privacy",
     "personal data",

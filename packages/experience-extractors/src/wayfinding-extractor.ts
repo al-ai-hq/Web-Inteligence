@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import type { EvidencePackage, WayfindingCues } from "./types";
+import type { EvidencePackage, WayfindingCues } from "./types.js";
 
 export function extractWayfindingCues(evidence: EvidencePackage): WayfindingCues {
   const $ = cheerio.load(evidence.html);
@@ -86,6 +86,10 @@ function checkHeadingHierarchy($: cheerio.CheerioAPI): boolean {
   for (let i = 1; i < headings.length; i++) {
     const prev = headings[i - 1];
     const current = headings[i];
+
+    if (prev === undefined || current === undefined) {
+      continue;
+    }
 
     if (current > prev + 1) {
       return false;

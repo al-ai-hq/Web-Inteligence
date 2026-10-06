@@ -7,7 +7,7 @@ import type { CrawlConfig } from "../src/config/schema.js";
 // ---------------------------------------------------------------------------
 vi.mock("undici", () => ({
   request: vi.fn(),
-  Agent: vi.fn().mockImplementation(() => ({ close: vi.fn() })),
+  Agent: vi.fn().mockImplementation(function() { return { close: vi.fn() }; }),
 }));
 
 vi.mock("@wpi/security", async () => {

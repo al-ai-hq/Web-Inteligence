@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import type { EvidencePackage, PolicyLink, PolicyLinks } from "./types";
+import type { EvidencePackage, PolicyLink, PolicyLinks } from "./types.js";
 
 export function extractPolicyLinks(evidence: EvidencePackage): PolicyLinks {
   const $ = cheerio.load(evidence.html);

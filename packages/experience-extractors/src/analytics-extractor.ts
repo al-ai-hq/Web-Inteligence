@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import type { AnalyticsDetection, AnalyticsTag, EvidencePackage } from "./types";
+import type { AnalyticsDetection, AnalyticsTag, EvidencePackage } from "./types.js";
 
 export function extractAnalyticsDetection(evidence: EvidencePackage): AnalyticsDetection {
   const $ = cheerio.load(evidence.html);

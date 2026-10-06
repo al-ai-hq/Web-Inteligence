@@ -1,12 +1,12 @@
-import type { EvidencePackage, ExtractionResult, Extractor } from "./types";
-import { extractHeadingStructure } from "./heading-extractor";
-import { extractFormAnalysis } from "./form-extractor";
-import { extractContactLinks } from "./contact-extractor";
-import { extractPolicyLinks } from "./policy-extractor";
-import { extractLanguageSwitch } from "./language-extractor";
-import { extractAnalyticsDetection } from "./analytics-extractor";
-import { extractViewportMetrics } from "./viewport-extractor";
-import { extractWayfindingCues } from "./wayfinding-extractor";
+import type { EvidencePackage, ExtractionResult, Extractor } from "./types.js";
+import { extractHeadingStructure } from "./heading-extractor.js";
+import { extractFormAnalysis } from "./form-extractor.js";
+import { extractContactLinks } from "./contact-extractor.js";
+import { extractPolicyLinks } from "./policy-extractor.js";
+import { extractLanguageSwitch } from "./language-extractor.js";
+import { extractAnalyticsDetection } from "./analytics-extractor.js";
+import { extractViewportMetrics } from "./viewport-extractor.js";
+import { extractWayfindingCues } from "./wayfinding-extractor.js";
 
 const extractors: Extractor[] = [
   {
