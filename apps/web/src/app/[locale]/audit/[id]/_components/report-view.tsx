@@ -2,8 +2,9 @@ import { getTranslations } from "next-intl/server";
 import type { AuditRecord, StoredFinding, StoredReportEnvelope } from "@wpi/audit-pipeline";
 import { Link } from "../../../../../i18n/navigation";
 import { DeleteButton } from "./delete-button";
+import { ScoreCard } from "./score-card";
 
-const SECTIONS = ["technical", "keywords", "content"] as const;
+const SECTIONS = ["technical", "keywords", "content", "performance"] as const;
 
 const SUMMARY_LABEL_KEYS: Record<string, string> = {
   "report.summary.technical": "summary_technical",
@@ -65,6 +66,10 @@ export async function ReportView({
           </p>
         ) : null}
       </header>
+
+      {envelope.score !== null ? (
+        <ScoreCard score={envelope.score} locale={locale} />
+      ) : null}
 
       {envelope.report.content.summary_bullets.length > 0 ? (
         <ul className="list-disc space-y-1 ps-6">

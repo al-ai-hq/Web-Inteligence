@@ -56,6 +56,9 @@ importers:
       '@wpi/render-job':
         specifier: workspace:*
         version: link:../../services/render-job
+      '@wpi/rules-engine':
+        specifier: workspace:*
+        version: link:../../packages/rules-engine
       '@wpi/security':
         specifier: workspace:*
         version: link:../../packages/security
