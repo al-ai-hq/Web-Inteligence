@@ -12,7 +12,7 @@
 
 import type { EvidenceBundle, PageEvidence, JsonLdBlock } from "../evidence.js";
 import type { RuleEvaluation, PageEvaluator } from "../types.js";
-import { wordOverlap } from "./helpers.js";
+import { wordOverlapAsymmetric } from "./helpers.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -136,19 +136,19 @@ export const evalSTR005: PageEvaluator = (page, _bundle) => {
 
       // For headline fields, compare with H1
       if (field === "headline" && h1Text.length > 0) {
-        hasOverlap = wordOverlap(sdValue, h1Text) >= 0.3;
+        hasOverlap = wordOverlapAsymmetric(sdValue, h1Text) >= 0.3;
       }
       // For name fields, compare with title
       if (field === "name" && titleText.length > 0) {
-        hasOverlap = wordOverlap(sdValue, titleText) >= 0.3;
+        hasOverlap = wordOverlapAsymmetric(sdValue, titleText) >= 0.3;
       }
       // Also try headline field against title
       if (field === "headline" && titleText.length > 0 && !hasOverlap) {
-        hasOverlap = wordOverlap(sdValue, titleText) >= 0.3;
+        hasOverlap = wordOverlapAsymmetric(sdValue, titleText) >= 0.3;
       }
       // Also try name against H1
       if (field === "name" && h1Text.length > 0 && !hasOverlap) {
-        hasOverlap = wordOverlap(sdValue, h1Text) >= 0.3;
+        hasOverlap = wordOverlapAsymmetric(sdValue, h1Text) >= 0.3;
       }
 
       if (!hasOverlap && (titleText.length > 0 || h1Text.length > 0)) {

@@ -161,8 +161,8 @@ export const evalAEO003: PageEvaluator = (page, _bundle) => {
   const hasGeoSD = page.structured_data.some((block) => {
     return (
       typeof block.data["areaServed"] === "string" ||
-      typeof block.data["address"] === "object" ||
-      typeof block.data["location"] === "object"
+      (typeof block.data["address"] === "object" && block.data["address"] !== null) ||
+      (typeof block.data["location"] === "object" && block.data["location"] !== null)
     );
   });
   if (hasGeoSD) {
