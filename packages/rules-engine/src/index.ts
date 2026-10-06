@@ -1,5 +1,15 @@
 export { loadConfig, ConfigError } from "./config-loader.js";
-export type { LoadedRule, ScoringConfig, RuleCategory, RuleEvaluation, Evaluator, PageEvaluator } from "./types.js";
+export type {
+  LoadedRule,
+  ScoringConfig,
+  RuleCategory,
+  RuleEvaluation,
+  Evaluator,
+  PageEvaluator,
+  PageRuleResult,
+  RuleResult,
+  TemplateCluster,
+} from "./types.js";
 export { RuleCatalog } from "./rule-catalog.js";
 export type {
   EvidenceBundle,
@@ -11,6 +21,10 @@ export type {
   GscEvidence,
   JsonLdBlock,
 } from "./evidence.js";
+export { runRulesEngine } from "./engine.js";
+export { aggregateToSite, clusterPagesByTemplate, computeTemplateKey, findTemplateFailures } from "./aggregate.js";
+export { EVALUATOR_REGISTRY, buildEvaluatorMap } from "./evaluators/index.js";
+export type { EvaluatorEntry } from "./evaluators/index.js";
 export {
   evalCRW001,
   evalCRW002,

@@ -50,3 +50,37 @@ export interface RuleEvaluation {
 
 export type Evaluator = (bundle: EvidenceBundle) => RuleEvaluation;
 export type PageEvaluator = (page: PageEvidence, bundle: EvidenceBundle) => RuleEvaluation;
+
+// ─── Engine result types ──────────────────────────────────────────────────────
+
+/** Per-page result: one per rule per page. */
+export interface PageRuleResult {
+  rule_id: string;
+  page_id: string;
+  result: RuleEvaluation["result"];
+  evidence_ids: string[];
+  rationale?: string;
+  cap_trigger?: boolean;
+}
+
+/** Site-scope aggregated result: one per rule for the whole site. */
+export interface RuleResult {
+  rule_id: string;
+  result: RuleEvaluation["result"];
+  evidence_ids: string[];
+  rationale?: string;
+  cap_trigger?: boolean;
+  scope: "site" | "template";
+  affected_urls: string[];
+  /** Only set when scope === "template" */
+  template_cluster_key?: string;
+  /** Ratio of fail-equivalent pages (for page-scoped rules aggregated to site). */
+  failed_ratio?: number;
+}
+
+/** Template cluster: a group of pages sharing a URL pattern. */
+export interface TemplateCluster {
+  cluster_key: string;
+  page_ids: string[];
+  urls: string[];
+}
