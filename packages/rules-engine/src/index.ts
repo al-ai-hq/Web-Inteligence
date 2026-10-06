@@ -40,3 +40,13 @@ export {
   evalSEO012,
   evalSPAM001,
 } from "./evaluators/seo.js";
+export {
+  evalSTR001,
+  evalSTR002,
+  evalSTR003,
+  evalSTR004,
+  evalSTR005,
+  evalSTR006,
+  evalSTR007,
+  evalSTR008,
+} from "./evaluators/structured-data.js";
