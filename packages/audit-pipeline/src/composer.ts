@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto";
 import type { ConnectorResult } from "@wpi/connectors";
+import type { Finding, PriorityItem, RuleCategory, ScoreResult } from "@wpi/rules-engine";
 import type { TierScope } from "./eligibility.js";
 import type {
   ComposerAgentOutcome,
+  FindingSection,
   FindingSeverity,
   StoredActionItem,
   StoredCostLine,
@@ -34,6 +36,89 @@ const CONNECTOR_SECTION: Record<string, "keywords" | "performance"> = {
   gsc: "keywords",
   ga4: "performance",
 };
+
+// ─── Rules engine category → report section mapping ─────────────────────────
+
+const CATEGORY_TO_SECTION: Record<RuleCategory, FindingSection> = {
+  crawlability: "technical",
+  on_page: "technical",
+  structured_data: "technical",
+  aeo: "content",
+  geo: "content",
+  i18n_accessibility: "content",
+  performance_security: "performance",
+};
+
+// ─── Rules engine output (processed by pipeline, consumed by composer) ───────
+
+export interface RulesEngineOutput {
+  findings: Finding[];
+  priority_items: PriorityItem[];
+  score: ScoreResult | null;
+  unavailable_categories: RuleCategory[];
+}
+
+// ─── Mapping helpers ────────────────────────────────────────────────────────
+
+function mapEvidenceState(
+  state: Finding["evidence_state"],
+): "verified" | "inferred" | "not_verified" {
+  switch (state) {
+    case "verified":
+      return "verified";
+    case "inferred":
+      return "inferred";
+    case "client_stated":
+      return "not_verified";
+  }
+}
+
+function mapEvidenceConfidence(
+  state: Finding["evidence_state"],
+): "high" | "medium" | "low" {
+  switch (state) {
+    case "verified":
+      return "high";
+    case "inferred":
+      return "medium";
+    case "client_stated":
+      return "low";
+  }
+}
+
+function mapRulesFinding(f: Finding): StoredFinding {
+  return {
+    id: randomUUID(),
+    agent: "rules-engine",
+    section: CATEGORY_TO_SECTION[f.category],
+    severity: f.severity as FindingSeverity,
+    state: mapEvidenceState(f.evidence_state),
+    confidence: mapEvidenceConfidence(f.evidence_state),
+    evidence_ids: [...f.evidence_ids],
+    data: {
+      rule_id: f.rule_id,
+      rationale: f.rationale,
+      category: f.category,
+      evidence_state: f.evidence_state,
+      affected_scope: f.affected_scope,
+    },
+  };
+}
+
+function mapPriorityItem(
+  item: PriorityItem,
+  findingIdMap: Map<string, string>,
+): StoredActionItem {
+  return {
+    title: item.rule_id,
+    detail: item.rationale ?? item.rule_id,
+    severity: item.severity as FindingSeverity,
+    confidence: "high", // deterministic rules → high confidence
+    source_finding_id: findingIdMap.get(item.rule_id) ?? "",
+  };
+}
+
+// ─── Existing functions (unchanged) ─────────────────────────────────────────
 
 export function deriveSeverity(data: Record<string, unknown>): FindingSeverity {
   const value = data["severity"];
@@ -95,23 +180,60 @@ export function deriveActionItems(
   return items.slice(0, cap);
 }
 
+// ─── ComposeResult ──────────────────────────────────────────────────────────
+
 export interface ComposeResult {
   findings: StoredFinding[];
   unavailable: UnavailableBlock[];
   action_board: StoredActionItem[];
   summary_bullets: string[];
   costs: StoredCosts;
+  score: ScoreResult | null;
 }
+
+// ─── composeSections ────────────────────────────────────────────────────────
 
 export function composeSections(
   outcomes: ComposerAgentOutcome[],
   connectorResults: ConnectorResult[],
   scope: TierScope,
+  rulesOutput?: RulesEngineOutput,
 ): ComposeResult {
   const findings: StoredFinding[] = [];
   const unavailable: UnavailableBlock[] = [];
   const costLines: StoredCostLine[] = [];
   const availableSections = new Set<string>();
+
+  // If rules engine produced a score, use its unavailable categories instead
+  // of the hardcoded "score deferred" placeholders.
+  if (rulesOutput?.score) {
+    for (const cat of rulesOutput.unavailable_categories) {
+      const section = CATEGORY_TO_SECTION[cat];
+      unavailable.push({
+        section,
+        reason_key: `unavailable.category.${cat}`,
+      });
+    }
+  } else {
+    // No score yet — fall back to the M1 hardcoded unavailable blocks.
+    unavailable.push(
+      { section: "technical", reason_key: "unavailable.score" },
+      { section: "technical", reason_key: "unavailable.experience_effectiveness" },
+    );
+  }
+
+  // Track rules engine findings by rule_id for priority item source lookup
+  const findingIdByRuleId = new Map<string, string>();
+
+  // Process rules engine findings first (deterministic-first ordering)
+  if (rulesOutput) {
+    for (const f of rulesOutput.findings) {
+      const stored = mapRulesFinding(f);
+      findingIdByRuleId.set(f.rule_id, stored.id);
+      findings.push(stored);
+      availableSections.add(stored.section);
+    }
+  }
 
   for (const outcome of outcomes) {
     const section = SECTION_BY_AGENT[outcome.agent_name] ?? "technical";
@@ -161,10 +283,19 @@ export function composeSections(
     availableSections.add(section);
   }
 
+  // Build action board: start with agent-derived items, then add rules engine priority items
+  const actionBoard = deriveActionItems(findings, scope.actionBoardCap);
+
+  if (rulesOutput?.priority_items) {
+    for (const pi of rulesOutput.priority_items) {
+      actionBoard.push(mapPriorityItem(pi, findingIdByRuleId));
+    }
+  }
+
   return {
     findings,
     unavailable,
-    action_board: deriveActionItems(findings, scope.actionBoardCap),
+    action_board: actionBoard,
     summary_bullets: SECTION_ORDER.filter((section) => availableSections.has(section)).map(
       (section) => `report.summary.${section}`,
     ),
@@ -173,5 +304,6 @@ export function composeSections(
       agents: costLines,
       total_usd: costLines.reduce((sum, line) => sum + line.usd, 0),
     },
+    score: rulesOutput?.score ?? null,
   };
 }

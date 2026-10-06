@@ -146,6 +146,7 @@ export class StubDispatcher implements JobDispatcher {
       unavailable: deriveUnavailable(scope),
       action_board: deriveActionItems(findings, scope.actionBoardCap),
       costs: { currency: "USD", agents: [], total_usd: 0 },
+      score: null,
     };
     await this.store.setOutcome(jobId, "READY_COMPLETE", envelope, envelope.costs);
   }
