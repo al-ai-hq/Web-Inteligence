@@ -1,8 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import type { EvidenceBundle, PageEvidence } from "../src/evidence.js";
 import type { LoadedRule } from "../src/types.js";
 import { RuleCatalog } from "../src/rule-catalog.js";
 import { runRulesEngine } from "../src/engine.js";
+import { EVALUATOR_REGISTRY } from "../src/evaluators/index.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -98,6 +99,21 @@ function makeCatalog(rules?: LoadedRule[]): RuleCatalog {
   ];
   return new RuleCatalog(rules ?? defaultRules);
 }
+
+// ─── Cleanup for exception handling test ──────────────────────────────────────
+
+let addedThrowingEvaluator = false;
+
+afterEach(() => {
+  if (addedThrowingEvaluator) {
+    // Remove the throwing evaluator added by the exception handling test
+    const idx = EVALUATOR_REGISTRY.findIndex((e) => e.rule_id === "TEST-THROW");
+    if (idx !== -1) {
+      EVALUATOR_REGISTRY.splice(idx, 1);
+    }
+    addedThrowingEvaluator = false;
+  }
+});
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
@@ -273,5 +289,60 @@ describe("runRulesEngine", () => {
 
     // Total: 1 (CRW-001) + 2 (SEO-001) + 1 (SPAM-001) = 4
     expect(results).toHaveLength(4);
+  });
+
+  it("returns error result when evaluator throws an exception", () => {
+    // Register a throwing evaluator for a test rule
+    addedThrowingEvaluator = true;
+    EVALUATOR_REGISTRY.push({
+      rule_id: "TEST-THROW",
+      scope: "site",
+      evaluate: () => {
+        throw new Error("Evaluator exploded!");
+      },
+    });
+
+    const bundle = makeBundle();
+    const catalog = makeCatalog([
+      {
+        id: "TEST-THROW",
+        category: "on_page",
+        title: "Test throwing evaluator",
+        importance_weight: 1,
+        scored: true,
+        evaluation: "deterministic",
+        connected_tier_only: false,
+        applicability: "always",
+        standards: { pass: "ok", fail: "fail" },
+        fidelity_label: "computed",
+      },
+      {
+        id: "SEO-001",
+        category: "on_page",
+        title: "Unique page title",
+        importance_weight: 4,
+        scored: true,
+        evaluation: "deterministic",
+        connected_tier_only: false,
+        applicability: "always",
+        standards: { pass: "ok", fail: "fail" },
+        fidelity_label: "computed",
+      },
+    ]);
+
+    // Should not throw — engine catches the exception
+    const results = runRulesEngine(bundle, catalog);
+
+    // The throwing evaluator should produce an error result
+    const testThrowResult = results.find((r) => r.rule_id === "TEST-THROW");
+    expect(testThrowResult).toBeDefined();
+    expect(testThrowResult!.result).toBe("error");
+    expect(testThrowResult!.rationale).toBe("Evaluator exploded!");
+    expect(testThrowResult!.evidence_ids).toEqual([]);
+
+    // Engine should continue and evaluate other rules normally
+    const seo001Results = results.filter((r) => r.rule_id === "SEO-001");
+    expect(seo001Results).toHaveLength(2);
+    expect(seo001Results.every((r) => r.result === "pass")).toBe(true);
   });
 });
