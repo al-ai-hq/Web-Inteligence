@@ -107,6 +107,27 @@ describe("evalI18N001 - Document language", () => {
     expect(result.result).toBe("fail");
     expect(result.rationale).toBeDefined();
   });
+
+  it("returns fail for 'english' (not a valid BCP 47 code)", () => {
+    const page = makePage({ lang: "english" });
+    const bundle = makeBundle();
+    const result = evalI18N001(page, bundle);
+    expect(result.result).toBe("fail");
+  });
+
+  it("returns fail for 'frazzle' (not a valid BCP 47 code)", () => {
+    const page = makePage({ lang: "frazzle" });
+    const bundle = makeBundle();
+    const result = evalI18N001(page, bundle);
+    expect(result.result).toBe("fail");
+  });
+
+  it("returns fail for 'arabic' (not a valid BCP 47 code)", () => {
+    const page = makePage({ lang: "arabic" });
+    const bundle = makeBundle();
+    const result = evalI18N001(page, bundle);
+    expect(result.result).toBe("fail");
+  });
 });
 
 // ─── I18N-002: Directionality ────────────────────────────────────────────────
@@ -185,27 +206,29 @@ describe("evalI18N003 - hreflang", () => {
     expect(result.result).toBe("not_applicable");
   });
 
-  it("returns pass when page has alternate links", () => {
+  it("returns fail when only alternate links exist (no inLanguage SD)", () => {
     const page = makePage({
       links: [
         { href: "https://example.com/about" },
         { href: "https://example.com/ar/", rel: "alternate" },
       ],
+      structured_data: [],
     });
     const bundle = makeBundle();
     const result = evalI18N003(page, bundle);
-    expect(result.result).toBe("pass");
+    expect(result.result).toBe("fail");
   });
 
-  it("returns pass when structured data has inLanguage", () => {
+  it("returns fail when only structured data has inLanguage (no alternate links)", () => {
     const page = makePage({
+      links: [{ href: "https://example.com/about" }],
       structured_data: [
         sd("WebPage", { inLanguage: "en" }),
       ],
     });
     const bundle = makeBundle();
     const result = evalI18N003(page, bundle);
-    expect(result.result).toBe("pass");
+    expect(result.result).toBe("fail");
   });
 
   it("returns pass when both alternate links and inLanguage SD exist", () => {
@@ -220,6 +243,45 @@ describe("evalI18N003 - hreflang", () => {
     const bundle = makeBundle();
     const result = evalI18N003(page, bundle);
     expect(result.result).toBe("pass");
+  });
+
+  it("returns fail when only inLanguage SD exists without alternate links", () => {
+    const page = makePage({
+      links: [{ href: "https://example.com/about" }],
+      structured_data: [
+        sd("WebPage", { inLanguage: "en" }),
+      ],
+    });
+    const bundle = makeBundle();
+    const result = evalI18N003(page, bundle);
+    expect(result.result).toBe("fail");
+  });
+
+  it("returns fail when only alternate links exist without inLanguage SD", () => {
+    const page = makePage({
+      links: [
+        { href: "https://example.com/about" },
+        { href: "https://example.com/ar/", rel: "alternate" },
+      ],
+      structured_data: [],
+    });
+    const bundle = makeBundle();
+    const result = evalI18N003(page, bundle);
+    expect(result.result).toBe("fail");
+  });
+
+  it("returns fail when inLanguage contains invalid BCP 47 code", () => {
+    const page = makePage({
+      links: [
+        { href: "https://example.com/ar/", rel: "alternate" },
+      ],
+      structured_data: [
+        sd("WebPage", { inLanguage: "frazzle" }),
+      ],
+    });
+    const bundle = makeBundle();
+    const result = evalI18N003(page, bundle);
+    expect(result.result).toBe("fail");
   });
 });
 

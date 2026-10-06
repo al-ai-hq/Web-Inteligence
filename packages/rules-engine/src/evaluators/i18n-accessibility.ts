@@ -55,8 +55,8 @@ const FORM_URL_PATTERNS = [
 ];
 
 function isValidBCP47(lang: string): boolean {
-  const lower = lang.toLowerCase();
-  return VALID_BCP47_PREFIXES.some((prefix) => lower.startsWith(prefix));
+  const primary = lang.toLowerCase().split("-")[0] ?? "";
+  return VALID_BCP47_PREFIXES.includes(primary);
 }
 
 function isRTLLang(lang: string): boolean {
@@ -201,16 +201,31 @@ export const evalI18N003: PageEvaluator = (page, _bundle) => {
     return { result: "not_applicable", evidence_ids: [page.evidence_id] };
   }
 
-  // Has localized equivalents — check for valid annotations
-  if (hasAlternate || hasLocalizedSD) {
-    return { result: "pass", evidence_ids: [page.evidence_id] };
+  // Has localized equivalents — both hreflang (alternate links) and inLanguage SD
+  // must be present and consistent for a pass.
+  if (!hasAlternate || !hasLocalizedSD) {
+    return {
+      result: "fail",
+      evidence_ids: [page.evidence_id],
+      rationale: "Localized equivalents do not use both hreflang and inLanguage annotations",
+    };
   }
 
-  return {
-    result: "fail",
-    evidence_ids: [page.evidence_id],
-    rationale: "Localized equivalents do not use valid hreflang annotations",
-  };
+  // Both present — verify that inLanguage values are valid BCP 47 codes
+  const hasInvalidLang = page.structured_data.some((block) => {
+    const inLanguage = block.data["inLanguage"];
+    return typeof inLanguage === "string" && !isValidBCP47(inLanguage);
+  });
+
+  if (hasInvalidLang) {
+    return {
+      result: "fail",
+      evidence_ids: [page.evidence_id],
+      rationale: "Localized equivalents use invalid BCP 47 language codes",
+    };
+  }
+
+  return { result: "pass", evidence_ids: [page.evidence_id] };
 };
 
 // ─── I18N-004: Localized metadata ────────────────────────────────────────────
