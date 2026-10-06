@@ -7,6 +7,7 @@ import { buildReportModel, validateReportModel } from "./report-model.js";
 import type { ComposerAgentOutcome } from "./report-envelope.js";
 import type { ConnectorResult, AuditContext } from "@wpi/connectors";
 import type { TokenStore } from "@wpi/oauth";
+import type { EvidenceBundle, PageRuleResult } from "@wpi/rules-engine";
 
 export const BASE_LIMITATION_KEYS = [
   "limitation.score_engine_deferred",
@@ -29,6 +30,7 @@ export interface PipelineDeps {
   crawl: (record: AuditRecord, scope: TierScope) => Promise<void>;
   render: (record: AuditRecord) => Promise<void>;
   processEvidence: (record: AuditRecord) => Promise<string[]>;
+  runRulesEngine?: (bundle: EvidenceBundle) => Promise<PageRuleResult[]>;
   runAgents: (
     record: AuditRecord,
     evidenceIds: string[],
@@ -101,6 +103,27 @@ export async function runAuditPipeline(
     }
 
     await requireTransition(deps.store, auditId, "AUDITING");
+
+    // Run deterministic rules engine FIRST (before agents + connectors)
+    if (deps.runRulesEngine) {
+      const bundle: EvidenceBundle = {
+        methodology_version: "2.0.0",
+        tier: raw.tier as "rich" | "reduced" | "preview",
+        locale: raw.locale,
+        site: {
+          root_url: raw.target_url,
+          homepage: null,
+          robots: { fetched: false, directives: [] },
+          sitemap: { present: false },
+          llms_txt: null,
+          security: { https_valid: true, hsts: false },
+        },
+        pages: [],
+        connectors: {},
+      };
+      await deps.runRulesEngine(bundle);
+    }
+
     const [outcomes, connectorResults] = await Promise.all([
       deps.runAgents(raw, evidenceIds, scope),
       deps.runConnectors(raw.target_url, {
