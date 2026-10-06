@@ -63,3 +63,16 @@ export {
   evalAEO010,
   evalAEO011,
 } from "./evaluators/aeo.js";
+export {
+  evalGEO001,
+  evalGEO002,
+  evalGEO003,
+  evalGEO004,
+  evalGEO005,
+  evalGEO006,
+  evalGEO007,
+  evalGEO008,
+  evalGEO009,
+  evalGEO010,
+  evalGEO011,
+} from "./evaluators/geo.js";
