@@ -50,3 +50,16 @@ export {
   evalSTR007,
   evalSTR008,
 } from "./evaluators/structured-data.js";
+export {
+  evalAEO001,
+  evalAEO002,
+  evalAEO003,
+  evalAEO004,
+  evalAEO005,
+  evalAEO006,
+  evalAEO007,
+  evalAEO008,
+  evalAEO009,
+  evalAEO010,
+  evalAEO011,
+} from "./evaluators/aeo.js";
