@@ -2,8 +2,10 @@ import { getTranslations } from "next-intl/server";
 import type { AuditRecord, StoredFinding, StoredReportEnvelope } from "@wpi/audit-pipeline";
 import { Link } from "../../../../../i18n/navigation";
 import { DeleteButton } from "./delete-button";
+import { MethodologyDisclosure } from "./methodology-disclosure";
+import { ScoreCard } from "./score-card";
 
-const SECTIONS = ["technical", "keywords", "content"] as const;
+const SECTIONS = ["technical", "keywords", "content", "performance"] as const;
 
 const SUMMARY_LABEL_KEYS: Record<string, string> = {
   "report.summary.technical": "summary_technical",
@@ -66,6 +68,10 @@ export async function ReportView({
         ) : null}
       </header>
 
+      {envelope.score !== null ? (
+        <ScoreCard score={envelope.score} locale={locale} />
+      ) : null}
+
       {envelope.report.content.summary_bullets.length > 0 ? (
         <ul className="list-disc space-y-1 ps-6">
           {envelope.report.content.summary_bullets.map((bullet) => (
@@ -101,11 +107,22 @@ export async function ReportView({
                     <p className="mt-1 text-sm text-neutral-600">{findingDetail(finding)}</p>
                   ) : null}
                   {finding.evidence_ids.length > 0 ? (
-                    <p className="mt-2 text-xs text-neutral-500">
-                      {finding.evidence_ids
-                        .map((evidenceId) => `${t("evidence_label")} ${evidenceId.slice(0, 8)}`)
-                        .join(" · ")}
-                    </p>
+                    <div className="mt-2 space-y-1">
+                      <p className="text-xs text-neutral-500">
+                        {finding.evidence_ids.length} {t("evidence_items")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {finding.evidence_ids.map((evidenceId) => (
+                          <code
+                            key={evidenceId}
+                            className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-600"
+                            title={evidenceId}
+                          >
+                            {evidenceId.slice(0, 8)}
+                          </code>
+                        ))}
+                      </div>
+                    </div>
                   ) : null}
                 </li>
               ))}
@@ -149,6 +166,8 @@ export async function ReportView({
           </ul>
         </section>
       ) : null}
+
+      <MethodologyDisclosure locale={locale} />
 
       <div className="flex flex-wrap items-center gap-4 border-t border-neutral-200 pt-6">
         <button type="button" disabled className="rounded bg-neutral-200 px-4 py-2 text-sm text-neutral-500">

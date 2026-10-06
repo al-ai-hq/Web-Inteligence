@@ -1,4 +1,6 @@
-export type FindingSection = "technical" | "keywords" | "content";
+import type { ScoreResult } from "@wpi/rules-engine";
+
+export type FindingSection = "technical" | "keywords" | "content" | "performance";
 export type FindingSeverity = "critical" | "high" | "medium" | "low" | "info";
 export type FindingState = "verified" | "inferred" | "not_verified";
 
@@ -111,4 +113,5 @@ export interface StoredReportEnvelope {
   unavailable: UnavailableBlock[];
   action_board: StoredActionItem[];
   costs: StoredCosts;
+  score: ScoreResult | null;
 }

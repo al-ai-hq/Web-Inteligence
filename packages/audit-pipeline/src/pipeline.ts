@@ -7,10 +7,22 @@ import { buildReportModel, validateReportModel } from "./report-model.js";
 import type { ComposerAgentOutcome } from "./report-envelope.js";
 import type { ConnectorResult, AuditContext } from "@wpi/connectors";
 import type { TokenStore } from "@wpi/oauth";
+import type {
+  EvidenceBundle,
+  LoadedRule,
+  PageRuleResult,
+  ScoringConfig,
+} from "@wpi/rules-engine";
+import {
+  aggregateToSite,
+  calculatePriority,
+  calculateScore,
+  generateFindings,
+  RuleCatalog,
+} from "@wpi/rules-engine";
+import type { RulesEngineOutput } from "./composer.js";
 
 export const BASE_LIMITATION_KEYS = [
-  "limitation.score_engine_deferred",
-  "limitation.deterministic_rules_deferred",
   "limitation.external_api_tools_unavailable",
 ] as const;
 
@@ -29,6 +41,8 @@ export interface PipelineDeps {
   crawl: (record: AuditRecord, scope: TierScope) => Promise<void>;
   render: (record: AuditRecord) => Promise<void>;
   processEvidence: (record: AuditRecord) => Promise<string[]>;
+  runRulesEngine?: (bundle: EvidenceBundle) => Promise<PageRuleResult[]>;
+  loadRulesConfig?: () => { rules: LoadedRule[]; scoring: ScoringConfig; catalog: RuleCatalog };
   runAgents: (
     record: AuditRecord,
     evidenceIds: string[],
@@ -108,6 +122,65 @@ export async function runAuditPipeline(
 
     await requireTransition(deps.store, auditId, "AUDITING");
     console.log("[pipeline] starting agents and connectors stage");
+
+    // Run deterministic rules engine FIRST (before agents + connectors)
+    let pageRuleResults: PageRuleResult[] = [];
+    if (deps.runRulesEngine) {
+      const bundle: EvidenceBundle = {
+        methodology_version: "2.0.0",
+        tier: raw.tier as "rich" | "reduced" | "preview",
+        locale: raw.locale,
+        site: {
+          root_url: raw.target_url,
+          homepage: null,
+          robots: { fetched: false, directives: [] },
+          sitemap: { present: false },
+          llms_txt: null,
+          security: { https_valid: true, hsts: false },
+        },
+        pages: [],
+        connectors: {},
+      };
+      pageRuleResults = await deps.runRulesEngine(bundle);
+    }
+
+    // Process rules engine results if config is available
+    let rulesOutput: RulesEngineOutput | undefined;
+    if (pageRuleResults.length > 0 && deps.loadRulesConfig) {
+      const { rules, scoring, catalog } = deps.loadRulesConfig();
+      const siteResults = aggregateToSite(pageRuleResults, {
+        methodology_version: "2.0.0",
+        tier: raw.tier as "rich" | "reduced" | "preview",
+        locale: raw.locale,
+        site: {
+          root_url: raw.target_url,
+          homepage: null,
+          robots: { fetched: false, directives: [] },
+          sitemap: { present: false },
+          llms_txt: null,
+          security: { https_valid: true, hsts: false },
+        },
+        pages: [],
+        connectors: {},
+      });
+      const reFindings = generateFindings(siteResults, rules);
+      const priorityItems = calculatePriority(reFindings, rules, {
+        confidence_level: "medium",
+        pages_checked: evidenceIds.length || 1,
+      });
+      const scoreResult = calculateScore(siteResults, rules, scoring, {
+        pages_inspected: evidenceIds.length,
+        critical_stages_completed: ["VALIDATING", "CRAWLING", "EXTRACTING", "AUDITING"],
+      });
+      rulesOutput = {
+        findings: reFindings,
+        priority_items: priorityItems,
+        score: scoreResult,
+        unavailable_categories: scoreResult.unavailable_categories,
+      };
+    }
+
+
     const [outcomes, connectorResults] = await Promise.all([
       deps.runAgents(raw, evidenceIds, scope),
       deps.runConnectors(raw.target_url, {
@@ -120,7 +193,7 @@ export async function runAuditPipeline(
 
     await requireTransition(deps.store, auditId, "COMPOSING");
     console.log("[pipeline] starting compose stage");
-    const composed = composeSections(outcomes, connectorResults, scope);
+    const composed = composeSections(outcomes, connectorResults, scope, rulesOutput);
     const limitationsKeys = [
       ...BASE_LIMITATION_KEYS,
       ...(evidenceIds.length > 0 ? ["limitation.sample_not_full_site"] : []),
@@ -144,6 +217,7 @@ export async function runAuditPipeline(
       unavailable: composed.unavailable,
       action_board: composed.action_board,
       costs: composed.costs,
+      score: composed.score,
     };
     const to = composed.findings.length > 0 ? ("READY_COMPLETE" as const) : ("READY_PARTIAL" as const);
     await deps.store.setOutcome(auditId, to, envelope, envelope.costs);

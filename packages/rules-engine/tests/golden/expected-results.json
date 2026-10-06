@@ -1,0 +1,344 @@
+{
+  "score": {
+    "methodology_version": "0.1.0-draft",
+    "presence_readiness": 58.14419162245249,
+    "pre_cap_value": 58.14419162245249,
+    "applied_caps": [],
+    "categories": [
+      {
+        "category": "crawlability",
+        "value": 81.08108108108108,
+        "measurable_weight": 37,
+        "total_weight": 51
+      },
+      {
+        "category": "on_page",
+        "value": 65.9090909090909,
+        "measurable_weight": 22,
+        "total_weight": 31
+      },
+      {
+        "category": "structured_data",
+        "value": 86.95652173913044,
+        "measurable_weight": 23,
+        "total_weight": 29
+      },
+      {
+        "category": "aeo",
+        "value": 22.22222222222222,
+        "measurable_weight": 18,
+        "total_weight": 34
+      },
+      {
+        "category": "geo",
+        "value": 20.454545454545453,
+        "measurable_weight": 22,
+        "total_weight": 37
+      },
+      {
+        "category": "i18n_accessibility",
+        "value": 58.333333333333336,
+        "measurable_weight": 12,
+        "total_weight": 29
+      },
+      {
+        "category": "performance_security",
+        "value": 100,
+        "measurable_weight": 13,
+        "total_weight": 24
+      }
+    ],
+    "coverage": 0.625531914893617,
+    "confidence": "low",
+    "unavailable_categories": []
+  },
+  "findings": [
+    {
+      "rule_id": "CRW-003",
+      "severity": "high",
+      "evidence_ids": ["page-blog-noindex"],
+      "category": "crawlability",
+      "evidence_state": "verified",
+      "affected_scope": { "sampled": true }
+    },
+    {
+      "rule_id": "CRW-006",
+      "severity": "high",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "crawlability",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "CRW-010",
+      "severity": "low",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "crawlability",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "CRW-012",
+      "severity": "medium",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "crawlability",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "SEO-001",
+      "severity": "high",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "on_page",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "SEO-002",
+      "severity": "low",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "on_page",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "SEO-003",
+      "severity": "medium",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "on_page",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "SEO-005",
+      "severity": "high",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "on_page",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "SEO-009",
+      "severity": "low",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "on_page",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "STR-006",
+      "severity": "high",
+      "evidence_ids": ["page-homepage"],
+      "category": "structured_data",
+      "evidence_state": "verified",
+      "affected_scope": { "sampled": true }
+    },
+    {
+      "rule_id": "AEO-002",
+      "severity": "medium",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "aeo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "AEO-003",
+      "severity": "medium",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "aeo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "AEO-004",
+      "severity": "high",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "aeo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post", "https://example.com/about"]
+      }
+    },
+    {
+      "rule_id": "AEO-005",
+      "severity": "high",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "aeo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/", "https://example.com/blog/draft-post", "https://example.com/about"]
+      }
+    },
+    {
+      "rule_id": "AEO-008",
+      "severity": "medium",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "aeo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/", "https://example.com/blog/draft-post", "https://example.com/about"]
+      }
+    },
+    {
+      "rule_id": "AEO-010",
+      "severity": "medium",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "aeo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/", "https://example.com/blog/draft-post", "https://example.com/about"]
+      }
+    },
+    {
+      "rule_id": "AEO-011",
+      "severity": "low",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "aeo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "GEO-001",
+      "severity": "high",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "geo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "GEO-002",
+      "severity": "critical",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "geo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/", "https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "GEO-003",
+      "severity": "high",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "geo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "GEO-004",
+      "severity": "high",
+      "evidence_ids": ["page-blog-noindex"],
+      "category": "geo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "GEO-006",
+      "severity": "critical",
+      "evidence_ids": ["page-blog-noindex", "page-about-mixed"],
+      "category": "geo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post", "https://example.com/about"]
+      }
+    },
+    {
+      "rule_id": "GEO-008",
+      "severity": "medium",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "geo",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/", "https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "I18N-001",
+      "severity": "high",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "i18n_accessibility",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "I18N-004",
+      "severity": "medium",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "i18n_accessibility",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    },
+    {
+      "rule_id": "MOB-001",
+      "severity": "medium",
+      "evidence_ids": ["page-homepage", "page-blog-noindex", "page-about-mixed"],
+      "category": "i18n_accessibility",
+      "evidence_state": "verified",
+      "affected_scope": {
+        "sampled": true,
+        "urls": ["https://example.com/blog/draft-post"]
+      }
+    }
+  ],
+  "meta": {
+    "total_page_results": 215,
+    "total_site_results": 77,
+    "total_template_results": 0,
+    "total_results": 77,
+    "unique_rules_evaluated": 77
+  }
+}

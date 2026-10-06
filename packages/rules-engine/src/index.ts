@@ -1,0 +1,144 @@
+export { loadConfig, ConfigError } from "./config-loader.js";
+export type {
+  LoadedRule,
+  ScoringConfig,
+  RuleCategory,
+  RuleEvaluation,
+  Evaluator,
+  PageEvaluator,
+  PageRuleResult,
+  RuleResult,
+  TemplateCluster,
+  Lineage,
+} from "./types.js";
+export { IntegrityError } from "./types.js";
+export { RuleCatalog } from "./rule-catalog.js";
+export type {
+  EvidenceBundle,
+  PageEvidence,
+  RobotsEvidence,
+  SitemapEvidence,
+  PsiEvidence,
+  CruxEvidence,
+  GscEvidence,
+  JsonLdBlock,
+} from "./evidence.js";
+export { runRulesEngine } from "./engine.js";
+export { aggregateToSite, clusterPagesByTemplate, computeTemplateKey, findTemplateFailures } from "./aggregate.js";
+export {
+  calculateCategoryScores,
+  calculatePreCapReadiness,
+  applyCriticalCaps,
+  calculateConfidence,
+  calculateScore,
+} from "./scoring.js";
+export type {
+  CategoryScore,
+  AppliedCap,
+  ConfidenceLevel,
+  ScoreResult,
+  ScoringContext,
+} from "./types.js";
+export { generateFindings } from "./findings.js";
+export type { Finding, Severity, EvidenceState } from "./types.js";
+export { calculatePriority } from "./priority.js";
+export type { PriorityItem, PriorityGroup, Horizon, DisplayBand } from "./types.js";
+export type { PriorityOptions } from "./priority.js";
+export { EVALUATOR_REGISTRY, buildEvaluatorMap } from "./evaluators/index.js";
+export type { EvaluatorEntry } from "./evaluators/index.js";
+export {
+  evalCRW001,
+  evalCRW002,
+  evalCRW003,
+  evalCRW004,
+  evalCRW005,
+  evalCRW006,
+  evalCRW007,
+  evalCRW008,
+  evalCRW009,
+  evalCRW010,
+  evalCRW011,
+  evalCRW012,
+} from "./evaluators/crawl.js";
+export {
+  evalSEO001,
+  evalSEO002,
+  evalSEO003,
+  evalSEO004,
+  evalSEO005,
+  evalSEO006,
+  evalSEO007,
+  evalSEO008,
+  evalSEO009,
+  evalSEO010,
+  evalSEO011,
+  evalSEO012,
+  evalSPAM001,
+} from "./evaluators/seo.js";
+export {
+  evalSTR001,
+  evalSTR002,
+  evalSTR003,
+  evalSTR004,
+  evalSTR005,
+  evalSTR006,
+  evalSTR007,
+  evalSTR008,
+} from "./evaluators/structured-data.js";
+export {
+  evalAEO001,
+  evalAEO002,
+  evalAEO003,
+  evalAEO004,
+  evalAEO005,
+  evalAEO006,
+  evalAEO007,
+  evalAEO008,
+  evalAEO009,
+  evalAEO010,
+  evalAEO011,
+} from "./evaluators/aeo.js";
+export {
+  evalGEO001,
+  evalGEO002,
+  evalGEO003,
+  evalGEO004,
+  evalGEO005,
+  evalGEO006,
+  evalGEO007,
+  evalGEO008,
+  evalGEO009,
+  evalGEO010,
+  evalGEO011,
+} from "./evaluators/geo.js";
+export {
+  evalI18N001,
+  evalI18N002,
+  evalI18N003,
+  evalI18N004,
+  evalA11Y001,
+  evalA11Y002,
+  evalA11Y003,
+  evalA11Y004,
+  evalMOB001,
+  evalAGT001,
+  evalAGT002,
+} from "./evaluators/i18n-accessibility.js";
+export {
+  evalPRF001,
+  evalPRF002,
+  evalPRF003,
+  evalPRF004,
+  evalSEC001,
+  evalSEC002,
+  evalSEC003,
+  evalDEL001,
+} from "./evaluators/performance-security.js";
+export {
+  computeContentHash,
+  attachLineage,
+  checkFreshness,
+  findStaleEvidence,
+  verifyEvidenceHashes,
+  mapFidelity,
+} from "./integrity.js";

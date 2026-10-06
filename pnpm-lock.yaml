@@ -56,6 +56,9 @@ importers:
       '@wpi/render-job':
         specifier: workspace:*
         version: link:../../services/render-job
+      '@wpi/rules-engine':
+        specifier: workspace:*
+        version: link:../../packages/rules-engine
       '@wpi/security':
         specifier: workspace:*
         version: link:../../packages/security
@@ -117,6 +120,9 @@ importers:
       '@wpi/render-job':
         specifier: workspace:*
         version: link:../../services/render-job
+      '@wpi/rules-engine':
+        specifier: workspace:*
+        version: link:../rules-engine
       '@wpi/security':
         specifier: workspace:*
         version: link:../security
@@ -167,6 +173,25 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
+
+  packages/rules-engine:
+    dependencies:
+      yaml:
+        specifier: ^2.5.1
+        version: 2.9.1
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.1
         version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
 
   packages/security:
@@ -3235,7 +3260,7 @@ snapshots:
 
   '@types/pg@8.23.1':
     dependencies:
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
       pg-protocol: 1.16.1
       pg-types: 2.2.0
 
@@ -3355,22 +3380,6 @@ snapshots:
       '@vitest/utils': 2.1.9
       chai: 5.3.3
       tinyrainbow: 1.2.0
-
-  '@vitest/mocker@2.1.9(vite@5.4.21(@types/node@22.20.4)(lightningcss@1.32.0))':
-    dependencies:
-      '@vitest/spy': 2.1.9
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: 5.4.21(@types/node@22.20.4)(lightningcss@1.32.0)
-
-  '@vitest/mocker@2.1.9(vite@5.4.21(@types/node@26.6.3)(lightningcss@1.32.0))':
-    dependencies:
-      '@vitest/spy': 2.1.9
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: 5.4.21(@types/node@26.6.3)(lightningcss@1.32.0)
 
   '@vitest/mocker@2.1.9(vite@5.4.21(@types/node@26.6.4)(lightningcss@1.32.0))':
     dependencies:
@@ -4652,7 +4661,7 @@ snapshots:
   vitest@2.1.9(@types/node@22.20.4)(lightningcss@1.32.0):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@22.20.4)(lightningcss@1.32.0))
+      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@26.6.4)(lightningcss@1.32.0))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9
@@ -4687,7 +4696,7 @@ snapshots:
   vitest@2.1.9(@types/node@26.6.3)(lightningcss@1.32.0):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@26.6.3)(lightningcss@1.32.0))
+      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@26.6.4)(lightningcss@1.32.0))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9

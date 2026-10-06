@@ -20,6 +20,7 @@
     "@wpi/evidence-processor": "workspace:*",
     "@wpi/oauth": "workspace:*",
     "@wpi/render-job": "workspace:*",
+    "@wpi/rules-engine": "workspace:*",
     "@wpi/security": "workspace:*",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",

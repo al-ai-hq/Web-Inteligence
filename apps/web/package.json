@@ -18,6 +18,7 @@
     "@wpi/evidence-processor": "workspace:*",
     "@wpi/oauth": "workspace:*",
     "@wpi/render-job": "workspace:*",
+    "@wpi/rules-engine": "workspace:*",
     "@wpi/security": "workspace:*",
     "next": "^15.1.0",
     "next-intl": "^4.14.8",
