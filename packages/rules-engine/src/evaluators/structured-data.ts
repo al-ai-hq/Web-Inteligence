@@ -12,6 +12,7 @@
 
 import type { EvidenceBundle, PageEvidence, JsonLdBlock } from "../evidence.js";
 import type { RuleEvaluation, PageEvaluator } from "../types.js";
+import { wordOverlap } from "./helpers.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -27,25 +28,6 @@ const CONSISTENCY_CHECK_TYPES: Record<string, string[]> = {
 
 function findEntityBlocks(sd: JsonLdBlock[]): JsonLdBlock[] {
   return sd.filter((b) => ENTITY_TYPES.has(b.type));
-}
-
-function hasEntityType(sd: JsonLdBlock[]): boolean {
-  return sd.some((b) => ENTITY_TYPES.has(b.type));
-}
-
-/**
- * Simple word-overlap ratio between two strings.
- * Returns 0..1 representing the fraction of significant words in `a` that also appear in `b`.
- */
-function wordOverlap(a: string, b: string): number {
-  const wordsA = a.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
-  const wordsB = new Set(b.toLowerCase().split(/\s+/).filter((w) => w.length > 2));
-  if (wordsA.length === 0 || wordsB.size === 0) return 0;
-  let overlap = 0;
-  for (const w of wordsA) {
-    if (wordsB.has(w)) overlap++;
-  }
-  return overlap / wordsA.length;
 }
 
 /**

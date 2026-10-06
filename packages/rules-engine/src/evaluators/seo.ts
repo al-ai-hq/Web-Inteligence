@@ -7,6 +7,7 @@
 
 import type { EvidenceBundle, PageEvidence } from "../evidence.js";
 import type { RuleEvaluation, Evaluator, PageEvaluator } from "../types.js";
+import { wordOverlap } from "./helpers.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -31,17 +32,6 @@ function isDescriptiveHref(href: string): boolean {
     /^javascript:/,         // javascript links
   ];
   return !genericPatterns.some((p) => p.test(href));
-}
-
-function wordOverlap(a: string, b: string): number {
-  const wordsA = new Set(a.toLowerCase().split(/\s+/).filter((w) => w.length > 3));
-  const wordsB = new Set(b.toLowerCase().split(/\s+/).filter((w) => w.length > 3));
-  if (wordsA.size === 0 || wordsB.size === 0) return 0;
-  let overlap = 0;
-  for (const w of wordsA) {
-    if (wordsB.has(w)) overlap++;
-  }
-  return overlap / Math.min(wordsA.size, wordsB.size);
 }
 
 // ─── SEO-001: Unique page title (per-page) ───────────────────────────────────
