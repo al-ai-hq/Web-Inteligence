@@ -121,12 +121,23 @@ export async function runCrawlJob(): Promise<CrawlResult> {
   }
 
   // 4. Plan URLs
+  const fetchAndParse = async (url: string): Promise<string[]> => {
+    try {
+      const result = await fetchUrl(url, config);
+      const extracted = extractContent(result.body, result.finalUrl);
+      return extracted.links;
+    } catch {
+      return [];
+    }
+  };
+
   const urls = await planUrls({
     rootUrl,
     samplingMode,
     maxPages: resolveMaxPages(config.max_pages, process.env["MAX_PAGES"]),
     maxDepth: config.max_depth,
     sitemapXml,
+    fetchAndParse,
   });
 
   // 5. Fetch, extract, write evidence for each URL

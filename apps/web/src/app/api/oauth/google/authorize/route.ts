@@ -23,6 +23,7 @@ export function GET(request: Request) {
     response_type: "code",
     scope: [
       "openid",
+      "email",
       "https://www.googleapis.com/auth/webmasters.readonly",
       "https://www.googleapis.com/auth/analytics.readonly",
     ].join(" "),

@@ -5,13 +5,14 @@ import { Pool } from "pg";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 
 export async function GET(request: Request) {
+  const appUrl = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const state = searchParams.get("state");
   const error = searchParams.get("error");
 
   if (error) {
-    return NextResponse.redirect("/en/settings/integrations?error=access_denied");
+    return NextResponse.redirect(`${appUrl}/en/settings/integrations?error=access_denied`);
   }
 
   if (!code || !state) {
@@ -40,7 +41,6 @@ export async function GET(request: Request) {
 
   const clientId = process.env["GOOGLE_OAUTH_CLIENT_ID"];
   const clientSecret = process.env["GOOGLE_OAUTH_CLIENT_SECRET"];
-  const appUrl = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
   const databaseUrl = process.env["WPI_DATABASE_URL"];
 
   if (!clientId || !clientSecret || !databaseUrl) {
@@ -60,7 +60,7 @@ export async function GET(request: Request) {
   });
 
   if (!tokenResponse.ok) {
-    return NextResponse.redirect("/en/settings/integrations?error=token_exchange_failed");
+    return NextResponse.redirect(`${appUrl}/en/settings/integrations?error=token_exchange_failed`);
   }
 
   const tokens = (await tokenResponse.json()) as {
@@ -73,7 +73,7 @@ export async function GET(request: Request) {
 
   const userId = extractUserIdFromIdToken(tokens.id_token);
   if (!userId) {
-    return NextResponse.redirect("/en/settings/integrations?error=missing_identity");
+    return NextResponse.redirect(`${appUrl}/en/settings/integrations?error=missing_identity`);
   }
 
   const pool = new Pool({ connectionString: databaseUrl });
@@ -90,7 +90,7 @@ export async function GET(request: Request) {
 
   await pool.end();
 
-  const response = NextResponse.redirect("/en/settings/integrations?connected=true");
+  const response = NextResponse.redirect(`${appUrl}/en/settings/integrations?connected=true`);
   response.cookies.delete("oauth_state");
   response.cookies.delete("oauth_site_url");
   return response;

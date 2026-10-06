@@ -105,7 +105,10 @@ function buildPipeline(fields: PipelineFields) {
       );
     },
     processEvidence: async (record: AuditRecord): Promise<string[]> => {
-      await runEvidenceProcessor();
+      await scopedEnv(
+        { AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir },
+        () => runEvidenceProcessor(),
+      );
       const files = await readdir(join(fields.outputDir, record.id, "evidence"));
       return files
         .filter((file) => file.endsWith(".json"))

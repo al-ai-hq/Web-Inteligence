@@ -77,11 +77,17 @@ export async function runAuditPipeline(
     }
 
     await requireTransition(deps.store, auditId, "CRAWLING");
+    console.log("[pipeline] starting crawl stage");
     await deps.crawl(raw, scope);
+    console.log("[pipeline] crawl stage complete");
 
     await requireTransition(deps.store, auditId, "EXTRACTING");
+    console.log("[pipeline] starting render stage");
     await deps.render(raw);
+    console.log("[pipeline] render stage complete");
+    console.log("[pipeline] starting processEvidence stage");
     const evidenceIds = await deps.processEvidence(raw);
+    console.log("[pipeline] processEvidence stage complete, evidenceIds:", evidenceIds.length);
 
     // Resolve OAuth token before the AUDITING stage
     let accessToken: string | undefined;
@@ -101,6 +107,7 @@ export async function runAuditPipeline(
     }
 
     await requireTransition(deps.store, auditId, "AUDITING");
+    console.log("[pipeline] starting agents and connectors stage");
     const [outcomes, connectorResults] = await Promise.all([
       deps.runAgents(raw, evidenceIds, scope),
       deps.runConnectors(raw.target_url, {
@@ -109,8 +116,10 @@ export async function runAuditPipeline(
         auth: accessToken ? { google: { accessToken } } : undefined,
       }),
     ]);
+    console.log("[pipeline] agents and connectors stage complete");
 
     await requireTransition(deps.store, auditId, "COMPOSING");
+    console.log("[pipeline] starting compose stage");
     const composed = composeSections(outcomes, connectorResults, scope);
     const limitationsKeys = [
       ...BASE_LIMITATION_KEYS,
@@ -142,6 +151,15 @@ export async function runAuditPipeline(
   } catch (error) {
     if (error instanceof PipelineStoppedError) {
       return "stopped";
+    }
+    console.error("[pipeline] audit failed", error);
+    if (error instanceof Error) {
+      console.error("[pipeline] error name:", error.name);
+      console.error("[pipeline] error message:", error.message);
+      console.error("[pipeline] error stack:", error.stack);
+      if ("cause" in error) {
+        console.error("[pipeline] error cause:", error.cause);
+      }
     }
     await deps.store.setFailure(auditId, "failure.pipeline_error").catch(() => undefined);
     return "failed";

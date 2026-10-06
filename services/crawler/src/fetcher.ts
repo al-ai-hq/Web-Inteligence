@@ -1,4 +1,4 @@
-import { request } from "undici";
+import { request, Agent } from "undici";
 import { createHash } from "node:crypto";
 import { validateUrl } from "@wpi/security";
 import type { CrawlConfig } from "./config/schema.js";
@@ -41,83 +41,92 @@ export async function fetchUrl(
   while (true) {
     // Connect to pinned IP to prevent DNS rebinding (TOCTOU fix)
     const targetUrl = currentIp ? rewriteToIp(currentUrl, currentIp) : currentUrl;
-    const response = await request(targetUrl, {
-      method: "GET",
-      maxRedirections: 0,
-      headersTimeout: config.request_timeout_seconds * 1000,
-      bodyTimeout: config.request_timeout_seconds * 1000,
-    });
+    const hostname = new URL(currentUrl).hostname;
+    const dispatcher = currentIp
+      ? new Agent({ connect: { servername: hostname } })
+      : undefined;
+    try {
+      const response = await request(targetUrl, {
+        method: "GET",
+        maxRedirections: 0,
+        headersTimeout: config.request_timeout_seconds * 1000,
+        bodyTimeout: config.request_timeout_seconds * 1000,
+        ...(dispatcher ? { dispatcher } : {}),
+      });
 
-    const statusCode = response.statusCode;
+      const statusCode = response.statusCode;
 
-    // Check if this is a redirect
-    if (statusCode >= 300 && statusCode < 400) {
-      const locationHeader = response.headers["location"];
-      const location = Array.isArray(locationHeader) ? locationHeader[0] : locationHeader;
+      // Check if this is a redirect
+      if (statusCode >= 300 && statusCode < 400) {
+        const locationHeader = response.headers["location"];
+        const location = Array.isArray(locationHeader) ? locationHeader[0] : locationHeader;
 
-      if (!location) {
-        throw new Error(`Redirect ${statusCode} without location header at ${currentUrl}`);
+        if (!location) {
+          throw new Error(`Redirect ${statusCode} without location header at ${currentUrl}`);
+        }
+
+        // Resolve relative redirect URL
+        const redirectUrl = new URL(location, currentUrl).toString();
+
+        // Re-validate the redirect target
+        const redirectValidation = await validateUrl(redirectUrl);
+        if (!redirectValidation.valid) {
+          throw new Error(
+            `SSRF validation failed for redirect to ${redirectUrl}: ${redirectValidation.reason}`
+          );
+        }
+
+        redirectCount++;
+        if (redirectCount > MAX_REDIRECTS) {
+          throw new Error(
+            `Max redirects (${MAX_REDIRECTS}) exceeded. Last URL: ${currentUrl}`
+          );
+        }
+
+        redirectChain.push(redirectUrl);
+        currentUrl = redirectUrl;
+        currentIp = redirectValidation.pinnedIp;
+        continue;
       }
 
-      // Resolve relative redirect URL
-      const redirectUrl = new URL(location, currentUrl).toString();
+      // Non-redirect response — read the body
+      const body = await response.body.text();
 
-      // Re-validate the redirect target
-      const redirectValidation = await validateUrl(redirectUrl);
-      if (!redirectValidation.valid) {
+      // Check decompressed body size (use Buffer.byteLength for accurate byte count)
+      const bodyByteLength = Buffer.byteLength(body, "utf-8");
+      if (bodyByteLength > config.max_decompressed_size_bytes) {
         throw new Error(
-          `SSRF validation failed for redirect to ${redirectUrl}: ${redirectValidation.reason}`
+          `Decompressed response too large: ${bodyByteLength} bytes exceeds limit of ${config.max_decompressed_size_bytes} bytes`
         );
       }
 
-      redirectCount++;
-      if (redirectCount > MAX_REDIRECTS) {
+      // Check response body size against max_response_size_bytes
+      if (bodyByteLength > config.max_response_size_bytes) {
         throw new Error(
-          `Max redirects (${MAX_REDIRECTS}) exceeded. Last URL: ${currentUrl}`
+          `Response too large: ${bodyByteLength} bytes exceeds limit of ${config.max_response_size_bytes} bytes`
         );
       }
 
-      redirectChain.push(redirectUrl);
-      currentUrl = redirectUrl;
-      currentIp = redirectValidation.pinnedIp;
-      continue;
+      // Compute content hash
+      const contentHash = createHash("sha256").update(body).digest("hex");
+
+      // Extract content-type
+      const contentTypeHeader = response.headers["content-type"];
+      const contentType = Array.isArray(contentTypeHeader)
+        ? contentTypeHeader[0]
+        : contentTypeHeader;
+
+      return {
+        body,
+        statusCode,
+        finalUrl: currentUrl,
+        contentHash,
+        redirectChain,
+        contentType: contentType ?? undefined,
+      };
+    } finally {
+      await dispatcher?.close();
     }
-
-    // Non-redirect response — read the body
-    const body = await response.body.text();
-
-    // Check decompressed body size (use Buffer.byteLength for accurate byte count)
-    const bodyByteLength = Buffer.byteLength(body, "utf-8");
-    if (bodyByteLength > config.max_decompressed_size_bytes) {
-      throw new Error(
-        `Decompressed response too large: ${bodyByteLength} bytes exceeds limit of ${config.max_decompressed_size_bytes} bytes`
-      );
-    }
-
-    // Check response body size against max_response_size_bytes
-    if (bodyByteLength > config.max_response_size_bytes) {
-      throw new Error(
-        `Response too large: ${bodyByteLength} bytes exceeds limit of ${config.max_response_size_bytes} bytes`
-      );
-    }
-
-    // Compute content hash
-    const contentHash = createHash("sha256").update(body).digest("hex");
-
-    // Extract content-type
-    const contentTypeHeader = response.headers["content-type"];
-    const contentType = Array.isArray(contentTypeHeader)
-      ? contentTypeHeader[0]
-      : contentTypeHeader;
-
-    return {
-      body,
-      statusCode,
-      finalUrl: currentUrl,
-      contentHash,
-      redirectChain,
-      contentType: contentType ?? undefined,
-    };
   }
 }
 
