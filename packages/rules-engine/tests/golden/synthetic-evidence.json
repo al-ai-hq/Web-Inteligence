@@ -1,0 +1,122 @@
+[
+  {
+    "evidence_id": "page-homepage",
+    "url": "https://example.com/",
+    "final_url": "https://example.com/",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "content_hash": "sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+    "fetched_at": "2026-06-15T10:00:00.000Z",
+    "render": { "rendered": true },
+    "title": "Example Business — Professional Services in Riyadh",
+    "meta_description": "Example Business offers professional consulting, digital transformation, and technology services in Riyadh, Saudi Arabia. Contact us today for a free consultation.",
+    "canonical": "https://example.com/",
+    "lang": "en",
+    "viewport_meta": "width=device-width, initial-scale=1",
+    "headings": [
+      { "level": 1, "text": "Welcome to Example Business" },
+      { "level": 2, "text": "Our Services" },
+      { "level": 2, "text": "About Us" },
+      { "level": 2, "text": "Contact" }
+    ],
+    "word_count": 850,
+    "main_content_bytes": 12000,
+    "structured_data": [
+      {
+        "type": "Organization",
+        "data": {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "Example Business",
+          "url": "https://example.com",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Riyadh",
+            "addressCountry": "SA"
+          }
+        }
+      },
+      {
+        "type": "WebSite",
+        "data": {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "url": "https://example.com",
+          "name": "Example Business"
+        }
+      }
+    ],
+    "links": [
+      { "href": "https://example.com/about" },
+      { "href": "https://example.com/services" },
+      { "href": "https://example.com/contact" },
+      { "href": "https://example.com/blog" },
+      { "href": "https://example.com/faq" }
+    ],
+    "robots_directive": "index"
+  },
+  {
+    "evidence_id": "page-blog-noindex",
+    "url": "https://example.com/blog/draft-post",
+    "final_url": "https://example.com/blog/draft-post",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "content_hash": "sha256:b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3",
+    "fetched_at": "2026-06-15T10:01:00.000Z",
+    "render": { "rendered": true },
+    "title": null,
+    "meta_description": null,
+    "canonical": null,
+    "lang": null,
+    "viewport_meta": null,
+    "headings": [],
+    "word_count": 45,
+    "main_content_bytes": 300,
+    "structured_data": [],
+    "links": [
+      { "href": "https://external-site.com/promo" },
+      { "href": "https://ads.example.net/track" }
+    ],
+    "robots_directive": "noindex"
+  },
+  {
+    "evidence_id": "page-about-mixed",
+    "url": "https://example.com/about",
+    "final_url": "https://example.com/about",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "content_hash": "sha256:c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+    "fetched_at": "2026-06-15T10:02:00.000Z",
+    "render": { "rendered": true },
+    "title": "About Us — Example Business",
+    "meta_description": "Learn about Example Business and our team of professionals.",
+    "canonical": "https://example.com/about",
+    "lang": "en",
+    "viewport_meta": "width=device-width, initial-scale=1",
+    "headings": [
+      { "level": 1, "text": "About Us" },
+      { "level": 2, "text": "Our Team" },
+      { "level": 2, "text": "Our Mission" }
+    ],
+    "word_count": 420,
+    "main_content_bytes": 6500,
+    "structured_data": [
+      {
+        "type": "AboutPage",
+        "data": {
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          "name": "About Example Business"
+        }
+      }
+    ],
+    "links": [
+      { "href": "https://example.com/" },
+      { "href": "https://example.com/services" },
+      { "href": "https://example.com/contact" },
+      { "href": "https://twitter.com/examplebiz" },
+      { "href": "https://linkedin.com/company/examplebiz" }
+    ],
+    "robots_directive": "index"
+  }
+]
