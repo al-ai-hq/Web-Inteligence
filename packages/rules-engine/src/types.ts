@@ -137,3 +137,56 @@ export interface ScoreResult {
   /** Categories that had no measurable rules (value: null). */
   unavailable_categories: RuleCategory[];
 }
+
+// ─── Findings types ──────────────────────────────────────────────────────────
+
+/** Severity level for a finding (spec §8.1). */
+export type Severity = "critical" | "high" | "medium" | "low";
+
+/** Evidence state derived from rule evaluation method (spec §8.1). */
+export type EvidenceState = "verified" | "inferred" | "client_stated";
+
+/** A user-facing finding derived from a failed or partial rule result. */
+export interface Finding {
+  rule_id: string;
+  severity: Severity;
+  evidence_ids: string[];
+  rationale?: string;
+  category: RuleCategory;
+  /** Mapping from evaluation method: deterministic→verified, assessed→inferred, attested→client_stated. */
+  evidence_state: EvidenceState;
+  /** Affected scope; sampled is always true for anonymous audits. */
+  affected_scope: {
+    sampled: true;
+    urls?: string[];
+  };
+}
+
+// ─── Priority types ──────────────────────────────────────────────────────────
+
+/** Priority group assignment (spec §8.2, precedence order). */
+export type PriorityGroup =
+  | "critical_blocker"
+  | "measurement_fix"
+  | "quick_win"
+  | "strategic_opportunity"
+  | "polish";
+
+/** Horizon bucket for remediation timeline (spec §8.2). */
+export type Horizon = "0-30d" | "31-60d" | "61-90d";
+
+/** Display band for UI rendering (spec §8.2). */
+export type DisplayBand = 1 | 2 | 3 | 4;
+
+/** A prioritized item for the action board. */
+export interface PriorityItem {
+  rule_id: string;
+  severity: Severity;
+  priority_value: number;
+  group: PriorityGroup;
+  horizon: Horizon;
+  display_band: DisplayBand;
+  category: RuleCategory;
+  evidence_ids: string[];
+  rationale?: string;
+}
