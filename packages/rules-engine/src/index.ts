@@ -89,3 +89,13 @@ export {
   evalAGT001,
   evalAGT002,
 } from "./evaluators/i18n-accessibility.js";
+export {
+  evalPRF001,
+  evalPRF002,
+  evalPRF003,
+  evalPRF004,
+  evalSEC001,
+  evalSEC002,
+  evalSEC003,
+  evalDEL001,
+} from "./evaluators/performance-security.js";
