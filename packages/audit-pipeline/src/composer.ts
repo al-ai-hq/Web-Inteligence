@@ -283,14 +283,15 @@ export function composeSections(
     availableSections.add(section);
   }
 
-  // Build action board: start with agent-derived items, then add rules engine priority items
-  const actionBoard = deriveActionItems(findings, scope.actionBoardCap);
-
+  // Build action board: deterministic findings first, then agent-derived items
+  const actionBoard: StoredActionItem[] = [];
   if (rulesOutput?.priority_items) {
     for (const pi of rulesOutput.priority_items) {
       actionBoard.push(mapPriorityItem(pi, findingIdByRuleId));
     }
   }
+  const agentItems = deriveActionItems(findings, scope.actionBoardCap);
+  actionBoard.push(...agentItems);
 
   return {
     findings,

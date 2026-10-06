@@ -71,7 +71,7 @@ function runFullPipeline(pages: PageEvidence[]) {
   };
 
   const score = calculateScore(allResults, rules, scoring, context);
-  const findings = generateFindings(siteResults, rules, scoring);
+  const findings = generateFindings(siteResults, rules);
 
   return { score, findings, pageResults, siteResults, templateResults, allResults };
 }

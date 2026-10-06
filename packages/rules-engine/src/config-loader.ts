@@ -128,6 +128,15 @@ export function loadConfig(): { rules: LoadedRule[]; scoring: ScoringConfig } {
       trigger_rule: cap.related_rule_ids[0] ?? "",
     }));
 
+  // Validate that every active cap has at least one related rule
+  for (const cap of raw.critical_caps) {
+    if (cap.max_overall_score !== null && cap.related_rule_ids.length === 0) {
+      throw new ConfigError(
+        `Critical cap "${cap.id}" has max_overall_score set but empty related_rule_ids`,
+      );
+    }
+  }
+
   const scoring: ScoringConfig = {
     methodology_version: raw.methodology_version,
     category_weights: categoryWeights as Record<RuleCategory, number>,

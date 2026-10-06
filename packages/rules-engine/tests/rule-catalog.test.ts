@@ -45,19 +45,19 @@ describe("RuleCatalog", () => {
 
   it("excludes connected-tier-only rules for preview tier", () => {
     const catalog = new RuleCatalog(mockRules);
-    const applicable = catalog.getApplicableRules("preview", "en");
+    const applicable = catalog.getApplicableRules("preview");
     expect(applicable.find((r) => r.id === "GSC-001")).toBeUndefined();
   });
 
   it("includes connected-tier-only rules for rich tier", () => {
     const catalog = new RuleCatalog(mockRules);
-    const applicable = catalog.getApplicableRules("rich", "en");
+    const applicable = catalog.getApplicableRules("rich");
     expect(applicable.find((r) => r.id === "GSC-001")).toBeDefined();
   });
 
   it("excludes rules requiring unavailable data sources", () => {
     const catalog = new RuleCatalog(mockRules);
-    const applicable = catalog.getApplicableRules("rich", "en");
+    const applicable = catalog.getApplicableRules("rich");
     expect(applicable.find((r) => r.id === "SEO-011")).toBeUndefined();
   });
 });

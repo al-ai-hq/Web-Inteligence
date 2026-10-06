@@ -7,7 +7,7 @@ export class RuleCatalog {
     this.rules = rules;
   }
 
-  getApplicableRules(tier: "rich" | "reduced" | "preview", locale: "en" | "ar"): LoadedRule[] {
+  getApplicableRules(tier: "rich" | "reduced" | "preview"): LoadedRule[] {
     return this.rules.filter((rule) => {
       // Exclude connected-tier-only rules for preview tier
       if (tier === "preview" && rule.connected_tier_only) {
