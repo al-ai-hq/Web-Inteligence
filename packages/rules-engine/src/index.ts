@@ -23,6 +23,20 @@ export type {
 } from "./evidence.js";
 export { runRulesEngine } from "./engine.js";
 export { aggregateToSite, clusterPagesByTemplate, computeTemplateKey, findTemplateFailures } from "./aggregate.js";
+export {
+  calculateCategoryScores,
+  calculatePreCapReadiness,
+  applyCriticalCaps,
+  calculateConfidence,
+  calculateScore,
+} from "./scoring.js";
+export type {
+  CategoryScore,
+  AppliedCap,
+  ConfidenceLevel,
+  ScoreResult,
+  ScoringContext,
+} from "./types.js";
 export { EVALUATOR_REGISTRY, buildEvaluatorMap } from "./evaluators/index.js";
 export type { EvaluatorEntry } from "./evaluators/index.js";
 export {

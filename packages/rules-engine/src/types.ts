@@ -84,3 +84,56 @@ export interface TemplateCluster {
   page_ids: string[];
   urls: string[];
 }
+
+// ─── Scoring output types ─────────────────────────────────────────────────────
+
+/** Score for a single presence category. */
+export interface CategoryScore {
+  category: RuleCategory;
+  /** Full precision score 0-100, or null when category has no measurable rules. */
+  value: number | null;
+  /** Sum of importance_weight for rules with pass/partial/fail in this category. */
+  measurable_weight: number;
+  /** Sum of importance_weight for all scored rules in this category. */
+  total_weight: number;
+}
+
+/** A critical cap that was triggered and applied. */
+export interface AppliedCap {
+  cap_id: string;
+  max_score: number;
+  rule_id: string;
+  reason_key: string;
+}
+
+/** Confidence level for the score. */
+export type ConfidenceLevel = "high" | "medium" | "low";
+
+/** Context for confidence calculation beyond coverage. */
+export interface ScoringContext {
+  /** Number of pages inspected in the audit. */
+  pages_inspected?: number;
+  /** Whether the homepage was inspected. */
+  homepage_inspected?: boolean;
+  /** Pipeline stages that completed without degradation. */
+  critical_stages_completed?: string[];
+}
+
+/** The full Presence Readiness score result. */
+export interface ScoreResult {
+  methodology_version: string;
+  /** Final readiness after caps, 0-100 full precision. null when no measurable categories. */
+  presence_readiness: number | null;
+  /** Readiness before critical caps are applied. null when no measurable categories. */
+  pre_cap_value: number | null;
+  /** Critical caps that were triggered. */
+  applied_caps: AppliedCap[];
+  /** Per-category scores (all 7 categories). */
+  categories: CategoryScore[];
+  /** Coverage: measurable_applicable_weight / total_expected_applicable_weight. */
+  coverage: number;
+  /** Confidence level based on coverage and context. */
+  confidence: ConfidenceLevel;
+  /** Categories that had no measurable rules (value: null). */
+  unavailable_categories: RuleCategory[];
+}
