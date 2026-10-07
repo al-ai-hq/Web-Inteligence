@@ -1,0 +1,41 @@
+{
+  "case_id": "case-001",
+  "description": "Sample e-commerce homepage with clear hierarchy",
+  "evidence_package": {
+    "page_url": "https://example-ecommerce.com",
+    "language": "en",
+    "market": "US",
+    "screenshots": {
+      "viewport": "evidence_viewport_001",
+      "full_page": "evidence_fullpage_001",
+      "above_fold": "evidence_abovefold_001"
+    },
+    "extractor_results": {
+      "heading": { "title": "Shop Now", "h1_count": 1, "hierarchy": [] },
+      "form": { "forms": [], "fields": [] },
+      "contact": { "emails": [], "phones": [], "addresses": [] },
+      "policy": { "privacy": null, "terms": null, "cookies": null },
+      "language": { "detected": "en", "confidence": "high" },
+      "analytics": { "has_analytics": true, "providers": ["ga4"] },
+      "viewport": { "has_viewport_meta": true, "responsive": true },
+      "wayfinding": { "nav_items": [], "breadcrumbs": [] }
+    },
+    "readiness_results": {
+      "score": 85,
+      "categories": [],
+      "confidence": "high"
+    }
+  },
+  "human_results": {
+    "EXP-DH-01": {
+      "result": "pass",
+      "confidence": "high",
+      "rationale": "Clear visual hierarchy with distinct heading levels"
+    }
+  },
+  "labelled_by": "calibration_reviewer",
+  "labelled_at": "2026-10-07T12:00:00Z",
+  "language": "en",
+  "market": "US",
+  "site_type": "ecommerce"
+}
