@@ -193,3 +193,70 @@ describe("composeSections", () => {
     });
   });
 });
+
+describe("composeSections - Experience Effectiveness", () => {
+  it("should add Experience section when experience-reviewer outcome present", () => {
+    const outcomes: ComposerAgentOutcome[] = [
+      {
+        agent_name: "experience-reviewer",
+        ok: true,
+        findings: [
+          {
+            finding_id: "exp_001",
+            result_state: "verified",
+            confidence: "high",
+            evidence_ids: ["screenshot_viewport"],
+            data: {
+              reviewer_trace: {
+                rubric_version: "0.1.0-draft",
+                criterion_id: "EXP-DH-01",
+                criterion_name: "Visual hierarchy",
+                result: "pass",
+                confidence: "high",
+                rationale: "Clear hierarchy",
+                evidence_ids: ["screenshot_viewport"],
+                reviewer_type: "model",
+                language: "en",
+                language_direction: "ltr",
+                market: "US",
+                evaluated_at: "2026-10-07T12:00:00Z",
+                prompt_version: "0.1.0",
+                limitations: [],
+              },
+            },
+            limitations: [],
+          },
+        ],
+        limitations: [],
+        data: {
+          experience_score: {
+            experience_effectiveness: 82,
+            dimensions: {},
+            coverage: 0.95,
+            confidence: "high",
+            fidelity_label: "assessed",
+            methodology_version: "0.1.0-draft",
+          },
+        },
+      },
+    ];
+
+    const result = composeSections(outcomes, [], TIER_SCOPES.rich);
+
+    expect(result.experience_score).toBeDefined();
+    expect(result.experience_score?.experience_effectiveness).toBe(82);
+  });
+
+  it("should add unavailable block when experience-reviewer missing", () => {
+    const outcomes: ComposerAgentOutcome[] = [];
+
+    const result = composeSections(outcomes, [], TIER_SCOPES.rich);
+
+    expect(result.unavailable).toContainEqual(
+      expect.objectContaining({
+        section: "experience",
+        reason_key: "unavailable.experience_effectiveness",
+      }),
+    );
+  });
+});

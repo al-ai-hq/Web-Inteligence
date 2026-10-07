@@ -1,6 +1,6 @@
 import type { ScoreResult } from "@wpi/rules-engine";
 
-export type FindingSection = "technical" | "keywords" | "content" | "performance";
+export type FindingSection = "technical" | "keywords" | "content" | "performance" | "experience";
 export type FindingSeverity = "critical" | "high" | "medium" | "low" | "info";
 export type FindingState = "verified" | "inferred" | "not_verified";
 
@@ -64,6 +64,7 @@ export interface ComposerAgentOutcome {
   limitations: string[];
   cost?: { engine: string; tokens_in: number; tokens_out: number; usd: number };
   unavailable_reason_key?: string;
+  data?: Record<string, unknown>;
 }
 
 export interface ReportSampleDisclosure {

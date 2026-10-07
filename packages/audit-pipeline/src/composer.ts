@@ -182,6 +182,15 @@ export function deriveActionItems(
 
 // ─── ComposeResult ──────────────────────────────────────────────────────────
 
+export interface ExperienceScoreResult {
+  experience_effectiveness: number;
+  dimensions: Record<string, unknown>;
+  coverage: number;
+  confidence: "high" | "medium" | "low";
+  fidelity_label: "assessed";
+  methodology_version: string;
+}
+
 export interface ComposeResult {
   findings: StoredFinding[];
   unavailable: UnavailableBlock[];
@@ -189,7 +198,10 @@ export interface ComposeResult {
   summary_bullets: string[];
   costs: StoredCosts;
   score: ScoreResult | null;
+  experience_score: ExperienceScoreResult | null;
 }
+
+const EXPERIENCE_SECTION: FindingSection = "experience";
 
 // ─── composeSections ────────────────────────────────────────────────────────
 
@@ -203,6 +215,44 @@ export function composeSections(
   const unavailable: UnavailableBlock[] = [];
   const costLines: StoredCostLine[] = [];
   const availableSections = new Set<string>();
+
+  let experienceScore: ExperienceScoreResult | null = null;
+
+  // Process experience-reviewer outcome separately (D-012 separation)
+  const experienceOutcome = outcomes.find(o => o.agent_name === "experience-reviewer");
+
+  if (!experienceOutcome) {
+    unavailable.push({
+      section: EXPERIENCE_SECTION,
+      reason_key: "unavailable.experience_effectiveness",
+    });
+  } else if (!experienceOutcome.ok) {
+    unavailable.push({
+      section: EXPERIENCE_SECTION,
+      reason_key: experienceOutcome.unavailable_reason_key ?? "unavailable.experience_effectiveness",
+    });
+  } else {
+    availableSections.add(EXPERIENCE_SECTION);
+
+    for (const finding of experienceOutcome.findings) {
+      if (finding.result_state === "unavailable") continue;
+
+      findings.push({
+        id: randomUUID(),
+        agent: "experience-reviewer",
+        section: EXPERIENCE_SECTION,
+        severity: deriveSeverity(finding.data),
+        state: finding.result_state,
+        confidence: finding.confidence,
+        evidence_ids: [...finding.evidence_ids],
+        data: {
+          ...finding.data,
+        },
+      });
+    }
+
+    experienceScore = (experienceOutcome.data?.["experience_score"] as ExperienceScoreResult | undefined) ?? null;
+  }
 
   // If rules engine produced a score, use its unavailable categories instead
   // of the hardcoded "score deferred" placeholders.
@@ -218,7 +268,6 @@ export function composeSections(
     // No score yet — fall back to the M1 hardcoded unavailable blocks.
     unavailable.push(
       { section: "technical", reason_key: "unavailable.score" },
-      { section: "technical", reason_key: "unavailable.experience_effectiveness" },
     );
   }
 
@@ -236,6 +285,9 @@ export function composeSections(
   }
 
   for (const outcome of outcomes) {
+    // Skip experience-reviewer — processed separately above (D-012)
+    if (outcome.agent_name === "experience-reviewer") continue;
+
     const section = SECTION_BY_AGENT[outcome.agent_name] ?? "technical";
     if (!outcome.ok) {
       unavailable.push({
@@ -306,5 +358,6 @@ export function composeSections(
       total_usd: costLines.reduce((sum, line) => sum + line.usd, 0),
     },
     score: rulesOutput?.score ?? null,
+    experience_score: experienceScore,
   };
 }

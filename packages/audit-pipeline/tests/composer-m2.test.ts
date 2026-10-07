@@ -234,7 +234,9 @@ describe("composeSections with rules engine unavailable categories", () => {
 
     const unavailableKeys = composed.unavailable.map((b) => b.reason_key);
     expect(unavailableKeys).not.toContain("unavailable.score");
-    expect(unavailableKeys).not.toContain("unavailable.experience_effectiveness");
+    // experience_effectiveness is now handled separately (D-012) and always
+    // appears when no experience-reviewer outcome is present
+    expect(unavailableKeys).toContain("unavailable.experience_effectiveness");
   });
 
   it("still includes hardcoded unavailable blocks when no score is provided", () => {
