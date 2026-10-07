@@ -1,4 +1,4 @@
-import type { DimensionScore } from '../types/experience-score.js';
+import type { DimensionScore, ExperienceScoreResult } from '../types/experience-score.js';
 
 interface Finding {
   criterion_id: string;
@@ -51,5 +51,32 @@ export function calculateDimensionScore(
     criteria_count: findings.length,
     applicable_count: applicableCount,
     not_applicable_count: notApplicableCount,
+  };
+}
+
+export function calculateOverallScore(
+  dimensionScores: Record<string, DimensionScore>,
+  dimensionWeights: Record<string, number>,
+  coverage: number,
+  confidence: 'high' | 'medium' | 'low'
+): ExperienceScoreResult {
+  let weightedSum = 0;
+  let totalWeight = 0;
+
+  for (const [dimensionName, score] of Object.entries(dimensionScores)) {
+    const weight = dimensionWeights[dimensionName] ?? 0;
+    weightedSum += score.score * weight;
+    totalWeight += weight;
+  }
+
+  const overallScore = totalWeight > 0 ? weightedSum / totalWeight : 0;
+
+  return {
+    experience_effectiveness: overallScore,
+    dimensions: dimensionScores as ExperienceScoreResult['dimensions'],
+    coverage,
+    confidence,
+    fidelity_label: 'assessed',
+    methodology_version: '0.1.0-draft',
   };
 }
