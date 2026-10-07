@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ssrf": "vitest run --project ssrf --passWithNoTests",
-    "proofs": ".venv/bin/python3 -m scripts.proofs.run_all"
+    "proofs": ".venv/bin/python3 -m scripts.proofs.run_all",
+    "calibration:run": "npx tsx packages/calibration/src/cli.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",
