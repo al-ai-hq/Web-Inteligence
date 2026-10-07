@@ -28,7 +28,7 @@ const CONFIDENCE_ORDER: Record<"high" | "medium" | "low", number> = {
   low: 1,
 };
 
-const SECTION_ORDER = ["technical", "keywords", "content", "performance"] as const;
+const SECTION_ORDER = ["technical", "keywords", "content", "performance", "experience"] as const;
 
 const CONNECTOR_SECTION: Record<string, "keywords" | "performance"> = {
   psi: "performance",
