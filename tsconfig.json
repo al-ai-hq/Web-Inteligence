@@ -1,6 +1,7 @@
 {
   "files": [],
   "references": [
+    { "path": "packages/core" },
     { "path": "packages/contracts" },
     { "path": "packages/config-loaders" },
     { "path": "packages/test-utils" },

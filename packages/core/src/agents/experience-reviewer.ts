@@ -27,7 +27,7 @@ export class ExperienceReviewerAgent implements Agent {
 
     const findings: Finding[] = [];
 
-    for (const [dimensionName, criteria] of Object.entries(config.criteria)) {
+    for (const [, criteria] of Object.entries(config.criteria)) {
       for (const criterionId of Object.keys(criteria)) {
         const finding: Finding = {
           id: `exp_${criterionId}_${Date.now()}`,
