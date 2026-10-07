@@ -60,17 +60,13 @@ export function applyOverrides(
   const weightValidation = validateWeights(mergedWeights);
 
   if (!weightValidation.valid) {
-    const mergedSum = Object.values(mergedWeights).reduce((a, b) => a + b, 0);
-    // Allow overrides that deviate by at most 10 from the target sum of 100
-    if (Math.abs(mergedSum - 100) > 10) {
-      return {
-        ...baseConfig,
-        metadata: {
-          overrides_applied: false,
-          validation_warning: weightValidation.error,
-        },
-      };
-    }
+    return {
+      ...baseConfig,
+      metadata: {
+        overrides_applied: false,
+        validation_warning: weightValidation.error,
+      },
+    };
   }
 
   return {
