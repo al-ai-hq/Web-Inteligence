@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { validateWeights } from './weight-config.js';
 
 interface DimensionConfig {
@@ -76,6 +77,11 @@ export function applyOverrides(
       overrides_applied: true,
     },
   };
+}
+
+export function loadProjectOverrides(filePath: string): ProjectOverrides {
+  const content = readFileSync(filePath, 'utf-8');
+  return JSON.parse(content) as ProjectOverrides;
 }
 
 export function validateOverrides(

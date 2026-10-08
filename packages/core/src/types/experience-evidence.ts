@@ -8,6 +8,13 @@ import type { ViewportExtractorOutput } from '../extractors/viewport.js';
 import type { WayfindingExtractorOutput } from '../extractors/wayfinding.js';
 import type { CategoryResult } from './readiness.js';
 
+export interface ScreenshotRef {
+  url: string;
+  width: number;
+  height: number;
+  label: string;
+}
+
 export interface ExperienceEvidencePackage {
   page_url: string;
   language: string;

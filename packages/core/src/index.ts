@@ -1,0 +1,15 @@
+export type { ExperienceEvidencePackage, ScreenshotRef } from './types/experience-evidence.js';
+export type { ReviewerTrace } from './types/reviewer-trace.js';
+export type { DimensionScore, ExperienceScoreResult } from './types/experience-score.js';
+export type { CategoryResult } from './types/readiness.js';
+export { loadWeightConfig, validateWeights } from './experience/weight-config.js';
+export { calculateDimensionScore, calculateOverallScore } from './experience/scoring-engine.js';
+export { loadProjectOverrides, validateOverrides } from './experience/project-overrides.js';
+export type { HeadingExtractorOutput } from './extractors/heading.js';
+export type { FormExtractorOutput } from './extractors/form.js';
+export type { ContactExtractorOutput } from './extractors/contact.js';
+export type { PolicyExtractorOutput } from './extractors/policy.js';
+export type { LanguageExtractorOutput } from './extractors/language.js';
+export type { AnalyticsExtractorOutput } from './extractors/analytics.js';
+export type { ViewportExtractorOutput } from './extractors/viewport.js';
+export type { WayfindingExtractorOutput } from './extractors/wayfinding.js';
