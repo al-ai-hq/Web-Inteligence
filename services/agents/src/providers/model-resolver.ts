@@ -2,6 +2,7 @@ const MODEL_MAP: Record<string, string> = {
   fast: "gemini-2.0-flash",
   fast_plus_embedding: "gemini-2.5-flash",
   strong_reasoning: "gemini-2.5-pro",
+  vision_capable: "gemini-2.5-pro",
 };
 
 export function resolveModel(tier: string): string {

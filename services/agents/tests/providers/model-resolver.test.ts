@@ -14,6 +14,10 @@ describe("resolveModel", () => {
     expect(resolveModel("strong_reasoning")).toBe("gemini-2.5-pro");
   });
 
+  it("resolves vision_capable tier to gemini-2.5-pro", () => {
+    expect(resolveModel("vision_capable")).toBe("gemini-2.5-pro");
+  });
+
   it("throws for unknown tier", () => {
     expect(() => resolveModel("unknown_tier")).toThrowError("Unknown model tier: unknown_tier");
   });
