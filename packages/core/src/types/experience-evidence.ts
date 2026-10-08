@@ -9,10 +9,11 @@ import type { WayfindingExtractorOutput } from '../extractors/wayfinding.js';
 import type { CategoryResult } from './readiness.js';
 
 export interface ScreenshotRef {
-  url: string;
+  evidence_id: string;
+  path: string;
+  mime_type: 'image/png';
   width: number;
   height: number;
-  label: string;
 }
 
 export interface ExperienceEvidencePackage {
@@ -22,9 +23,9 @@ export interface ExperienceEvidencePackage {
   business_goal?: string;
 
   screenshots: {
-    viewport: string;
-    full_page: string;
-    above_fold: string;
+    viewport: ScreenshotRef | null;
+    full_page: ScreenshotRef | null;
+    above_fold: ScreenshotRef | null;
   };
 
   extractor_results: {
