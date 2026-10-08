@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import type { Part } from "@google/genai";
 import type {
   ProviderAdapter,
   CompletionRequest,
@@ -27,9 +28,23 @@ export class GeminiAdapter implements ProviderAdapter {
     }
 
     try {
+      const contents: string | Part[] = request.content
+        ? request.content.map(part => {
+            if (part.type === 'text') {
+              return { text: part.text };
+            }
+            return {
+              inlineData: {
+                mimeType: part.mimeType,
+                data: part.data,
+              },
+            };
+          })
+        : request.userPrompt;
+
       const response = await this.client.models.generateContent({
         model: request.model,
-        contents: request.userPrompt,
+        contents,
         config: {
           systemInstruction: request.systemPrompt,
           ...(request.toolDefinitions

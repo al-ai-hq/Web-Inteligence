@@ -134,4 +134,60 @@ describe("GeminiAdapter", () => {
 
     expect(result.finishReason).toBe("error");
   });
+
+  it("builds Part[] array when content field is present", async () => {
+    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    __mockGenerateContent.mockResolvedValueOnce({
+      text: "Evaluation complete",
+      usageMetadata: {
+        promptTokenCount: 100,
+        candidatesTokenCount: 50,
+      },
+      finishReason: "STOP",
+    });
+
+    const result = await adapter.complete({
+      model: "gemini-2.5-pro",
+      systemPrompt: "Evaluate this page.",
+      userPrompt: "",
+      content: [
+        { type: "text", text: "Evaluate the screenshots" },
+        { type: "image", mimeType: "image/png", data: "base64imagedata" },
+      ],
+    });
+
+    expect(result.content).toBe("Evaluation complete");
+    expect(__mockGenerateContent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contents: [
+          { text: "Evaluate the screenshots" },
+          { inlineData: { mimeType: "image/png", data: "base64imagedata" } },
+        ],
+      })
+    );
+  });
+
+  it("uses userPrompt string when content field is absent (backward compatible)", async () => {
+    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    __mockGenerateContent.mockResolvedValueOnce({
+      text: "Response",
+      usageMetadata: {
+        promptTokenCount: 10,
+        candidatesTokenCount: 5,
+      },
+      finishReason: "STOP",
+    });
+
+    await adapter.complete({
+      model: "gemini-2.0-flash",
+      systemPrompt: "You are helpful.",
+      userPrompt: "Hello",
+    });
+
+    expect(__mockGenerateContent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contents: "Hello",
+      })
+    );
+  });
 });
