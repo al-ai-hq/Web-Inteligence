@@ -19,7 +19,8 @@
     "zod": "^3.23.8",
     "yaml": "^2.5.1",
     "@google-cloud/storage": "^7.12.1",
-    "undici": "^6.19.2"
+    "undici": "^6.19.2",
+    "playwright": "^1.48.0"
   },
   "devDependencies": {
     "vitest": "^2.1.1"
