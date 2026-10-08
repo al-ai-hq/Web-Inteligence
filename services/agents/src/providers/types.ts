@@ -4,10 +4,15 @@ export interface ProviderAdapter {
   isAvailable(): boolean;
 }
 
+export type ContentPart =
+  | { type: 'text'; text: string }
+  | { type: 'image'; mimeType: string; data: string };
+
 export interface CompletionRequest {
   model: string;
   systemPrompt: string;
   userPrompt: string;
+  content?: ContentPart[];
   toolDefinitions?: ToolDefinition[];
   maxTokens?: number;
   temperature?: number;
