@@ -52,6 +52,9 @@ export function parseDimensionResponse(
 
   const config = loadWeightConfig();
   const criteria = config.criteria[dimension];
+  if (!criteria) {
+    return { findings: [], score: { score: 0, coverage: 0, confidence: 'low' } as any };
+  }
 
   const findings = parsed.criteria.map(c => ({
     id: `exp_${c.criterion_id}_${Date.now()}`,
@@ -95,6 +98,9 @@ export function parseDimensionResponse(
 function createErrorFindings(dimension: string, language: string, market: string) {
   const config = loadWeightConfig();
   const criteria = config.criteria[dimension];
+  if (!criteria) {
+    return { findings: [], score: { score: 0, coverage: 0, confidence: 'low' } as any };
+  }
 
   const findings = Object.keys(criteria).map(criterionId => ({
     id: `exp_${criterionId}_${Date.now()}`,

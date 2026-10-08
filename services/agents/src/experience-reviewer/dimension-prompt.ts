@@ -38,6 +38,13 @@ export function buildDimensionPrompt(
   const dimensionConfig = config.dimensions[dimension];
   const criteria = config.criteria[dimension];
 
+  if (!dimensionConfig) {
+    throw new Error(`Unknown dimension: ${dimension}`);
+  }
+  if (!criteria) {
+    throw new Error(`No criteria configured for dimension: ${dimension}`);
+  }
+
   const systemPrompt = `You are evaluating a webpage's ${dimensionConfig.title}.
 
 Criteria:

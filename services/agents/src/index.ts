@@ -24,3 +24,6 @@ export { createValidateSchemaTool } from "./tools/validate-schema.js";
 export type { AgentJob, AgentResult, Finding, AgentConfig } from "./runtime/types.js";
 export type { Tool, ToolContext, ToolResult } from "./tools/types.js";
 export type { ProviderAdapter, CompletionRequest, CompletionResponse } from "./providers/types.js";
+
+export { reviewExperience } from "./experience-reviewer/orchestrator.js";
+export type { OrchestratorDeps } from "./experience-reviewer/orchestrator.js";
