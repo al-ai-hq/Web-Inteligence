@@ -264,6 +264,9 @@ importers:
       '@google/genai':
         specifier: ^1.0.0
         version: 1.52.0
+      '@wpi/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@wpi/security':
         specifier: workspace:*
         version: link:../../packages/security
