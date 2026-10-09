@@ -23,6 +23,10 @@ const FLASH_PRICING: ModelPricing = { inputPer1k: 0.000075, outputPer1k: 0.0003 
 const MODEL_PRICING: Record<string, ModelPricing> = {
   "gemini-2.0-flash": FLASH_PRICING,
   "gemini-2.5-pro": { inputPer1k: 0.00125, outputPer1k: 0.01 },
+  "claude-sonnet-4-20250514": { inputPer1k: 0.003, outputPer1k: 0.015 },
+  "gpt-4o": { inputPer1k: 0.0025, outputPer1k: 0.01 },
+  "sonar-pro": { inputPer1k: 0.001, outputPer1k: 0.001 },
+  "grok-3": { inputPer1k: 0.003, outputPer1k: 0.015 },
 };
 
 export function getModelPricing(model: string): ModelPricing {

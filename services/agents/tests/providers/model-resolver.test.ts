@@ -44,4 +44,28 @@ describe("getModelPricing", () => {
       outputPer1k: 0.0003,
     });
   });
+
+  it("returns pricing for Claude model", () => {
+    const pricing = getModelPricing("claude-sonnet-4-20250514");
+    expect(pricing.inputPer1k).toBeGreaterThan(0);
+    expect(pricing.outputPer1k).toBeGreaterThan(0);
+  });
+
+  it("returns pricing for OpenAI model", () => {
+    const pricing = getModelPricing("gpt-4o");
+    expect(pricing.inputPer1k).toBeGreaterThan(0);
+    expect(pricing.outputPer1k).toBeGreaterThan(0);
+  });
+
+  it("returns pricing for Perplexity model", () => {
+    const pricing = getModelPricing("sonar-pro");
+    expect(pricing.inputPer1k).toBeGreaterThan(0);
+    expect(pricing.outputPer1k).toBeGreaterThan(0);
+  });
+
+  it("returns pricing for Grok model", () => {
+    const pricing = getModelPricing("grok-3");
+    expect(pricing.inputPer1k).toBeGreaterThan(0);
+    expect(pricing.outputPer1k).toBeGreaterThan(0);
+  });
 });

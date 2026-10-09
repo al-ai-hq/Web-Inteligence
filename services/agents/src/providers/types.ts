@@ -16,6 +16,8 @@ export interface CompletionRequest {
   toolDefinitions?: ToolDefinition[];
   maxTokens?: number;
   temperature?: number;
+  webSearch?: { enabled: boolean; maxUses?: number };
+  location?: { market: string; language: string };
 }
 
 export interface ToolDefinition {
