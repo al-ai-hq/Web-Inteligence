@@ -27,3 +27,14 @@ export type { ProviderAdapter, CompletionRequest, CompletionResponse } from "./p
 
 export { reviewExperience } from "./experience-reviewer/orchestrator.js";
 export type { OrchestratorDeps } from "./experience-reviewer/orchestrator.js";
+
+export { PanelRunner } from "./visibility/panel-runner.js";
+export { buildVisibilityPrompts } from "./visibility/prompt-builder.js";
+export { analyzeResponse } from "./visibility/response-analyzer.js";
+export { computeMetrics } from "./visibility/metrics-engine.js";
+export { findLostPrompts } from "./visibility/lost-prompt-analyzer.js";
+export { createAdapter } from "./providers/adapter-factory.js";
+export { CostLedger } from "./providers/cost-ledger.js";
+export type { CostLedgerEntry, CostLedgerConfig, CapCheck } from "./providers/cost-ledger.js";
+export type { CircuitBreakerConfig } from "./providers/circuit-breaker.js";
+export { DEFAULT_CIRCUIT_BREAKER_CONFIG } from "./providers/circuit-breaker.js";
