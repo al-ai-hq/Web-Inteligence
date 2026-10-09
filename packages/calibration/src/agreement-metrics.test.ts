@@ -4,15 +4,15 @@ import { calculateAgreementMetrics } from './agreement-metrics.js';
 describe('calculateAgreementMetrics', () => {
   it('should calculate perfect agreement', () => {
     const modelResults = [
-      { criterion_id: 'EXP-DH-01', result: 'pass' },
-      { criterion_id: 'EXP-DH-02', result: 'partial' },
-      { criterion_id: 'EXP-DH-03', result: 'fail' },
+      { criterion_id: 'EXP-DH-01', result: 'pass' as const },
+      { criterion_id: 'EXP-DH-02', result: 'partial' as const },
+      { criterion_id: 'EXP-DH-03', result: 'fail' as const },
     ];
 
     const humanResults = [
-      { criterion_id: 'EXP-DH-01', result: 'pass' },
-      { criterion_id: 'EXP-DH-02', result: 'partial' },
-      { criterion_id: 'EXP-DH-03', result: 'fail' },
+      { criterion_id: 'EXP-DH-01', result: 'pass' as const },
+      { criterion_id: 'EXP-DH-02', result: 'partial' as const },
+      { criterion_id: 'EXP-DH-03', result: 'fail' as const },
     ];
 
     const metrics = calculateAgreementMetrics(modelResults, humanResults);
@@ -24,17 +24,17 @@ describe('calculateAgreementMetrics', () => {
 
   it('should calculate partial agreement', () => {
     const modelResults = [
-      { criterion_id: 'EXP-DH-01', result: 'pass' },
-      { criterion_id: 'EXP-DH-02', result: 'partial' },
-      { criterion_id: 'EXP-DH-03', result: 'fail' },
-      { criterion_id: 'EXP-DH-04', result: 'pass' },
+      { criterion_id: 'EXP-DH-01', result: 'pass' as const },
+      { criterion_id: 'EXP-DH-02', result: 'partial' as const },
+      { criterion_id: 'EXP-DH-03', result: 'fail' as const },
+      { criterion_id: 'EXP-DH-04', result: 'pass' as const },
     ];
 
     const humanResults = [
-      { criterion_id: 'EXP-DH-01', result: 'pass' },
-      { criterion_id: 'EXP-DH-02', result: 'fail' },
-      { criterion_id: 'EXP-DH-03', result: 'fail' },
-      { criterion_id: 'EXP-DH-04', result: 'partial' },
+      { criterion_id: 'EXP-DH-01', result: 'pass' as const },
+      { criterion_id: 'EXP-DH-02', result: 'fail' as const },
+      { criterion_id: 'EXP-DH-03', result: 'fail' as const },
+      { criterion_id: 'EXP-DH-04', result: 'partial' as const },
     ];
 
     const metrics = calculateAgreementMetrics(modelResults, humanResults);

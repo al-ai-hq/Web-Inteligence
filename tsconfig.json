@@ -5,6 +5,7 @@
     { "path": "packages/contracts" },
     { "path": "packages/config-loaders" },
     { "path": "packages/test-utils" },
+    { "path": "packages/calibration" },
     { "path": "services/crawler" },
     { "path": "services/agents" },
     { "path": "services/connectors" },

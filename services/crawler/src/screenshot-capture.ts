@@ -41,10 +41,7 @@ async function captureViewport(page: Page): Promise<ScreenshotImage | null> {
 async function captureFullPage(page: Page): Promise<ScreenshotImage | null> {
   try {
     const buffer = await page.screenshot({ type: 'png', fullPage: true });
-    const dimensions = await page.evaluate(() => ({
-      width: document.documentElement.scrollWidth,
-      height: document.documentElement.scrollHeight,
-    }));
+    const dimensions = await page.evaluate('({ width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight })') as { width: number; height: number };
     return {
       buffer,
       mime_type: 'image/png',

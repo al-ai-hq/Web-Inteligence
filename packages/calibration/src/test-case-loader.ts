@@ -1,6 +1,6 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import type { ExperienceEvidencePackage } from '../../core/src/types/experience-evidence.js';
+import { readdirSync, readFileSync, existsSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import type { ExperienceEvidencePackage } from '@wpi/core';
 
 interface CalibrationTestCase {
   case_id: string;
@@ -18,8 +18,22 @@ interface CalibrationTestCase {
   site_type: string;
 }
 
+function resolveDirectory(directory: string): string {
+  // Walk up from CWD to find the directory (handles monorepo sub-packages)
+  let dir = process.cwd();
+  while (true) {
+    const candidate = resolve(dir, directory);
+    if (existsSync(candidate)) return candidate;
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  // Fallback (will produce a clear ENOENT error)
+  return resolve(process.cwd(), directory);
+}
+
 export function loadTestCases(directory: string): CalibrationTestCase[] {
-  const dirPath = resolve(process.cwd(), directory);
+  const dirPath = resolveDirectory(directory);
   const files = readdirSync(dirPath).filter(f => f.endsWith('.json'));
 
   const cases: CalibrationTestCase[] = [];

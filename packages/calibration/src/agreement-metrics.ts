@@ -21,6 +21,8 @@ export function calculateAgreementMetrics(
     const model = modelResults[i];
     const human = humanResults[i];
 
+    if (!model || !human) continue;
+
     if (model.result === human.result) {
       exactMatches++;
       adjacentMatches++;
@@ -56,7 +58,9 @@ function calculateWeightedKappa(
 
   let observed_agreement = 0;
   for (let i = 0; i < total; i++) {
-    if (modelResults[i].result === humanResults[i].result) {
+    const m = modelResults[i];
+    const h = humanResults[i];
+    if (m && h && m.result === h.result) {
       observed_agreement++;
     }
   }
@@ -84,7 +88,7 @@ function calculateDistribution(results: CriterionResult[]): Record<string, numbe
   }
 
   for (const key of Object.keys(dist)) {
-    dist[key] /= total;
+    dist[key] = (dist[key] ?? 0) / total;
   }
 
   return dist;

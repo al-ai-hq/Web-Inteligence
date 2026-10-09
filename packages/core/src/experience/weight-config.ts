@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { load } from 'js-yaml';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
 
 interface DimensionConfig {
   weight: number;
@@ -15,8 +15,25 @@ interface WeightConfig {
   criteria: Record<string, Record<string, number>>;
 }
 
+const CONFIG_RELATIVE_PATH = 'config/experience-effectiveness.yaml';
+
+function resolveConfigPath(): string {
+  // Walk up from CWD to find the config file (handles monorepo sub-packages)
+  let dir = process.cwd();
+  while (true) {
+    const candidate = resolve(dir, CONFIG_RELATIVE_PATH);
+    if (existsSync(candidate)) return candidate;
+    const parent = dirname(dir);
+    if (parent === dir) break; // reached filesystem root
+    dir = parent;
+  }
+
+  // Fallback to CWD path (will produce a clear ENOENT error message)
+  return resolve(process.cwd(), CONFIG_RELATIVE_PATH);
+}
+
 export function loadWeightConfig(): WeightConfig {
-  const configPath = resolve(process.cwd(), 'config/experience-effectiveness.yaml');
+  const configPath = resolveConfigPath();
   const fileContent = readFileSync(configPath, 'utf-8');
   const config = load(fileContent) as WeightConfig;
 

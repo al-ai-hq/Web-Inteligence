@@ -9,8 +9,8 @@ describe('loadTestCases', () => {
     expect(cases.length).toBeGreaterThan(0);
 
     const firstCase = cases[0];
-    expect(firstCase.case_id).toBeDefined();
-    expect(firstCase.evidence_package).toBeDefined();
-    expect(firstCase.human_results).toBeDefined();
+    expect(firstCase!.case_id).toBeDefined();
+    expect(firstCase!.evidence_package).toBeDefined();
+    expect(firstCase!.human_results).toBeDefined();
   });
 });
