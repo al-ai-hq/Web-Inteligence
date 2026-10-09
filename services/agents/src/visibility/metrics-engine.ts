@@ -21,9 +21,9 @@ export function computeMetrics(
     ? null
     : validRuns.filter((r) => r.brand_url_cited === true).length / validCount;
 
-  const brandMentionCount = brandMentionedRuns.length > 0 ? 1 : 0;
-  const totalMentionCount = brandMentionCount + validRuns.reduce(
-    (sum, r) => sum + (r.competitors_mentioned?.length ?? 0),
+  const brandMentionCount = brandMentionedRuns.length;
+  const totalMentionCount = validRuns.reduce(
+    (sum, r) => sum + (r.brand_mentioned ? 1 : 0) + (r.competitors_mentioned?.length ?? 0),
     0,
   );
   const shareOfMentions = totalMentionCount === 0 ? 0 : brandMentionCount / totalMentionCount;

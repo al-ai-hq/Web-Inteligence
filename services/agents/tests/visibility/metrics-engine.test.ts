@@ -88,7 +88,7 @@ describe("computeMetrics", () => {
   it("computes share_of_observed_mentions", () => {
     const runs = [
       makeRun({ competitors_mentioned: ["a.com"] }),
-      makeRun({ competitors_mentioned: [] }),
+      makeRun({ competitors_mentioned: [], brand_mentioned: false }),
     ];
     const metrics = computeMetrics(runs, 5);
     expect(metrics.share_of_observed_mentions).toBeCloseTo(0.5);
