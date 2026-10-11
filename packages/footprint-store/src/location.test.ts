@@ -33,6 +33,7 @@ describe("LocationSchema", () => {
   it("rejects location with latitude out of range", () => {
     const result = LocationSchema.safeParse({
       address_line1: "123 Main St",
+      address_line2: null,
       address_locality: "Anytown",
       address_region: "CA",
       address_postal_code: "90210",
