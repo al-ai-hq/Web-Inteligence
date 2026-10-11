@@ -44,7 +44,7 @@ export class PostgresManifestStore implements ManifestStore {
     await this.pool.query(
       `INSERT INTO fact_manifest_facts (id, fact_manifest_id, category, statement, evidence, regulated, regulated_topic, requires_professional_review, expires_at, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-      [fact.id, manifestId, fact.category, fact.statement, JSON.stringify(fact.evidence), fact.regulated, fact.regulated_topic, fact.requires_professional_review, fact.expires_at, fact.evidence.retrieved_at]
+      [fact.id, manifestId, fact.category, fact.statement, JSON.stringify(fact.evidence), fact.regulated, fact.regulated_topic, fact.requires_professional_review, fact.expires_at, fact.created_at]
     );
   }
 
