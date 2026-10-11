@@ -116,7 +116,7 @@ describe("composeSections with rules engine findings", () => {
     );
 
     const sf = composed.findings[0]!;
-    expect(sf.section).toBe("content"); // geo → content
+    expect(sf.section).toBe("entity"); // geo → entity
     expect(sf.state).toBe("not_verified");
     expect(sf.confidence).toBe("low");
   });

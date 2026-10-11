@@ -28,7 +28,7 @@ const CONFIDENCE_ORDER: Record<"high" | "medium" | "low", number> = {
   low: 1,
 };
 
-const SECTION_ORDER = ["technical", "keywords", "content", "performance", "experience"] as const;
+export const SECTION_ORDER = ["technical", "keywords", "content", "performance", "experience", "entity"] as const;
 
 const CONNECTOR_SECTION: Record<string, "keywords" | "performance"> = {
   psi: "performance",
@@ -39,12 +39,12 @@ const CONNECTOR_SECTION: Record<string, "keywords" | "performance"> = {
 
 // ─── Rules engine category → report section mapping ─────────────────────────
 
-const CATEGORY_TO_SECTION: Record<RuleCategory, FindingSection> = {
+export const CATEGORY_TO_SECTION: Record<RuleCategory, FindingSection> = {
   crawlability: "technical",
   on_page: "technical",
   structured_data: "technical",
   aeo: "content",
-  geo: "content",
+  geo: "entity",
   i18n_accessibility: "content",
   performance_security: "performance",
 };

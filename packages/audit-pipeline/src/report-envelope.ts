@@ -1,6 +1,6 @@
 import type { ScoreResult } from "@wpi/rules-engine";
 
-export type FindingSection = "technical" | "keywords" | "content" | "performance" | "experience";
+export type FindingSection = "technical" | "keywords" | "content" | "performance" | "experience" | "entity";
 export type FindingSeverity = "critical" | "high" | "medium" | "low" | "info";
 export type FindingState = "verified" | "inferred" | "not_verified";
 
@@ -8,6 +8,7 @@ export const SECTION_BY_AGENT: Record<string, FindingSection> = {
   auditor: "technical",
   "keyword-analyst": "keywords",
   "content-strategist": "content",
+  "entity-analyst": "entity",
 };
 
 export interface StoredFinding {

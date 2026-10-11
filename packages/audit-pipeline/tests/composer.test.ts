@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
+  CATEGORY_TO_SECTION,
+  SECTION_ORDER,
   composeSections,
   deriveActionItems,
   deriveSeverity,
   deriveUnavailable,
 } from "../src/composer.js";
 import type { ComposerAgentOutcome, StoredFinding } from "../src/report-envelope.js";
+import { SECTION_BY_AGENT } from "../src/report-envelope.js";
 import { TIER_SCOPES } from "../src/eligibility.js";
 
 function finding(overrides: Partial<StoredFinding> = {}): StoredFinding {
@@ -258,5 +261,15 @@ describe("composeSections - Experience Effectiveness", () => {
         reason_key: "unavailable.experience_effectiveness",
       }),
     );
+  });
+});
+
+describe("Composer entity section", () => {
+  it("includes 'entity' in SECTION_ORDER", () => {
+    expect(SECTION_ORDER).toContain("entity");
+  });
+
+  it("maps geo category to entity section", () => {
+    expect(CATEGORY_TO_SECTION["geo"]).toBe("entity");
   });
 });
