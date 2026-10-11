@@ -13,7 +13,7 @@ const inputSchema = z.object({
 export function createWriteBriefTool(): Tool {
   return {
     name: "write_brief",
-    description: "Produces a content brief linked to specific audit evidence and keyword clusters.",
+    description: "Produces a content brief linked to specific audit evidence and keyword clusters. Checks for cannibalization and normalizes Arabic keywords.",
     inputSchema: {
       type: "object",
       properties: {
@@ -30,14 +30,25 @@ export function createWriteBriefTool(): Tool {
       },
       required: ["opportunity"],
     },
-    execute(input: unknown, _context: ToolContext): Promise<ToolResult> {
+    async execute(input: unknown, _context: ToolContext): Promise<ToolResult> {
       const { opportunity } = inputSchema.parse(input);
+      const { normalizeArabicKeyword, checkCannibalization } = await import("@wpi/content-briefs");
 
-      return Promise.resolve({
+      let normalizedKeyword = opportunity.primary_keyword ?? "";
+      if (normalizedKeyword) {
+        normalizedKeyword = normalizeArabicKeyword(normalizedKeyword);
+      }
+
+      const existingMappings = new Map<string, string>();
+      const cannibalization = opportunity.cluster_id
+        ? checkCannibalization(opportunity.cluster_id, opportunity.target_url ?? null, existingMappings)
+        : { ok: true as const };
+
+      return {
         data: {
           brief: {
             target_url: opportunity.target_url,
-            primary_keyword: opportunity.primary_keyword,
+            primary_keyword: normalizedKeyword,
             cluster_id: opportunity.cluster_id,
             recommended_sections: [
               "Address the gap identified in the audit finding",
@@ -46,10 +57,11 @@ export function createWriteBriefTool(): Tool {
             ],
           },
           evidence_ids: [opportunity.finding_id],
+          cannibalization_check: cannibalization,
         },
         source_tier: "first_party",
-        limitations: [],
-      });
+        limitations: !cannibalization.ok ? ["Cannibalization detected: cluster already mapped to existing page"] : [],
+      };
     },
   };
 }

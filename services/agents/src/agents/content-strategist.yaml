@@ -1,0 +1,14 @@
+name: content-strategist
+description: Content strategy agent for briefs, drafts, schema, facts, and approvals.
+model_tier: standard
+tools:
+  - find_opportunities
+  - check_cannibalization
+  - write_brief
+  - create_draft
+  - build_schema
+  - manage_facts
+  - request_approval
+budget:
+  max_tokens_per_session: 50000
+  max_cost_per_session_usd: 0.50

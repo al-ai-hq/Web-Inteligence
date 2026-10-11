@@ -459,9 +459,24 @@ importers:
       '@google/genai':
         specifier: ^1.0.0
         version: 1.52.0
+      '@wpi/content-approvals':
+        specifier: workspace:*
+        version: link:../../packages/content-approvals
+      '@wpi/content-briefs':
+        specifier: workspace:*
+        version: link:../../packages/content-briefs
+      '@wpi/content-drafts':
+        specifier: workspace:*
+        version: link:../../packages/content-drafts
       '@wpi/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@wpi/fact-manifests':
+        specifier: workspace:*
+        version: link:../../packages/fact-manifests
+      '@wpi/schema-builder':
+        specifier: workspace:*
+        version: link:../../packages/schema-builder
       '@wpi/security':
         specifier: workspace:*
         version: link:../../packages/security
