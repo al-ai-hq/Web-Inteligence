@@ -7,10 +7,10 @@ export async function POST(
 ) {
   const { id } = await context.params;
 
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
   const { confirmed_value, resolved_by, resolution_note } = body;
 
-  if (!confirmed_value || !resolved_by) {
+  if (confirmed_value === undefined || confirmed_value === null || !resolved_by) {
     return NextResponse.json(
       { error: "confirmed_value and resolved_by are required" },
       { status: 400 },

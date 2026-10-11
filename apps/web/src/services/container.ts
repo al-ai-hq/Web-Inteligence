@@ -85,7 +85,7 @@ function buildPipeline(fields: PipelineFields) {
     outputDir: fields.outputDir,
     geminiApiKey: fields.geminiApiKey,
     enrichFootprint: fields.pool
-      ? async (record: AuditRecord) => {
+      ? async (record: AuditRecord, projectId: string) => {
           const { discoverPublicSources } = await import("@wpi/public-source-discovery");
           const { extractProfileData } = await import("@wpi/profile-extractor");
           const { computeNapConsistency, detectConflicts } = await import("@wpi/nap-consistency");
@@ -103,7 +103,7 @@ function buildPipeline(fields: PipelineFields) {
           const napStore = new NapObservationStore(fields.pool!);
           const conflictStore = new EntityConflictStore(fields.pool!);
 
-          const factSheets = await factSheetStore.listByProject(record.id);
+          const factSheets = await factSheetStore.listByProject(projectId);
           if (factSheets.length === 0) return;
 
           const factSheet = factSheets[0]!;
@@ -148,6 +148,7 @@ function buildPipeline(fields: PipelineFields) {
 
           const napResults = [];
           for (const profile of profiles) {
+            const extracted = extractProfileData("", profile.url);
             const napResult = computeNapConsistency(
               {
                 business_name: factSheet.business_name,
@@ -164,18 +165,18 @@ function buildPipeline(fields: PipelineFields) {
               },
               {
                 source_url: profile.url,
-                extracted_name: null,
-                extracted_phone: null,
-                extracted_address: null,
+                extracted_name: extracted.extracted_name,
+                extracted_phone: extracted.extracted_phone,
+                extracted_address: extracted.extracted_address,
               },
             );
 
             await napStore.create({
               fact_sheet_id: factSheet.id,
               source_url: profile.url,
-              name_value: null,
-              phone_value: null,
-              address_value: null,
+              name_value: extracted.extracted_name,
+              phone_value: extracted.extracted_phone,
+              address_value: extracted.extracted_address,
               consistency_score: napResult.consistency_score,
               inconsistencies: napResult.inconsistencies,
             }, lineage);

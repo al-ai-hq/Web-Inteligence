@@ -41,7 +41,7 @@ export interface PipelineDeps {
   crawl: (record: AuditRecord, scope: TierScope) => Promise<void>;
   render: (record: AuditRecord) => Promise<void>;
   processEvidence: (record: AuditRecord) => Promise<string[]>;
-  enrichFootprint?: (record: AuditRecord) => Promise<void>;
+  enrichFootprint?: (record: AuditRecord, projectId?: string) => Promise<void>;
   runRulesEngine?: (bundle: EvidenceBundle) => Promise<PageRuleResult[]>;
   loadRulesConfig?: () => { rules: LoadedRule[]; scoring: ScoringConfig; catalog: RuleCatalog };
   runAgents: (

@@ -10,7 +10,7 @@ export const EntityConflictSchema = z.object({
   source_type: z.enum(["nap_inconsistency", "extractor_disagreement", "connector_conflict"]),
   source_id: z.string().nullable(),
   severity: z.enum(["low", "medium", "high", "critical"]),
-  status: z.enum(["open", "investigating", "resolved", "dismissed"]),
+  status: z.enum(["open", "owner_confirmed_value", "correction_requested", "resolved", "dismissed"]),
   resolved_by: z.string().nullable(),
   resolved_at: z.string().datetime().nullable(),
   resolution_note: z.string().nullable(),

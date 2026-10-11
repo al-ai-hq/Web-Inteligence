@@ -60,7 +60,9 @@ export function ConflictList({ conflicts, factSheetId, locale, projectId }: Conf
     }
   };
 
-  const openConflicts = conflicts.filter((c) => c.status === "open" || c.status === "investigating");
+  const openConflicts = conflicts.filter(
+    (c) => c.status === "open" || c.status === "owner_confirmed_value" || c.status === "correction_requested",
+  );
   const resolvedConflicts = conflicts.filter((c) => c.status === "resolved" || c.status === "dismissed");
 
   return (

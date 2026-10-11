@@ -24,8 +24,23 @@ export class ReadSpecialistEvidenceTool implements Tool {
     const auditId = typedInput.audit_id ?? context.audit_id;
 
     if (context.db) {
+      const tableMap: Record<string, string> = {
+        entity_profile: "profile_observations",
+        nap_analysis: "nap_observations",
+        public_source: "public_source_observations",
+      };
+
+      const table = tableMap[typedInput.evidence_type];
+      if (!table) {
+        return {
+          data: [],
+          source_tier: "third_party_unverified",
+          limitations: [`Unknown evidence type: ${typedInput.evidence_type}`],
+        };
+      }
+
       const result = await context.db.query(
-        `SELECT * FROM profile_observations WHERE fact_sheet_id IN (
+        `SELECT * FROM ${table} WHERE fact_sheet_id IN (
           SELECT id FROM fact_sheets WHERE project_id = $1
         ) ORDER BY created_at DESC LIMIT 50`,
         [context.project_id],

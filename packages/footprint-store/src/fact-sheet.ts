@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { LineageSchema, UUIDSchema } from "./common.js";
 
+const BrandTermsSchema = z.object({
+  preferred_name: z.string().optional(),
+  tagline: z.string().optional(),
+  forbidden_terms: z.array(z.string()).optional(),
+});
+
 export const FactSheetSchema = z.object({
   id: UUIDSchema,
   project_id: UUIDSchema,
@@ -18,10 +24,7 @@ export const FactSheetSchema = z.object({
   geo_latitude: z.number().min(-90).max(90).nullable(),
   geo_longitude: z.number().min(-180).max(180).nullable(),
   social_profiles: z.record(z.string(), z.string()),
-  brand_terms: z.object({
-    preferred_name: z.string().optional(),
-    forbidden_terms: z.array(z.string()).optional(),
-  }),
+  brand_terms: BrandTermsSchema,
   operating_hours: z.record(z.string(), z.string()),
   status: z.enum(["draft", "confirmed", "superseded"]),
   lineage: LineageSchema,
@@ -45,10 +48,7 @@ export const FactSheetCreateSchema = z.object({
   geo_latitude: z.number().min(-90).max(90).optional(),
   geo_longitude: z.number().min(-180).max(180).optional(),
   social_profiles: z.record(z.string(), z.string()).optional(),
-  brand_terms: z.object({
-    preferred_name: z.string().optional(),
-    forbidden_terms: z.array(z.string()).optional(),
-  }).optional(),
+  brand_terms: BrandTermsSchema.optional(),
   operating_hours: z.record(z.string(), z.string()).optional(),
 });
 

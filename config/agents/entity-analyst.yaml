@@ -4,6 +4,7 @@ name: Entity Analyst
 description: Analyzes public footprint data, entity consistency, and NAP accuracy across sources
 status: active  # Changed from draft
 model_tier: "standard"  # Changed from placeholder
+reads_untrusted_content: true
 milestone: M7
 
 tools:
@@ -11,16 +12,15 @@ tools:
   - read_confirmed_facts
 
 forbidden_tools:
-  - write_file
-  - execute_code
-  - run_command
-  - modify_database
-  - deploy
+  - apply_change
   - publish
+  - write_cms
+  - delete_content
+  - upload_disavow
   - send_email
-  - create_pr
-  - merge_branch
-  - delete_resource
+  - submit_form
+  - approve_change
+  - read_connector_credentials
 
 system_prompt: |
   You are an entity analyst specializing in business entity data quality.

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { FactSheet } from "@wpi/footprint-store";
 
 interface FactSheetFormProps {
@@ -13,6 +14,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("fact-sheets");
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
@@ -46,13 +48,13 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error ?? "Failed to save fact sheet");
+        throw new Error(errorData.error ?? t("failed_to_save"));
       }
 
       const saved = await response.json();
       router.push(`./${saved.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : t("unknown_error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -66,7 +68,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
 
       <div>
         <label htmlFor="business_name" className="block text-sm font-medium mb-1">
-          Business Name *
+          {t("business_name")}
         </label>
         <input
           id="business_name"
@@ -80,7 +82,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
 
       <div>
         <label htmlFor="site_url" className="block text-sm font-medium mb-1">
-          Website URL *
+          {t("site_url")}
         </label>
         <input
           id="site_url"
@@ -94,7 +96,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
 
       <div>
         <label htmlFor="phone" className="block text-sm font-medium mb-1">
-          Phone
+          {t("phone")}
         </label>
         <input
           id="phone"
@@ -107,7 +109,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-1">
-          Email
+          {t("email")}
         </label>
         <input
           id="email"
@@ -120,7 +122,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
 
       <div>
         <label htmlFor="address_line1" className="block text-sm font-medium mb-1">
-          Street Address
+          {t("street_address")}
         </label>
         <input
           id="address_line1"
@@ -134,7 +136,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="address_locality" className="block text-sm font-medium mb-1">
-            City
+            {t("city")}
           </label>
           <input
             id="address_locality"
@@ -146,7 +148,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
         </div>
         <div>
           <label htmlFor="address_region" className="block text-sm font-medium mb-1">
-            State/Region
+            {t("state_region")}
           </label>
           <input
             id="address_region"
@@ -161,7 +163,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="address_postal_code" className="block text-sm font-medium mb-1">
-            Postal Code
+            {t("postal_code")}
           </label>
           <input
             id="address_postal_code"
@@ -173,7 +175,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
         </div>
         <div>
           <label htmlFor="address_country" className="block text-sm font-medium mb-1">
-            Country
+            {t("country")}
           </label>
           <input
             id="address_country"
@@ -187,7 +189,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium mb-1">
-          Description
+          {t("description")}
         </label>
         <textarea
           id="description"
@@ -204,7 +206,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
           disabled={isSubmitting}
           className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          {isSubmitting ? "Saving..." : factSheet ? "Update" : "Create"}
+          {isSubmitting ? t("saving") : factSheet ? t("update") : t("create")}
         </button>
       </div>
     </form>

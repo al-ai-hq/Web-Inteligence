@@ -45,7 +45,7 @@ export default async function EntityGraphPage({
   }
 
   const openConflicts = conflicts.filter(
-    (c) => c.status === "open" || c.status === "investigating",
+    (c) => c.status === "open" || c.status === "owner_confirmed_value" || c.status === "correction_requested",
   );
 
   return (

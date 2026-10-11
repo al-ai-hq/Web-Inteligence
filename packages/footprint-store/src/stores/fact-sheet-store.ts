@@ -2,6 +2,12 @@ import type { Pool } from "pg";
 import type { FactSheet, FactSheetCreate } from "../fact-sheet.js";
 import type { Lineage } from "../common.js";
 
+const ALLOWED_FACT_SHEET_COLUMNS = new Set([
+  "project_id", "business_name", "site_url", "phone", "email",
+  "description", "address_line1", "address_locality", "address_region",
+  "address_postal_code", "address_country", "brand_terms", "status",
+]);
+
 export class FactSheetStore {
   constructor(private pool: Pool) {}
 
@@ -59,8 +65,11 @@ export class FactSheetStore {
 
     for (const [key, value] of Object.entries(updates)) {
       if (value !== undefined) {
+        if (!ALLOWED_FACT_SHEET_COLUMNS.has(key)) {
+          throw new Error(`Invalid fact sheet column: ${key}`);
+        }
         fields.push(`${key} = $${paramIndex}`);
-        values.push(typeof value === "object" ? JSON.stringify(value) : value);
+        values.push(value === null ? null : typeof value === "object" ? JSON.stringify(value) : value);
         paramIndex++;
       }
     }

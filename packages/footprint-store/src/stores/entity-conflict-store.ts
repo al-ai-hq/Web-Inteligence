@@ -87,7 +87,7 @@ export class EntityConflictStore {
       source_type: row["source_type"] as "nap_inconsistency" | "extractor_disagreement" | "connector_conflict",
       source_id: row["source_id"] as string | null,
       severity: row["severity"] as "low" | "medium" | "high" | "critical",
-      status: row["status"] as "open" | "investigating" | "resolved" | "dismissed",
+      status: row["status"] as "open" | "owner_confirmed_value" | "correction_requested" | "resolved" | "dismissed",
       resolved_by: row["resolved_by"] as string | null,
       resolved_at: row["resolved_at"] ? (row["resolved_at"] as Date).toISOString() : null,
       resolution_note: row["resolution_note"] as string | null,
