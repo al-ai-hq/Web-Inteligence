@@ -181,8 +181,55 @@ importers:
 
   packages/config-loaders: {}
 
+  packages/content-approvals:
+    dependencies:
+      pg:
+        specifier: ^8.13.0
+        version: 8.23.1
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.4
+      '@types/pg':
+        specifier: ^8.11.0
+        version: 8.23.1
+      typescript:
+        specifier: ^5.5.0
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.1
+        version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
+
   packages/content-briefs:
     dependencies:
+      pg:
+        specifier: ^8.13.0
+        version: 8.23.1
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.4
+      '@types/pg':
+        specifier: ^8.11.0
+        version: 8.23.1
+      typescript:
+        specifier: ^5.5.0
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.1
+        version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
+
+  packages/content-drafts:
+    dependencies:
+      '@wpi/content-briefs':
+        specifier: workspace:*
+        version: link:../content-briefs
       pg:
         specifier: ^8.13.0
         version: 8.23.1
@@ -233,6 +280,28 @@ importers:
       '@types/node':
         specifier: ^22.0.0
         version: 22.20.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.1
+        version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
+
+  packages/fact-manifests:
+    dependencies:
+      pg:
+        specifier: ^8.13.0
+        version: 8.23.1
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.4
+      '@types/pg':
+        specifier: ^8.11.0
+        version: 8.23.1
       typescript:
         specifier: ^5.5.0
         version: 5.6.3
@@ -334,6 +403,22 @@ importers:
       yaml:
         specifier: ^2.5.1
         version: 2.9.1
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.1
+        version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
+
+  packages/schema-builder:
+    dependencies:
       zod:
         specifier: ^3.23.8
         version: 3.25.76
