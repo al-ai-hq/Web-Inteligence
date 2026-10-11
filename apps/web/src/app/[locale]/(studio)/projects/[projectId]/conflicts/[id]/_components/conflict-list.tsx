@@ -103,7 +103,7 @@ export function ConflictList({ conflicts, factSheetId, locale, projectId }: Conf
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm mb-3">
-                  {conflict.confirmed_value && (
+                  {conflict.confirmed_value != null && (
                     <div>
                       <span className="text-gray-500">{t("confirmed")}:</span>
                       <pre className="bg-green-50 p-2 rounded text-xs mt-1">
