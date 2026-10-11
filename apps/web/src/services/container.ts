@@ -38,6 +38,7 @@ export interface AuditServices {
   validateUrl: (url: string) => Promise<{ ok: boolean; reason_key?: string }>;
   outputDir: string;
   geminiApiKey: string | undefined;
+  pool: Pool | null;
 }
 
 // Next.js dev re-evaluates module state when a route compiles for the first
@@ -188,6 +189,7 @@ async function buildServices(): Promise<AuditServices> {
       ...fields,
       dispatcher: new StubDispatcher(store),
       cookieSecret: process.env["AUDIT_COOKIE_SECRET"] ?? "stub-cookie-secret",
+      pool: null,
     };
   }
 
@@ -231,5 +233,6 @@ async function buildServices(): Promise<AuditServices> {
       await runAuditPipeline(buildPipeline(fields), jobId);
     }),
     cookieSecret,
+    pool,
   };
 }

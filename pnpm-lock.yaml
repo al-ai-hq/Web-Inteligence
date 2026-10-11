@@ -50,6 +50,9 @@ importers:
       '@wpi/evidence-processor':
         specifier: workspace:*
         version: link:../../services/evidence-processor
+      '@wpi/footprint-store':
+        specifier: workspace:*
+        version: link:../../packages/footprint-store
       '@wpi/oauth':
         specifier: workspace:*
         version: link:../../packages/oauth
@@ -221,6 +224,22 @@ importers:
       '@types/pg':
         specifier: ^8.11.0
         version: 8.23.1
+      typescript:
+        specifier: ^5.5.0
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.1
+        version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
+
+  packages/nap-consistency:
+    dependencies:
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.4
       typescript:
         specifier: ^5.5.0
         version: 5.6.3
