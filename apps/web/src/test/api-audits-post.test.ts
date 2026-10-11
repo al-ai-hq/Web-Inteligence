@@ -39,7 +39,6 @@ function makeServices(store: AuditStore): AuditServices {
         : { ok: false, reason_key: "failure.url_invalid" },
     outputDir: "./output",
     geminiApiKey: undefined,
-    pool: null,
   };
 }
 

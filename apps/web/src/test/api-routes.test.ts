@@ -49,7 +49,6 @@ function makeServices(store: AuditStore): AuditServices {
     validateUrl: async () => ({ ok: true }),
     outputDir: "./output",
     geminiApiKey: undefined,
-    pool: null,
   };
 }
 

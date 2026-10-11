@@ -38,7 +38,7 @@ export interface AuditServices {
   validateUrl: (url: string) => Promise<{ ok: boolean; reason_key?: string }>;
   outputDir: string;
   geminiApiKey: string | undefined;
-  pool: Pool | null;
+  pool?: Pool;
 }
 
 // Next.js dev re-evaluates module state when a route compiles for the first
@@ -87,16 +87,19 @@ function buildPipeline(fields: PipelineFields) {
     enrichFootprint: fields.pool
       ? async (record: AuditRecord) => {
           const { discoverPublicSources } = await import("@wpi/public-source-discovery");
+          const { extractProfileData } = await import("@wpi/profile-extractor");
           const { computeNapConsistency, detectConflicts } = await import("@wpi/nap-consistency");
           const {
             FactSheetStore,
             PublicSourceObservationStore,
+            ProfileObservationStore,
             NapObservationStore,
             EntityConflictStore,
           } = await import("@wpi/footprint-store");
 
           const factSheetStore = new FactSheetStore(fields.pool!);
           const publicSourceStore = new PublicSourceObservationStore(fields.pool!);
+          const profileStore = new ProfileObservationStore(fields.pool!);
           const napStore = new NapObservationStore(fields.pool!);
           const conflictStore = new EntityConflictStore(fields.pool!);
 
@@ -286,13 +289,11 @@ async function buildServices(): Promise<AuditServices> {
       validateUrl: async (url) => localValidateUrl(url),
       outputDir,
       geminiApiKey: undefined,
-      pool: null,
     };
     return {
       ...fields,
       dispatcher: new StubDispatcher(store),
       cookieSecret: process.env["AUDIT_COOKIE_SECRET"] ?? "stub-cookie-secret",
-      pool: null,
     };
   }
 
@@ -337,6 +338,5 @@ async function buildServices(): Promise<AuditServices> {
       await runAuditPipeline(buildPipeline(fields), jobId);
     }),
     cookieSecret,
-    pool,
   };
 }
