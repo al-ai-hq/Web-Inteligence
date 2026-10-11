@@ -44,6 +44,9 @@ importers:
       '@wpi/connectors':
         specifier: workspace:*
         version: link:../../services/connectors
+      '@wpi/content-approvals':
+        specifier: workspace:*
+        version: link:../../packages/content-approvals
       '@wpi/content-briefs':
         specifier: workspace:*
         version: link:../../packages/content-briefs
@@ -56,6 +59,9 @@ importers:
       '@wpi/evidence-processor':
         specifier: workspace:*
         version: link:../../services/evidence-processor
+      '@wpi/fact-manifests':
+        specifier: workspace:*
+        version: link:../../packages/fact-manifests
       '@wpi/footprint-store':
         specifier: workspace:*
         version: link:../../packages/footprint-store
@@ -77,6 +83,9 @@ importers:
       '@wpi/rules-engine':
         specifier: workspace:*
         version: link:../../packages/rules-engine
+      '@wpi/schema-builder':
+        specifier: workspace:*
+        version: link:../../packages/schema-builder
       '@wpi/security':
         specifier: workspace:*
         version: link:../../packages/security
