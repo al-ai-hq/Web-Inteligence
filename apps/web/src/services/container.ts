@@ -150,6 +150,11 @@ function buildPipeline(fields: PipelineFields) {
           const napResults = [];
           for (const profile of profiles) {
             const extracted = extractProfileData("", profile.url);
+            const cleanAddress = extracted.extracted_address
+              ? Object.fromEntries(
+                  Object.entries(extracted.extracted_address).filter(([, v]) => v !== null),
+                ) as Record<string, string>
+              : null;
             const napResult = computeNapConsistency(
               {
                 business_name: factSheet.business_name,
@@ -168,7 +173,7 @@ function buildPipeline(fields: PipelineFields) {
                 source_url: profile.url,
                 extracted_name: extracted.extracted_name,
                 extracted_phone: extracted.extracted_phone,
-                extracted_address: extracted.extracted_address,
+                extracted_address: cleanAddress,
               },
             );
 
@@ -177,7 +182,7 @@ function buildPipeline(fields: PipelineFields) {
               source_url: profile.url,
               name_value: extracted.extracted_name,
               phone_value: extracted.extracted_phone,
-              address_value: extracted.extracted_address,
+              address_value: cleanAddress,
               consistency_score: napResult.consistency_score,
               inconsistencies: napResult.inconsistencies,
             }, lineage);
