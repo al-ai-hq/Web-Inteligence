@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS content_drafts (
   reading_time_minutes jsonb NOT NULL,
   
   arabic_reviewer text,
-  arabic_review_date date,
+  arabic_review_date timestamptz,
   arabic_review_notes text,
   
   cms_draft_url text,

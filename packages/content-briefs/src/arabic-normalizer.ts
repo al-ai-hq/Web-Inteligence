@@ -4,7 +4,7 @@ export function normalizeArabicKeyword(keyword: string): string {
     .replace(/ة/g, 'ه')
     .replace(/ى/g, 'ي')
     .replace(/ؤ/g, 'و')
-    .replace(/ئ/g, '')
+    .replace(/ئ/g, 'و')
     .replace(/[\u064B-\u065F]/g, '');
 }
 

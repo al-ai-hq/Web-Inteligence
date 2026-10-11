@@ -2,6 +2,17 @@ import type { Pool } from 'pg';
 import type { ContentBrief } from './types.js';
 import { ContentBriefSchema } from './types.js';
 
+const ALLOWED_COLUMNS = new Set([
+  'id', 'project_id', 'audit_id', 'status', 'opportunity_type', 'opportunity_ref',
+  'page_goal', 'audience', 'target_action', 'target_url', 'proposed_slug',
+  'primary_keyword', 'keyword_variants', 'intent', 'market', 'volume', 'volume_source',
+  'position', 'position_source', 'observations', 'recommended_angle', 'outlines',
+  'questions', 'entities', 'terms', 'titles', 'meta_descriptions', 'fact_sheet_ids',
+  'inputs_needed', 'internal_links', 'schema_types', 'length_guidance', 'cta',
+  'conversion_notes', 'regulated_topic', 'success_measures', 'review_date',
+  'created_by', 'approved_by', 'approved_at', 'created_at', 'updated_at',
+]);
+
 export interface BriefStore {
   create(brief: Omit<ContentBrief, 'id' | 'created_at' | 'updated_at'>): Promise<ContentBrief>;
   getById(id: string): Promise<ContentBrief | null>;
@@ -51,6 +62,11 @@ export class PostgresBriefStore implements BriefStore {
   }
 
   async update(id: string, updates: Partial<ContentBrief>): Promise<ContentBrief> {
+    for (const key of Object.keys(updates)) {
+      if (!ALLOWED_COLUMNS.has(key)) {
+        throw new Error(`Invalid column: ${key}`);
+      }
+    }
     const sets: string[] = [];
     const values: unknown[] = [];
     let idx = 1;

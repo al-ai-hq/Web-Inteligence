@@ -2,6 +2,15 @@ import type { Pool } from 'pg';
 import type { ContentDraft } from './types.js';
 import { ContentDraftSchema } from './types.js';
 
+const ALLOWED_COLUMNS = new Set([
+  'id', 'brief_id', 'project_id', 'status', 'author', 'ai_assisted', 'ai_disclosure',
+  'client_input_received', 'client_input_notes', 'content', 'facts_used',
+  'internal_links', 'schema_json_ld', 'word_count', 'reading_time_minutes',
+  'arabic_reviewer', 'arabic_review_date', 'arabic_review_notes',
+  'cms_draft_url', 'cms_pr_url', 'published_url', 'published_at',
+  'created_at', 'updated_at', 'last_updated_content_at',
+]);
+
 export interface DraftStore {
   create(draft: ContentDraft): Promise<ContentDraft>;
   findById(id: string): Promise<ContentDraft | null>;
@@ -56,6 +65,12 @@ export class PostgresDraftStore implements DraftStore {
   }
 
   async update(id: string, updates: Partial<ContentDraft>): Promise<ContentDraft> {
+    for (const key of Object.keys(updates)) {
+      if (!ALLOWED_COLUMNS.has(key)) {
+        throw new Error(`Invalid column: ${key}`);
+      }
+    }
+
     const fields: string[] = [];
     const values: unknown[] = [];
     let paramIndex = 1;

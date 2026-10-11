@@ -18,7 +18,7 @@ describe('normalizeArabicKeyword', () => {
 
   it('normalizes hamza variants to waw', () => {
     expect(normalizeArabicKeyword('سؤال')).toBe('سوال');
-    expect(normalizeArabicKeyword('لائحة')).toBe('لاحه');
+    expect(normalizeArabicKeyword('لائحة')).toBe('لاوحه');
   });
 
   it('removes diacritics (tashkeel)', () => {

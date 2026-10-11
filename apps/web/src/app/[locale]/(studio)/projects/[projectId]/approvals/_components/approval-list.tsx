@@ -6,7 +6,6 @@ import { Link } from '../../../../../../../i18n/navigation';
 
 interface ChangeSet {
   id: string;
-  manifest_id: string;
   status: string;
   created_at: string;
 }
@@ -37,7 +36,7 @@ export function ApprovalList({ projectId, locale }: { projectId: string; locale:
       {changeSets.map(cs => (
         <Link key={cs.id} href={`/${locale}/projects/${projectId}/approvals/${cs.id}`} className="border rounded p-4 hover:border-blue-500 transition-colors block">
           <div className="flex items-center justify-between">
-            <span className="font-medium">{cs.manifest_id.slice(0, 8)}...</span>
+            <span className="font-medium">{cs.id.slice(0, 8)}...</span>
             <div className="flex items-center gap-2">
               <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{cs.status}</span>
             </div>

@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl';
 
 interface ChangeSet {
   id: string;
-  manifest_id: string;
   status: string;
   items: Array<{ fact_id: string; action: string; content: string }>;
   created_at: string;
@@ -56,7 +55,7 @@ export function ApprovalReview({ changeSetId, locale }: { changeSetId: string; l
           <p className="text-sm text-gray-500">{t('no_items')}</p>
         )}
       </div>
-      {changeSet.status === 'pending_review' && (
+      {changeSet.status === 'draft' && (
         <div className="flex gap-2">
           <button onClick={handleApprove} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{t('approve')}</button>
         </div>
