@@ -257,5 +257,72 @@
     "resolved": "Resolved",
     "no_conflicts": "No conflicts found. All entity data is consistent.",
     "database_not_configured": "Database not configured"
+  },
+  "briefs": {
+    "title": "Content Briefs",
+    "loading": "Loading briefs…",
+    "empty_state": "No briefs yet. Create one to get started.",
+    "create_new": "Create Brief",
+    "create": "Create",
+    "back_to_list": "Back to Briefs",
+    "not_found": "Brief not found.",
+    "primary_keyword": "Primary Keyword",
+    "intent": "Intent",
+    "audience": "Audience",
+    "page_goal": "Page Goal",
+    "approve": "Approve"
+  },
+  "drafts": {
+    "title": "Content Drafts",
+    "loading": "Loading drafts…",
+    "empty_state": "No drafts yet. Create one to get started.",
+    "create_new": "Create Draft",
+    "create": "Create",
+    "back_to_list": "Back to Drafts",
+    "not_found": "Draft not found.",
+    "title_en": "Title (English)",
+    "title_ar": "Title (Arabic)",
+    "content_en": "Content (English)",
+    "content_ar": "Content (Arabic)",
+    "brief_id": "Brief ID",
+    "author": "Author"
+  },
+  "schema": {
+    "title": "Schema Builder",
+    "builder": "Schema Builder",
+    "preview": "Preview",
+    "preview_description": "Example JSON-LD output for structured data.",
+    "schema_type": "Schema Type",
+    "json_data": "JSON Data",
+    "invalid_json": "Invalid JSON",
+    "build": "Build Schema",
+    "validate": "Validate",
+    "result": "Result"
+  },
+  "fact_manifests": {
+    "title": "Fact Manifests",
+    "loading": "Loading manifests…",
+    "empty_state": "No manifests yet.",
+    "create_new": "Create Manifest",
+    "create": "Create",
+    "manifest_title": "Title",
+    "topic": "Topic",
+    "check_claim": "Check Claim",
+    "check": "Check",
+    "enter_claim": "Enter a claim to check…",
+    "claim_safe": "Claim is safe",
+    "regulated_claim": "Regulated claim — review required",
+    "review_required": "Review required"
+  },
+  "approvals": {
+    "title": "Approvals",
+    "loading": "Loading approvals…",
+    "empty_state": "No approvals yet.",
+    "not_found": "Approval not found.",
+    "back_to_list": "Back to Approvals",
+    "change_set": "Change Set",
+    "items": "Items",
+    "no_items": "No items in this change set.",
+    "approve": "Approve"
   }
 }
