@@ -72,7 +72,7 @@ export async function getAuditServices(): Promise<AuditServices> {
 
 type PipelineFields = Pick<
   AuditServices,
-  "store" | "tierScopes" | "validateUrl" | "outputDir" | "geminiApiKey"
+  "store" | "tierScopes" | "validateUrl" | "outputDir" | "geminiApiKey" | "pool"
 > & {
   tokenStore?: TokenStore;
 };
@@ -84,6 +84,108 @@ function buildPipeline(fields: PipelineFields) {
     validateUrl: fields.validateUrl,
     outputDir: fields.outputDir,
     geminiApiKey: fields.geminiApiKey,
+    enrichFootprint: fields.pool
+      ? async (record: AuditRecord) => {
+          const { discoverPublicSources } = await import("@wpi/public-source-discovery");
+          const { computeNapConsistency, detectConflicts } = await import("@wpi/nap-consistency");
+          const {
+            FactSheetStore,
+            PublicSourceObservationStore,
+            NapObservationStore,
+            EntityConflictStore,
+          } = await import("@wpi/footprint-store");
+
+          const factSheetStore = new FactSheetStore(fields.pool!);
+          const publicSourceStore = new PublicSourceObservationStore(fields.pool!);
+          const napStore = new NapObservationStore(fields.pool!);
+          const conflictStore = new EntityConflictStore(fields.pool!);
+
+          const factSheets = await factSheetStore.listByProject(record.id);
+          if (factSheets.length === 0) return;
+
+          const factSheet = factSheets[0]!;
+
+          const profiles = await discoverPublicSources({
+            businessName: factSheet.business_name,
+            siteUrl: factSheet.site_url,
+            location: factSheet.address_locality
+              ? { locality: factSheet.address_locality, region: factSheet.address_region ?? undefined }
+              : undefined,
+          });
+
+          const lineage = {
+            record_id: crypto.randomUUID(),
+            project_id: factSheet.project_id,
+            site_id: null,
+            source_type: "third_party_unverified" as const,
+            source_id: "public-source-discovery",
+            source_version: "1.0.0",
+            captured_at: new Date().toISOString(),
+            as_of: new Date().toISOString(),
+            market: "US",
+            language: "en",
+            device: "desktop" as const,
+            method: "automated",
+            methodology_version: "1.0.0",
+            fidelity_label: "extracted" as const,
+            content_hash: crypto.randomUUID(),
+            parent_ids: [],
+            validation_state: "unvalidated" as const,
+          };
+
+          for (const profile of profiles) {
+            await publicSourceStore.create({
+              fact_sheet_id: factSheet.id,
+              source_platform: profile.platform,
+              source_url: profile.url,
+              discovered_at: new Date().toISOString(),
+              profile_data: {},
+            }, lineage);
+          }
+
+          const napResults = [];
+          for (const profile of profiles) {
+            const napResult = computeNapConsistency(
+              {
+                business_name: factSheet.business_name,
+                phone: factSheet.phone,
+                address: factSheet.address_line1
+                  ? {
+                      street: factSheet.address_line1,
+                      city: factSheet.address_locality,
+                      region: factSheet.address_region,
+                      postal_code: factSheet.address_postal_code,
+                      country: factSheet.address_country,
+                    }
+                  : null,
+              },
+              {
+                source_url: profile.url,
+                extracted_name: null,
+                extracted_phone: null,
+                extracted_address: null,
+              },
+            );
+
+            await napStore.create({
+              fact_sheet_id: factSheet.id,
+              source_url: profile.url,
+              name_value: null,
+              phone_value: null,
+              address_value: null,
+              consistency_score: napResult.consistency_score,
+              inconsistencies: napResult.inconsistencies,
+            }, lineage);
+
+            napResults.push(napResult);
+          }
+
+          const conflicts = detectConflicts(factSheet.id, napResults);
+          for (const conflict of conflicts) {
+            await conflictStore.create(conflict, lineage);
+          }
+        }
+      : undefined,
     // PipelineDeps declares crawl/render as Promise<void>; the job runners
     // resolve to result objects, which the pipeline contract discards.
     crawl: async (record: AuditRecord, scope: TierScope) => {
@@ -184,6 +286,7 @@ async function buildServices(): Promise<AuditServices> {
       validateUrl: async (url) => localValidateUrl(url),
       outputDir,
       geminiApiKey: undefined,
+      pool: null,
     };
     return {
       ...fields,
@@ -223,6 +326,7 @@ async function buildServices(): Promise<AuditServices> {
     outputDir,
     geminiApiKey: process.env["WPI_GEMINI_API_KEY"],
     tokenStore,
+    pool,
   };
 
   return {
