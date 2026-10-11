@@ -56,6 +56,7 @@ export interface PipelineDeps {
   tierScopes: Record<Exclude<TierName, "refused">, TierScope>;
   tokenStore?: TokenStore;
   userId?: string;
+  projectId?: string;
 }
 
 async function requireTransition(store: AuditStore, auditId: string, to: string): Promise<void> {
@@ -108,7 +109,7 @@ export async function runAuditPipeline(
     if (deps.enrichFootprint) {
       await requireTransition(deps.store, auditId, "ENRICHING_OPTIONAL");
       try {
-        await deps.enrichFootprint(raw);
+        await deps.enrichFootprint(raw, deps.projectId);
       } catch (error) {
         // Enrichment failure is non-fatal — log and continue
         console.warn(`Enrichment failed for audit ${auditId}:`, error);

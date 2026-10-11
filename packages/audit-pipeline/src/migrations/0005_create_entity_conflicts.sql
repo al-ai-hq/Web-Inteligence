@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS entity_conflicts (
   source_type text NOT NULL CHECK (source_type IN ('nap_inconsistency', 'extractor_disagreement', 'connector_conflict')),
   source_id text,
   severity text NOT NULL CHECK (severity IN ('low', 'medium', 'high', 'critical')),
-  status text NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'investigating', 'resolved', 'dismissed')),
+  status text NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'owner_confirmed_value', 'correction_requested', 'resolved', 'dismissed')),
   resolved_by text,
   resolved_at timestamptz,
   resolution_note text,

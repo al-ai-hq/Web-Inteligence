@@ -4,8 +4,10 @@ import type { Lineage } from "../common.js";
 
 const ALLOWED_FACT_SHEET_COLUMNS = new Set([
   "project_id", "business_name", "site_url", "phone", "email",
-  "description", "address_line1", "address_locality", "address_region",
-  "address_postal_code", "address_country", "brand_terms", "status",
+  "description", "address_line1", "address_line2", "address_locality",
+  "address_region", "address_postal_code", "address_country",
+  "geo_latitude", "geo_longitude", "social_profiles",
+  "brand_terms", "operating_hours", "status",
 ]);
 
 export class FactSheetStore {

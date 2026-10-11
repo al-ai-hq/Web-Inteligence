@@ -85,7 +85,8 @@ function buildPipeline(fields: PipelineFields) {
     outputDir: fields.outputDir,
     geminiApiKey: fields.geminiApiKey,
     enrichFootprint: fields.pool
-      ? async (record: AuditRecord, projectId: string) => {
+      ? async (record: AuditRecord, projectId?: string) => {
+          if (!projectId) return;
           const { discoverPublicSources } = await import("@wpi/public-source-discovery");
           const { extractProfileData } = await import("@wpi/profile-extractor");
           const { computeNapConsistency, detectConflicts } = await import("@wpi/nap-consistency");
