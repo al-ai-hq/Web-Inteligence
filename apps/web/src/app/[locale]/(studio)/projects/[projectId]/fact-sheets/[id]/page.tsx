@@ -1,8 +1,8 @@
 import { getAuditServices } from "../../../../../../../services/container";
 import { FactSheetStore } from "@wpi/footprint-store";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { Link } from "../../../../../../../i18n/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 export default async function FactSheetDetailPage({
   params,
@@ -10,7 +10,8 @@ export default async function FactSheetDetailPage({
   params: Promise<{ locale: string; projectId: string; id: string }>;
 }) {
   const { locale, projectId, id } = await params;
-  const t = useTranslations("fact-sheets");
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "fact-sheets" });
   const services = await getAuditServices();
 
   if (!services.pool) {
@@ -28,7 +29,7 @@ export default async function FactSheetDetailPage({
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
         <Link
-          href={`/${locale}/projects/${projectId}/fact-sheets`}
+          href={`/projects/${projectId}/fact-sheets`}
           className="text-blue-600 hover:underline"
         >
           &larr; {t("back_to_list")}
@@ -95,13 +96,13 @@ export default async function FactSheetDetailPage({
 
       <div className="mt-8 flex gap-3">
         <Link
-          href={`/${locale}/projects/${projectId}/fact-sheets/${id}/edit`}
+          href={`/projects/${projectId}/fact-sheets/${id}/edit`}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           {t("edit")}
         </Link>
         <Link
-          href={`/${locale}/projects/${projectId}/entity-graph/${id}`}
+          href={`/projects/${projectId}/entity-graph/${id}`}
           className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200"
         >
           {t("view_entity_graph")}

@@ -1,7 +1,7 @@
 import { getAuditServices } from "../../../../../../services/container";
 import { FactSheetStore } from "@wpi/footprint-store";
-import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { Link } from "../../../../../../i18n/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 export default async function FactSheetsPage({
   params,
@@ -9,7 +9,8 @@ export default async function FactSheetsPage({
   params: Promise<{ locale: string; projectId: string }>;
 }) {
   const { locale, projectId } = await params;
-  const t = useTranslations("fact-sheets");
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "fact-sheets" });
   const services = await getAuditServices();
 
   if (!services.pool) {
@@ -24,7 +25,7 @@ export default async function FactSheetsPage({
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <Link
-          href={`/${locale}/projects/${projectId}/fact-sheets/new`}
+          href={`/projects/${projectId}/fact-sheets/new`}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           {t("create_new")}
@@ -38,7 +39,7 @@ export default async function FactSheetsPage({
           {factSheets.map((fs) => (
             <Link
               key={fs.id}
-              href={`/${locale}/projects/${projectId}/fact-sheets/${fs.id}`}
+              href={`/projects/${projectId}/fact-sheets/${fs.id}`}
               className="block p-4 border rounded hover:border-blue-500 transition-colors"
             >
               <div className="flex items-center justify-between">
