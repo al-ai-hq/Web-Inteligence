@@ -189,5 +189,60 @@
       "p2": "لا تُدقق إلا المواقع التي تملكها أو تملك إذنًا بمراجعتها.",
       "p3": "لا تستخدم الخدمة لفحص مواقع تحظر الوصول الآلي إليها."
     }
+  },
+  "fact-sheets": {
+    "title": "بطاقات الحقائق",
+    "create_new": "إنشاء بطاقة حقيقة",
+    "empty_state": "لا توجد بطاقات حقائق بعد. أنشئ واحدة للبدء.",
+    "database_not_configured": "قاعدة البيانات غير مهيأة",
+    "back_to_list": "العودة إلى بطاقات الحقائق",
+    "contact_info": "معلومات الاتصال",
+    "website": "الموقع الإلكتروني",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "address": "العنوان",
+    "no_address": "لم يتم تقديم عنوان",
+    "edit": "تعديل",
+    "view_entity_graph": "عرض رسم الكيان",
+    "status": {
+      "draft": "مسودة",
+      "confirmed": "مؤكد",
+      "superseded": "ملغى"
+    }
+  },
+  "entity-graph": {
+    "back_to_fact_sheet": "العودة إلى بطاقة الحقيقة",
+    "entity_graph_subtitle": "البصمة العامة واتساق الكيان",
+    "open_conflicts": "تعارض(تعارضات) مفتوحة",
+    "view_conflicts": "عرض وحل",
+    "confirmed_fact_sheet": "بطاقة الحقيقة المؤكدة",
+    "name": "الاسم",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "address": "العنوان",
+    "discovered_sources": "المصادر المكتشفة",
+    "view_source": "عرض المصدر",
+    "extracted_profiles": "الملفات الشخصية المستخرجة",
+    "confidence": "ثقة",
+    "nap_consistency": "اتساق NAP",
+    "consistent": "متسق"
+  },
+  "conflicts": {
+    "back_to_entity_graph": "العودة إلى رسم الكيان",
+    "conflicts_subtitle": "تعارضات بيانات الكيان تتطلب حلاً بشرياً",
+    "your_name": "اسمك",
+    "enter_your_name": "أدخل اسمك لحل التعارضات",
+    "open_conflicts": "التعارضات المفتوحة",
+    "confirmed": "مؤكد",
+    "conflicting": "متعارض",
+    "resolve": "حل",
+    "accept_conflicting": "قبول القيمة المتعارضة",
+    "keep_confirmed": "الاحتفاظ بالقيمة المؤكدة",
+    "dismiss": "تجاهل",
+    "cancel": "إلغاء",
+    "resolution_note_placeholder": "أضف ملاحظة تشرح حلك...",
+    "resolved": "تم الحل",
+    "no_conflicts": "لم يتم العثور على تعارضات. جميع بيانات الكيان متسقة.",
+    "database_not_configured": "قاعدة البيانات غير مهيأة"
   }
 }

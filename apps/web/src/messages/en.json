@@ -189,5 +189,60 @@
       "p2": "Only audit sites you own or are authorized to review.",
       "p3": "Do not use the service to probe sites that prohibit automated access."
     }
+  },
+  "fact-sheets": {
+    "title": "Fact Sheets",
+    "create_new": "Create Fact Sheet",
+    "empty_state": "No fact sheets yet. Create one to get started.",
+    "database_not_configured": "Database not configured",
+    "back_to_list": "Back to Fact Sheets",
+    "contact_info": "Contact Information",
+    "website": "Website",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "no_address": "No address provided",
+    "edit": "Edit",
+    "view_entity_graph": "View Entity Graph",
+    "status": {
+      "draft": "Draft",
+      "confirmed": "Confirmed",
+      "superseded": "Superseded"
+    }
+  },
+  "entity-graph": {
+    "back_to_fact_sheet": "Back to Fact Sheet",
+    "entity_graph_subtitle": "Public footprint and entity consistency",
+    "open_conflicts": "open conflict(s)",
+    "view_conflicts": "View & resolve",
+    "confirmed_fact_sheet": "Confirmed Fact Sheet",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "discovered_sources": "Discovered Sources",
+    "view_source": "View source",
+    "extracted_profiles": "Extracted Profiles",
+    "confidence": "confidence",
+    "nap_consistency": "NAP Consistency",
+    "consistent": "consistent"
+  },
+  "conflicts": {
+    "back_to_entity_graph": "Back to Entity Graph",
+    "conflicts_subtitle": "Entity data conflicts requiring human resolution",
+    "your_name": "Your Name",
+    "enter_your_name": "Enter your name to resolve conflicts",
+    "open_conflicts": "Open Conflicts",
+    "confirmed": "Confirmed",
+    "conflicting": "Conflicting",
+    "resolve": "Resolve",
+    "accept_conflicting": "Accept conflicting value",
+    "keep_confirmed": "Keep confirmed value",
+    "dismiss": "Dismiss",
+    "cancel": "Cancel",
+    "resolution_note_placeholder": "Add a note explaining your resolution...",
+    "resolved": "Resolved",
+    "no_conflicts": "No conflicts found. All entity data is consistent.",
+    "database_not_configured": "Database not configured"
   }
 }
