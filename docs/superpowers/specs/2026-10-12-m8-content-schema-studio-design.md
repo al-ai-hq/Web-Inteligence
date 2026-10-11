@@ -14,6 +14,20 @@ Implement the content brief/draft workflow, schema builder, fact manifests, and 
 - Cannibalization checks precede new pages
 - No automatic publishing
 
+## Scope
+
+This spec covers the core M8 content and schema studio: briefs, drafts, schema builder, fact manifests, and approval workflow.
+
+### Out of Scope (Separate Specs)
+
+The project plan defines three M8 sub-milestones with additional scope that will be specified separately:
+
+- **M8A — Specialist commerce, local, entity, and platform packs**: Product/category/variant/facet/pagination rules; page/schema/feed/Merchant reconciliation; local profile/location/NAP/review checks; entity fact register; platform capability resolver; policy-fact expiry; anonymized platform fixtures.
+- **M8B — Migration control plane**: Baseline and URL-inventory contracts; redirect-map import/generation; one-hop validation; staging/production parity; go/no-go evidence; Arabic URL and hreflang tests; launch log; rollback triggers; post-launch monitoring.
+- **M8C — Architecture, backlinks, scaled-content governance, and change monitoring**: Page-map and internal-link-plan contracts; backlink governance; scaled-content rules; change detection and monitoring.
+
+These sub-milestones build on the core M8 infrastructure defined in this spec.
+
 ## Architecture
 
 Five focused packages matching the spec's workflow stages, plus agent configuration, API routes, and UI in the existing app/services.
@@ -93,7 +107,8 @@ interface ContentBrief {
   
   // Target cluster
   primary_keyword: string;
-  keyword_variants: { keyword: string; language: "ar" | "en" }[];
+  keyword_variants: { keyword: string; language: "ar" | "en"; normalized?: string }[];
+  // normalized: Arabic keywords without diacritics (ة, ى, hamza) for matching; preserves original for display
   intent: "informational" | "navigational" | "commercial" | "transactional";
   market: string;
   volume: number | null;
@@ -195,6 +210,34 @@ function checkCannibalization(
   return { ok: true };
 }
 ```
+
+### Arabic Keyword Normalization
+
+Arabic users often search without diacritics (ة, ى, hamza). The system normalizes Arabic keywords for matching while preserving the original form for display.
+
+```typescript
+function normalizeArabicKeyword(keyword: string): string {
+  return keyword
+    .replace(/[إأآا]/g, 'ا') // normalize alef variants
+    .replace(/ة/g, 'ه') // normalize taa marbuta
+    .replace(/ى/g, 'ي') // normalize alef maqsura
+    .replace(/[ؤئ]/g, 'و') // normalize hamza variants
+    .replace(/[\u064B-\u065F]/g, ''); // remove diacritics (tashkeel)
+}
+
+function processKeywordVariants(variants: { keyword: string; language: "ar" | "en" }[]) {
+  return variants.map(v => ({
+    ...v,
+    normalized: v.language === 'ar' ? normalizeArabicKeyword(v.keyword) : v.keyword,
+  }));
+}
+```
+
+**Usage**
+- Store both original and normalized forms in `keyword_variants`
+- Use normalized form for matching (cannibalization checks, keyword mapping)
+- Display original form in UI
+- When searching for duplicate keywords, compare normalized forms
 
 ### Draft Rate Limit
 
@@ -569,23 +612,35 @@ Manage approval state machine, enforce risk tiers, record approver identity, han
 
 ### Approval State Machine
 
+M8 implements the approval workflow up to `Approved`. Connector execution states (`Snapshot → Applied → Verified/RolledBack`) are M9 scope.
+
+**M8: Approval Workflow**
+
 ```mermaid
 stateDiagram-v2
     [*] --> Draft
     Draft --> Validated: deterministic checks pass
     Validated --> Previewed: per-page diff reviewed
     Previewed --> Approved: required approvers sign off
+    Approved --> [*]
+    
+    Draft --> Rejected: checks fail or approver rejects
+    Validated --> Rejected: approver rejects
+    Previewed --> Rejected: approver rejects
+    Rejected --> [*]
+```
+
+**M9: Connector Execution (future)**
+
+```mermaid
+stateDiagram-v2
+    [*] --> Approved: from M8 approval workflow
     Approved --> Snapshot: connector reads current values
     Snapshot --> Applied: connector writes with idempotency key
     Applied --> Verified: live values match approved
     Applied --> RolledBack: live values don't match (auto or manual)
     Verified --> [*]
     RolledBack --> [*]
-    
-    Draft --> Rejected: checks fail or approver rejects
-    Validated --> Rejected: approver rejects
-    Previewed --> Rejected: approver rejects
-    Rejected --> [*]
 ```
 
 ### Risk Tiers (from spec §10)
@@ -639,8 +694,145 @@ interface ApprovalRecord {
 3. **Tier 3:** Two approvers; requester cannot be one of them
 4. **Forbidden:** Never approved
 5. **Expiry:** Approvals expire after `APPROVAL_EXPIRY_DAYS` environment variable (default: 7 days)
-6. **Snapshot:** Current values stored before change
-7. **Idempotency:** Connector writes with idempotency key
+6. **Snapshot:** Current values stored before change (M9)
+7. **Idempotency:** Connector writes with idempotency key (M9)
+
+### Validation Rules
+
+Deterministic checks that must pass before a change set moves from `Draft` to `Validated`:
+
+**Length Checks**
+- Title: max 60 characters
+- Meta description: max 160 characters
+- H1: max 70 characters
+- Open Graph title: max 60 characters
+- Open Graph description: max 200 characters
+
+**Language Validation**
+- Detect language (Arabic/English) using character set analysis
+- Verify content language matches declared language
+- Flag mixed-language content for review
+
+**JSON-LD Validation**
+- Parse as valid JSON
+- Validate against schema.org vocabulary (required properties present, property types correct)
+- No orphaned nodes (all referenced entities defined)
+
+**Allowed Fields per Risk Tier**
+- Tier 1: meta description, image alt, Open Graph tags
+- Tier 2: title, H1, JSON-LD, internal links, content blocks
+- Tier 3: robots.txt, meta robots, noindex, canonical, redirects, hreflang, sitemap, slugs, templates
+
+**Forbidden Patterns**
+- Hidden text (CSS `display: none`, `visibility: hidden`, same-color text)
+- Cloaking (different content for users and search engines)
+- Link schemes (paid links without `rel="sponsored"`, link exchanges, private blog networks)
+- Keyword stuffing (unnatural repetition of keywords)
+- Auto-generated content without human review
+- Doorway pages (multiple pages optimized for similar queries)
+
+**Cannibalization Check**
+- For title and H1 changes: verify the new title/H1 doesn't duplicate another page's title/H1 in the same project
+- Query existing pages by title and H1, flag duplicates
+
+### Forbidden Changes
+
+The following changes are never approved, regardless of risk tier:
+
+1. **Deleting pages** — system does not delete pages; redirects or noindex instead
+2. **New pages without a named human author** — every page must have a named author
+3. **Fabricated reviews, ratings, or claims** — all reviews/ratings must be real; all claims must cite evidence
+4. **Hidden text** — text styled to be invisible to users
+5. **Cloaking** — serving different content to users and search engines
+6. **Link schemes** — paid links without disclosure, link exchanges, PBNs
+
+**Detection Logic**
+
+```typescript
+function isForbidden(change: ChangeSetItem): { forbidden: boolean; reason?: string } {
+  // Check for deletion
+  if (change.field_name === 'status' && change.new_value === 'deleted') {
+    return { forbidden: true, reason: 'Page deletion is forbidden; use redirects or noindex' };
+  }
+
+  // Check for hidden text patterns
+  const hiddenTextPatterns = [
+    /display\s*:\s*none/i,
+    /visibility\s*:\s*hidden/i,
+    /color\s*:\s*(#fff|white|transparent)/i,
+  ];
+  if (hiddenTextPatterns.some(p => p.test(change.new_value))) {
+    return { forbidden: true, reason: 'Hidden text detected' };
+  }
+
+  // Check for fabricated reviews (no real review data)
+  if (change.field_name === 'review' && !change.evidence_citation) {
+    return { forbidden: true, reason: 'Reviews must cite evidence' };
+  }
+
+  return { forbidden: false };
+}
+```
+
+### Change Window
+
+Tier 3 changes (high risk) can only be applied during a **change window**: a scheduled time period defined per project.
+
+**Definition**
+
+```typescript
+interface ChangeWindow {
+  project_id: string;
+  day_of_week: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0 = Sunday
+  start_time: string; // HH:MM in project timezone
+  end_time: string; // HH:MM in project timezone
+  timezone: string; // IANA timezone (e.g., "Asia/Riyadh")
+}
+```
+
+**Enforcement**
+
+- Tier 3 change sets can only transition from `Approved` to `Snapshot` during the change window
+- If a Tier 3 change set is approved outside the change window, it waits until the next window
+- Tier 1 and Tier 2 changes are not restricted by change windows
+
+**Default**
+
+If no change window is defined for a project, the default is:
+- Day: Tuesday (day_of_week: 2)
+- Time: 10:00-12:00
+- Timezone: Project timezone (from project settings)
+
+### M9 Scope Notes
+
+The following are M9 scope and not implemented in M8:
+
+**Verification and Rollback**
+- Tier 1–2 writes that don't match revert automatically only when: (a) approval authorized automatic rollback, (b) rollback target matches stored snapshot, (c) connector supports reliable reversal, (d) deterministic read-back finds exact mismatch. Otherwise they pause for human review.
+- Tier 3 reverts only on human decision.
+- Verification re-fetches each changed URL and compares live values with approved ones.
+
+**Idempotency Keys**
+- UUIDs generated per change set item
+- Stored in connector state
+- Sent with each write attempt to prevent duplicate writes
+- Connector never retries a write without its idempotency key
+
+**Snapshots**
+- Captures current live values for all fields in the change set
+- Retrieved by connector before any writes
+- Stored in approval record for rollback reference
+
+**Connector Approval Model**
+- Which CMS connectors are approved (WordPress, Webflow, Shopify, etc.)
+- How connectors are validated (contract tests, rollback tests)
+- Connector-specific rate limits and retry logic
+- Defined in M9 connector design
+
+**Connector Writes**
+- Connector service is the only writer to client sites
+- M8 never writes directly to client sites
+- Approved change sets are passed to M9 connector for execution
 
 ### Database Tables
 
@@ -652,12 +844,20 @@ interface ApprovalRecord {
 
 ### Tests
 
-- State transitions (draft → validated → previewed → approved → snapshot → applied → verified)
+- State transitions (draft → validated → previewed → approved)
 - Risk tier enforcement (Tier 3 requires two approvers, requester cannot approve)
 - Approval expiry
-- Snapshot storage
 - Forbidden changes never approved
-- Idempotency key generation
+- Validation rules: length checks (title, meta, H1)
+- Validation rules: language detection and validation
+- Validation rules: JSON-LD parsing and schema validation
+- Validation rules: allowed fields per risk tier
+- Forbidden patterns: hidden text detection
+- Forbidden patterns: cloaking detection
+- Forbidden patterns: link scheme detection
+- Cannibalization check for title/H1 changes
+- Change window enforcement (Tier 3 changes only during window)
+- Arabic keyword normalization (with/without diacritics)
 
 ## Agent Configuration
 
@@ -1020,7 +1220,7 @@ CREATE TABLE change_sets (
   project_id UUID NOT NULL,
   description TEXT NOT NULL,
   risk_tier INTEGER NOT NULL CHECK (risk_tier IN (1, 2, 3)),
-  status TEXT NOT NULL CHECK (status IN ('draft', 'validated', 'previewed', 'approved', 'snapshot', 'applied', 'verified', 'rolled_back', 'rejected')),
+  status TEXT NOT NULL CHECK (status IN ('draft', 'validated', 'previewed', 'approved', 'rejected')),
   created_by TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL
@@ -1040,7 +1240,6 @@ CREATE TABLE approval_records (
   change_set_id UUID NOT NULL REFERENCES change_sets(id),
   risk_tier INTEGER NOT NULL,
   approvers JSONB NOT NULL,
-  snapshot JSONB NOT NULL,
   expires_at TIMESTAMPTZ NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'rejected', 'expired')),
   created_at TIMESTAMPTZ NOT NULL,
@@ -1051,6 +1250,23 @@ CREATE INDEX idx_change_sets_project ON change_sets(project_id);
 CREATE INDEX idx_change_set_items_change_set ON change_set_items(change_set_id);
 CREATE INDEX idx_approval_records_change_set ON approval_records(change_set_id);
 CREATE INDEX idx_approval_records_status ON approval_records(status);
+```
+
+### Migration 0015: Change Windows
+
+```sql
+CREATE TABLE change_windows (
+  id UUID PRIMARY KEY,
+  project_id UUID NOT NULL,
+  day_of_week INTEGER NOT NULL CHECK (day_of_week BETWEEN 0 AND 6),
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  timezone TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE INDEX idx_change_windows_project ON change_windows(project_id);
 ```
 
 ## i18n Keys
@@ -1069,18 +1285,18 @@ Add English and Arabic translations for:
 
 ## Implementation Order
 
-1. **`@wpi/content-approvals`** — approval state machine is used by all other packages
-2. **`@wpi/content-briefs`** — briefs come first in the workflow
-3. **`@wpi/fact-manifests`** — facts are needed by drafts
-4. **`@wpi/content-drafts`** — drafts depend on briefs and facts
-5. **`@wpi/schema-builder`** — schema is part of drafts
+1. **`@wpi/content-approvals`** — approval state machine, validation rules, forbidden patterns
+2. **`@wpi/content-briefs`** — briefs, cannibalization, Arabic keyword normalization
+3. **`@wpi/fact-manifests`** — facts, regulated claims, citations
+4. **`@wpi/content-drafts`** — drafts, bilingual writing, metadata
+5. **`@wpi/schema-builder`** — schema types, diff, validation
 6. **Agent configuration** — wire content strategist agent
 7. **API routes** — expose packages via REST
 8. **UI components** — build editors and dashboards
-9. **Database migrations** — run all migrations
+9. **Database migrations** — run migrations 0009-0015
 10. **i18n** — add translations
 11. **Integration tests** — end-to-end workflow tests
-12. **Evals** — fabricated claim, cannibalization, bilingual parity, rate limit, regulated claim, approval
+12. **Evals** — fabricated claim, cannibalization, bilingual parity, rate limit, regulated claim, approval, validation rules, forbidden patterns, change window
 
 ## Constraints
 
@@ -1092,5 +1308,10 @@ Add English and Arabic translations for:
 - **Cannibalization prevention** — one page per cluster
 - **Regulated claim flagging** — health, finance, legal claims flagged
 - **Arabic from Arabic evidence** — not translated
+- **Arabic keyword normalization** — match with/without diacritics
 - **Named authors** — no anonymous drafts
 - **AI disclosure** — AI assistance disclosed where required
+- **Validation rules enforced** — length, language, JSON-LD, allowed fields, forbidden patterns
+- **Forbidden changes blocked** — deletion, fabricated reviews, hidden text, cloaking, link schemes
+- **Change windows for Tier 3** — high-risk changes only during scheduled windows
+- **M9 connector separation** — M8 approves; M9 connector executes writes
