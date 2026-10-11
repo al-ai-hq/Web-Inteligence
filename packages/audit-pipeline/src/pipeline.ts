@@ -41,6 +41,7 @@ export interface PipelineDeps {
   crawl: (record: AuditRecord, scope: TierScope) => Promise<void>;
   render: (record: AuditRecord) => Promise<void>;
   processEvidence: (record: AuditRecord) => Promise<string[]>;
+  enrichFootprint?: (record: AuditRecord) => Promise<void>;
   runRulesEngine?: (bundle: EvidenceBundle) => Promise<PageRuleResult[]>;
   loadRulesConfig?: () => { rules: LoadedRule[]; scoring: ScoringConfig; catalog: RuleCatalog };
   runAgents: (
@@ -102,6 +103,17 @@ export async function runAuditPipeline(
     console.log("[pipeline] starting processEvidence stage");
     const evidenceIds = await deps.processEvidence(raw);
     console.log("[pipeline] processEvidence stage complete, evidenceIds:", evidenceIds.length);
+
+    // ENRICHING_OPTIONAL stage — non-fatal, runs only when callback is provided
+    if (deps.enrichFootprint) {
+      await requireTransition(deps.store, auditId, "ENRICHING_OPTIONAL");
+      try {
+        await deps.enrichFootprint(raw);
+      } catch (error) {
+        // Enrichment failure is non-fatal — log and continue
+        console.warn(`Enrichment failed for audit ${auditId}:`, error);
+      }
+    }
 
     // Resolve OAuth token before the AUDITING stage
     let accessToken: string | undefined;

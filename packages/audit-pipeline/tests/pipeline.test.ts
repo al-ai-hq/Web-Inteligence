@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { InMemoryAuditStore } from "../src/audit-store.js";
 import type { AuditContext } from "../src/audit-context.js";
 import { TIER_SCOPES, type TierName } from "../src/eligibility.js";
@@ -193,5 +193,49 @@ describe("runAuditPipeline", () => {
     const raw = await store.getRaw(auditId);
     expect(raw?.status).toBe("FAILED");
     expect(raw?.failure_reason).toBe("failure.pipeline_error");
+  });
+});
+
+describe("ENRICHING_OPTIONAL stage", () => {
+  it("runs enrichFootprint callback when provided", async () => {
+    const store = new InMemoryAuditStore();
+    const auditId = await seedAudit(store);
+    const enrichFootprint = vi.fn().mockResolvedValue(undefined);
+    const deps = makeDeps(store, { enrichFootprint });
+
+    await runAuditPipeline(deps, auditId);
+
+    expect(enrichFootprint).toHaveBeenCalledTimes(1);
+    const callArg = enrichFootprint.mock.calls[0][0];
+    expect(callArg.id).toBe(auditId);
+  });
+
+  it("skips enrichFootprint when not provided", async () => {
+    const store = new InMemoryAuditStore();
+    const auditId = await seedAudit(store);
+    const deps = makeDeps(store);
+
+    const result = await runAuditPipeline(deps, auditId);
+
+    // Pipeline should complete without error
+    expect(result).toBe("completed");
+    const raw = await store.getRaw(auditId);
+    expect(raw).toBeDefined();
+  });
+
+  it("continues pipeline even if enrichFootprint fails", async () => {
+    const store = new InMemoryAuditStore();
+    const auditId = await seedAudit(store);
+    const enrichFootprint = vi
+      .fn()
+      .mockRejectedValue(new Error("enrichment failed"));
+    const deps = makeDeps(store, { enrichFootprint });
+
+    const result = await runAuditPipeline(deps, auditId);
+
+    // Pipeline should continue to AUDITING stage despite enrichment failure
+    expect(result).not.toBe("failed");
+    const raw = await store.getRaw(auditId);
+    expect(raw?.status).not.toBe("FAILED");
   });
 });
