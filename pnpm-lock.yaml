@@ -53,9 +53,18 @@ importers:
       '@wpi/footprint-store':
         specifier: workspace:*
         version: link:../../packages/footprint-store
+      '@wpi/nap-consistency':
+        specifier: workspace:*
+        version: link:../../packages/nap-consistency
       '@wpi/oauth':
         specifier: workspace:*
         version: link:../../packages/oauth
+      '@wpi/profile-extractor':
+        specifier: workspace:*
+        version: link:../../packages/profile-extractor
+      '@wpi/public-source-discovery':
+        specifier: workspace:*
+        version: link:../../packages/public-source-discovery
       '@wpi/render-job':
         specifier: workspace:*
         version: link:../../services/render-job
