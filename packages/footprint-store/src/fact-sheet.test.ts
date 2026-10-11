@@ -11,6 +11,7 @@ describe("FactSheetSchema", () => {
     phone: "+1-555-0100",
     email: "contact@example.com",
     address_line1: "123 Main St",
+    address_line2: null,
     address_locality: "Anytown",
     address_region: "CA",
     address_postal_code: "90210",

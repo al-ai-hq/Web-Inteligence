@@ -10,7 +10,7 @@ export const FactSheetSchema = z.object({
   phone: z.string().nullable(),
   email: z.string().email().nullable(),
   address_line1: z.string().nullable(),
-  address_line2: z.string().nullable().optional(),
+  address_line2: z.string().nullable(),
   address_locality: z.string().nullable(),
   address_region: z.string().nullable(),
   address_postal_code: z.string().nullable(),
