@@ -2,7 +2,7 @@ export interface ExtractedProfile {
   extracted_name: string | null;
   extracted_phone: string | null;
   extracted_email: string | null;
-  extracted_address: Record<string, string> | null;
+  extracted_address: Record<string, string | null> | null;
   extracted_hours: Record<string, string> | null;
   extracted_social: Record<string, string> | null;
   extraction_confidence: number;
