@@ -451,10 +451,46 @@ export const evalGEO010: PageEvaluator = (page, bundle) => {
 
 // ─── GEO-011: Business Profile and Merchant Center consistency ───────────────
 
-export const evalGEO011: PageEvaluator = (_page, _bundle) => {
+export const evalGEO011: PageEvaluator = (page, bundle) => {
+  const profileConnector = bundle.business_profile;
+
+  if (!profileConnector?.data) {
+    return {
+      result: "not_applicable",
+      evidence_ids: [],
+      rationale: "No business profile connector data available",
+    };
+  }
+
+  const profile = profileConnector.data;
+  const factSheet = bundle.fact_sheet;
+  const inconsistencies: string[] = [];
+
+  if (factSheet?.phone && profile.phone) {
+    const normalizePhone = (p: string) => p.replace(/[^0-9+]/g, "");
+    if (normalizePhone(profile.phone) !== normalizePhone(factSheet.phone)) {
+      inconsistencies.push(`phone: profile="${profile.phone}" vs fact_sheet="${factSheet.phone}"`);
+    }
+  }
+
+  if (factSheet?.business_name && profile.name) {
+    const normalize = (s: string) => s.trim().toLowerCase();
+    if (normalize(profile.name) !== normalize(factSheet.business_name)) {
+      inconsistencies.push(`name: profile="${profile.name}" vs fact_sheet="${factSheet.business_name}"`);
+    }
+  }
+
+  if (inconsistencies.length > 0) {
+    return {
+      result: "fail",
+      evidence_ids: [page.evidence_id],
+      rationale: `Business profile data conflicts with fact sheet: ${inconsistencies.join("; ")}`,
+    };
+  }
+
   return {
-    result: "not_applicable",
-    evidence_ids: [],
-    rationale: "Requires business_profile_or_merchant_center data — not available in M2",
+    result: "pass",
+    evidence_ids: [page.evidence_id],
+    rationale: "Business profile data is consistent with fact sheet",
   };
 };

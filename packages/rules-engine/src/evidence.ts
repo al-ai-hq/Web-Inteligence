@@ -17,6 +17,8 @@ export interface EvidenceBundle {
     gsc?: GscEvidence;
   };
   keyword_data?: never;
+  business_profile?: { connector_id: string; data: { name?: string; phone?: string; address?: string } };
+  fact_sheet?: { business_name?: string; phone?: string };
 }
 
 export interface PageEvidence {

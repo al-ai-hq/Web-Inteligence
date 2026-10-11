@@ -511,12 +511,55 @@ describe("evalGEO010 - Optional machine-readable summary (llms.txt)", () => {
 
 // ─── GEO-011: Business Profile and Merchant Center consistency ───────────────
 
-describe("evalGEO011 - Business Profile and Merchant Center consistency", () => {
-  it("returns not_applicable in M2 (no business profile data source)", () => {
+describe("evalGEO011 - Business profile consistency", () => {
+  it("returns pass when business profile data is consistent", () => {
     const page = makePage();
-    const bundle = makeBundle();
+    const bundle = makeBundle({
+      business_profile: {
+        connector_id: "google_business_profile",
+        data: {
+          name: "Example Business",
+          phone: "+1-555-0100",
+          address: "123 Main St, Anytown, CA 90210",
+        },
+      },
+      fact_sheet: {
+        business_name: "Example Business",
+        phone: "+1-555-0100",
+      },
+    });
+    const result = evalGEO011(page, bundle);
+    expect(result.result).toBe("pass");
+  });
+
+  it("returns fail when business profile data conflicts with fact sheet", () => {
+    const page = makePage();
+    const bundle = makeBundle({
+      business_profile: {
+        connector_id: "google_business_profile",
+        data: {
+          name: "Example Business",
+          phone: "+1-555-0200",
+        },
+      },
+      fact_sheet: {
+        business_name: "Example Business",
+        phone: "+1-555-0100",
+      },
+    });
+    const result = evalGEO011(page, bundle);
+    expect(result.result).toBe("fail");
+    expect(result.rationale).toContain("phone");
+  });
+
+  it("returns not_applicable when no business profile connector data", () => {
+    const page = makePage();
+    const bundle = makeBundle({
+      fact_sheet: {
+        business_name: "Example Business",
+      },
+    });
     const result = evalGEO011(page, bundle);
     expect(result.result).toBe("not_applicable");
-    expect(result.rationale).toBeDefined();
   });
 });
