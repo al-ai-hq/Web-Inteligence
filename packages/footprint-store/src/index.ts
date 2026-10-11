@@ -12,3 +12,5 @@ export {
 } from "./observations.js";
 export { LocationSchema, type Location } from "./location.js";
 export { BrandTermsSchema, type BrandTerms } from "./brand-terms.js";
+export { FactSheetStore } from "./stores/fact-sheet-store.js";
+export { EntityConflictStore } from "./stores/entity-conflict-store.js";
