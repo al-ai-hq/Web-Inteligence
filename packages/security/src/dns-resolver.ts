@@ -42,18 +42,34 @@ class NonPublicDnsError extends Error {
 }
 
 export async function resolveDns(hostname: string): Promise<string[]> {
-  const resolver = new Resolver();
-  resolver.setServers(["8.8.8.8", "8.8.4.4"]);
+  const publicAddresses = await resolveWithFallback(hostname);
 
+  if (publicAddresses.length === 0) {
+    throw new NonPublicDnsError(hostname);
+  }
+
+  return publicAddresses;
+}
+
+async function resolveWithFallback(hostname: string): Promise<string[]> {
+  try {
+    return await resolveWithServers(hostname, ["8.8.8.8", "8.8.4.4"]);
+  } catch {
+    const systemResolver = new Resolver();
+    return resolveWithResolver(systemResolver, hostname);
+  }
+}
+
+async function resolveWithServers(hostname: string, servers: string[]): Promise<string[]> {
+  const resolver = new Resolver();
+  resolver.setServers(servers);
+  return resolveWithResolver(resolver, hostname);
+}
+
+async function resolveWithResolver(resolver: Resolver, hostname: string): Promise<string[]> {
   try {
     const addresses = await resolver.resolve4(hostname);
-    const publicAddresses = addresses.filter((ip) => !isPrivateIp(ip));
-
-    if (publicAddresses.length === 0) {
-      throw new NonPublicDnsError(hostname);
-    }
-
-    return publicAddresses;
+    return addresses.filter((ip) => !isPrivateIp(ip));
   } catch (error) {
     if (error instanceof NonPublicDnsError) {
       throw error;
