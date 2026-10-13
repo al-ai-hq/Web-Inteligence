@@ -95,7 +95,7 @@ CREATE INDEX idx_audits_user_id ON audits(user_id);
 ALTER TABLE audits ALTER COLUMN expires_at DROP NOT NULL;
 ```
 
-All three table changes ship as new migration files in `packages/audit-pipeline`'s migration sequence (the repo never edits already-applied migrations). `audits.expires_at` becomes nullable: account audits set it to `NULL` (never expire); anonymous audits keep the 7-day value.
+All three table changes ship as new migration files (0016+) in `packages/audit-pipeline/src/migrations/` — the repo never edits already-applied migrations. `audits.expires_at` is currently `NOT NULL` (0001_create_audits.sql): account audits set it to `NULL` (never expire); anonymous audits keep the 7-day value.
 
 ### Interfaces
 
@@ -127,8 +127,8 @@ destroySession(tokenHash: string): Promise<void>
 ### Security Details
 
 - **Hashing:** Node built-in `crypto.scrypt` (N=16384 default), 16-byte random salt, stored as `salt$hash` hex. No new dependency.
-- **Timing safety:** password verification uses `crypto.timingSafeEqual` over equal-length buffers; session lookup is a primary-key hash lookup (no string comparison on secrets). Mirrors the existing audit secret-guard pattern in `apps/web`.
-- **Rate limiting:** reuse the per-key counter pattern from `packages/content-briefs` — limit POST /api/auth/signup and /api/auth/login per IP and per email. Counters reset on success.
+- **Timing safety:** password verification uses `crypto.timingSafeEqual` over equal-length buffers; session lookup is a primary-key hash lookup (no string comparison on secrets). Mirrors the existing secret-guard pattern in `apps/web/src/services/access.ts`.
+- **Rate limiting:** reuse the per-key counter pattern from `packages/content-briefs/src/draft-rate.ts` — limit POST /api/auth/signup and /api/auth/login per IP and per email. Counters reset on success.
 - **Cookie:** name `wpi_session`, value = raw token, `httpOnly; secure; sameSite=lax; max-age=30d; path=/`.
 
 ## Section 2: Audits for Account Users
@@ -140,7 +140,7 @@ flowchart TD
   S -->|no| ANON["user_id = NULL; expires_at = now + 7 days (unchanged)"]
   OW --> W["Worker pipeline as today"]
   ANON --> W
-  GA["GET /api/audits/:id/report"] --> G{Access}
+  GA["GET /{locale}/audit/:id (server-rendered)"] --> G{Access guard}
   G -->|owned| OK["session cookie matches user_id"]
   G -->|anonymous| SEC["secret link ?s= (unchanged, timing-safe)"]
   G -->|neither| DENY["404"]
