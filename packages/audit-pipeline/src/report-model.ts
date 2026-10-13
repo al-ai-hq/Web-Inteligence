@@ -24,7 +24,7 @@ export interface BuildReportModelParams {
   auditId: string;
   locale: "en" | "ar";
   secretHash: string;
-  expiresAt: string;
+  expiresAt: string | null;
   summaryBullets: string[];
   findingIds: string[];
   limitationsKeys: string[];
