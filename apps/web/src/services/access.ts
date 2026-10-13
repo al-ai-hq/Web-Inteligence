@@ -24,7 +24,7 @@ export async function authorizeRecord(
   store: AuditStore,
   id: string,
   secret: string | undefined,
-  userId?: string | null,
+  userId: string | null,
 ): Promise<AccessOutcome> {
   const raw = await store.getRaw(id);
   if (raw === null) {

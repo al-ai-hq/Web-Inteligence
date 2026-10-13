@@ -29,10 +29,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const services = await getAuditServices();
-  const sessionTokenHash = hashToken(
-    request.cookies.get(SESSION_COOKIE_NAME)?.value ?? "",
-  );
-  const user = await services.auth.getSessionUser(sessionTokenHash);
+  const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const sessionTokenHash = cookieValue ? hashToken(cookieValue) : "";
+  const user = cookieValue
+    ? await services.auth.getSessionUser(sessionTokenHash)
+    : null;
   const urlCheck = await services.validateUrl(parsed.data.url);
   if (!urlCheck.ok) {
     return NextResponse.json({ error: "url_invalid" }, { status: 400 });

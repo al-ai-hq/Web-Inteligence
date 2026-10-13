@@ -38,9 +38,10 @@ export default async function AuditPage({
 
   const services = await getAuditServices();
   const cookieStore = await cookies();
-  const user = await services.auth.getSessionUser(
-    hashToken(cookieStore.get(SESSION_COOKIE_NAME)?.value ?? ""),
-  );
+  const cookieValue = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const user = cookieValue
+    ? await services.auth.getSessionUser(hashToken(cookieValue))
+    : null;
   const outcome = await authorizeRecord(services.store, id, s, user?.id ?? null);
 
   if (outcome.kind === "not_found" || outcome.kind === "deleted") {

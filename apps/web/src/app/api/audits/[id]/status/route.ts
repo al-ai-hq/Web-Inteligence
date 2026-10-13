@@ -22,9 +22,10 @@ export async function GET(
   }
 
   const services = await getAuditServices();
-  const user = await services.auth.getSessionUser(
-    hashToken(request.cookies.get(SESSION_COOKIE_NAME)?.value ?? ""),
-  );
+  const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const user = cookieValue
+    ? await services.auth.getSessionUser(hashToken(cookieValue))
+    : null;
   const secret = request.nextUrl.searchParams.get("s") ?? undefined;
   const outcome = await authorizeRecord(services.store, id, secret, user?.id ?? null);
 

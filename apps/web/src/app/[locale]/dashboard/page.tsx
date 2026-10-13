@@ -21,9 +21,10 @@ export default async function DashboardPage({
 
   const services = await getAuditServices();
   const cookieStore = await cookies();
-  const user = await services.auth.getSessionUser(
-    hashToken(cookieStore.get(SESSION_COOKIE_NAME)?.value ?? ""),
-  );
+  const cookieValue = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const user = cookieValue
+    ? await services.auth.getSessionUser(hashToken(cookieValue))
+    : null;
 
   if (!user) {
     return redirect({ href: "/login", locale });
@@ -47,11 +48,17 @@ export default async function DashboardPage({
     );
   }
 
-  const latestScore =
-    records[0]?.report?.score?.presence_readiness ?? null;
+  const latestCompleted = records.find(
+    (r) => r.report?.score?.presence_readiness != null,
+  );
+  const latestScore = latestCompleted?.report?.score?.presence_readiness ?? null;
 
   const daysSinceLastAudit = Math.floor(
-    (Date.now() - new Date(records[0]!.created_at).getTime()) / DAY_MS,
+    (Date.now() -
+      new Date(
+        (latestCompleted ?? records[0])!.created_at,
+      ).getTime()) /
+      DAY_MS,
   );
 
   return (

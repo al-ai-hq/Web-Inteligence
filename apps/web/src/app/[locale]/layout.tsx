@@ -53,9 +53,10 @@ export default async function LocaleLayout({
 
   const services = await getAuditServices();
   const cookieStore = await cookies();
-  const user = await services.auth.getSessionUser(
-    hashToken(cookieStore.get(SESSION_COOKIE_NAME)?.value ?? ""),
-  );
+  const cookieValue = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const user = cookieValue
+    ? await services.auth.getSessionUser(hashToken(cookieValue))
+    : null;
 
   const dir = locale === "ar" ? "rtl" : "ltr";
   const t = await getTranslations({ locale, namespace: "nav" });
