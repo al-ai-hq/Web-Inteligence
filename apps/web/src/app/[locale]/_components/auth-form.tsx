@@ -113,9 +113,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         disabled={submitting}
         className="w-full rounded bg-neutral-900 px-4 py-2 font-medium text-white disabled:opacity-50"
       >
-        {submitting
-          ? t(mode === "signup" ? "sign_up" : "sign_in")
-          : t(mode === "signup" ? "sign_up" : "sign_in")}
+        {t(mode === "signup" ? "sign_up" : "sign_in")}
       </button>
       <p className="text-sm text-neutral-600">
         {mode === "signup" ? (
