@@ -35,7 +35,7 @@ export async function authorizeRecord(
   if (raw.deleted_at !== null) {
     return { kind: "deleted" };
   }
-  if (new Date(raw.expires_at).getTime() <= Date.now()) {
+  if (raw.expires_at !== null && new Date(raw.expires_at).getTime() <= Date.now()) {
     await store.transition(id, "EXPIRED").catch(() => undefined);
     return { kind: "expired" };
   }

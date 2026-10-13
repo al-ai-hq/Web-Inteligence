@@ -23,11 +23,12 @@ interface AuditRow extends QueryResultRow {
   status: string;
   failure_reason: string | null;
   secret_hash: string;
+  user_id: string | null;
   report: unknown;
   costs: unknown;
   created_at: Date;
   updated_at: Date;
-  expires_at: Date;
+  expires_at: Date | null;
   deleted_at: Date | null;
 }
 
@@ -44,12 +45,13 @@ function rowToRecord(row: AuditRow): AuditRecord {
     tier: row.tier as TierName,
     status: row.status,
     secret_hash: row.secret_hash,
+    user_id: row.user_id,
     failure_reason: row.failure_reason,
     report: (row.report as StoredReportEnvelope | null) ?? null,
     costs: (row.costs as StoredCosts | null) ?? null,
     created_at: iso(row.created_at),
     updated_at: iso(row.updated_at),
-    expires_at: iso(row.expires_at),
+    expires_at: row.expires_at ? iso(row.expires_at) : null,
     deleted_at: row.deleted_at ? iso(row.deleted_at) : null,
   };
 }
@@ -61,8 +63,8 @@ export class PostgresAuditStore implements AuditStore {
 
   async create(input: CreateAuditInput): Promise<AuditRecord> {
     const result = await this.pool.query<AuditRow>(
-      `INSERT INTO audits (target_url, locale, tier, context, status, secret_hash, expires_at)
-       VALUES ($1, $2, $3, $4, 'QUEUED', $5, now() + make_interval(days => $6))
+      `INSERT INTO audits (target_url, locale, tier, context, status, secret_hash, user_id, expires_at)
+       VALUES ($1, $2, $3, $4, 'QUEUED', $5, $6::uuid, CASE WHEN $6::uuid IS NULL THEN now() + make_interval(days => $7) ELSE NULL END)
        RETURNING *`,
       [
         input.targetUrl,
@@ -70,6 +72,7 @@ export class PostgresAuditStore implements AuditStore {
         input.tier,
         JSON.stringify(input.context),
         input.secretHash,
+        input.userId ?? null,
         input.ttlDays,
       ],
     );
@@ -93,7 +96,7 @@ export class PostgresAuditStore implements AuditStore {
     if (raw.deleted_at) {
       return "deleted";
     }
-    if (new Date(raw.expires_at).getTime() <= Date.now()) {
+    if (raw.expires_at !== null && new Date(raw.expires_at).getTime() <= Date.now()) {
       await this.transition(id, "EXPIRED").catch(() => undefined);
       return "expired";
     }
@@ -189,5 +192,13 @@ export class PostgresAuditStore implements AuditStore {
       [id],
     );
     return (result.rowCount ?? 0) > 0;
+  }
+
+  async listByUser(userId: string): Promise<AuditRecord[]> {
+    const result = await this.pool.query<AuditRow>(
+      "SELECT * FROM audits WHERE user_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC",
+      [userId],
+    );
+    return result.rows.map(rowToRecord);
   }
 }
