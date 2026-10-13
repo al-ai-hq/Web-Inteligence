@@ -4,6 +4,7 @@ import {
   TIER_SCOPES,
   type AuditStore,
 } from "@wpi/audit-pipeline";
+import { InMemoryAuthService, RateLimiter } from "@wpi/auth";
 import { NextRequest } from "next/server";
 import type { AuditContext } from "@wpi/audit-pipeline";
 import { POST } from "../app/api/audits/route";
@@ -33,6 +34,8 @@ function makeServices(store: AuditStore): AuditServices {
     dispatcher: { dispatch: async () => undefined },
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",
+    auth: new InMemoryAuthService(),
+    rateLimiter: new RateLimiter(),
     validateUrl: async (url: string) =>
       url.startsWith("https://") || url.startsWith("http://")
         ? { ok: true }
@@ -42,10 +45,13 @@ function makeServices(store: AuditStore): AuditServices {
   };
 }
 
-function makeRequest(body: unknown): NextRequest {
+function makeRequest(body: unknown, cookie?: string): NextRequest {
   return new NextRequest("http://localhost:3000/api/audits", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      ...(cookie ? { cookie } : {}),
+    },
     body: typeof body === "string" ? body : JSON.stringify(body),
   });
 }
@@ -114,5 +120,39 @@ describe("POST /api/audits", () => {
     const response = await POST(makeRequest(VALID_BODY));
     expect(response.status).toBe(201);
     await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  it("creates an owned audit when signed in", async () => {
+    const store = new InMemoryAuditStore();
+    const auth = new InMemoryAuthService();
+    setAuditServicesForTests({
+      ...makeServices(store),
+      auth,
+    });
+
+    const user = await auth.createUser("owner@example.com", "password123");
+    const session = await auth.createSession(user.id);
+
+    const response = await POST(
+      makeRequest(VALID_BODY, `wpi_session=${session.token}`),
+    );
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as { id: string; redirect_url: string | null };
+    expect(body.redirect_url).toBe("/en/dashboard");
+
+    const raw = await store.getRaw(body.id);
+    expect(raw?.user_id).toBe(user.id);
+    expect(raw?.expires_at).toBeNull();
+  });
+
+  it("returns redirect_url null for anonymous POST", async () => {
+    const store = new InMemoryAuditStore();
+    setAuditServicesForTests(makeServices(store));
+
+    const response = await POST(makeRequest(VALID_BODY, "wpi_session=garbage"));
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as { redirect_url: string | null };
+    expect(body.redirect_url).toBeNull();
   });
 });

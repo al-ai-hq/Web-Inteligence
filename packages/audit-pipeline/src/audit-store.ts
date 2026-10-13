@@ -19,12 +19,13 @@ export interface AuditRecord {
   tier: TierName;
   status: string;
   secret_hash: string;
+  user_id: string | null;
   failure_reason: string | null;
   report: StoredReportEnvelope | null;
   costs: StoredCosts | null;
   created_at: string;
   updated_at: string;
-  expires_at: string;
+  expires_at: string | null;
   deleted_at: string | null;
 }
 
@@ -35,6 +36,7 @@ export interface CreateAuditInput {
   tier: TierName;
   secretHash: string;
   ttlDays: number;
+  userId?: string | null;
 }
 
 export type GetActiveResult = AuditRecord | "not_found" | "deleted" | "expired";
@@ -58,6 +60,7 @@ export interface AuditStore {
   ): Promise<AuditRecord>;
   sweepExpired(now?: Date): Promise<number>;
   softDelete(id: string): Promise<boolean>;
+  listByUser(userId: string): Promise<AuditRecord[]>;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -75,12 +78,13 @@ export class InMemoryAuditStore implements AuditStore {
       tier: assignment.tier,
       status: "QUEUED",
       secret_hash: assignment.secretHash,
+      user_id: assignment.userId ?? null,
       failure_reason: null,
       report: null,
       costs: null,
       created_at: now.toISOString(),
       updated_at: now.toISOString(),
-      expires_at: new Date(now.getTime() + assignment.ttlDays * DAY_MS).toISOString(),
+      expires_at: assignment.userId != null ? null : new Date(now.getTime() + assignment.ttlDays * DAY_MS).toISOString(),
       deleted_at: null,
     };
     this.rows.set(record.id, record);
@@ -100,7 +104,7 @@ export class InMemoryAuditStore implements AuditStore {
     if (row.deleted_at) {
       return "deleted";
     }
-    if (new Date(row.expires_at).getTime() <= Date.now()) {
+    if (row.expires_at !== null && new Date(row.expires_at).getTime() <= Date.now()) {
       row.status = "EXPIRED";
       row.updated_at = new Date().toISOString();
       return "expired";
@@ -177,6 +181,7 @@ export class InMemoryAuditStore implements AuditStore {
       if (
         row.status !== "EXPIRED" &&
         !row.deleted_at &&
+        row.expires_at !== null &&
         new Date(row.expires_at).getTime() <= now.getTime()
       ) {
         row.status = "EXPIRED";
@@ -195,5 +200,13 @@ export class InMemoryAuditStore implements AuditStore {
     row.deleted_at = new Date().toISOString();
     row.updated_at = row.deleted_at;
     return true;
+  }
+
+  async listByUser(userId: string): Promise<AuditRecord[]> {
+    const records = [...this.rows.values()]
+      .filter((row) => row.user_id === userId && row.deleted_at === null)
+      .map((row) => structuredClone(row));
+    records.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    return records;
   }
 }

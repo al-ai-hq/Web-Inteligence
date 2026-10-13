@@ -35,7 +35,7 @@ describe("submitAudit", () => {
   it("posts to /api/audits and returns the success payload", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       jsonResponse(
-        { id: "a1", secret: "s1", status_url: "/en/audit/a1" },
+        { id: "a1", secret: "s1", status_url: "/en/audit/a1", redirect_url: null },
         201,
       ),
     );
@@ -45,12 +45,45 @@ describe("submitAudit", () => {
 
     expect(result).toEqual({
       ok: true,
-      data: { id: "a1", secret: "s1", status_url: "/en/audit/a1" },
+      data: { id: "a1", secret: "s1", status_url: "/en/audit/a1", redirect_url: null },
     });
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/audits",
       expect.objectContaining({ method: "POST" }),
     );
+  });
+
+  it("includes redirect_url when present in the 201 response", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse(
+        { id: "a2", secret: "s2", status_url: "/en/audit/a2", redirect_url: "/en/dashboard" },
+        201,
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await submitAudit(PAYLOAD);
+
+    expect(result).toEqual({
+      ok: true,
+      data: { id: "a2", secret: "s2", status_url: "/en/audit/a2", redirect_url: "/en/dashboard" },
+    });
+  });
+
+  it("rejects a 201 body with non-string non-null redirect_url", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        jsonResponse(
+          { id: "a3", secret: "s3", status_url: "/en/audit/a3", redirect_url: 42 },
+          201,
+        ),
+      ),
+    );
+
+    const result = await submitAudit(PAYLOAD);
+
+    expect(result).toEqual({ ok: false, error: "generic" });
   });
 
   it("maps a 400 url_invalid response", async () => {

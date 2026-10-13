@@ -18,6 +18,30 @@ const AUDIT_CONTEXT: AuditContext = {
 };
 
 describe("StubDispatcher", () => {
+  it("emits a stub score with presence_readiness 72", async () => {
+    const store = new InMemoryAuditStore();
+    const secret = "sha256:" + "a".repeat(64);
+    const record = await store.create({
+      targetUrl: "https://example.com",
+      locale: "en",
+      context: {
+        organization: "Test",
+        business_type: "saas",
+        offering: "Tooling",
+        market: "Global",
+        customer_language: "English",
+        audience: "Developers",
+      },
+      tier: "preview",
+      secretHash: secret,
+      ttlDays: 7,
+    });
+    const dispatcher = new StubDispatcher(store, 0);
+    await dispatcher.dispatch(record.id);
+    const raw = await store.getRaw(record.id);
+    expect(raw?.report?.score?.presence_readiness).toBe(72);
+  });
+
   it("drives a QUEUED audit to READY_COMPLETE with stub findings", async () => {
     const store = new InMemoryAuditStore();
     const record = await store.create({

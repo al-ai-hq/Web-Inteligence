@@ -28,6 +28,8 @@ import { runEvidenceProcessor } from "@wpi/evidence-processor";
 import { runRenderJob } from "@wpi/render-job";
 import { validateUrl } from "@wpi/security";
 import { TokenStore } from "@wpi/oauth";
+import { InMemoryAuthService, PgAuthService, RateLimiter } from "@wpi/auth";
+import type { AuthService } from "@wpi/auth";
 import { Pool } from "pg";
 
 export interface AuditServices {
@@ -35,6 +37,8 @@ export interface AuditServices {
   dispatcher: JobDispatcher;
   tierScopes: Record<Exclude<TierName, "refused">, TierScope>;
   cookieSecret: string;
+  auth: AuthService;
+  rateLimiter: RateLimiter;
   validateUrl: (url: string) => Promise<{ ok: boolean; reason_key?: string }>;
   outputDir: string;
   geminiApiKey: string | undefined;
@@ -301,6 +305,8 @@ async function buildServices(): Promise<AuditServices> {
       ...fields,
       dispatcher: new StubDispatcher(store),
       cookieSecret: process.env["AUDIT_COOKIE_SECRET"] ?? "stub-cookie-secret",
+      auth: new InMemoryAuthService(),
+      rateLimiter: new RateLimiter(),
     };
   }
 
@@ -345,5 +351,7 @@ async function buildServices(): Promise<AuditServices> {
       await runAuditPipeline(buildPipeline(fields), jobId);
     }),
     cookieSecret,
+    auth: new PgAuthService(pool),
+    rateLimiter: new RateLimiter(),
   };
 }

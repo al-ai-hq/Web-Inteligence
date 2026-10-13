@@ -7,6 +7,7 @@ import {
   InMemoryAuditStore,
   TIER_SCOPES,
 } from "@wpi/audit-pipeline";
+import { InMemoryAuthService, RateLimiter } from "@wpi/auth";
 import { NextRequest } from "next/server";
 import { GET as statusGET } from "../app/api/audits/[id]/status/route";
 import { DELETE as auditDELETE } from "../app/api/audits/[id]/route";
@@ -46,6 +47,8 @@ function makeServices(store: AuditStore): AuditServices {
     dispatcher: { dispatch: async () => undefined },
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",
+    auth: new InMemoryAuthService(),
+    rateLimiter: new RateLimiter(),
     validateUrl: async () => ({ ok: true }),
     outputDir: "./output",
     geminiApiKey: undefined,
@@ -181,6 +184,41 @@ describe("DELETE /api/audits/[id]", () => {
     expect(response.status).toBe(204);
     const raw = await store.getRaw(id);
     expect(raw?.deleted_at).not.toBeNull();
+  });
+});
+
+async function seedOwnedStore(): Promise<{ store: InMemoryAuditStore; id: string; secret: string }> {
+  const store = new InMemoryAuditStore();
+  const secret = generateAuditSecret();
+  const record = await store.create({
+    targetUrl: "https://example.com",
+    locale: "en",
+    context: CONTEXT,
+    tier: "rich",
+    secretHash: hashAuditSecret(secret),
+    ttlDays: 7,
+    userId: "user-1",
+  });
+  return { store, id: record.id, secret };
+}
+
+describe("authorizeRecord owned access", () => {
+  it("authorizes the owner without a secret", async () => {
+    const { store, id } = await seedOwnedStore();
+    const outcome = await authorizeRecord(store, id, undefined, "user-1");
+    expect(outcome.kind).toBe("authorized");
+  });
+
+  it("returns not_found for a different user", async () => {
+    const { store, id } = await seedOwnedStore();
+    const outcome = await authorizeRecord(store, id, undefined, "user-2");
+    expect(outcome.kind).toBe("not_found");
+  });
+
+  it("returns not_found when userId is undefined and no secret", async () => {
+    const { store, id } = await seedOwnedStore();
+    const outcome = await authorizeRecord(store, id, undefined, undefined);
+    expect(outcome.kind).toBe("not_found");
   });
 });
 

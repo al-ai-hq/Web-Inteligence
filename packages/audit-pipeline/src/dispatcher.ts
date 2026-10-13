@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { join } from "node:path";
 import type { AuditStore } from "./audit-store.js";
+import type { ScoreResult } from "@wpi/rules-engine";
 import { deriveActionItems, deriveUnavailable } from "./composer.js";
 import { TIER_SCOPES } from "./eligibility.js";
 import { REPO_ROOT } from "./paths.js";
@@ -127,11 +128,14 @@ export class StubDispatcher implements JobDispatcher {
         "Expand service pages with 300+ words of original content.",
       ),
     ];
+    const expiresAt =
+      record.expires_at ??
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const report = buildReportModel({
       auditId: jobId,
       locale: record.locale,
       secretHash: record.secret_hash,
-      expiresAt: record.expires_at,
+      expiresAt,
       summaryBullets: ["report.summary.technical", "report.summary.content"],
       findingIds: findings.map((finding) => finding.id),
       limitationsKeys: [...BASE_KEYS],
@@ -140,13 +144,23 @@ export class StubDispatcher implements JobDispatcher {
       findings,
     });
     validateReportModel(report, join(REPO_ROOT, "schemas"));
+    const score: ScoreResult = {
+      methodology_version: "stub",
+      presence_readiness: 72,
+      pre_cap_value: 72,
+      applied_caps: [],
+      categories: [],
+      coverage: 0.5,
+      confidence: "low",
+      unavailable_categories: [],
+    };
     const envelope: StoredReportEnvelope = {
       report,
       findings,
       unavailable: deriveUnavailable(scope),
       action_board: deriveActionItems(findings, scope.actionBoardCap),
       costs: { currency: "USD", agents: [], total_usd: 0 },
-      score: null,
+      score,
     };
     await this.store.setOutcome(jobId, "READY_COMPLETE", envelope, envelope.costs);
   }

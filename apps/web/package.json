@@ -13,6 +13,7 @@
     "@tailwindcss/postcss": "^4.3.3",
     "@wpi/agents": "workspace:*",
     "@wpi/audit-pipeline": "workspace:*",
+    "@wpi/auth": "workspace:*",
     "@wpi/connectors": "workspace:*",
     "@wpi/content-briefs": "workspace:*",
     "@wpi/content-drafts": "workspace:*",

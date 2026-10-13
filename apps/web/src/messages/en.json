@@ -6,7 +6,11 @@
     "brand": "WPI Audit",
     "methodology": "Methodology",
     "privacy": "Privacy",
-    "terms": "Terms"
+    "terms": "Terms",
+    "sign_in": "Sign in",
+    "sign_up": "Sign up",
+    "sign_out": "Sign out",
+    "dashboard": "Dashboard"
   },
   "landing": {
     "hero_title": "See how AI engines and search engines read your site",
@@ -51,6 +55,10 @@
     "stage_COMPOSING": "Composing report",
     "stage_READY_PARTIAL": "Ready with limited scope",
     "stage_READY_COMPLETE": "Ready",
+    "stage_ENRICHING_OPTIONAL": "Enriching",
+    "stage_FAILED": "Failed",
+    "stage_EXPIRED": "Expired",
+    "stage_CANCELLED": "Cancelled",
     "failed_title": "This audit failed",
     "expired": "This report has expired. Reports are kept for 7 days.",
     "deleted": "This report has been deleted.",
@@ -324,5 +332,38 @@
     "items": "Items",
     "no_items": "No items in this change set.",
     "approve": "Approve"
+  },
+  "auth": {
+    "signup_title": "Create your account",
+    "login_title": "Sign in",
+    "email_label": "Email",
+    "password_label": "Password",
+    "confirm_password_label": "Confirm password",
+    "sign_up": "Sign up",
+    "sign_in": "Sign in",
+    "have_account": "Already have an account? Sign in",
+    "need_account": "Need an account? Sign up",
+    "error_invalid_input": "Please check your details and try again.",
+    "error_email_taken": "An account with this email already exists.",
+    "error_invalid_credentials": "Incorrect email or password.",
+    "error_rate_limited": "Too many attempts. Please try again later.",
+    "error_generic": "Something went wrong. Please try again.",
+    "error_password_mismatch": "Passwords do not match."
+  },
+  "dashboard": {
+    "title": "Your audits",
+    "score": "Score: {score}",
+    "site": "Site",
+    "date": "Date",
+    "status": "Status",
+    "view_report": "View report",
+    "empty_title": "No audits yet",
+    "empty_body": "Run your first audit to start tracking your presence readiness over time.",
+    "empty_cta": "Run your first audit",
+    "reminder": "Your last audit was {days} days ago — re-run to see your trend",
+    "dismiss": "Dismiss"
+  },
+  "account": {
+    "report_signup_cta": "Sign up to keep reports forever →"
   }
 }

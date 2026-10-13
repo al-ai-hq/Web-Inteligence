@@ -106,7 +106,7 @@ export interface ReportModel {
   needs_native_review: boolean;
   retention_days: number;
   created_at: string;
-  expires_at: string;
+  expires_at: string | null;
 }
 
 export interface StoredReportEnvelope {
