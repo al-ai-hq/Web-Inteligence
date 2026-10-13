@@ -5,7 +5,9 @@ const WIDTH = 560;
 const HEIGHT = 180;
 const PAD_X = 32;
 const PAD_Y = 16;
-const SCORE_LINE_COLOR = "#2563eb";
+const SCORE_LINE_COLOR = "oklch(0.52 0.22 260)";
+const SCORE_DOT_COLOR = "oklch(0.52 0.22 260)";
+const GRID_COLOR = "oklch(0.92 0.006 260)";
 
 interface TrendRecord {
   created_at: string;
@@ -59,10 +61,10 @@ export function TrendChart({
               y1={y}
               x2={WIDTH - PAD_X}
               y2={y}
-              stroke="#e5e5e5"
+              stroke={GRID_COLOR}
               strokeWidth={1}
             />
-            <text x={4} y={y + 4} className="fill-neutral-400" fontSize={10}>
+            <text x={4} y={y + 4} fill={GRID_COLOR} fontSize={10}>
               {value}
             </text>
           </g>
@@ -74,7 +76,7 @@ export function TrendChart({
         const y =
           HEIGHT - PAD_Y - (point.score / 100) * (HEIGHT - PAD_Y * 2);
         return (
-          <circle key={point.date} cx={x} cy={y} r={3} fill={SCORE_LINE_COLOR}>
+          <circle key={point.date} cx={x} cy={y} r={3} fill={SCORE_DOT_COLOR}>
             <title>
               {dateFormatter.format(new Date(point.date))}: {point.score}
             </title>

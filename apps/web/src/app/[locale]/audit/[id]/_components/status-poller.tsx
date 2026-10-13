@@ -75,24 +75,49 @@ export function StatusPoller({
   const currentIndex = currentStatus !== null ? STAGES.indexOf(currentStatus as (typeof STAGES)[number]) : -1;
 
   return (
-    <div className="space-y-6 py-16 text-center" aria-live="polite">
-      <h1 className="text-2xl font-semibold">{t("title")}</h1>
-      <p className="text-neutral-600">{t("subtitle")}</p>
-      <ol className="mx-auto flex max-w-2xl flex-wrap justify-center gap-2">
-        {STAGES.map((stage, index) => (
-          <li
-            key={stage}
-            aria-current={index <= currentIndex ? "step" : undefined}
-            className={
-              index <= currentIndex
-                ? "rounded-full bg-neutral-900 px-3 py-1 text-sm text-white"
-                : "rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-500"
-            }
-          >
-            {t(`stage_${stage}`)}
-          </li>
-        ))}
-      </ol>
+    <div className="flex min-h-[60vh] items-center justify-center py-16" aria-live="polite">
+      <div className="mx-auto max-w-lg space-y-8 text-center">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-100">
+          <svg className="h-8 w-8 animate-spin text-brand-600" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold text-surface-900">{t("title")}</h1>
+          <p className="text-surface-700">{t("subtitle")}</p>
+        </div>
+        <ol className="flex flex-wrap justify-center gap-2">
+          {STAGES.map((stage, index) => {
+            const isComplete = index < currentIndex;
+            const isActive = index === currentIndex;
+            return (
+              <li
+                key={stage}
+                aria-current={isActive ? "step" : undefined}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                  isComplete
+                    ? "bg-emerald-100 text-emerald-700"
+                    : isActive
+                      ? "bg-brand-600 text-white shadow-md shadow-brand-600/25"
+                      : "bg-surface-100 text-surface-700"
+                }`}
+              >
+                {isComplete ? (
+                  <span className="inline-flex items-center gap-1">
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    {t(`stage_${stage}`)}
+                  </span>
+                ) : (
+                  t(`stage_${stage}`)
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </div>
     </div>
   );
 }
