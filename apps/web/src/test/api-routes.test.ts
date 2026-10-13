@@ -187,6 +187,41 @@ describe("DELETE /api/audits/[id]", () => {
   });
 });
 
+async function seedOwnedStore(): Promise<{ store: InMemoryAuditStore; id: string; secret: string }> {
+  const store = new InMemoryAuditStore();
+  const secret = generateAuditSecret();
+  const record = await store.create({
+    targetUrl: "https://example.com",
+    locale: "en",
+    context: CONTEXT,
+    tier: "rich",
+    secretHash: hashAuditSecret(secret),
+    ttlDays: 7,
+    userId: "user-1",
+  });
+  return { store, id: record.id, secret };
+}
+
+describe("authorizeRecord owned access", () => {
+  it("authorizes the owner without a secret", async () => {
+    const { store, id } = await seedOwnedStore();
+    const outcome = await authorizeRecord(store, id, undefined, "user-1");
+    expect(outcome.kind).toBe("authorized");
+  });
+
+  it("returns not_found for a different user", async () => {
+    const { store, id } = await seedOwnedStore();
+    const outcome = await authorizeRecord(store, id, undefined, "user-2");
+    expect(outcome.kind).toBe("not_found");
+  });
+
+  it("returns not_found when userId is undefined and no secret", async () => {
+    const { store, id } = await seedOwnedStore();
+    const outcome = await authorizeRecord(store, id, undefined, undefined);
+    expect(outcome.kind).toBe("not_found");
+  });
+});
+
 describe("export denial", () => {
   it("denies GET and POST with 403 export_denied", async () => {
     const getResponse = await exportGET();

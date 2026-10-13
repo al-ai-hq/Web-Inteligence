@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
 import { authorizeRecord } from "../../../../services/access";
 import { getAuditServices } from "../../../../services/container";
 
@@ -16,8 +17,11 @@ export async function DELETE(
   }
 
   const services = await getAuditServices();
+  const user = await services.auth.getSessionUser(
+    hashToken(request.cookies.get(SESSION_COOKIE_NAME)?.value ?? ""),
+  );
   const secret = request.nextUrl.searchParams.get("s") ?? undefined;
-  const outcome = await authorizeRecord(services.store, id, secret);
+  const outcome = await authorizeRecord(services.store, id, secret, user?.id ?? null);
 
   if (outcome.kind === "not_found") {
     return NextResponse.json({ error: "not_found" }, { status: 404 });

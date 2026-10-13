@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
 import type { StoredReportEnvelope } from "@wpi/audit-pipeline";
 import { Link } from "../../../../i18n/navigation";
 import { authorizeRecord } from "../../../../services/access";
@@ -35,7 +37,11 @@ export default async function AuditPage({
   }
 
   const services = await getAuditServices();
-  const outcome = await authorizeRecord(services.store, id, s);
+  const cookieStore = await cookies();
+  const user = await services.auth.getSessionUser(
+    hashToken(cookieStore.get(SESSION_COOKIE_NAME)?.value ?? ""),
+  );
+  const outcome = await authorizeRecord(services.store, id, s, user?.id ?? null);
 
   if (outcome.kind === "not_found" || outcome.kind === "deleted") {
     notFound();
@@ -78,11 +84,22 @@ export default async function AuditPage({
     return <StatusPoller auditId={id} secret={s ?? ""} />;
   }
 
+  const tAccount = await getTranslations({ locale, namespace: "account" });
+
   return (
-    <ReportView
-      record={{ ...safeRecord, report }}
-      locale={locale}
-      secret={s ?? ""}
-    />
+    <>
+      <ReportView
+        record={{ ...safeRecord, report }}
+        locale={locale}
+        secret={s ?? ""}
+      />
+      {user === null ? (
+        <p className="mt-6 text-center">
+          <Link href="/signup" className="underline">
+            {tAccount("report_signup_cta")}
+          </Link>
+        </p>
+      ) : null}
+    </>
   );
 }

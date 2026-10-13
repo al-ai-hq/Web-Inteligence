@@ -24,12 +24,15 @@ export async function authorizeRecord(
   store: AuditStore,
   id: string,
   secret: string | undefined,
+  userId?: string | null,
 ): Promise<AccessOutcome> {
   const raw = await store.getRaw(id);
   if (raw === null) {
     return { kind: "not_found" };
   }
-  if (!hashesMatch(hashAuditSecret(secret ?? ""), raw.secret_hash)) {
+  const ownedByCaller =
+    userId !== undefined && userId !== null && raw.user_id === userId;
+  if (!ownedByCaller && !hashesMatch(hashAuditSecret(secret ?? ""), raw.secret_hash)) {
     return { kind: "not_found" };
   }
   if (raw.deleted_at !== null) {
