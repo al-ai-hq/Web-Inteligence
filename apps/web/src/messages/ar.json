@@ -6,7 +6,11 @@
     "brand": "تدقيق WPI",
     "methodology": "المنهجية",
     "privacy": "الخصوصية",
-    "terms": "الشروط"
+    "terms": "الشروط",
+    "sign_in": "تسجيل الدخول",
+    "sign_up": "إنشاء حساب",
+    "sign_out": "تسجيل الخروج",
+    "dashboard": "لوحة التحكم"
   },
   "landing": {
     "hero_title": "اكتشف كيف تقرأ محركات الذكاء الاصطناعي ومحركات البحث موقعك",
@@ -51,6 +55,10 @@
     "stage_COMPOSING": "إعداد التقرير",
     "stage_READY_PARTIAL": "جاهز بنطاق محدود",
     "stage_READY_COMPLETE": "جاهز",
+    "stage_ENRICHING_OPTIONAL": "إثراء",
+    "stage_FAILED": "فشل",
+    "stage_EXPIRED": "منتهي",
+    "stage_CANCELLED": "ملغى",
     "failed_title": "فشل هذا التدقيق",
     "expired": "انتهت صلاحية هذا التقرير. تُحفظ التقارير لمدة 7 أيام.",
     "deleted": "تم حذف هذا التقرير.",
@@ -324,5 +332,38 @@
     "items": "العناصر",
     "no_items": "لا توجد عناصر في مجموعة التغييرات هذه.",
     "approve": "موافقة"
+  },
+  "auth": {
+    "signup_title": "أنشئ حسابك",
+    "login_title": "تسجيل الدخول",
+    "email_label": "البريد الإلكتروني",
+    "password_label": "كلمة المرور",
+    "confirm_password_label": "تأكيد كلمة المرور",
+    "sign_up": "إنشاء حساب",
+    "sign_in": "تسجيل الدخول",
+    "have_account": "لديك حساب بالفعل؟ سجّل الدخول",
+    "need_account": "ليس لديك حساب؟ أنشئ حساباً",
+    "error_invalid_input": "يرجى التحقق من بياناتك والمحاولة مرة أخرى.",
+    "error_email_taken": "يوجد حساب بالفعل بهذا البريد الإلكتروني.",
+    "error_invalid_credentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+    "error_rate_limited": "محاولات كثيرة جدًا. يرجى المحاولة لاحقًا.",
+    "error_generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "error_password_mismatch": "كلمتا المرور غير متطابقتين."
+  },
+  "dashboard": {
+    "title": "تدقيقاتك",
+    "score": "النتيجة: {score}",
+    "site": "الموقع",
+    "date": "التاريخ",
+    "status": "الحالة",
+    "view_report": "عرض التقرير",
+    "empty_title": "لا توجد تدقيقات بعد",
+    "empty_body": "شغّل تدقيقك الأول لتبدأ في تتبع جاهزية حضورك الرقمي بمرور الوقت.",
+    "empty_cta": "شغّل تدقيقك الأول",
+    "reminder": "آخر تدقيق لك كان قبل {days} يومًا — أعد التشغيل لمشاهدة تطور نتيجتك",
+    "dismiss": "تجاهل"
+  },
+  "account": {
+    "report_signup_cta": "أنشئ حسابًا للاحتفاظ بتقاريرك للأبد ←"
   }
 }
