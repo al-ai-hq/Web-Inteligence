@@ -3,4 +3,44 @@
 @theme {
   --font-sans: var(--font-inter), var(--font-plex-arabic), ui-sans-serif, system-ui,
     sans-serif;
+
+  --color-brand-50: oklch(0.97 0.02 260);
+  --color-brand-100: oklch(0.93 0.04 260);
+  --color-brand-200: oklch(0.87 0.08 260);
+  --color-brand-300: oklch(0.78 0.12 260);
+  --color-brand-400: oklch(0.68 0.16 260);
+  --color-brand-500: oklch(0.59 0.2 260);
+  --color-brand-600: oklch(0.52 0.22 260);
+  --color-brand-700: oklch(0.45 0.2 260);
+  --color-brand-800: oklch(0.38 0.16 260);
+  --color-brand-900: oklch(0.32 0.12 260);
+  --color-brand-950: oklch(0.25 0.08 260);
+
+  --color-surface-0: oklch(1 0 0);
+  --color-surface-50: oklch(0.985 0.002 260);
+  --color-surface-100: oklch(0.965 0.004 260);
+  --color-surface-200: oklch(0.92 0.006 260);
+  --color-surface-700: oklch(0.37 0.02 260);
+  --color-surface-800: oklch(0.27 0.02 260);
+  --color-surface-900: oklch(0.2 0.02 260);
+  --color-surface-950: oklch(0.14 0.02 260);
+
+  --animate-fade-in: fade-in 0.6s ease-out both;
+  --animate-slide-up: slide-up 0.5s ease-out both;
+  --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }

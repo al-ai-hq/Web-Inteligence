@@ -54,134 +54,173 @@ export function AuditForm() {
     setSubmitting(false);
   }
 
+  const inputClasses =
+    "mt-1.5 w-full rounded-xl border border-surface-200 bg-white px-4 py-2.5 text-surface-900 shadow-sm outline-none transition-all placeholder:text-surface-700/50 focus:border-brand-400 focus:ring-4 focus:ring-brand-100";
+  const labelClasses = "block text-sm font-medium text-surface-800";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <h2 className="text-xl font-semibold">{t("title")}</h2>
-      <div>
-        <label htmlFor="url" className="block text-sm font-medium">
-          {t("url_label")}
-        </label>
-        <input
-          id="url"
-          name="url"
-          type="url"
-          required
-          placeholder={t("url_placeholder")}
-          className="mt-1 w-full rounded border border-neutral-300 px-3 py-2"
-        />
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="organization" className="block text-sm font-medium">
-            {t("organization")}
-          </label>
-          <input
-            id="organization"
-            name="organization"
-            type="text"
-            required
-            className="mt-1 w-full rounded border border-neutral-300 px-3 py-2"
-          />
-        </div>
-        <div>
-          <label htmlFor="business_type" className="block text-sm font-medium">
-            {t("business_type")}
-          </label>
-          <input
-            id="business_type"
-            name="business_type"
-            type="text"
-            required
-            className="mt-1 w-full rounded border border-neutral-300 px-3 py-2"
-          />
-        </div>
-        <div>
-          <label htmlFor="offering" className="block text-sm font-medium">
-            {t("offering")}
-          </label>
-          <input
-            id="offering"
-            name="offering"
-            type="text"
-            required
-            className="mt-1 w-full rounded border border-neutral-300 px-3 py-2"
-          />
-        </div>
-        <div>
-          <label htmlFor="market" className="block text-sm font-medium">
-            {t("market")}
-          </label>
-          <input
-            id="market"
-            name="market"
-            type="text"
-            required
-            className="mt-1 w-full rounded border border-neutral-300 px-3 py-2"
-          />
-        </div>
-        <div>
-          <label htmlFor="customer_language" className="block text-sm font-medium">
-            {t("customer_language")}
-          </label>
-          <input
-            id="customer_language"
-            name="customer_language"
-            type="text"
-            required
-            className="mt-1 w-full rounded border border-neutral-300 px-3 py-2"
-          />
-        </div>
-        <div>
-          <label htmlFor="audience" className="block text-sm font-medium">
-            {t("audience")}
-          </label>
-          <input
-            id="audience"
-            name="audience"
-            type="text"
-            required
-            className="mt-1 w-full rounded border border-neutral-300 px-3 py-2"
-          />
-        </div>
-      </div>
-      <div>
-        <label htmlFor="competitors" className="block text-sm font-medium">
-          {t("competitors")}
-        </label>
-        <input
-          id="competitors"
-          name="competitors"
-          type="text"
-          className="mt-1 w-full rounded border border-neutral-300 px-3 py-2"
-        />
-      </div>
-      <div>
-        <label htmlFor="target_keywords" className="block text-sm font-medium">
-          {t("target_keywords")}
-        </label>
-        <input
-          id="target_keywords"
-          name="target_keywords"
-          type="text"
-          aria-describedby="target_keywords_hint"
-          className="mt-1 w-full rounded border border-neutral-300 px-3 py-2"
-        />
-        <p id="target_keywords_hint" className="mt-1 text-sm text-neutral-500">
-          {t("target_keywords_hint")}
-        </p>
-      </div>
-      {error !== null ? (
-        <p role="alert" className="text-sm text-red-600">
-          {error}
-        </p>
-      ) : null}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded bg-neutral-900 px-4 py-2 font-medium text-white disabled:opacity-50"
+    <div className="mx-auto max-w-2xl">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-5 rounded-2xl border border-surface-200 bg-white p-6 shadow-lg shadow-surface-200/50 sm:p-8"
       >
-        {submitting ? t("submitting") : t("submit")}
-      </button>
-    </form>
+        <div className="space-y-1">
+          <h2 className="text-xl font-bold text-surface-900">{t("title")}</h2>
+          <div className="h-1 w-12 rounded-full bg-brand-500" />
+        </div>
+
+        <div>
+          <label htmlFor="url" className={labelClasses}>
+            {t("url_label")}
+          </label>
+          <input
+            id="url"
+            name="url"
+            type="url"
+            required
+            placeholder={t("url_placeholder")}
+            className={inputClasses}
+          />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="organization" className={labelClasses}>
+              {t("organization")}
+            </label>
+            <input
+              id="organization"
+              name="organization"
+              type="text"
+              required
+              className={inputClasses}
+            />
+          </div>
+          <div>
+            <label htmlFor="business_type" className={labelClasses}>
+              {t("business_type")}
+            </label>
+            <input
+              id="business_type"
+              name="business_type"
+              type="text"
+              required
+              className={inputClasses}
+            />
+          </div>
+          <div>
+            <label htmlFor="offering" className={labelClasses}>
+              {t("offering")}
+            </label>
+            <input
+              id="offering"
+              name="offering"
+              type="text"
+              required
+              className={inputClasses}
+            />
+          </div>
+          <div>
+            <label htmlFor="market" className={labelClasses}>
+              {t("market")}
+            </label>
+            <input
+              id="market"
+              name="market"
+              type="text"
+              required
+              className={inputClasses}
+            />
+          </div>
+          <div>
+            <label htmlFor="customer_language" className={labelClasses}>
+              {t("customer_language")}
+            </label>
+            <input
+              id="customer_language"
+              name="customer_language"
+              type="text"
+              required
+              className={inputClasses}
+            />
+          </div>
+          <div>
+            <label htmlFor="audience" className={labelClasses}>
+              {t("audience")}
+            </label>
+            <input
+              id="audience"
+              name="audience"
+              type="text"
+              required
+              className={inputClasses}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="competitors" className={labelClasses}>
+            {t("competitors")}
+          </label>
+          <input
+            id="competitors"
+            name="competitors"
+            type="text"
+            className={inputClasses}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="target_keywords" className={labelClasses}>
+            {t("target_keywords")}
+          </label>
+          <input
+            id="target_keywords"
+            name="target_keywords"
+            type="text"
+            aria-describedby="target_keywords_hint"
+            className={inputClasses}
+          />
+          <p id="target_keywords_hint" className="mt-1.5 text-xs text-surface-700">
+            {t("target_keywords_hint")}
+          </p>
+        </div>
+
+        {error !== null ? (
+          <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            {error}
+          </div>
+        ) : null}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3 font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-600/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+        >
+          {submitting ? (
+            <>
+              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              {t("submitting")}
+            </>
+          ) : (
+            <>
+              {t("submit")}
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </>
+          )}
+        </button>
+      </form>
+    </div>
   );
 }
