@@ -147,7 +147,7 @@ flowchart TD
 ```
 
 - Owned audit access = valid session whose `user_id` matches the audit's `user_id`, **or** the secret link (both always work).
-- The export-authorization path gains the same owned-access branch.
+- Exports remain denied for everyone (D-022); owned-access applies to report and status pages only.
 - Known v1 limitation: no password reset (no email service). Not surfaced in UI copy — documented here only.
 
 ## Section 3: Dashboard `/{locale}/dashboard`
