@@ -2,12 +2,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { Pool } from "pg";
-import {
-  PgAuthService,
-  DuplicateEmailError,
-  hashToken,
-  SESSION_TTL_MS,
-} from "../src/pg-auth-service.js";
+import { DuplicateEmailError, hashToken, SESSION_TTL_MS } from "../src/auth-service.js";
+import { PgAuthService } from "../src/pg-auth-service.js";
 
 const DATABASE_URL = process.env["WPI_TEST_DATABASE_URL"];
 
