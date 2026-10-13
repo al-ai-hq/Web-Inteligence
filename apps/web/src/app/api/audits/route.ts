@@ -8,6 +8,7 @@ import {
   incrementEligibilityCookie,
   verifyEligibilityCookie,
 } from "@wpi/audit-pipeline";
+import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
 import { getAuditServices } from "../../../services/container";
 
 export const runtime = "nodejs";
@@ -28,6 +29,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const services = await getAuditServices();
+  const sessionTokenHash = hashToken(
+    request.cookies.get(SESSION_COOKIE_NAME)?.value ?? "",
+  );
+  const user = await services.auth.getSessionUser(sessionTokenHash);
   const urlCheck = await services.validateUrl(parsed.data.url);
   if (!urlCheck.ok) {
     return NextResponse.json({ error: "url_invalid" }, { status: 400 });
@@ -50,13 +55,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     tier,
     secretHash: hashAuditSecret(secret),
     ttlDays: 7,
+    userId: user?.id ?? null,
   });
 
   // The pipeline records terminal failure in the store; swallow the rejection so it cannot kill the process.
   void services.dispatcher.dispatch(record.id).catch(() => undefined);
 
   const response = NextResponse.json(
-    { id: record.id, secret, status_url: `/${parsed.data.locale}/audit/${record.id}` },
+    { id: record.id, secret, status_url: `/${parsed.data.locale}/audit/${record.id}`, redirect_url: user ? `/${parsed.data.locale}/dashboard` : null },
     { status: 201 },
   );
   response.cookies.set(

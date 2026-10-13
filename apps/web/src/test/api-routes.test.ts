@@ -7,6 +7,7 @@ import {
   InMemoryAuditStore,
   TIER_SCOPES,
 } from "@wpi/audit-pipeline";
+import { InMemoryAuthService, RateLimiter } from "@wpi/auth";
 import { NextRequest } from "next/server";
 import { GET as statusGET } from "../app/api/audits/[id]/status/route";
 import { DELETE as auditDELETE } from "../app/api/audits/[id]/route";
@@ -46,6 +47,8 @@ function makeServices(store: AuditStore): AuditServices {
     dispatcher: { dispatch: async () => undefined },
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",
+    auth: new InMemoryAuthService(),
+    rateLimiter: new RateLimiter(),
     validateUrl: async () => ({ ok: true }),
     outputDir: "./output",
     geminiApiKey: undefined,
