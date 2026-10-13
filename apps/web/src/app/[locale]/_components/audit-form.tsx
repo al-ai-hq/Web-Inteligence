@@ -44,7 +44,9 @@ export function AuditForm() {
 
     if (result.ok) {
       window.location.assign(
-        `${result.data.status_url}?s=${encodeURIComponent(result.data.secret)}`,
+        result.data.redirect_url
+          ? result.data.redirect_url
+          : `${result.data.status_url}?s=${encodeURIComponent(result.data.secret)}`,
       );
       return;
     }

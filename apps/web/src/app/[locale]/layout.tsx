@@ -2,10 +2,16 @@ import { IBM_Plex_Sans_Arabic, Inter } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import type { ReactNode } from "react";
+import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
 import { Link } from "../../i18n/navigation";
 import { routing } from "../../i18n/routing";
+import { getAuditServices } from "../../services/container";
+import { SignOutButton } from "./_components/sign-out-button";
 import "../../app/globals.css";
+
+export const dynamic = "force-dynamic";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -45,6 +51,12 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale);
 
+  const services = await getAuditServices();
+  const cookieStore = await cookies();
+  const user = await services.auth.getSessionUser(
+    hashToken(cookieStore.get(SESSION_COOKIE_NAME)?.value ?? ""),
+  );
+
   const dir = locale === "ar" ? "rtl" : "ltr";
   const t = await getTranslations({ locale, namespace: "nav" });
 
@@ -61,6 +73,22 @@ export default async function LocaleLayout({
                 <Link href="/methodology">{t("methodology")}</Link>
                 <Link href="/privacy">{t("privacy")}</Link>
                 <Link href="/terms">{t("terms")}</Link>
+                {user ? (
+                  <>
+                    <Link href="/dashboard">{t("dashboard")}</Link>
+                    <span className="max-w-[12rem] truncate text-neutral-500" title={user.email}>
+                      {user.email}
+                    </span>
+                    <SignOutButton />
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login">{t("sign_in")}</Link>
+                    <Link href="/signup" className="rounded-md bg-blue-600 px-3 py-1.5 text-white">
+                      {t("sign_up")}
+                    </Link>
+                  </>
+                )}
               </div>
             </nav>
           </header>

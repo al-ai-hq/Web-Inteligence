@@ -10,6 +10,7 @@ export interface CreateAuditSuccess {
   id: string;
   secret: string;
   status_url: string;
+  redirect_url: string | null;
 }
 
 export type CreateAuditError = "url_invalid" | "rate_limited" | "generic";
@@ -61,7 +62,8 @@ export async function submitAudit(
     if (
       typeof candidate.id === "string" &&
       typeof candidate.secret === "string" &&
-      typeof candidate.status_url === "string"
+      typeof candidate.status_url === "string" &&
+      (candidate.redirect_url === null || typeof candidate.redirect_url === "string")
     ) {
       return { ok: true, data: candidate as CreateAuditSuccess };
     }
