@@ -19,6 +19,14 @@ function packageRoot(metaUrl: string): string {
 }
 
 function findRepoRoot(): string {
+  // In Vercel, config is copied to apps/web/config during build
+  if (process.env["VERCEL"]) {
+    const vercelAppsWebConfig = "/vercel/path0/apps/web/config/anonymous-eligibility.yaml";
+    if (existsSync(vercelAppsWebConfig)) {
+      return "/vercel/path0/apps/web";
+    }
+  }
+
   // Search upward from the current file location for the config directory marker
   let dir = dirname(fileURLToPath(import.meta.url));
   for (;;) {
