@@ -25,7 +25,6 @@ import {
 import { runConnectors as runAllConnectors, type AuditContext } from "@wpi/connectors";
 import { runCrawlJob } from "@wpi/crawler";
 import { runEvidenceProcessor } from "@wpi/evidence-processor";
-import { runRenderJob } from "@wpi/render-job";
 import { validateUrl } from "@wpi/security";
 import { TokenStore } from "@wpi/oauth";
 import { InMemoryAuthService, PgAuthService, RateLimiter } from "@wpi/auth";
@@ -216,6 +215,7 @@ function buildPipeline(fields: PipelineFields) {
       );
     },
     render: async (record: AuditRecord) => {
+      const { runRenderJob } = await import("@wpi/render-job");
       await scopedEnv(
         { AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir },
         () => runRenderJob(),
