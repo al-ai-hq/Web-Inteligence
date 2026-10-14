@@ -1,0 +1,9 @@
+{
+  "entries": [
+    {
+      "url": "https://example.com",
+      "textByteLength": 42
+    }
+  ],
+  "threshold": 500
+}

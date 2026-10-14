@@ -12,7 +12,9 @@ function packageRoot(metaUrl: string): string {
     }
     const parent = dirname(dir);
     if (parent === dir) {
-      throw new Error("Could not locate package root (no package.json ancestor)");
+      // In serverless environments (Vercel, AWS Lambda), package.json may not be accessible.
+      // Return the current directory as a fallback.
+      return dirname(fileURLToPath(metaUrl));
     }
     dir = parent;
   }

@@ -1,0 +1,215 @@
+# Purpose: Rule definitions for the GEO entity clarity, authority, and citations category (weight 15)
+#          of Presence Readiness, including modified GEO-007 and GEO-010 and new GEO-011.
+# Owner role: Methodology owner (SEO lead)
+# Source sections: v1-baseline §6.3, §7, §7.5; 02-DETAILED-SPECIFICATION §6, §13, §15, §16;
+#                  08-REFERENCE-LIBRARY (Optimizing for generative AI search, llms.txt proposal, Helpful content)
+# Status: draft for review
+#
+# Field notes: see config/rules/crawlability.yaml.
+# evaluation: assessed marks the semantic rules the Auditor agent evaluates with a rubric
+# (02-DETAILED-SPECIFICATION §13 names GEO-005 and GEO-007; §15 lists GEO-007 as assessed).
+
+methodology_version: "0.1.0-draft"
+category: geo
+category_title: "GEO entity clarity, authority, and citations"
+category_weight: 15
+
+rules:
+  - id: GEO-001
+    title: "Consistent entity name"
+    category: geo
+    importance_weight: 5
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Organization name is consistent across major pages and markup."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.5 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    notes:
+      - "Arabic and English names and approved transliterations count as the same entity when the Owner confirms them."
+    source_reference: ["v1-baseline §7.5"]
+
+  - id: GEO-002
+    title: "About/entity page"
+    category: geo
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Site explains the organization, ownership, purpose, and history as applicable."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.5 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.5"]
+
+  - id: GEO-003
+    title: "Contact identity"
+    category: geo
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "Where appropriate to the organization type."
+    standards:
+      pass: "Legitimate contact details and service location are available where appropriate."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.5 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.5"]
+
+  - id: GEO-004
+    title: "Author/editor identity"
+    category: geo
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "Advice or editorial content in the sample; otherwise not_applicable."
+    standards:
+      pass: "Advice or editorial content identifies responsible authors or reviewers."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.5 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.5"]
+
+  - id: GEO-005
+    title: "Evidence for claims"
+    category: geo
+    importance_weight: 5
+    scored: true
+    connected_tier_only: false
+    applicability: "Pages in the sample that make material claims."
+    standards:
+      pass: "Material claims have primary evidence, methodology, or attributable sources."
+      partial: "<DECIDE_AT_M0: partial standard; define in the GEO-005 rubric>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: assessed
+    fidelity_label: assessed
+    change: unchanged
+    source_reference: ["v1-baseline §7.5", "02-DETAILED-SPECIFICATION §13"]
+
+  - id: GEO-006
+    title: "Source quality"
+    category: geo
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "Pages in the sample that cite sources."
+    standards:
+      pass: "Citations link to relevant authoritative or primary sources."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.5 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.5"]
+
+  - id: GEO-007
+    title: "Non-commodity content"
+    category: geo
+    importance_weight: 5
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Non-commodity content: first-hand data, original examples, expert view. Rubric-assessed and labelled assessed."
+      partial: "<DECIDE_AT_M0: partial standard; define in the GEO-007 rubric>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: assessed
+    fidelity_label: assessed
+    change: modified
+    v1:
+      title: "Original information"
+      pass: "Site contributes specific facts, data, examples, or expert knowledge."
+      importance_weight: 3
+    notes:
+      - "Assessed results are labelled in every report and count only at their rule weight (02-DETAILED-SPECIFICATION §15)."
+    source_reference:
+      - "02-DETAILED-SPECIFICATION §6"
+      - "02-DETAILED-SPECIFICATION §15"
+      - "https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
+
+  - id: GEO-008
+    title: "Entity connections"
+    category: geo
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "All audits."
+    standards:
+      pass: "Official profiles and related entities are linked consistently."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.5 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.5"]
+
+  - id: GEO-009
+    title: "Reputation signals on site"
+    category: geo
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Sites that show credentials or case evidence; otherwise not_applicable."
+    standards:
+      pass: "Credentials and case evidence are specific and verifiable, not fabricated."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.5 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.5"]
+
+  - id: GEO-010
+    title: "Optional machine-readable summary (llms.txt)"
+    category: geo
+    importance_weight: 0
+    scored: false
+    connected_tier_only: false
+    applicability: "All audits. Reported only."
+    standards:
+      report: "Report whether a maintained llms.txt exists. Absence is never a failure. A published file that points to dead pages is flagged."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: modified
+    v1:
+      pass: "A maintained llms.txt may earn limited credit; absence is not a failure."
+      importance_weight: 1
+    notes:
+      - "Google Search ignores llms.txt; other systems may use it (02-DETAILED-SPECIFICATION §2, §6)."
+      - "Never plan llms.txt as a Google ranking factor."
+    source_reference:
+      - "02-DETAILED-SPECIFICATION §6"
+      - "https://developers.google.com/search/docs/fundamentals/ai-optimization-guide"
+      - "https://llmstxt.org"
+
+  - id: GEO-011
+    title: "Business Profile and Merchant Center consistency"
+    category: geo
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    requires_data: business_profile_or_merchant_center
+    applicability: >-
+      Where Business Profile or Merchant Center details apply and have been supplied. 02-DETAILED-SPECIFICATION §16
+      lists these sources as connected and optional, so the rule is normally not_applicable in anonymous audits.
+    standards:
+      pass: "Business Profile and Merchant Center details match the site, where they apply."
+      partial: "<DECIDE_AT_M0: partial standard; 02-DETAILED-SPECIFICATION §6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: new
+    notes:
+      - "A fact-sheet, site or Business Profile disagreement raises an entity-conflict finding that is never auto-resolved (02-DETAILED-SPECIFICATION §3, §15)."
+    source_reference: ["02-DETAILED-SPECIFICATION §6", "02-DETAILED-SPECIFICATION §16"]

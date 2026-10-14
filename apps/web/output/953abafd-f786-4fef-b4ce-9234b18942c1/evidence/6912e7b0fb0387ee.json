@@ -1,0 +1,22 @@
+{
+  "audit_id": "953abafd-f786-4fef-b4ce-9234b18942c1",
+  "url": "https://midasfurniture.com/",
+  "kind": "http_response",
+  "fetched_at": "2026-10-04T15:52:19.425Z",
+  "content_hash": "sha256:d0f3853f4f3c2782c7a74e2722bd99048cc7d832bdfabe4343e0eaf4beb64399",
+  "content_type": "text/plain; charset=utf-8",
+  "status_code": 421,
+  "headers": {},
+  "body": "{\"headings\":[],\"links\":[],\"structuredData\":[],\"textByteLength\":288}",
+  "raw_expires_at": "2026-10-05T15:52:19.425Z",
+  "injection_suspected": false,
+  "immutable": true,
+  "final_url": "https://midasfurniture.com/",
+  "redirect_chain": [
+    "https://midasfurniture.com/"
+  ],
+  "headings": [],
+  "links": [],
+  "structured_data": [],
+  "text_byte_length": 288
+}

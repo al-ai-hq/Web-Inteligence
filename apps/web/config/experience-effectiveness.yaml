@@ -1,0 +1,57 @@
+methodology_version: "0.1.0-draft"
+score_name: experience_effectiveness
+display_name:
+  en: "Experience Effectiveness"
+  ar: "فعالية التجربة"
+
+dimensions:
+  design_hierarchy:
+    weight: 20
+    title: "Design hierarchy and visual structure"
+  copy_and_positioning_clarity:
+    weight: 20
+    title: "Copy and positioning clarity"
+  ux_and_navigation:
+    weight: 20
+    title: "UX and navigation"
+  trust_and_proof:
+    weight: 20
+    title: "Trust and proof"
+  conversion_path_and_measurement:
+    weight: 20
+    title: "Conversion path and measurement"
+
+criteria:
+  design_hierarchy:
+    EXP-DH-01: 25
+    EXP-DH-02: 20
+    EXP-DH-03: 20
+    EXP-DH-04: 15
+    EXP-DH-05: 20
+
+  copy_and_positioning_clarity:
+    EXP-CP-01: 30
+    EXP-CP-02: 25
+    EXP-CP-03: 25
+    EXP-CP-04: 20
+
+  ux_and_navigation:
+    EXP-UX-01: 25
+    EXP-UX-02: 20
+    EXP-UX-03: 20
+    EXP-UX-04: 15
+    EXP-UX-05: 20
+
+  trust_and_proof:
+    EXP-TP-01: 25
+    EXP-TP-02: 20
+    EXP-TP-03: 20
+    EXP-TP-04: 15
+    EXP-TP-05: 20
+
+  conversion_path_and_measurement:
+    EXP-CV-01: 25
+    EXP-CV-02: 20
+    EXP-CV-03: 20
+    EXP-CV-04: 15
+    EXP-CV-05: 20

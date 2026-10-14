@@ -1,0 +1,8 @@
+# config/render-limits.yaml
+# Render job limits (Playwright/Chromium)
+per_page_timeout_seconds: 30     # AC-11 per-page timeout
+total_job_timeout_seconds: 300   # 5 min total job timeout
+max_response_size_bytes: 10485760      # 10 MB per resource
+max_decompressed_size_bytes: 104857600 # 100 MB decompressed
+memory_limit_mb: 512             # AC-11 memory cap
+network_idle_timeout_ms: 500     # wait for network idle before snapshot

@@ -1,0 +1,9 @@
+name: experience-reviewer
+milestone: M5
+reads_untrusted_content: true
+model_tier: vision-capable
+tools:
+  - read_screenshot
+  - read_extractor_output
+  - parse_structured_json
+forbidden_tools: []

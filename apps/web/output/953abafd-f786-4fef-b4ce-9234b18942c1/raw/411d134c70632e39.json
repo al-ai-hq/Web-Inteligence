@@ -1,0 +1,15 @@
+{
+  "url": "https://midasfurniture.com/sitemap/kw_en/kw_en_sitemap.xml",
+  "finalUrl": "https://midasfurniture.com/sitemap/kw_en/kw_en_sitemap.xml",
+  "statusCode": 421,
+  "contentHash": "d0f3853f4f3c2782c7a74e2722bd99048cc7d832bdfabe4343e0eaf4beb64399",
+  "redirectChain": [
+    "https://midasfurniture.com/sitemap/kw_en/kw_en_sitemap.xml"
+  ],
+  "contentType": "text/plain; charset=utf-8",
+  "headings": [],
+  "links": [],
+  "structuredData": [],
+  "textByteLength": 288,
+  "fetchedAt": "2026-10-04T15:52:19.429Z"
+}

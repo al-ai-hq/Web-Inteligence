@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WPI User Experience Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .presentation {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 3rem;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* Slide 1: Title */
+    .slide-title {
+      background: #ffffff;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem;
+    }
+
+    .slide-title .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: fadeUp 0.6s ease-out;
+    }
+
+    .slide-title h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+      animation: fadeUp 0.6s ease-out 0.2s both;
+    }
+
+    .slide-title p {
+      font-size: 1.5rem;
+      color: #666;
+      margin-bottom: 2rem;
+      max-width: 600px;
+      animation: fadeUp 0.6s ease-out 0.4s both;
+    }
+
+    .slide-title .cta {
+      padding: 1rem 2rem;
+      background: #111;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
+      animation: grow 0.6s ease-out 0.6s both;
+    }
+
+    /* Slide 2: Landing Page */
+    .slide-landing {
+      background: #fafafa;
+    }
+
+    .slide-landing .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      animation: fadeDown 0.6s ease-out;
+    }
+
+    .slide-landing h2 {
+      font-size: 2rem;
+      color: #111;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-landing .subtitle {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    .form-container {
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      border: 1px solid #e5e5e5;
+      animation: fadeUp 0.6s ease-out 0.2s both;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      color: #333;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .form-group input {
+      flex: 1;
+      padding: 0.75rem;
+      background: #fff;
+      border: 1px solid #d5d5d5;
+      border-radius: 6px;
+      color: #111;
+      font-size: 1rem;
+    }
+
+    .form-group button {
+      padding: 0.75rem 1.5rem;
+      background: #111;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .optional-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      animation: fadeUp 0.6s ease-out 0.4s both;
+    }
+
+    .optional-fields .field label {
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    .optional-fields .field div {
+      padding: 0.6rem;
+      background: #fafafa;
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      color: #999;
+      font-size: 0.9rem;
+    }
+
+    .benefits {
+      text-align: center;
+      margin-top: 2rem;
+      color: #666;
+      font-size: 0.9rem;
+      animation: fadeUp 0.6s ease-out 0.6s both;
+    }
+
+    /* Slide 3: Processing */
+    .slide-processing {
+      background: #ffffff;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-processing h2 {
+      font-size: 2rem;
+      color: #111;
+      margin-bottom: 3rem;
+      animation: fade 0.6s ease-out;
+    }
+
+    .steps-container {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e5e5e5;
+      opacity: 0;
+      animation: fadeRight 0.6s ease-out both;
+    }
+
+    .step:nth-child(1) { animation-delay: 0.2s; }
+    .step:nth-child(2) { animation-delay: 0.4s; }
+    .step:nth-child(3) { animation-delay: 0.6s; }
+    .step:nth-child(4) { animation-delay: 0.8s; }
+
+    .step.done {
+      background: #f0fdf4;
+      border-color: #22c55e;
+    }
+
+    .step.active {
+      border-color: #3b82f6;
+    }
+
+    .step-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      font-size: 0.8rem;
+    }
+
+    .step.done .step-icon {
+      background: #22c55e;
+      color: #fff;
+    }
+
+    .step.active .step-icon {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .step.pending .step-icon {
+      background: #e5e5e5;
+      color: #999;
+    }
+
+    .step-text {
+      font-size: 1.1rem;
+    }
+
+    .step.done .step-text {
+      color: #22c55e;
+    }
+
+    .step.active .step-text {
+      color: #3b82f6;
+      font-weight: 500;
+    }
+
+    .step.pending .step-text {
+      color: #666;
+    }
+
+    .step-status {
+      margin-left: auto;
+      font-size: 0.9rem;
+    }
+
+    .step.done .step-status {
+      color: #22c55e;
+    }
+
+    .step.active .step-status {
+      color: #3b82f6;
+    }
+
+    .time-estimate {
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e5e5e5;
+      animation: fadeUp 0.6s ease-out 1s both;
+    }
+
+    .time-estimate span:first-child {
+      color: #666;
+    }
+
+    .time-estimate span:last-child {
+      color: #3b82f6;
+      font-weight: 600;
+    }
+
+    /* Slide 4: Results */
+    .slide-results {
+      background: #fafafa;
+    }
+
+    .slide-results .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      animation: fadeDown 0.6s ease-out;
+    }
+
+    .slide-results h2 {
+      font-size: 2rem;
+      color: #111;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-results .subtitle {
+      color: #666;
+    }
+
+    .score-circle {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+      animation: grow 0.6s ease-out 0.2s both;
+    }
+
+    .score-circle-outer {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: conic-gradient(#22c55e 0deg 252deg, #e5e5e5 252deg 360deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .score-circle-inner {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-value {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #22c55e;
+    }
+
+    .score-label {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+      animation: fadeUp 0.6s ease-out 0.4s both;
+    }
+
+    .metric-card {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border: 1px solid #e5e5e5;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .metric-value.green { color: #22c55e; }
+    .metric-value.amber { color: #f59e0b; }
+
+    .metric-label {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+
+    .view-report-btn {
+      text-align: center;
+      margin-top: 2rem;
+      animation: fadeUp 0.6s ease-out 0.6s both;
+    }
+
+    .view-report-btn button {
+      padding: 1rem 2rem;
+      background: #111;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Slide 5: Findings */
+    .slide-findings {
+      background: #ffffff;
+    }
+
+    .slide-findings h2 {
+      font-size: 2rem;
+      color: #111;
+      margin-bottom: 2rem;
+      text-align: center;
+      animation: fadeDown 0.6s ease-out;
+    }
+
+    .findings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .finding-card {
+      padding: 1.5rem;
+      border-radius: 8px;
+      animation: fadeRight 0.6s ease-out 0.2s both;
+    }
+
+    .finding-card.strengths {
+      background: #fff;
+      border: 2px solid #22c55e;
+    }
+
+    .finding-card.improvements {
+      background: #fffbeb;
+      border: 2px solid #f59e0b;
+      animation: fadeLeft 0.6s ease-out 0.2s both;
+    }
+
+    .finding-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .finding-icon {
+      font-size: 1.5rem;
+      margin-right: 0.75rem;
+    }
+
+    .finding-card.strengths .finding-icon {
+      color: #22c55e;
+    }
+
+    .finding-card.improvements .finding-icon {
+      color: #d97706;
+    }
+
+    .finding-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .finding-card.strengths .finding-title {
+      color: #22c55e;
+    }
+
+    .finding-card.improvements .finding-title {
+      color: #d97706;
+    }
+
+    .finding-list {
+      color: #333;
+      padding-left: 1.5rem;
+      line-height: 1.8;
+    }
+
+    .recommendation-box {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e5e5e5;
+      max-width: 700px;
+      margin: 2rem auto 0;
+      animation: fadeUp 0.6s ease-out 0.4s both;
+    }
+
+    .recommendation-box p {
+      color: #111;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .recommendation-box button {
+      padding: 0.75rem 1.5rem;
+      background: #111;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Slide 6: CTA */
+    .slide-cta {
+      background: #ffffff;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem;
+    }
+
+    .slide-cta h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 1rem;
+      animation: fadeUp 0.6s ease-out;
+    }
+
+    .slide-cta p {
+      font-size: 1.3rem;
+      color: #666;
+      margin-bottom: 2rem;
+      max-width: 600px;
+      animation: fadeUp 0.6s ease-out 0.2s both;
+    }
+
+    .slide-cta .cta-button {
+      padding: 1.25rem 2rem;
+      background: #111;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2rem;
+      animation: grow 0.6s ease-out 0.4s both;
+    }
+
+    .slide-cta .benefits-row {
+      display: flex;
+      gap: 2rem;
+      color: #666;
+      font-size: 0.95rem;
+      animation: fadeUp 0.6s ease-out 0.6s both;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      background: #111;
+      transition: width 0.3s ease;
+      z-index: 100;
+    }
+
+    /* Animations */
+    @keyframes fade {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeRight {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeLeft {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes grow {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="presentation">
+    <!-- Slide 1: Title -->
+    <div class="slide slide-title active" data-slide="0">
+      <div class="icon">🔍</div>
+      <h1>See How AI Engines<br>Read Your Website</h1>
+      <p>Free audit in 60 seconds. No signup required.</p>
+      <div class="cta">Start Your Free Audit →</div>
+    </div>
+
+    <!-- Slide 2: Landing Page -->
+    <div class="slide slide-landing" data-slide="1">
+      <div class="header">
+        <h2>Your Website, Analyzed by AI</h2>
+        <p class="subtitle">Enter your URL and get instant insights</p>
+      </div>
+      <div class="form-container">
+        <div class="form-group">
+          <label>Your website URL *</label>
+          <div class="input-row">
+            <input type="text" value="https://example.com" readonly>
+            <button>Run Audit</button>
+          </div>
+        </div>
+        <div class="optional-fields">
+          <div class="field">
+            <label>Organization Name</label>
+            <div>Optional</div>
+          </div>
+          <div class="field">
+            <label>Business Type</label>
+            <div>Select...</div>
+          </div>
+        </div>
+      </div>
+      <div class="benefits">
+        ✓ Free forever &nbsp; ✓ No signup &nbsp; ✓ Results in 60 seconds
+      </div>
+    </div>
+
+    <!-- Slide 3: Processing -->
+    <div class="slide slide-processing" data-slide="2">
+      <h2>Analyzing Your Website...</h2>
+      <div class="steps-container">
+        <div class="step done">
+          <div class="step-icon">✓</div>
+          <span class="step-text">Crawling pages</span>
+          <span class="step-status">Complete</span>
+        </div>
+        <div class="step active">
+          <div class="step-icon">2</div>
+          <span class="step-text">Checking SEO structure</span>
+          <span class="step-status">In progress...</span>
+        </div>
+        <div class="step pending">
+          <div class="step-icon">3</div>
+          <span class="step-text">Analyzing AI visibility</span>
+        </div>
+        <div class="step pending">
+          <div class="step-icon">4</div>
+          <span class="step-text">Generating report</span>
+        </div>
+      </div>
+      <div class="time-estimate">
+        <span>Estimated time: </span>
+        <span>~45 seconds</span>
+      </div>
+    </div>
+
+    <!-- Slide 4: Results -->
+    <div class="slide slide-results" data-slide="3">
+      <div class="header">
+        <h2>Your Audit Results</h2>
+        <p class="subtitle">example.com • Generated just now</p>
+      </div>
+      <div class="score-circle">
+        <div class="score-circle-outer">
+          <div class="score-circle-inner">
+            <div class="score-value">70</div>
+            <div class="score-label">out of 100</div>
+          </div>
+        </div>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value green">75</div>
+          <div class="metric-label">SEO Score</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value amber">62</div>
+          <div class="metric-label">AI Visibility</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value green">88</div>
+          <div class="metric-label">Performance</div>
+        </div>
+      </div>
+      <div class="view-report-btn">
+        <button>View Full Report →</button>
+      </div>
+    </div>
+
+    <!-- Slide 5: Findings -->
+    <div class="slide slide-findings" data-slide="4">
+      <h2>Key Findings</h2>
+      <div class="findings-grid">
+        <div class="finding-card strengths">
+          <div class="finding-header">
+            <span class="finding-icon">✓</span>
+            <span class="finding-title">Strong Points</span>
+          </div>
+          <ul class="finding-list">
+            <li>Mobile-friendly design</li>
+            <li>Fast page load times</li>
+            <li>SSL certificate active</li>
+            <li>Clear site structure</li>
+          </ul>
+        </div>
+        <div class="finding-card improvements">
+          <div class="finding-header">
+            <span class="finding-icon">⚠</span>
+            <span class="finding-title">Improvements</span>
+          </div>
+          <ul class="finding-list">
+            <li>Add structured data markup</li>
+            <li>Optimize meta descriptions</li>
+            <li>Improve internal linking</li>
+            <li>Add FAQ schema</li>
+          </ul>
+        </div>
+      </div>
+      <div class="recommendation-box">
+        <p><strong>AI engines can better understand your site</strong> with these quick fixes</p>
+        <button>Get Detailed Recommendations</button>
+      </div>
+    </div>
+
+    <!-- Slide 6: CTA -->
+    <div class="slide slide-cta" data-slide="5">
+      <h1>Ready to See Your Score?</h1>
+      <p>Join thousands of website owners optimizing for AI search</p>
+      <div class="cta-button">Run Free Audit →</div>
+      <div class="benefits-row">
+        <span>✓ 100% Free</span>
+        <span>✓ No Credit Card</span>
+        <span>✓ Instant Results</span>
+        <span>✓ Actionable Insights</span>
+      </div>
+    </div>
+
+    <div class="progress-bar"></div>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.querySelector('.progress-bar');
+    let currentSlide = 0;
+    const slideDuration = 4000; // 4 seconds per slide
+    const totalSlides = slides.length;
+
+    function showSlide(index) {
+      slides.forEach(slide => slide.classList.remove('active'));
+      slides[index].classList.add('active');
+      
+      // Update progress bar
+      const progress = ((index + 1) / totalSlides) * 100;
+      progressBar.style.width = progress + '%';
+    }
+
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % totalSlides;
+      showSlide(currentSlide);
+    }
+
+    // Auto-advance slides
+    setInterval(nextSlide, slideDuration);
+
+    // Initialize
+    showSlide(0);
+  </script>
+</body>
+</html>

@@ -19,11 +19,17 @@ function packageRoot(metaUrl: string): string {
 }
 
 function findRepoRoot(): string {
-  // In Vercel, config is copied to apps/web/config during build
+  // In Vercel, config is copied to multiple locations during build
   if (process.env["VERCEL"]) {
-    const vercelAppsWebConfig = "/vercel/path0/apps/web/config/anonymous-eligibility.yaml";
-    if (existsSync(vercelAppsWebConfig)) {
-      return "/vercel/path0/apps/web";
+    const possiblePaths = [
+      "/vercel/path0/apps/web/config/anonymous-eligibility.yaml",
+      "/vercel/path0/.next/server/config/anonymous-eligibility.yaml",
+      "/vercel/path0/config/anonymous-eligibility.yaml",
+    ];
+    for (const configPath of possiblePaths) {
+      if (existsSync(configPath)) {
+        return dirname(dirname(configPath));
+      }
     }
   }
 

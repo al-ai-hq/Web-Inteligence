@@ -41,6 +41,9 @@ importers:
       '@wpi/audit-pipeline':
         specifier: workspace:*
         version: link:../../packages/audit-pipeline
+      '@wpi/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@wpi/connectors':
         specifier: workspace:*
         version: link:../../services/connectors

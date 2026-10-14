@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-10-07T14:09:07.324Z",
+  "model_id": "gemini-pro-vision",
+  "model_version": "gemini-1.5-pro-002",
+  "rubric_version": "0.1.0-draft",
+  "overall": {
+    "total_cases": 1,
+    "weighted_cohen_kappa": 1,
+    "exact_match_rate": 1,
+    "adjacent_match_rate": 1
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "entries": [
+    {
+      "url": "https://new-aeon.com/ar/privacy-policy",
+      "textByteLength": 75
+    },
+    {
+      "url": "https://new-aeon.com/ar/achievements",
+      "textByteLength": 75
+    },
+    {
+      "url": "https://new-aeon.com/ar",
+      "textByteLength": 75
+    },
+    {
+      "url": "https://new-aeon.com/en",
+      "textByteLength": 75
+    },
+    {
+      "url": "https://new-aeon.com/en/privacy-policy",
+      "textByteLength": 75
+    },
+    {
+      "url": "https://new-aeon.com/ar/training",
+      "textByteLength": 75
+    },
+    {
+      "url": "https://new-aeon.com/en/achievements",
+      "textByteLength": 75
+    },
+    {
+      "url": "https://new-aeon.com/en/training",
+      "textByteLength": 75
+    },
+    {
+      "url": "https://new-aeon.com/ar/careers",
+      "textByteLength": 75
+    },
+    {
+      "url": "https://new-aeon.com/en/careers",
+      "textByteLength": 75
+    }
+  ],
+  "threshold": 500
+}

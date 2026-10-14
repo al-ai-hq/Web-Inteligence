@@ -9,11 +9,52 @@ import {
   verifyEligibilityCookie,
 } from "@wpi/audit-pipeline";
 import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
+import { authorizeRecord } from "../../../services/access";
 import { getAuditServices } from "../../../services/container";
 
 export const runtime = "nodejs";
 
 const COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const NO_INDEX_HEADERS = {
+  "X-Robots-Tag": "noindex, nofollow",
+  "Cache-Control": "no-store",
+} as const;
+
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  const id = request.nextUrl.searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "missing_id" }, { status: 400 });
+  }
+
+  if (!UUID_PATTERN.test(id)) {
+    return NextResponse.json({ error: "not_found" }, { status: 404, headers: NO_INDEX_HEADERS });
+  }
+
+  const services = await getAuditServices();
+  const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const user = cookieValue
+    ? await services.auth.getSessionUser(hashToken(cookieValue))
+    : null;
+  const secret = request.nextUrl.searchParams.get("s") ?? undefined;
+  const outcome = await authorizeRecord(services.store, id, secret, user?.id ?? null);
+
+  if (outcome.kind === "authorized") {
+    return NextResponse.json(
+      {
+        id,
+        status: outcome.record.status,
+        failure_reason: outcome.record.failure_reason,
+        has_report: outcome.record.report !== null,
+      },
+      { headers: NO_INDEX_HEADERS },
+    );
+  }
+  if (outcome.kind === "deleted" || outcome.kind === "expired") {
+    return NextResponse.json({ error: outcome.kind }, { status: 410, headers: NO_INDEX_HEADERS });
+  }
+  return NextResponse.json({ error: "not_found" }, { status: 404, headers: NO_INDEX_HEADERS });
+}
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   let body: unknown;
@@ -39,8 +80,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "url_invalid" }, { status: 400 });
   }
 
-  // reCAPTCHA enforcement lands with the identity decision (docs/decisions.md D-011).
-
   const counts =
     verifyEligibilityCookie(
       request.cookies.get(ELIGIBILITY_COOKIE_NAME)?.value ?? "",
@@ -59,7 +98,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     userId: user?.id ?? null,
   });
 
-  // The pipeline records terminal failure in the store; swallow the rejection so it cannot kill the process.
   void services.dispatcher.dispatch(record.id).catch(() => undefined);
 
   const response = NextResponse.json(
@@ -78,4 +116,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     },
   );
   return response;
+}
+
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  const id = request.nextUrl.searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "missing_id" }, { status: 400 });
+  }
+
+  if (!UUID_PATTERN.test(id)) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
+  const services = await getAuditServices();
+  const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const user = cookieValue
+    ? await services.auth.getSessionUser(hashToken(cookieValue))
+    : null;
+  const secret = request.nextUrl.searchParams.get("s") ?? undefined;
+  const outcome = await authorizeRecord(services.store, id, secret, user?.id ?? null);
+
+  if (outcome.kind === "not_found") {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+  if (outcome.kind === "deleted" || outcome.kind === "expired") {
+    return NextResponse.json({ error: outcome.kind }, { status: 410 });
+  }
+  const deleted = await services.store.softDelete(id);
+  if (!deleted) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+  return new NextResponse(null, { status: 204 });
 }

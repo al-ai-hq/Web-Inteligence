@@ -1,0 +1,208 @@
+# Purpose: Rule definitions for the Internationalization, accessibility, and mobile UX category (weight 10)
+#          of Presence Readiness, including the agent-readiness rules AGT-001 and AGT-002.
+# Owner role: Methodology owner (SEO lead), with the Arabic editorial and accessibility owners
+# Source sections: v1-baseline §2.4, §6.3, §7, §7.6; 02-DETAILED-SPECIFICATION §6, §13;
+#                  08-REFERENCE-LIBRARY (hreflang, W3C dir attribute, WCAG 2.2, Agent-friendly websites,
+#                  WebMCP, Lighthouse agentic browsing)
+# Status: draft for review
+#
+# Field notes: see config/rules/crawlability.yaml.
+# AGT-* placement in this category is an ASSUMPTION: 02-DETAILED-SPECIFICATION §6 assigns them no
+# category; AGT-001 relies on semantic HTML and accessible names, like A11Y-002.
+# Do not claim full WCAG conformance from automated testing alone (v1-baseline §7.6).
+# Agent-readiness checks never submit forms, orders or bookings (02-DETAILED-SPECIFICATION §13).
+
+methodology_version: "0.1.0-draft"
+category: i18n_accessibility
+category_title: "Internationalization, accessibility, and mobile UX"
+category_weight: 10
+
+rules:
+  - id: I18N-001
+    title: "Document language"
+    category: i18n_accessibility
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "All audited pages."
+    standards:
+      pass: "Every audited page declares the correct BCP 47 language."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.6"]
+
+  - id: I18N-002
+    title: "Directionality"
+    category: i18n_accessibility
+    importance_weight: 4
+    scored: true
+    connected_tier_only: false
+    applicability: "RTL pages in the sample (for example Arabic); otherwise not_applicable."
+    standards:
+      pass: "RTL pages use correct document direction and mixed-direction handling."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference:
+      - "v1-baseline §7.6"
+      - "v1-baseline §2.4"
+      - "https://www.w3.org/International/questions/qa-html-dir"
+
+  - id: I18N-003
+    title: "hreflang"
+    category: i18n_accessibility
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "Sites with localized equivalents; otherwise not_applicable."
+    standards:
+      pass: "Localized equivalents use reciprocal valid annotations where applicable."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference:
+      - "v1-baseline §7.6"
+      - "https://developers.google.com/search/docs/specialty/international/localized-versions"
+
+  - id: I18N-004
+    title: "Localized metadata"
+    category: i18n_accessibility
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "All audited pages."
+    standards:
+      pass: "Titles, descriptions, headings, and structured data use the intended locale."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.6"]
+
+  - id: A11Y-001
+    title: "Semantic landmarks"
+    category: i18n_accessibility
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Sampled pages."
+    standards:
+      pass: "Main page regions use appropriate semantics."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.6", "https://www.w3.org/TR/WCAG22/"]
+
+  - id: A11Y-002
+    title: "Accessible names"
+    category: i18n_accessibility
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "Sampled pages."
+    standards:
+      pass: "Interactive controls have meaningful accessible names."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.6", "https://www.w3.org/TR/WCAG22/"]
+
+  - id: A11Y-003
+    title: "Keyboard/focus basics"
+    category: i18n_accessibility
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "Key flows on sampled pages."
+    standards:
+      pass: "Key flows are operable and visibly focused by keyboard."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.6", "https://www.w3.org/TR/WCAG22/"]
+
+  - id: A11Y-004
+    title: "Contrast and reflow sample"
+    category: i18n_accessibility
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Sampled pages."
+    standards:
+      pass: "Sampled pages meet baseline contrast and narrow-width reflow expectations."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.6", "https://www.w3.org/TR/WCAG22/"]
+
+  - id: MOB-001
+    title: "Mobile viewport and layout"
+    category: i18n_accessibility
+    importance_weight: 3
+    scored: true
+    connected_tier_only: false
+    applicability: "Sampled pages."
+    standards:
+      pass: "Pages declare viewport and avoid material horizontal overflow."
+      partial: "<DECIDE_AT_M0: partial standard; v1-baseline §7.6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: unchanged
+    source_reference: ["v1-baseline §7.6"]
+
+  - id: AGT-001
+    title: "Agent-operable forms and actions"
+    category: i18n_accessibility
+    importance_weight: 2
+    scored: true
+    connected_tier_only: false
+    applicability: "Sites with key forms or actions (booking, ordering, quote, enquiry); otherwise not_applicable."
+    standards:
+      pass: "Key forms and actions work through semantic HTML and accessible names, for assistive tech and browser agents."
+      partial: "<DECIDE_AT_M0: partial standard; 02-DETAILED-SPECIFICATION §6 gives the pass standard only>"
+      fail: "Neither the pass nor the partial standard is met."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: new
+    notes:
+      - "Never submit a form, order or booking during the check (02-DETAILED-SPECIFICATION §13)."
+    source_reference:
+      - "02-DETAILED-SPECIFICATION §6"
+      - "https://web.dev/articles/ai-agent-site-ux"
+
+  - id: AGT-002
+    title: "WebMCP and Lighthouse agentic checks"
+    category: i18n_accessibility
+    importance_weight: 0
+    scored: false
+    connected_tier_only: false
+    applicability: "Only for sites whose key tasks run through forms. Reported, unscored."
+    standards:
+      report: "Report WebMCP declarations and the Lighthouse agentic browsing result with the Chrome and Lighthouse version and date."
+    evaluation: deterministic
+    fidelity_label: computed
+    change: new
+    notes:
+      - "WebMCP is an origin trial from Chrome 149; Lighthouse's agentic browsing category is experimental and needs Chrome 150 (policy facts pf-webmcp-origin-trial and pf-lighthouse-agentic-browsing)."
+      - "Treat experimental agent protocols as versioned low-confidence capabilities (04-CLAUDE-CODE-BUILD-PROMPT §10)."
+    source_reference:
+      - "02-DETAILED-SPECIFICATION §6"
+      - "https://developer.chrome.com/docs/ai/webmcp"
+      - "https://developer.chrome.com/docs/lighthouse/agentic-browsing"

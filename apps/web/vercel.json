@@ -1,11 +1,6 @@
 {
-  "buildCommand": "cp -r ../../config config && next build",
+  "buildCommand": "cp -r ../../config config && next build && cp -r config .next/server/config",
   "outputDirectory": ".next",
   "installCommand": "pnpm install",
-  "framework": "nextjs",
-  "functions": {
-    "src/app/**/*": {
-      "includeFiles": "config/**"
-    }
-  }
+  "framework": "nextjs"
 }

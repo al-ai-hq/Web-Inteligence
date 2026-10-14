@@ -1,0 +1,20 @@
+{
+  "url": "https://new-aeon.com/en/privacy-policy",
+  "finalUrl": "https://new-aeon.com/en/privacy-policy",
+  "statusCode": 404,
+  "contentHash": "ce7127c38e30e92a021ed2bd09287713c6a923db9ffdb43f126e8965d777fbf0",
+  "redirectChain": [
+    "https://new-aeon.com/en/privacy-policy"
+  ],
+  "contentType": "text/html; charset=us-ascii",
+  "headings": [
+    {
+      "level": 2,
+      "text": "Not Found"
+    }
+  ],
+  "links": [],
+  "structuredData": [],
+  "textByteLength": 75,
+  "fetchedAt": "2026-10-13T22:06:16.535Z"
+}

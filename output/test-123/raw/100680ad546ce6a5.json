@@ -1,0 +1,20 @@
+{
+  "url": "https://example.com",
+  "finalUrl": "https://example.com",
+  "statusCode": 403,
+  "contentHash": "eed0b81a2fbdd1c5a9f80705885fc5bbf346ba428a79ff7a13ec8491c6a8e96c",
+  "redirectChain": [
+    "https://example.com"
+  ],
+  "contentType": "text/html",
+  "headings": [
+    {
+      "level": 1,
+      "text": "403 Forbidden"
+    }
+  ],
+  "links": [],
+  "structuredData": [],
+  "textByteLength": 42,
+  "fetchedAt": "2026-10-13T21:36:49.271Z"
+}
