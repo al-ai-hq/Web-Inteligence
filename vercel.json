@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cp -r config apps/web/config && pnpm --filter web build",
+  "buildCommand": "cp -r ../config config && pnpm --filter web build",
   "outputDirectory": ".next",
   "installCommand": "pnpm install",
   "framework": "nextjs"
