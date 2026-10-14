@@ -2,5 +2,10 @@
   "buildCommand": "cp -r ../../config config && next build",
   "outputDirectory": ".next",
   "installCommand": "pnpm install",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "functions": {
+    "src/app/**/*": {
+      "includeFiles": "config/**"
+    }
+  }
 }
