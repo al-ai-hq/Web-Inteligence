@@ -2,5 +2,10 @@
   "buildCommand": "pnpm --filter web build",
   "outputDirectory": ".next",
   "installCommand": "pnpm install",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "functions": {
+    "apps/web/src/app/**/*.ts": {
+      "includeFiles": "config/**"
+    }
+  }
 }
