@@ -322,13 +322,13 @@ async function buildServices(): Promise<AuditServices> {
       validateUrl: async (url) => localValidateUrl(url),
       outputDir,
       geminiApiKey: process.env["GEMINI_API_KEY"],
-      cookieSecret: cookieSecret ?? "demo-cookie-secret",
-      auth: new InMemoryAuthService(),
-      rateLimiter: new RateLimiter(),
     };
     return {
       ...fields,
-      dispatcher: new InProcessDispatcher(store),
+      cookieSecret: cookieSecret ?? "demo-cookie-secret",
+      dispatcher: new StubDispatcher(store),
+      auth: new InMemoryAuthService(),
+      rateLimiter: new RateLimiter(),
     };
   }
   
