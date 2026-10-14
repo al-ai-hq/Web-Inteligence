@@ -10,7 +10,9 @@
     "sign_in": "Sign in",
     "sign_up": "Sign up",
     "sign_out": "Sign out",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu"
   },
   "landing": {
     "hero_title": "See how AI engines and search engines read your site",

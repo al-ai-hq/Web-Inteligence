@@ -9,6 +9,7 @@ import { Link } from "../../i18n/navigation";
 import { routing } from "../../i18n/routing";
 import { getAuditServices } from "../../services/container";
 import { SignOutButton } from "./_components/sign-out-button";
+import { MobileNav } from "./_components/mobile-nav";
 import "../../app/globals.css";
 
 export const dynamic = "force-dynamic";
@@ -75,7 +76,7 @@ export default async function LocaleLayout({
                 </svg>
                 {t("brand")}
               </Link>
-              <div className="flex items-center gap-1 text-sm">
+              <div className="hidden items-center gap-1 text-sm md:flex">
                 <Link href="/methodology" className="rounded-lg px-3 py-2 text-surface-700 transition-colors hover:bg-surface-100 hover:text-surface-900">
                   {t("methodology")}
                 </Link>
@@ -109,6 +110,7 @@ export default async function LocaleLayout({
               </div>
             </nav>
           </header>
+          <MobileNav user={user} />
           <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
         </NextIntlClientProvider>
       </body>
