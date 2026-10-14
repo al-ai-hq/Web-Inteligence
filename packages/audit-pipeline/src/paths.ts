@@ -19,36 +19,22 @@ function packageRoot(metaUrl: string): string {
 }
 
 function findRepoRoot(): string {
-  // In serverless environments, use environment-aware detection
-  if (process.env["VERCEL"]) {
-    // Vercel deploys to /vercel/path0
-    const vercelRoot = "/vercel/path0";
-    if (existsSync(vercelRoot)) {
-      return vercelRoot;
-    }
-    // Fallback to current working directory
-    return process.cwd();
-  }
-
-  // For local development, navigate from package root
-  const pkgRoot = packageRoot(import.meta.url);
-  const candidate = join(pkgRoot, "..", "..");
-
-  // Verify this is actually the repo root by checking for known markers
-  if (existsSync(join(candidate, "config", "anonymous-eligibility.yaml"))) {
-    return candidate;
-  }
-
-  // If marker not found, search upward from package root for repo markers
-  let dir = pkgRoot;
+  // Search upward from the current file location for the config directory marker
+  let dir = dirname(fileURLToPath(import.meta.url));
   for (;;) {
+    // Check if this directory contains the config marker
     if (existsSync(join(dir, "config", "anonymous-eligibility.yaml"))) {
       return dir;
     }
     const parent = dirname(dir);
     if (parent === dir) {
-      // Fallback to original calculation
-      return candidate;
+      // Reached filesystem root without finding marker
+      // Fallback: in Vercel, try /vercel/path0
+      if (process.env["VERCEL"] && existsSync("/vercel/path0/config/anonymous-eligibility.yaml")) {
+        return "/vercel/path0";
+      }
+      // Last resort: return current working directory
+      return process.cwd();
     }
     dir = parent;
   }
