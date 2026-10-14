@@ -10,10 +10,18 @@
 
 # next.js
 /.next/
+**/.next/
 /out/
+**/out/
 
 # production
 /build
+**/dist/
+
+# test / ci artifacts
+/coverage
+**/coverage/
+**/output/
 
 # misc
 .DS_Store
@@ -30,9 +38,11 @@ yarn-error.log*
 
 # vercel
 .vercel
+**/.vercel
 
 # typescript
 *.tsbuildinfo
+**/*.tsbuildinfo
 next-env.d.ts
 
 # fly.io
