@@ -34,7 +34,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
     let response: Response;
     try {
-      response = await fetch(`/api/auth/${mode}`, {
+      response = await fetch(`/api/auth?action=${mode}`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body),

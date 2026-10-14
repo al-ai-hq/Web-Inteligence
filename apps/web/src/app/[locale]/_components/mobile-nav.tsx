@@ -72,7 +72,7 @@ export function MobileNav({ user }: MobileNavProps) {
                   type="button"
                   onClick={() => {
                     void (async () => {
-                      await fetch("/api/auth/logout", { method: "POST" });
+                      await fetch("/api/auth?action=logout", { method: "POST" });
                       window.location.href = `/${locale}`;
                     })();
                     setOpen(false);

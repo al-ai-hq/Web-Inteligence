@@ -9,7 +9,7 @@ export function SignOutButton() {
   const router = useRouter();
 
   async function handleSignOut() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch("/api/auth?action=logout", { method: "POST" });
     router.push(`/${locale}`);
     router.refresh();
   }

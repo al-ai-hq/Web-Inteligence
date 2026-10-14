@@ -2,9 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { InMemoryAuditStore, TIER_SCOPES } from "@wpi/audit-pipeline";
 import { InMemoryAuthService, RateLimiter } from "@wpi/auth";
 import { NextRequest } from "next/server";
-import { POST as signupPOST } from "../app/api/auth/signup/route";
-import { POST as loginPOST } from "../app/api/auth/login/route";
-import { POST as logoutPOST } from "../app/api/auth/logout/route";
+import { POST } from "../app/api/auth/route";
 import { setAuditServicesForTests, type AuditServices } from "../services/container";
 
 function makeServices(): AuditServices {
@@ -42,11 +40,11 @@ afterEach(() => {
   setAuditServicesForTests(null);
 });
 
-describe("POST /api/auth/signup", () => {
+describe("POST /api/auth?action=signup", () => {
   it("creates a user and sets session cookie", async () => {
     setAuditServicesForTests(makeServices());
-    const response = await signupPOST(
-      authRequest("http://localhost:3000/api/auth/signup", {
+    const response = await POST(
+      authRequest("http://localhost:3000/api/auth?action=signup", {
         email: "new@example.com",
         password: "password123",
         confirm_password: "password123",
@@ -63,17 +61,17 @@ describe("POST /api/auth/signup", () => {
       password: "password123",
       confirm_password: "password123",
     };
-    await signupPOST(authRequest("http://localhost:3000/api/auth/signup", body));
-    const response = await signupPOST(
-      authRequest("http://localhost:3000/api/auth/signup", body),
+    await POST(authRequest("http://localhost:3000/api/auth?action=signup", body));
+    const response = await POST(
+      authRequest("http://localhost:3000/api/auth?action=signup", body),
     );
     expect(response.status).toBe(409);
   });
 
   it("rejects short password with 400", async () => {
     setAuditServicesForTests(makeServices());
-    const response = await signupPOST(
-      authRequest("http://localhost:3000/api/auth/signup", {
+    const response = await POST(
+      authRequest("http://localhost:3000/api/auth?action=signup", {
         email: "short@example.com",
         password: "short",
         confirm_password: "short",
@@ -83,14 +81,14 @@ describe("POST /api/auth/signup", () => {
   });
 });
 
-describe("POST /api/auth/login", () => {
+describe("POST /api/auth?action=login", () => {
   it("returns 200 and sets cookie on success", async () => {
     const services = makeServices();
     setAuditServicesForTests(services);
     await services.auth.createUser("login@example.com", "password123");
 
-    const response = await loginPOST(
-      authRequest("http://localhost:3000/api/auth/login", {
+    const response = await POST(
+      authRequest("http://localhost:3000/api/auth?action=login", {
         email: "login@example.com",
         password: "password123",
       }),
@@ -104,8 +102,8 @@ describe("POST /api/auth/login", () => {
     setAuditServicesForTests(services);
     await services.auth.createUser("wrong@example.com", "password123");
 
-    const response = await loginPOST(
-      authRequest("http://localhost:3000/api/auth/login", {
+    const response = await POST(
+      authRequest("http://localhost:3000/api/auth?action=login", {
         email: "wrong@example.com",
         password: "wrong-password",
       }),
@@ -119,16 +117,16 @@ describe("POST /api/auth/login", () => {
     await services.auth.createUser("rated@example.com", "password123");
 
     for (let i = 0; i < 10; i++) {
-      await loginPOST(
-        authRequest("http://localhost:3000/api/auth/login", {
+      await POST(
+        authRequest("http://localhost:3000/api/auth?action=login", {
           email: "rated@example.com",
           password: "wrong",
         }),
       );
     }
 
-    const response = await loginPOST(
-      authRequest("http://localhost:3000/api/auth/login", {
+    const response = await POST(
+      authRequest("http://localhost:3000/api/auth?action=login", {
         email: "rated@example.com",
         password: "wrong",
       }),
@@ -137,18 +135,18 @@ describe("POST /api/auth/login", () => {
   });
 });
 
-describe("POST /api/auth/logout", () => {
+describe("POST /api/auth?action=logout", () => {
   it("clears the session cookie", async () => {
     const services = makeServices();
     setAuditServicesForTests(services);
     const user = await services.auth.createUser("out@example.com", "password123");
     const session = await services.auth.createSession(user.id);
 
-    const request = new NextRequest("http://localhost:3000/api/auth/logout", {
+    const request = new NextRequest("http://localhost:3000/api/auth?action=logout", {
       method: "POST",
       headers: { cookie: `wpi_session=${session.token}` },
     });
-    const response = await logoutPOST(request);
+    const response = await POST(request);
     expect(response.status).toBe(200);
     const setCookie = response.headers.get("set-cookie") ?? "";
     expect(setCookie).toContain("wpi_session=");
