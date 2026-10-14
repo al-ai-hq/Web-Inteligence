@@ -286,7 +286,7 @@ async function buildServices(): Promise<AuditServices> {
 
   if (process.env["NODE_ENV"] === "production" && dispatchMode === "stub") {
     throw new Error(
-      "Refusing to start with WPI_DISPATCH_MODE=stub in production. Set WPI_DISPATCH_MODE=in_process.",
+      "Refusing to start with WPI_DISPATCH_MODE=stub in production. Set WPI_DISPATCH_MODE=in_process or WPI_DISPATCH_MODE=memory.",
     );
   }
 
@@ -312,9 +312,29 @@ async function buildServices(): Promise<AuditServices> {
 
   const databaseUrl = process.env["WPI_DATABASE_URL"];
   const cookieSecret = process.env["AUDIT_COOKIE_SECRET"];
+  
+  // Support in-memory mode for demos without database
+  if (dispatchMode === "memory") {
+    const store = new InMemoryAuditStore();
+    const fields: PipelineFields = {
+      store,
+      tierScopes: loadTierScopes(join(REPO_ROOT, "config", "anonymous-eligibility.yaml")),
+      validateUrl: async (url) => localValidateUrl(url),
+      outputDir,
+      geminiApiKey: process.env["GEMINI_API_KEY"],
+      cookieSecret: cookieSecret ?? "demo-cookie-secret",
+      auth: new InMemoryAuthService(),
+      rateLimiter: new RateLimiter(),
+    };
+    return {
+      ...fields,
+      dispatcher: new InProcessDispatcher(store),
+    };
+  }
+  
   if (databaseUrl === undefined || cookieSecret === undefined) {
     throw new Error(
-      "WPI_DATABASE_URL and AUDIT_COOKIE_SECRET are required when WPI_DISPATCH_MODE is not 'stub'",
+      "WPI_DATABASE_URL and AUDIT_COOKIE_SECRET are required when WPI_DISPATCH_MODE is not 'stub' or 'memory'",
     );
   }
 
