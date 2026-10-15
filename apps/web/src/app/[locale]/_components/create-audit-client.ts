@@ -4,6 +4,7 @@ export interface CreateAuditPayload {
   url: string;
   locale: "en" | "ar";
   context: AuditContext;
+  turnstileToken?: string;
 }
 
 export interface CreateAuditSuccess {
@@ -13,7 +14,7 @@ export interface CreateAuditSuccess {
   redirect_url: string | null;
 }
 
-export type CreateAuditError = "url_invalid" | "rate_limited" | "generic";
+export type CreateAuditError = "url_invalid" | "rate_limited" | "turnstile_required" | "generic";
 
 export type CreateAuditResult =
   | { ok: true; data: CreateAuditSuccess }
@@ -25,6 +26,9 @@ export function mapCreateAuditError(
 ): CreateAuditError {
   if (body.error === "url_invalid") {
     return "url_invalid";
+  }
+  if (body.error === "turnstile_required") {
+    return "turnstile_required";
   }
   if (status === 429) {
     return "rate_limited";

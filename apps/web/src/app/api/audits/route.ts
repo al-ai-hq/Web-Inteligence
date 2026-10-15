@@ -9,7 +9,9 @@ import {
   verifyEligibilityCookie,
 } from "@wpi/audit-pipeline";
 import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
+import { verifyTurnstileToken } from "@wpi/rate-limiter";
 import { authorizeRecord } from "../../../services/access";
+import { getClientIp } from "../../../services/client-ip";
 import { getAuditServices } from "../../../services/container";
 
 export const runtime = "nodejs";
@@ -20,6 +22,14 @@ const NO_INDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow",
   "Cache-Control": "no-store",
 } as const;
+
+function rateLimitHeaders(result: { limit: number; remaining: number; resetAt: Date }): Record<string, string> {
+  return {
+    "X-RateLimit-Limit": String(result.limit),
+    "X-RateLimit-Remaining": String(Math.max(0, result.remaining)),
+    "X-RateLimit-Reset": String(Math.floor(result.resetAt.getTime() / 1000)),
+  };
+}
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const id = request.nextUrl.searchParams.get("id");
@@ -70,14 +80,57 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const services = await getAuditServices();
+  const ip = getClientIp(request);
+
+  const suspicious = await services.rateLimiter.isSuspicious(ip);
+  if (suspicious) {
+    const token = (body as { turnstileToken?: string }).turnstileToken;
+    if (!token || !(await verifyTurnstileToken(token, ip))) {
+      const result = await services.rateLimiter.checkAnonymous(ip);
+      return NextResponse.json(
+        { error: "turnstile_required" },
+        {
+          status: 400,
+          headers: rateLimitHeaders(result),
+        },
+      );
+    }
+  }
+
   const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const sessionTokenHash = cookieValue ? hashToken(cookieValue) : "";
   const user = cookieValue
     ? await services.auth.getSessionUser(sessionTokenHash)
     : null;
+
+  const rateLimitResult = user
+    ? await services.rateLimiter.checkUser(user.id, user.id)
+    : await services.rateLimiter.checkAnonymous(ip);
+
+  if (!rateLimitResult.allowed) {
+    const retryAfter = Math.max(
+      0,
+      Math.ceil((rateLimitResult.resetAt.getTime() - Date.now()) / 1000),
+    );
+    return NextResponse.json(
+      { error: "rate_limited" },
+      {
+        status: 429,
+        headers: {
+          ...rateLimitHeaders(rateLimitResult),
+          "Retry-After": String(retryAfter),
+        },
+      },
+    );
+  }
+
   const urlCheck = await services.validateUrl(parsed.data.url);
   if (!urlCheck.ok) {
-    return NextResponse.json({ error: "url_invalid" }, { status: 400 });
+    await services.rateLimiter.recordFailure(ip);
+    return NextResponse.json(
+      { error: "url_invalid" },
+      { status: 400, headers: rateLimitHeaders(rateLimitResult) },
+    );
   }
 
   const counts =
@@ -102,7 +155,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const response = NextResponse.json(
     { id: record.id, secret, status_url: `/${parsed.data.locale}/audit/${record.id}`, redirect_url: user ? `/${parsed.data.locale}/dashboard` : null },
-    { status: 201 },
+    { status: 201, headers: rateLimitHeaders(rateLimitResult) },
   );
   response.cookies.set(
     ELIGIBILITY_COOKIE_NAME,
