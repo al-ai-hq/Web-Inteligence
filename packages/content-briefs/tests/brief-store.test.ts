@@ -3,12 +3,14 @@ import { Pool } from 'pg';
 import { PostgresBriefStore } from '../src/brief-store.js';
 import type { ContentBrief } from '../src/types.js';
 
-describe('PostgresBriefStore', () => {
+const DATABASE_URL = process.env['WPI_TEST_DATABASE_URL'];
+
+describe.skipIf(!DATABASE_URL)('PostgresBriefStore', () => {
   let pool: Pool;
   let store: PostgresBriefStore;
 
   beforeAll(async () => {
-    pool = new Pool({ connectionString: process.env['DATABASE_URL'] ?? 'postgresql://localhost:5432/wpi_test' });
+    pool = new Pool({ connectionString: DATABASE_URL });
     store = new PostgresBriefStore(pool);
     await pool.query('DELETE FROM content_briefs');
   });

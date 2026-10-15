@@ -9,8 +9,7 @@ import {
 } from "@wpi/audit-pipeline";
 import { InMemoryAuthService, RateLimiter } from "@wpi/auth";
 import { NextRequest } from "next/server";
-import { GET as statusGET } from "../app/api/audits/[id]/status/route";
-import { DELETE as auditDELETE } from "../app/api/audits/[id]/route";
+import { GET as statusGET, DELETE as auditDELETE } from "../app/api/audits/route";
 import { GET as exportGET, POST as exportPOST } from "../app/api/export/route";
 import { authorizeRecord } from "../services/access";
 import {
@@ -56,7 +55,8 @@ function makeServices(store: AuditStore): AuditServices {
 }
 
 function statusRequest(id: string, secret?: string): NextRequest {
-  const url = new URL(`http://localhost:3000/api/audits/${id}/status`);
+  const url = new URL("http://localhost:3000/api/audits");
+  url.searchParams.set("id", id);
   if (secret !== undefined) {
     url.searchParams.set("s", secret);
   }
@@ -64,7 +64,8 @@ function statusRequest(id: string, secret?: string): NextRequest {
 }
 
 function deleteRequest(id: string, secret?: string): NextRequest {
-  const url = new URL(`http://localhost:3000/api/audits/${id}`);
+  const url = new URL("http://localhost:3000/api/audits");
+  url.searchParams.set("id", id);
   if (secret !== undefined) {
     url.searchParams.set("s", secret);
   }
@@ -120,14 +121,12 @@ describe("authorizeRecord", () => {
   });
 });
 
-describe("GET /api/audits/[id]/status", () => {
+describe("GET /api/audits?id=...", () => {
   it("returns status for the correct secret with no-index headers", async () => {
     const { store, id, secret } = await seedStore();
     setAuditServicesForTests(makeServices(store));
 
-    const response = await statusGET(statusRequest(id, secret), {
-      params: Promise.resolve({ id }),
-    });
+    const response = await statusGET(statusRequest(id, secret));
 
     expect(response.status).toBe(200);
     const body = (await response.json()) as {
@@ -147,18 +146,14 @@ describe("GET /api/audits/[id]/status", () => {
     const { store } = await seedStore();
     setAuditServicesForTests(makeServices(store));
     const unknownId = randomUUID();
-    const response = await statusGET(statusRequest(unknownId, "whatever"), {
-      params: Promise.resolve({ id: unknownId }),
-    });
+    const response = await statusGET(statusRequest(unknownId, "whatever"));
     expect(response.status).toBe(404);
   });
 
   it("returns 404 for a wrong secret", async () => {
     const { store, id } = await seedStore();
     setAuditServicesForTests(makeServices(store));
-    const response = await statusGET(statusRequest(id, "wrong-secret"), {
-      params: Promise.resolve({ id }),
-    });
+    const response = await statusGET(statusRequest(id, "wrong-secret"));
     expect(response.status).toBe(404);
   });
 });
@@ -167,9 +162,7 @@ describe("DELETE /api/audits/[id]", () => {
   it("returns 404 for a wrong secret", async () => {
     const { store, id } = await seedStore();
     setAuditServicesForTests(makeServices(store));
-    const response = await auditDELETE(deleteRequest(id, "wrong-secret"), {
-      params: Promise.resolve({ id }),
-    });
+    const response = await auditDELETE(deleteRequest(id, "wrong-secret"));
     expect(response.status).toBe(404);
   });
 
@@ -177,9 +170,7 @@ describe("DELETE /api/audits/[id]", () => {
     const { store, id, secret } = await seedStore();
     setAuditServicesForTests(makeServices(store));
 
-    const response = await auditDELETE(deleteRequest(id, secret), {
-      params: Promise.resolve({ id }),
-    });
+    const response = await auditDELETE(deleteRequest(id, secret));
 
     expect(response.status).toBe(204);
     const raw = await store.getRaw(id);
