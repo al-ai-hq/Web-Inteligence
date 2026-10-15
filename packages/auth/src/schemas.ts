@@ -21,6 +21,7 @@ export const loginSchema = z.object({
 
 export const forgotPasswordSchema = z.object({
   email: emailSchema,
+  locale: z.enum(["en", "ar"]).optional(),
 });
 
 export const resetPasswordSchema = z.object({

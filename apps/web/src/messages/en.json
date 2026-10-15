@@ -359,6 +359,7 @@
     "reset_password_button": "Reset password",
     "forgot_password_link": "Forgot password?",
     "back_to_login": "Back to login",
+    "forgot_password_sent": "Check your email for a reset link.",
     "reset_success": "Your password has been updated. Sign in to continue.",
     "error_invalid_input": "Please check your details and try again.",
     "error_email_taken": "An account with this email already exists.",
@@ -366,8 +367,7 @@
     "error_rate_limited": "Too many attempts. Please try again later.",
     "error_generic": "Something went wrong. Please try again.",
     "error_password_mismatch": "Passwords do not match.",
-    "error_invalid_token": "This reset link is invalid or has expired.",
-    "error_password_too_short": "Password must be at least 8 characters."
+    "error_invalid_token": "This reset link is invalid or has expired."
   },
   "dashboard": {
     "title": "Your audits",

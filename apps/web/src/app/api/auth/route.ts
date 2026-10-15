@@ -7,6 +7,7 @@ import {
   SESSION_COOKIE_NAME,
   sessionCookieOptions,
 } from "@wpi/auth";
+import { getClientIp } from "../../../services/client-ip";
 import { getAuditServices } from "../../../services/container";
 
 export const runtime = "nodejs";
@@ -39,9 +40,15 @@ async function handleLogin(request: NextRequest): Promise<NextResponse> {
   }
 
   const services = await getAuditServices();
+  const ip = getClientIp(request);
+  const limit = await services.rateLimiter.checkAnonymous(ip);
+  if (!limit.allowed) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
 
   const user = await services.auth.verifyCredentials(parsed.data.email, parsed.data.password);
   if (!user) {
+    await services.rateLimiter.recordFailure(ip);
     return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
   }
 
@@ -66,6 +73,11 @@ async function handleSignup(request: NextRequest): Promise<NextResponse> {
   }
 
   const services = await getAuditServices();
+  const ip = getClientIp(request);
+  const limit = await services.rateLimiter.checkAnonymous(ip);
+  if (!limit.allowed) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
 
   try {
     const user = await services.auth.createUser(parsed.data.email, parsed.data.password);

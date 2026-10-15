@@ -11,10 +11,11 @@ export function ForgotPasswordForm() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) return;
-    const email = String(new FormData(event.currentTarget).get("email") ?? "");
+    const formData = new FormData(event.currentTarget);
+    const email = String((formData.get("email") as string | null) ?? "");
     setSubmitting(true);
     setError(null);
 
@@ -22,7 +23,7 @@ export function ForgotPasswordForm() {
       const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, locale }),
       });
       if (!response.ok) {
         const body = (await response.json().catch(() => null)) as { error?: string } | null;
@@ -44,7 +45,9 @@ export function ForgotPasswordForm() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center py-16">
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(event) => {
+          void handleSubmit(event);
+        }}
         className="mx-auto w-full max-w-md space-y-5 rounded-2xl border border-surface-200 bg-white p-6 shadow-lg shadow-surface-200/50 sm:p-8"
       >
         <div className="space-y-1">
@@ -54,7 +57,7 @@ export function ForgotPasswordForm() {
         <p className="text-sm text-surface-700">{t("forgot_password_body")}</p>
         {sent ? (
           <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            {t("reset_success")}
+            {t("forgot_password_sent")}
           </div>
         ) : (
           <>
@@ -86,7 +89,10 @@ export function ForgotPasswordForm() {
           </>
         )}
         <p className="text-center text-sm text-surface-700">
-          <Link href={`/${locale}/login`} className="font-medium text-brand-600 hover:text-brand-700">
+          <Link
+            href={`/${locale}/login`}
+            className="font-medium text-brand-600 hover:text-brand-700"
+          >
             {t("back_to_login")}
           </Link>
         </p>

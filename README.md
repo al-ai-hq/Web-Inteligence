@@ -63,8 +63,12 @@ Listed with owners in `docs/open-items.md`. The most important:
 pnpm install
 createdb wpi_dev
 createdb wpi_test
+cp apps/web/.env.local.example apps/web/.env.local
+# Edit apps/web/.env.local and fill in the real values.
 DATABASE_URL="postgres://localhost:5432/wpi_dev" pnpm --filter @wpi/audit-pipeline exec wpi-migrate
 ```
+
+> **Security note:** `apps/web/.env.local` must never be committed. If this repository ever contained a tracked `.env.local` with real credentials (Google OAuth client secret, cookie secret, or database password), those credentials must be rotated in the relevant provider consoles before launch.
 
 ### Environment variables (apps/web)
 

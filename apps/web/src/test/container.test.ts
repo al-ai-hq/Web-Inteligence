@@ -1,12 +1,16 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { InMemoryAuditStore } from "@wpi/audit-pipeline";
 import { StubEmailService } from "@wpi/email";
-import {
-  getAuditServices,
-  setAuditServicesForTests,
-} from "../services/container";
+import { getAuditServices, setAuditServicesForTests } from "../services/container";
 
-const ENV_KEYS = ["WPI_DISPATCH_MODE", "AUDIT_COOKIE_SECRET", "WPI_DATABASE_URL"] as const;
+const ENV_KEYS = [
+  "WPI_DISPATCH_MODE",
+  "AUDIT_COOKIE_SECRET",
+  "WPI_DATABASE_URL",
+  "DATABASE_URL",
+  "COOKIE_SECRET",
+  "ENCRYPTION_KEY",
+] as const;
 
 afterEach(() => {
   setAuditServicesForTests(null);

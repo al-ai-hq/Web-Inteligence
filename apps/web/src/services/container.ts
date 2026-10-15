@@ -299,6 +299,11 @@ function buildEmailService(): EmailService {
   if (apiKey && from) {
     return new ResendEmailService({ apiKey, from });
   }
+  if (process.env["NODE_ENV"] === "production") {
+    throw new Error(
+      "RESEND_API_KEY and EMAIL_FROM_ADDRESS are required in production. Set them as fly secrets or environment variables.",
+    );
+  }
   return new StubEmailService();
 }
 
@@ -347,9 +352,7 @@ async function buildServices(): Promise<AuditServices> {
     const store = new InMemoryAuditStore();
     const fields: PipelineFields = {
       store,
-      tierScopes: loadTierScopes(
-        join(REPO_ROOT, "config", "anonymous-eligibility.yaml"),
-      ),
+      tierScopes: loadTierScopes(join(REPO_ROOT, "config", "anonymous-eligibility.yaml")),
       validateUrl: async (url) => localValidateUrl(url),
       outputDir,
       geminiApiKey: process.env["GEMINI_API_KEY"],
@@ -378,15 +381,11 @@ async function buildServices(): Promise<AuditServices> {
 
   const fields: PipelineFields = {
     store,
-    tierScopes: loadTierScopes(
-      join(REPO_ROOT, "config", "anonymous-eligibility.yaml"),
-    ),
+    tierScopes: loadTierScopes(join(REPO_ROOT, "config", "anonymous-eligibility.yaml")),
     validateUrl: async (url) => {
       try {
         const result = await validateUrl(url);
-        return result.valid
-          ? { ok: true }
-          : { ok: false, reason_key: "failure.url_invalid" };
+        return result.valid ? { ok: true } : { ok: false, reason_key: "failure.url_invalid" };
       } catch {
         return { ok: false, reason_key: "failure.url_invalid" };
       }

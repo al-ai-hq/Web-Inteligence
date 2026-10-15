@@ -27,24 +27,12 @@ export class ResendEmailService implements EmailService {
 
     if (!response.ok) {
       const body = await response.text().catch(() => "unknown");
-      throw new EmailSendError(
-        `Resend returned ${response.status}: ${body}`,
-        { status: response.status },
-      );
+      throw new EmailSendError(`Resend returned ${response.status}: ${body}`, {
+        status: response.status,
+      });
     }
 
     const data = (await response.json()) as { id?: string };
     return { id: data.id };
   }
-}
-
-export function createResendEmailService(): ResendEmailService {
-  const apiKey = process.env["RESEND_API_KEY"];
-  const from = process.env["EMAIL_FROM_ADDRESS"];
-  if (!apiKey || !from) {
-    throw new Error(
-      "RESEND_API_KEY and EMAIL_FROM_ADDRESS environment variables are required",
-    );
-  }
-  return new ResendEmailService({ apiKey, from });
 }

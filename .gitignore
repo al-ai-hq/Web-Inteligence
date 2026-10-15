@@ -6,6 +6,8 @@ intent/_plans/*.tmp
 # Secrets
 .env
 .env.*
+.env*.local
+!.env.local.example
 secrets/
 *.pem
 *-key.json
@@ -18,6 +20,7 @@ dist/
 coverage/
 playwright-report/
 test-results/
+apps/web/output/
 .terraform/
 *.tfstate
 *.tfstate.*
