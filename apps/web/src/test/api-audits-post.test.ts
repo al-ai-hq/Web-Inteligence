@@ -105,6 +105,17 @@ describe("POST /api/audits", () => {
     expect(response.status).toBe(400);
   });
 
+  it("rejects unknown top-level fields with 400 url_invalid", async () => {
+    const store = new InMemoryAuditStore();
+    setAuditServicesForTests(makeServices(store));
+
+    const response = await POST(makeRequest({ ...VALID_BODY, extraField: "x" }));
+
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as { error: string };
+    expect(body.error).toBe("url_invalid");
+  });
+
   it("still returns 201 when the dispatcher rejects", async () => {
     const store = new InMemoryAuditStore();
     setAuditServicesForTests({

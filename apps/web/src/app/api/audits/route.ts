@@ -24,11 +24,9 @@ const NO_INDEX_HEADERS = {
   "Cache-Control": "no-store",
 } as const;
 
-const createAuditRouteSchema = createAuditRequestSchema.merge(
-  z.object({
-    turnstileToken: z.string().max(2048).optional(),
-  }),
-);
+const createAuditRouteSchema = createAuditRequestSchema.extend({
+  turnstileToken: z.string().max(2048).optional(),
+});
 
 function rateLimitHeaders(result: { limit: number; remaining: number; resetAt: Date }): Record<string, string> {
   return {

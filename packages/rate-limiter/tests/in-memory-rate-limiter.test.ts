@@ -79,4 +79,32 @@ describe("InMemoryRateLimiter", () => {
     expect(await limiter.isSuspicious(ip, new Date(59 * MINUTE_MS))).toBe(true);
     expect(await limiter.isSuspicious(ip, new Date(61 * MINUTE_MS))).toBe(false);
   });
+
+  it("anonymousState does not change the bucket's remaining count", async () => {
+    const limiter = new InMemoryRateLimiter();
+    const ip = "1.2.3.4";
+    await limiter.checkAnonymous(ip, new Date(0));
+    await limiter.checkAnonymous(ip, new Date(0));
+    const afterConsumes = await limiter.anonymousState(ip, new Date(0));
+    expect(afterConsumes.remaining).toBe(3);
+    const stateAgain = await limiter.anonymousState(ip, new Date(0));
+    expect(stateAgain.remaining).toBe(3);
+    const afterCheck = await limiter.checkAnonymous(ip, new Date(0));
+    expect(afterCheck.remaining).toBe(2);
+  });
+
+  it("userState does not change the bucket's remaining count", async () => {
+    const limiter = new InMemoryRateLimiter();
+    const userId = "user-1";
+    const projectId = "project-1";
+    const now = new Date("2026-10-01T00:00:00Z");
+    await limiter.checkUser(userId, projectId, now);
+    await limiter.checkUser(userId, projectId, now);
+    const afterConsumes = await limiter.userState(userId, projectId, now);
+    expect(afterConsumes.remaining).toBe(48);
+    const stateAgain = await limiter.userState(userId, projectId, now);
+    expect(stateAgain.remaining).toBe(48);
+    const afterCheck = await limiter.checkUser(userId, projectId, now);
+    expect(afterCheck.remaining).toBe(47);
+  });
 });
