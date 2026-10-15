@@ -62,6 +62,9 @@ importers:
       '@wpi/crawler':
         specifier: workspace:*
         version: link:../../services/crawler
+      '@wpi/email':
+        specifier: workspace:*
+        version: link:../../packages/email
       '@wpi/evidence-processor':
         specifier: workspace:*
         version: link:../../services/evidence-processor

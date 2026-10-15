@@ -2,6 +2,7 @@ import { describe, expect, it, afterEach, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { InMemoryAuditStore, TIER_SCOPES } from "@wpi/audit-pipeline";
 import { InMemoryAuthService } from "@wpi/auth";
+import { StubEmailService } from "@wpi/email";
 import { InMemoryRateLimiter } from "@wpi/rate-limiter";
 import { POST } from "../app/api/audits/route";
 import { setAuditServicesForTests, type AuditServices } from "../services/container";
@@ -18,6 +19,7 @@ function makeServices(): AuditServices {
       url.startsWith("https://") ? { ok: true } : { ok: false, reason_key: "failure.url_invalid" },
     outputDir: "./output",
     geminiApiKey: undefined,
+    emailService: new StubEmailService(),
   };
 }
 

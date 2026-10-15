@@ -20,6 +20,7 @@
     "@wpi/content-drafts": "workspace:*",
     "@wpi/content-approvals": "workspace:*",
     "@wpi/crawler": "workspace:*",
+    "@wpi/email": "workspace:*",
     "@wpi/evidence-processor": "workspace:*",
     "@wpi/fact-manifests": "workspace:*",
     "@wpi/footprint-store": "workspace:*",

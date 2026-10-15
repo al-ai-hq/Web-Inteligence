@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { InMemoryAuditStore, TIER_SCOPES, type AuditStore } from "@wpi/audit-pipeline";
 import { InMemoryAuthService } from "@wpi/auth";
+import { StubEmailService } from "@wpi/email";
 import { InMemoryRateLimiter } from "@wpi/rate-limiter";
 import { NextRequest } from "next/server";
 import type { AuditContext } from "@wpi/audit-pipeline";
@@ -36,6 +37,7 @@ function makeServices(store: AuditStore): AuditServices {
         : { ok: false, reason_key: "failure.url_invalid" },
     outputDir: "./output",
     geminiApiKey: undefined,
+    emailService: new StubEmailService(),
   };
 }
 

@@ -8,6 +8,7 @@ import {
   TIER_SCOPES,
 } from "@wpi/audit-pipeline";
 import { InMemoryAuthService } from "@wpi/auth";
+import { StubEmailService } from "@wpi/email";
 import { InMemoryRateLimiter } from "@wpi/rate-limiter";
 import { NextRequest } from "next/server";
 import { GET as statusGET, DELETE as auditDELETE } from "../app/api/audits/route";
@@ -49,6 +50,7 @@ function makeServices(store: AuditStore): AuditServices {
     validateUrl: async () => ({ ok: true }),
     outputDir: "./output",
     geminiApiKey: undefined,
+    emailService: new StubEmailService(),
   };
 }
 

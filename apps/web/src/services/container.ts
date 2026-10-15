@@ -28,6 +28,12 @@ import { validateUrl } from "@wpi/security";
 import { TokenStore } from "@wpi/oauth";
 import { InMemoryAuthService, PgAuthService } from "@wpi/auth";
 import type { AuthService } from "@wpi/auth";
+import {
+  StubEmailService,
+  ResendEmailService,
+  auditCompletionTemplate,
+  type EmailService,
+} from "@wpi/email";
 import { InMemoryRateLimiter } from "@wpi/rate-limiter";
 import type { RateLimiter } from "@wpi/rate-limiter";
 import { Pool } from "pg";
@@ -43,6 +49,7 @@ export interface AuditServices {
   outputDir: string;
   geminiApiKey: string | undefined;
   pool?: Pool;
+  emailService: EmailService;
 }
 
 // Next.js dev re-evaluates module state when a route compiles for the first
@@ -282,6 +289,19 @@ function localValidateUrl(url: string): { ok: boolean; reason_key?: string } {
   }
 }
 
+function buildReportUrl(record: AuditRecord, appUrl: string): string {
+  return `${appUrl}/${record.locale}/audit/${record.id}`;
+}
+
+function buildEmailService(): EmailService {
+  const apiKey = process.env["RESEND_API_KEY"];
+  const from = process.env["EMAIL_FROM_ADDRESS"];
+  if (apiKey && from) {
+    return new ResendEmailService({ apiKey, from });
+  }
+  return new StubEmailService();
+}
+
 function readDatabaseUrl(): string | undefined {
   return process.env["DATABASE_URL"] ?? process.env["WPI_DATABASE_URL"];
 }
@@ -316,6 +336,7 @@ async function buildServices(): Promise<AuditServices> {
       cookieSecret: readCookieSecret() ?? "stub-cookie-secret",
       auth: new InMemoryAuthService(),
       rateLimiter: new InMemoryRateLimiter(),
+      emailService: buildEmailService(),
     };
   }
 
@@ -339,12 +360,13 @@ async function buildServices(): Promise<AuditServices> {
       dispatcher: new StubDispatcher(store),
       auth: new InMemoryAuthService(),
       rateLimiter: new InMemoryRateLimiter(),
+      emailService: buildEmailService(),
     };
   }
 
   if (databaseUrl === undefined || cookieSecret === undefined) {
     throw new Error(
-      "DATABASE_URL and COOKIE_SECRET are required when WPI_DISPATCH_MODE=in_process",
+      "WPI_DATABASE_URL and AUDIT_COOKIE_SECRET are required when WPI_DISPATCH_MODE=in_process",
     );
   }
 
@@ -375,13 +397,44 @@ async function buildServices(): Promise<AuditServices> {
     pool,
   };
 
-  return {
+  const services: AuditServices = {
     ...fields,
     dispatcher: new InProcessDispatcher(async (jobId) => {
-      await runAuditPipeline(buildPipeline(fields), jobId);
+      await runAuditPipeline(
+        {
+          ...buildPipeline(fields),
+          onComplete: async (record: AuditRecord) => {
+            if (!record.user_id) return;
+            const user = await services.auth.findUserById(record.user_id);
+            if (!user) return;
+            const appUrl = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
+            const { subject, html, text } = auditCompletionTemplate({
+              locale: record.locale,
+              siteUrl: record.target_url,
+              score: record.report?.score?.presence_readiness ?? 0,
+              reportUrl: buildReportUrl(record, appUrl),
+            });
+            void services.emailService
+              .send({
+                to: user.email,
+                subject,
+                html,
+                text,
+                locale: record.locale,
+              })
+              .catch((error: unknown) => {
+                console.error("Failed to send audit completion email:", error);
+              });
+          },
+        },
+        jobId,
+      );
     }),
     cookieSecret,
     auth: new PgAuthService(pool),
     rateLimiter: new InMemoryRateLimiter(),
+    emailService: buildEmailService(),
   };
+
+  return services;
 }

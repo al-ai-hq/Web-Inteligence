@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { InMemoryAuditStore, TIER_SCOPES } from "@wpi/audit-pipeline";
 import { InMemoryAuthService } from "@wpi/auth";
+import { StubEmailService } from "@wpi/email";
 import { InMemoryRateLimiter } from "@wpi/rate-limiter";
 import { NextRequest } from "next/server";
 import { POST } from "../app/api/auth/route";
@@ -18,6 +19,7 @@ function makeServices(): AuditServices {
     validateUrl: async () => ({ ok: true }),
     outputDir: "./output",
     geminiApiKey: undefined,
+    emailService: new StubEmailService(),
   };
 }
 
