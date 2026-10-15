@@ -7,10 +7,12 @@ import { submitAudit } from "./create-audit-client";
 
 export function AuditForm() {
   const t = useTranslations("form");
+  const rateLimitT = useTranslations("rateLimit");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileRequired, setTurnstileRequired] = useState(false);
+  const [turnstileSubmitted, setTurnstileSubmitted] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -19,6 +21,11 @@ export function AuditForm() {
     }
     setError(null);
     setSubmitting(true);
+
+    const token = turnstileToken ?? undefined;
+    if (token) {
+      setTurnstileSubmitted(true);
+    }
 
     const form = new FormData(event.currentTarget);
     const url = String(form.get("url") ?? "").trim();
@@ -33,7 +40,7 @@ export function AuditForm() {
     const result = await submitAudit({
       url,
       locale,
-      turnstileToken: turnstileToken ?? undefined,
+      turnstileToken: token,
       context: {
         organization: String(form.get("organization") ?? ""),
         business_type: String(form.get("business_type") ?? ""),
@@ -56,6 +63,9 @@ export function AuditForm() {
     }
     if (result.error === "turnstile_required") {
       setTurnstileRequired(true);
+      if (token) {
+        setError(rateLimitT("turnstileFailed"));
+      }
       setSubmitting(false);
       return;
     }

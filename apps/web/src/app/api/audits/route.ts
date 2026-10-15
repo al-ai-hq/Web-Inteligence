@@ -72,20 +72,28 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const services = await getAuditServices();
+  const ip = getClientIp(request);
+
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "url_invalid" }, { status: 400 });
+    const stateResult = await services.rateLimiter.anonymousState(ip);
+    return NextResponse.json(
+      { error: "url_invalid" },
+      { status: 400, headers: rateLimitHeaders(stateResult) },
+    );
   }
 
   const parsed = createAuditRouteSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "url_invalid" }, { status: 400 });
+    const stateResult = await services.rateLimiter.anonymousState(ip);
+    return NextResponse.json(
+      { error: "url_invalid" },
+      { status: 400, headers: rateLimitHeaders(stateResult) },
+    );
   }
-
-  const services = await getAuditServices();
-  const ip = getClientIp(request);
 
   const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const sessionTokenHash = cookieValue ? hashToken(cookieValue) : "";
