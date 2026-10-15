@@ -3,6 +3,8 @@ import {
   StubEmailService,
   ResendEmailService,
   EmailSendError,
+  auditCompletionTemplate,
+  passwordResetTemplate,
 } from "../src/index.js";
 import type { SendEmailRequest } from "../src/index.js";
 
@@ -98,5 +100,58 @@ describe("ResendEmailService", () => {
         locale: "en",
       }),
     ).rejects.toThrow(EmailSendError);
+  });
+});
+
+describe("email templates", () => {
+  it("renders English audit-completion email", () => {
+    const result = auditCompletionTemplate({
+      locale: "en",
+      siteUrl: "https://example.com",
+      score: 72,
+      reportUrl: "https://app.test/en/audit/abc",
+    });
+
+    expect(result.subject).toBe("Your WPI audit for example.com is ready");
+    expect(result.html).toContain("https://app.test/en/audit/abc");
+    expect(result.text).toContain("https://app.test/en/audit/abc");
+    expect(result.text).toContain("72%");
+  });
+
+  it("renders Arabic audit-completion email", () => {
+    const result = auditCompletionTemplate({
+      locale: "ar",
+      siteUrl: "https://example.com",
+      score: 72,
+      reportUrl: "https://app.test/ar/audit/abc",
+    });
+
+    expect(result.subject).toBe("تقرير WPI لموقع example.com جاهز");
+    expect(result.html).toContain("https://app.test/ar/audit/abc");
+    expect(result.text).toContain("example.com");
+  });
+
+  it("renders English password-reset email", () => {
+    const result = passwordResetTemplate({
+      locale: "en",
+      resetUrl: "https://app.test/reset-password?token=abc123",
+      expiresInMinutes: 15,
+    });
+
+    expect(result.subject).toBe("Reset your WPI password");
+    expect(result.html).toContain("https://app.test/reset-password?token=abc123");
+    expect(result.text).toContain("15 minutes");
+  });
+
+  it("renders Arabic password-reset email", () => {
+    const result = passwordResetTemplate({
+      locale: "ar",
+      resetUrl: "https://app.test/reset-password?token=abc123",
+      expiresInMinutes: 15,
+    });
+
+    expect(result.subject).toBe("إعادة تعيين كلمة مرور WPI");
+    expect(result.html).toContain("https://app.test/reset-password?token=abc123");
+    expect(result.text).toContain("15");
   });
 });
