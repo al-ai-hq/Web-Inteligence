@@ -5,7 +5,6 @@ import {
   InMemoryAuditStore,
   InProcessDispatcher,
   M4_AGENT_NAMES,
-  MIGRATIONS_DIR,
   PostgresAuditStore,
   REPO_ROOT,
   runAgentStage,
