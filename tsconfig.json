@@ -7,6 +7,7 @@
     { "path": "packages/test-utils" },
     { "path": "packages/calibration" },
     { "path": "packages/rate-limiter" },
+    { "path": "packages/email" },
     { "path": "services/crawler" },
     { "path": "services/agents" },
     { "path": "services/connectors" },
