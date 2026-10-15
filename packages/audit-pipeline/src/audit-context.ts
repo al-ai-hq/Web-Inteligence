@@ -23,6 +23,7 @@ export const createAuditRequestSchema = z
     url: z.string().min(1).max(2048),
     locale: z.enum(LOCALES),
     context: auditContextSchema,
+    turnstileToken: z.string().max(2048).optional(),
   })
   .strict();
 

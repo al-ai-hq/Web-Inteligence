@@ -96,9 +96,11 @@ describe("POST /api/audits rate limiting", () => {
   it("rejects an invalid turnstile token", async () => {
     const services = makeServices();
     setAuditServicesForTests(services);
-    globalThis.fetch = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ success: false }), { status: 200 }),
-    ) as unknown as typeof fetch;
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ success: false }), { status: 200 }),
+      ) as unknown as typeof fetch;
 
     const invalidBody = {
       url: "not-a-url",
@@ -117,9 +119,9 @@ describe("POST /api/audits rate limiting", () => {
       await POST(postAudit(invalidBody));
     }
 
-    const response = await POST(
-      postAudit({ ...invalidBody, turnstileToken: "bad" }),
-    );
+    const response = await POST(postAudit({ ...invalidBody, turnstileToken: "bad" }));
     expect(response.status).toBe(400);
+    const json = (await response.json()) as { error?: string };
+    expect(json.error).toBe("turnstile_required");
   });
 });
