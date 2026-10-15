@@ -30,7 +30,7 @@ export class InMemoryRateLimiter implements RateLimiter {
     return {
       allowed,
       limit: ANONYMOUS_CAPACITY,
-      remaining: allowed ? state.remaining : state.remaining,
+      remaining: state.remaining,
       resetAt: state.resetAt,
     };
   }
@@ -50,7 +50,6 @@ export class InMemoryRateLimiter implements RateLimiter {
         capacity: USER_CAPACITY,
         refillRateMs: Number.POSITIVE_INFINITY,
       });
-      bucket.consume(0, monthStart);
       this.users.set(keyWithMonth, bucket);
     }
 
