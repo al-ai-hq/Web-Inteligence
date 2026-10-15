@@ -49,6 +49,7 @@ function postAudit(body: unknown, headers?: Record<string, string>): NextRequest
 afterEach(() => {
   setAuditServicesForTests(null);
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   delete process.env["TURNSTILE_SECRET_KEY"];
 });
 
@@ -86,6 +87,8 @@ describe("POST /api/audits rate limiting integration", () => {
     const blocked = await POST(postAudit(VALID_BODY, { cookie }));
     expect(blocked.status).toBe(429);
     expect(blocked.headers.get("X-RateLimit-Limit")).toBe("50");
+    expect(blocked.headers.get("X-RateLimit-Remaining")).toBe("0");
+    expect(blocked.headers.get("X-RateLimit-Reset")).toMatch(/^\d+$/);
     expect(blocked.headers.get("Retry-After")).toMatch(/^\d+$/);
   });
 
@@ -94,11 +97,12 @@ describe("POST /api/audits rate limiting integration", () => {
     setAuditServicesForTests(services);
     process.env["TURNSTILE_SECRET_KEY"] = "test-secret";
 
-    globalThis.fetch = vi
-      .fn()
-      .mockResolvedValue(
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
         new Response(JSON.stringify({ success: true }), { status: 200 }),
-      ) as unknown as typeof fetch;
+      ),
+    );
 
     const invalidBody = { ...VALID_BODY, url: "not-a-url" };
 
@@ -114,5 +118,35 @@ describe("POST /api/audits rate limiting integration", () => {
 
     const verified = await POST(postAudit({ ...VALID_BODY, turnstileToken: "valid-token" }));
     expect(verified.status).toBe(201);
+  });
+
+  it("rejects an invalid turnstile token while the IP is suspicious", async () => {
+    const services = makeServices();
+    setAuditServicesForTests(services);
+    process.env["TURNSTILE_SECRET_KEY"] = "test-secret";
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ success: false }), { status: 200 }),
+      ),
+    );
+
+    const invalidBody = { ...VALID_BODY, url: "not-a-url" };
+
+    for (let i = 0; i < 3; i++) {
+      const response = await POST(postAudit(invalidBody));
+      expect(response.status).toBe(400);
+    }
+
+    const required = await POST(postAudit(invalidBody));
+    expect(required.status).toBe(400);
+    const requiredJson = (await required.json()) as { error?: string };
+    expect(requiredJson.error).toBe("turnstile_required");
+
+    const rejected = await POST(postAudit({ ...invalidBody, turnstileToken: "bad-token" }));
+    expect(rejected.status).toBe(400);
+    const rejectedJson = (await rejected.json()) as { error?: string };
+    expect(rejectedJson.error).toBe("turnstile_required");
   });
 });

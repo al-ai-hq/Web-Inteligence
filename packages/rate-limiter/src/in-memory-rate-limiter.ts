@@ -63,6 +63,44 @@ export class InMemoryRateLimiter implements RateLimiter {
     };
   }
 
+  async anonymousState(ip: string, now: Date = new Date()): Promise<RateLimitResult> {
+    let bucket = this.anonymous.get(ip);
+    if (!bucket) {
+      bucket = new TokenBucket({ capacity: ANONYMOUS_CAPACITY, refillRateMs: ANONYMOUS_REFILL_MS });
+      this.anonymous.set(ip, bucket);
+    }
+    const state = bucket.state(now);
+    return {
+      allowed: state.remaining > 0,
+      limit: ANONYMOUS_CAPACITY,
+      remaining: state.remaining,
+      resetAt: state.resetAt,
+    };
+  }
+
+  async userState(userId: string, projectId: string, now: Date = new Date()): Promise<RateLimitResult> {
+    const key = `user:${userId}:project:${projectId}`;
+    const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+    const keyWithMonth = `${key}:month:${monthStart.toISOString()}`;
+
+    let bucket = this.users.get(keyWithMonth);
+    if (!bucket) {
+      bucket = new TokenBucket({
+        capacity: USER_CAPACITY,
+        refillRateMs: Number.POSITIVE_INFINITY,
+      });
+      this.users.set(keyWithMonth, bucket);
+    }
+
+    const state = bucket.state(now);
+    return {
+      allowed: state.remaining > 0,
+      limit: USER_CAPACITY,
+      remaining: state.remaining,
+      resetAt: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0)),
+    };
+  }
+
   async recordFailure(ip: string, now: Date = new Date()): Promise<void> {
     const nowMs = now.getTime();
     const current = this.failures.get(ip);

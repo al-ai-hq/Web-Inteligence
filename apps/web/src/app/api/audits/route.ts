@@ -10,6 +10,7 @@ import {
 } from "@wpi/audit-pipeline";
 import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
 import { verifyTurnstileToken } from "@wpi/rate-limiter";
+import { z } from "zod";
 import { authorizeRecord } from "../../../services/access";
 import { getClientIp } from "../../../services/client-ip";
 import { getAuditServices } from "../../../services/container";
@@ -22,6 +23,12 @@ const NO_INDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow",
   "Cache-Control": "no-store",
 } as const;
+
+const createAuditRouteSchema = createAuditRequestSchema.merge(
+  z.object({
+    turnstileToken: z.string().max(2048).optional(),
+  }),
+);
 
 function rateLimitHeaders(result: { limit: number; remaining: number; resetAt: Date }): Record<string, string> {
   return {
@@ -74,7 +81,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "url_invalid" }, { status: 400 });
   }
 
-  const parsed = createAuditRequestSchema.safeParse(body);
+  const parsed = createAuditRouteSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "url_invalid" }, { status: 400 });
   }
@@ -82,26 +89,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const services = await getAuditServices();
   const ip = getClientIp(request);
 
-  const suspicious = await services.rateLimiter.isSuspicious(ip);
-  if (suspicious) {
-    const token = (body as { turnstileToken?: string }).turnstileToken;
-    if (!token || !(await verifyTurnstileToken(token, ip))) {
-      const result = await services.rateLimiter.checkAnonymous(ip);
-      return NextResponse.json(
-        { error: "turnstile_required" },
-        {
-          status: 400,
-          headers: rateLimitHeaders(result),
-        },
-      );
-    }
-  }
-
   const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const sessionTokenHash = cookieValue ? hashToken(cookieValue) : "";
   const user = cookieValue
     ? await services.auth.getSessionUser(sessionTokenHash)
     : null;
+
+  const suspicious = await services.rateLimiter.isSuspicious(ip);
+  if (suspicious) {
+    const token = parsed.data.turnstileToken;
+    if (!token || !(await verifyTurnstileToken(token, ip))) {
+      const stateResult = user
+        ? await services.rateLimiter.userState(user.id, user.id)
+        : await services.rateLimiter.anonymousState(ip);
+      return NextResponse.json(
+        { error: "turnstile_required" },
+        {
+          status: 400,
+          headers: rateLimitHeaders(stateResult),
+        },
+      );
+    }
+  }
 
   const rateLimitResult = user
     ? await services.rateLimiter.checkUser(user.id, user.id)

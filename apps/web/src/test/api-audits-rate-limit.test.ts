@@ -36,6 +36,7 @@ function postAudit(body: unknown, headers?: Record<string, string>): NextRequest
 afterEach(() => {
   setAuditServicesForTests(null);
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("POST /api/audits rate limiting", () => {
@@ -96,11 +97,12 @@ describe("POST /api/audits rate limiting", () => {
   it("rejects an invalid turnstile token", async () => {
     const services = makeServices();
     setAuditServicesForTests(services);
-    globalThis.fetch = vi
-      .fn()
-      .mockResolvedValue(
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
         new Response(JSON.stringify({ success: false }), { status: 200 }),
-      ) as unknown as typeof fetch;
+      ),
+    );
 
     const invalidBody = {
       url: "not-a-url",

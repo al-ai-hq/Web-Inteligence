@@ -8,6 +8,8 @@ export interface RateLimitResult {
 export interface RateLimiter {
   checkAnonymous(ip: string, now?: Date): Promise<RateLimitResult>;
   checkUser(userId: string, projectId: string, now?: Date): Promise<RateLimitResult>;
+  anonymousState(ip: string, now?: Date): Promise<RateLimitResult>;
+  userState(userId: string, projectId: string, now?: Date): Promise<RateLimitResult>;
   recordFailure(ip: string, now?: Date): Promise<void>;
   isSuspicious(ip: string, now?: Date): Promise<boolean>;
 }
