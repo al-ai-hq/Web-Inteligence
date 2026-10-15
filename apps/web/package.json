@@ -26,6 +26,7 @@
     "@wpi/oauth": "workspace:*",
     "@wpi/profile-extractor": "workspace:*",
     "@wpi/public-source-discovery": "workspace:*",
+    "@wpi/rate-limiter": "workspace:*",
     "@wpi/render-job": "workspace:*",
     "@wpi/rules-engine": "workspace:*",
     "@wpi/schema-builder": "workspace:*",

@@ -1,17 +1,11 @@
 import { afterEach, describe, expect, it } from "vitest";
-import {
-  InMemoryAuditStore,
-  TIER_SCOPES,
-  type AuditStore,
-} from "@wpi/audit-pipeline";
-import { InMemoryAuthService, RateLimiter } from "@wpi/auth";
+import { InMemoryAuditStore, TIER_SCOPES, type AuditStore } from "@wpi/audit-pipeline";
+import { InMemoryAuthService } from "@wpi/auth";
+import { InMemoryRateLimiter } from "@wpi/rate-limiter";
 import { NextRequest } from "next/server";
 import type { AuditContext } from "@wpi/audit-pipeline";
 import { POST } from "../app/api/audits/route";
-import {
-  setAuditServicesForTests,
-  type AuditServices,
-} from "../services/container";
+import { setAuditServicesForTests, type AuditServices } from "../services/container";
 
 const CONTEXT: AuditContext = {
   organization: "Example Corp",
@@ -35,7 +29,7 @@ function makeServices(store: AuditStore): AuditServices {
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",
     auth: new InMemoryAuthService(),
-    rateLimiter: new RateLimiter(),
+    rateLimiter: new InMemoryRateLimiter(),
     validateUrl: async (url: string) =>
       url.startsWith("https://") || url.startsWith("http://")
         ? { ok: true }
@@ -115,7 +109,11 @@ describe("POST /api/audits", () => {
     const store = new InMemoryAuditStore();
     setAuditServicesForTests({
       ...makeServices(store),
-      dispatcher: { dispatch: async () => { throw new Error("boom"); } },
+      dispatcher: {
+        dispatch: async () => {
+          throw new Error("boom");
+        },
+      },
     });
     const response = await POST(makeRequest(VALID_BODY));
     expect(response.status).toBe(201);
@@ -133,9 +131,7 @@ describe("POST /api/audits", () => {
     const user = await auth.createUser("owner@example.com", "password123");
     const session = await auth.createSession(user.id);
 
-    const response = await POST(
-      makeRequest(VALID_BODY, `wpi_session=${session.token}`),
-    );
+    const response = await POST(makeRequest(VALID_BODY, `wpi_session=${session.token}`));
 
     expect(response.status).toBe(201);
     const body = (await response.json()) as { id: string; redirect_url: string | null };

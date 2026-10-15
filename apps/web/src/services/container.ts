@@ -27,8 +27,10 @@ import { runCrawlJob } from "@wpi/crawler";
 import { runEvidenceProcessor } from "@wpi/evidence-processor";
 import { validateUrl } from "@wpi/security";
 import { TokenStore } from "@wpi/oauth";
-import { InMemoryAuthService, PgAuthService, RateLimiter } from "@wpi/auth";
+import { InMemoryAuthService, PgAuthService } from "@wpi/auth";
 import type { AuthService } from "@wpi/auth";
+import { InMemoryRateLimiter } from "@wpi/rate-limiter";
+import type { RateLimiter } from "@wpi/rate-limiter";
 import { Pool } from "pg";
 
 export interface AuditServices {
@@ -116,7 +118,10 @@ function buildPipeline(fields: PipelineFields) {
             businessName: factSheet.business_name,
             siteUrl: factSheet.site_url,
             location: factSheet.address_locality
-              ? { locality: factSheet.address_locality, region: factSheet.address_region ?? undefined }
+              ? {
+                  locality: factSheet.address_locality,
+                  region: factSheet.address_region ?? undefined,
+                }
               : undefined,
           });
 
@@ -141,22 +146,25 @@ function buildPipeline(fields: PipelineFields) {
           };
 
           for (const profile of profiles) {
-            await publicSourceStore.create({
-              fact_sheet_id: factSheet.id,
-              source_platform: profile.platform,
-              source_url: profile.url,
-              discovered_at: new Date().toISOString(),
-              profile_data: {},
-            }, lineage);
+            await publicSourceStore.create(
+              {
+                fact_sheet_id: factSheet.id,
+                source_platform: profile.platform,
+                source_url: profile.url,
+                discovered_at: new Date().toISOString(),
+                profile_data: {},
+              },
+              lineage,
+            );
           }
 
           const napResults = [];
           for (const profile of profiles) {
             const extracted = extractProfileData("", profile.url);
             const cleanAddress = extracted.extracted_address
-              ? Object.fromEntries(
+              ? (Object.fromEntries(
                   Object.entries(extracted.extracted_address).filter(([, v]) => v !== null),
-                ) as Record<string, string>
+                ) as Record<string, string>)
               : null;
             const napResult = computeNapConsistency(
               {
@@ -180,15 +188,18 @@ function buildPipeline(fields: PipelineFields) {
               },
             );
 
-            await napStore.create({
-              fact_sheet_id: factSheet.id,
-              source_url: profile.url,
-              name_value: extracted.extracted_name,
-              phone_value: extracted.extracted_phone,
-              address_value: cleanAddress,
-              consistency_score: napResult.consistency_score,
-              inconsistencies: napResult.inconsistencies,
-            }, lineage);
+            await napStore.create(
+              {
+                fact_sheet_id: factSheet.id,
+                source_url: profile.url,
+                name_value: extracted.extracted_name,
+                phone_value: extracted.extracted_phone,
+                address_value: cleanAddress,
+                consistency_score: napResult.consistency_score,
+                inconsistencies: napResult.inconsistencies,
+              },
+              lineage,
+            );
 
             napResults.push(napResult);
           }
@@ -216,15 +227,11 @@ function buildPipeline(fields: PipelineFields) {
     },
     render: async (record: AuditRecord) => {
       const { runRenderJob } = await import("@wpi/render-job");
-      await scopedEnv(
-        { AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir },
-        () => runRenderJob(),
-      );
+      await scopedEnv({ AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir }, () => runRenderJob());
     },
     processEvidence: async (record: AuditRecord): Promise<string[]> => {
-      await scopedEnv(
-        { AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir },
-        () => runEvidenceProcessor(),
+      await scopedEnv({ AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir }, () =>
+        runEvidenceProcessor(),
       );
       const files = await readdir(join(fields.outputDir, record.id, "evidence"));
       return files
@@ -264,9 +271,7 @@ function buildPipeline(fields: PipelineFields) {
   };
 }
 
-function localValidateUrl(
-  url: string,
-): { ok: boolean; reason_key?: string } {
+function localValidateUrl(url: string): { ok: boolean; reason_key?: string } {
   try {
     const parsed = new URL(url);
     if (parsed.protocol === "http:" || parsed.protocol === "https:") {
@@ -306,13 +311,13 @@ async function buildServices(): Promise<AuditServices> {
       dispatcher: new StubDispatcher(store),
       cookieSecret: process.env["AUDIT_COOKIE_SECRET"] ?? "stub-cookie-secret",
       auth: new InMemoryAuthService(),
-      rateLimiter: new RateLimiter(),
+      rateLimiter: new InMemoryRateLimiter(),
     };
   }
 
   const databaseUrl = process.env["WPI_DATABASE_URL"];
   const cookieSecret = process.env["AUDIT_COOKIE_SECRET"];
-  
+
   // Support in-memory mode for demos without database
   if (dispatchMode === "memory") {
     const store = new InMemoryAuditStore();
@@ -328,10 +333,10 @@ async function buildServices(): Promise<AuditServices> {
       cookieSecret: cookieSecret ?? "demo-cookie-secret",
       dispatcher: new StubDispatcher(store),
       auth: new InMemoryAuthService(),
-      rateLimiter: new RateLimiter(),
+      rateLimiter: new InMemoryRateLimiter(),
     };
   }
-  
+
   if (databaseUrl === undefined || cookieSecret === undefined) {
     throw new Error(
       "WPI_DATABASE_URL and AUDIT_COOKIE_SECRET are required when WPI_DISPATCH_MODE is not 'stub' or 'memory'",
@@ -350,9 +355,7 @@ async function buildServices(): Promise<AuditServices> {
     validateUrl: async (url) => {
       try {
         const result = await validateUrl(url);
-        return result.valid
-          ? { ok: true }
-          : { ok: false, reason_key: "failure.url_invalid" };
+        return result.valid ? { ok: true } : { ok: false, reason_key: "failure.url_invalid" };
       } catch {
         return { ok: false, reason_key: "failure.url_invalid" };
       }
@@ -372,6 +375,6 @@ async function buildServices(): Promise<AuditServices> {
     }),
     cookieSecret,
     auth: new PgAuthService(pool),
-    rateLimiter: new RateLimiter(),
+    rateLimiter: new InMemoryRateLimiter(),
   };
 }

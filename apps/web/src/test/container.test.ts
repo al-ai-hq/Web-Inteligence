@@ -1,9 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { InMemoryAuditStore } from "@wpi/audit-pipeline";
-import {
-  getAuditServices,
-  setAuditServicesForTests,
-} from "../services/container";
+import { InMemoryRateLimiter } from "@wpi/rate-limiter";
+import { getAuditServices, setAuditServicesForTests } from "../services/container";
 
 const ENV_KEYS = ["WPI_DISPATCH_MODE", "AUDIT_COOKIE_SECRET", "WPI_DATABASE_URL"] as const;
 
@@ -18,6 +16,7 @@ describe("getAuditServices", () => {
   it("builds stub-mode services by default", async () => {
     const services = await getAuditServices();
     expect(services.store).toBeInstanceOf(InMemoryAuditStore);
+    expect(services.rateLimiter).toBeInstanceOf(InMemoryRateLimiter);
     expect(services.geminiApiKey).toBeUndefined();
     expect((await services.validateUrl("https://example.com")).ok).toBe(true);
     expect((await services.validateUrl("not-a-url")).ok).toBe(false);

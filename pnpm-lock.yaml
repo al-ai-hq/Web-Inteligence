@@ -80,6 +80,9 @@ importers:
       '@wpi/public-source-discovery':
         specifier: workspace:*
         version: link:../../packages/public-source-discovery
+      '@wpi/rate-limiter':
+        specifier: workspace:*
+        version: link:../../packages/rate-limiter
       '@wpi/render-job':
         specifier: workspace:*
         version: link:../../services/render-job
