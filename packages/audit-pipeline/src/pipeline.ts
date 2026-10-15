@@ -57,6 +57,7 @@ export interface PipelineDeps {
   tokenStore?: TokenStore;
   userId?: string;
   projectId?: string;
+  onComplete?: (record: AuditRecord) => Promise<void> | void;
 }
 
 async function requireTransition(store: AuditStore, auditId: string, to: string): Promise<void> {
@@ -233,7 +234,14 @@ export async function runAuditPipeline(
       score: composed.score,
     };
     const to = composed.findings.length > 0 ? ("READY_COMPLETE" as const) : ("READY_PARTIAL" as const);
-    await deps.store.setOutcome(auditId, to, envelope, envelope.costs);
+    const record = await deps.store.setOutcome(auditId, to, envelope, envelope.costs);
+    if (deps.onComplete) {
+      try {
+        await deps.onComplete(record);
+      } catch (error) {
+        console.warn(`onComplete failed for audit ${auditId}:`, error);
+      }
+    }
     return to === "READY_COMPLETE" ? "completed" : "partial";
   } catch (error) {
     if (error instanceof PipelineStoppedError) {
