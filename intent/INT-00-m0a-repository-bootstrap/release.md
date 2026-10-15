@@ -16,21 +16,21 @@ Status values: `draft`, `authorized`, `released`, `rolled_back`, `abandoned`. On
 
 Exit-gate items from 05-PROJECT-PLAN §11 and the INT-00 spec:
 
-| Exit-gate item                                   | Status  | Evidence                                                                                                                                     |
-| ------------------------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Package manager and lockfile documented          | pass    | `package.json` with `packageManager: pnpm@9.12.0`; lockfile not yet generated (requires Node 22 + `pnpm install`)                            |
-| Documented one-command checks                    | pass    | `README.md` "Quick checks" section; `CLAUDE.md` "Commands" section                                                                           |
-| Root and nested `CLAUDE.md`                      | pass    | 8 nested CLAUDE.md files (apps/web, services/{crawler,agents,connectors}, packages/{contracts,config-loaders,test-utils}, infra)             |
-| Project settings and permissions reviewed        | pass    | `.claude/settings.json` unchanged from V5 baseline; no new permissions added                                                                 |
-| Skills layout, hook specification and hook tests | pass    | 72 hook tests pass; hooks unchanged from V5 baseline                                                                                         |
-| Architecture decisions and registers             | pass    | D-021 added to `docs/decisions.md`; OI-020 closed; `docs/sources.md` updated with dependency versions                                        |
-| Schemas and validation                           | pass    | `scripts/check_schemas.py` fix applied; 13 examples validated, 22 negative examples checked                                                  |
-| Configuration validation                         | pass    | `scripts/check_config.py` fix applied; 3627 checks passed                                                                                    |
-| Validator regression tests                       | pass    | 3 tests in `scripts/tests/test_validators.py`                                                                                                |
-| Test and eval layout                             | pass    | `evals/` directory unchanged from V5 baseline                                                                                                |
-| CI checks (governance, secrets, app)             | pass    | `.github/workflows/ci.yml` updated; governance job adds validator tests; app job uses Node 22 via `.nvmrc`                                   |
-| Clean-checkout proof                             | pass    | Node 22.23.3 installed via nvm; `pnpm install`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:ssrf`, `pnpm format:check` all pass |
-| pnpm install, lint, typecheck, test              | pass    | Node 22.23.3, pnpm 9.12.0; lockfile generated (173 packages); all commands green                                       |
+| Exit-gate item                                   | Status | Evidence                                                                                                                                   |
+| ------------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Package manager and lockfile documented          | pass   | `package.json` with `packageManager: pnpm@9.12.0`; lockfile not yet generated (requires Node 22 + `pnpm install`)                          |
+| Documented one-command checks                    | pass   | `README.md` "Quick checks" section; `CLAUDE.md` "Commands" section                                                                         |
+| Root and nested `CLAUDE.md`                      | pass   | 8 nested CLAUDE.md files (apps/web, services/{crawler,agents,connectors}, packages/{contracts,config-loaders,test-utils}, infra)           |
+| Project settings and permissions reviewed        | pass   | `.claude/settings.json` unchanged from V5 baseline; no new permissions added                                                               |
+| Skills layout, hook specification and hook tests | pass   | 72 hook tests pass; hooks unchanged from V5 baseline                                                                                       |
+| Architecture decisions and registers             | pass   | D-021 added to `docs/decisions.md`; OI-020 closed; `docs/sources.md` updated with dependency versions                                      |
+| Schemas and validation                           | pass   | `scripts/check_schemas.py` fix applied; 13 examples validated, 22 negative examples checked                                                |
+| Configuration validation                         | pass   | `scripts/check_config.py` fix applied; 3627 checks passed                                                                                  |
+| Validator regression tests                       | pass   | 3 tests in `scripts/tests/test_validators.py`                                                                                              |
+| Test and eval layout                             | pass   | `evals/` directory unchanged from V5 baseline                                                                                              |
+| CI checks (governance, secrets, app)             | pass   | `.github/workflows/ci.yml` updated; governance job adds validator tests; app job uses Node 22 via `.nvmrc`                                 |
+| Clean-checkout proof                             | pass   | Node 22.23.3 installed via nvm; `pnpm install`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:ssrf`, `pnpm format:check` all pass |
+| pnpm install, lint, typecheck, test              | pass   | Node 22.23.3, pnpm 9.12.0; lockfile generated (173 packages); all commands green                                                           |
 
 ## Artifact versions
 
@@ -185,9 +185,9 @@ Not run: dev server screenshot (requires `pnpm install` and Node 22); axe audit 
 
 ## Unresolved risks
 
-| Risk                                                      | Owner     | Follow-up                                           |
-| --------------------------------------------------------- | --------- | --------------------------------------------------- |
-| CI actions not pinned to SHAs                             | tech lead | OI-021: pin to full commit SHAs at next security review |
+| Risk                                                      | Owner     | Follow-up                                                         |
+| --------------------------------------------------------- | --------- | ----------------------------------------------------------------- |
+| CI actions not pinned to SHAs                             | tech lead | OI-021: pin to full commit SHAs at next security review           |
 | gitleaks action may need a license for organization repos | tech lead | OI-021: check gitleaks-action README; consider pinned CLI instead |
 
 ## Rollback

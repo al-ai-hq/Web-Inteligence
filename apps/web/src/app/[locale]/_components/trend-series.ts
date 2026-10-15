@@ -10,9 +10,7 @@ interface TrendRecord {
 
 export function buildTrendSeries(records: TrendRecord[]): TrendPoint[] {
   return [...records]
-    .filter(
-      (record) => typeof record.report?.score?.presence_readiness === "number",
-    )
+    .filter((record) => typeof record.report?.score?.presence_readiness === "number")
     .sort((a, b) => a.created_at.localeCompare(b.created_at))
     .map((record) => ({
       date: record.created_at,

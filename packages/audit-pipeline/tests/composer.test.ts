@@ -53,13 +53,27 @@ describe("deriveUnavailable", () => {
     const keys = blocks.map((b) => b.reason_key);
     expect(keys).toContain("unavailable.score");
     expect(keys).toContain("unavailable.experience_effectiveness");
-    expect(blocks.every((b) => b.section === "technical" || b.section === "comparison" || b.section === "ai_visibility_panel")).toBe(true);
+    expect(
+      blocks.every(
+        (b) =>
+          b.section === "technical" ||
+          b.section === "comparison" ||
+          b.section === "ai_visibility_panel",
+      ),
+    ).toBe(true);
   });
 
   it("adds comparison for tiers with comparisons > 0 and the panel when enabled", () => {
     const rich = deriveUnavailable(TIER_SCOPES.rich);
-    expect(rich.some((b) => b.section === "comparison" && b.reason_key === "unavailable.comparison")).toBe(true);
-    expect(rich.some((b) => b.section === "ai_visibility_panel" && b.reason_key === "unavailable.ai_visibility_panel")).toBe(true);
+    expect(
+      rich.some((b) => b.section === "comparison" && b.reason_key === "unavailable.comparison"),
+    ).toBe(true);
+    expect(
+      rich.some(
+        (b) =>
+          b.section === "ai_visibility_panel" && b.reason_key === "unavailable.ai_visibility_panel",
+      ),
+    ).toBe(true);
   });
 
   it("omits comparison and panel for preview", () => {
@@ -72,7 +86,12 @@ describe("deriveUnavailable", () => {
 describe("deriveActionItems", () => {
   it("keeps only findings with a recommendation and caps the board", () => {
     const findings = [
-      finding({ id: "a", data: { title: "T", recommendation: "Do A" }, confidence: "high", severity: "high" }),
+      finding({
+        id: "a",
+        data: { title: "T", recommendation: "Do A" },
+        confidence: "high",
+        severity: "high",
+      }),
       finding({ id: "b", data: { recommendation: "Do B" }, confidence: "low", severity: "low" }),
       finding({ id: "c", data: { title: "No rec" } }),
     ];
@@ -84,10 +103,7 @@ describe("deriveActionItems", () => {
   });
 
   it("falls back to a truncated recommendation as the title", () => {
-    const items = deriveActionItems(
-      [finding({ data: { recommendation: "x".repeat(80) } })],
-      12,
-    );
+    const items = deriveActionItems([finding({ data: { recommendation: "x".repeat(80) } })], 12);
     expect(items[0]?.title).toBe("x".repeat(60));
   });
 
@@ -150,20 +166,31 @@ describe("composeSections", () => {
             },
           ],
         }),
-        outcome({ agent_name: "mystery-agent", ok: false, unavailable_reason_key: "unavailable.generic" }),
+        outcome({
+          agent_name: "mystery-agent",
+          ok: false,
+          unavailable_reason_key: "unavailable.generic",
+        }),
       ],
       [],
       TIER_SCOPES.preview,
     );
     expect(result.findings).toHaveLength(0);
-    expect(result.unavailable).toContainEqual({ section: "technical", reason_key: "unavailable.generic" });
+    expect(result.unavailable).toContainEqual({
+      section: "technical",
+      reason_key: "unavailable.generic",
+    });
   });
 
   it("summary bullets only cover sections whose agent succeeded", () => {
     const result = composeSections(
       [
         outcome({ agent_name: "auditor" }),
-        outcome({ agent_name: "keyword-analyst", ok: false, unavailable_reason_key: "unavailable.agent.keyword-analyst" }),
+        outcome({
+          agent_name: "keyword-analyst",
+          ok: false,
+          unavailable_reason_key: "unavailable.agent.keyword-analyst",
+        }),
         outcome({ agent_name: "content-strategist" }),
       ],
       [],

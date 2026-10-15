@@ -1,8 +1,8 @@
-import type { Agent } from './agent.js';
-import type { ExperienceEvidencePackage } from '../types/experience-evidence.js';
-import type { ReviewerTrace } from '../types/reviewer-trace.js';
-import { loadWeightConfig } from '../experience/weight-config.js';
-import { calculateDimensionScore, calculateOverallScore } from '../experience/scoring-engine.js';
+import type { Agent } from "./agent.js";
+import type { ExperienceEvidencePackage } from "../types/experience-evidence.js";
+import type { ReviewerTrace } from "../types/reviewer-trace.js";
+import { loadWeightConfig } from "../experience/weight-config.js";
+import { calculateDimensionScore, calculateOverallScore } from "../experience/scoring-engine.js";
 
 interface Finding {
   id: string;
@@ -15,7 +15,7 @@ interface Finding {
 }
 
 export class ExperienceReviewerAgent implements Agent {
-  name = 'experience-reviewer';
+  name = "experience-reviewer";
 
   async execute(evidence: ExperienceEvidencePackage): Promise<{
     findings: Finding[];
@@ -31,26 +31,26 @@ export class ExperienceReviewerAgent implements Agent {
       for (const criterionId of Object.keys(criteria)) {
         const finding: Finding = {
           id: `exp_${criterionId}_${Date.now()}`,
-          result_state: 'pass',
-          confidence: 'high',
-          evidence_ids: ['screenshot_viewport', 'extractor_heading'],
+          result_state: "pass",
+          confidence: "high",
+          evidence_ids: ["screenshot_viewport", "extractor_heading"],
           data: {
             reviewer_trace: {
               rubric_version: config.methodology_version,
               criterion_id: criterionId,
               criterion_name: `Criterion ${criterionId}`,
-              result: 'pass',
-              confidence: 'high',
-              rationale: 'Automated placeholder - vision model integration pending',
-              evidence_ids: ['screenshot_viewport'],
-              reviewer_type: 'model',
-              model_id: 'gemini-pro-vision',
-              model_version: 'gemini-1.5-pro-002',
+              result: "pass",
+              confidence: "high",
+              rationale: "Automated placeholder - vision model integration pending",
+              evidence_ids: ["screenshot_viewport"],
+              reviewer_type: "model",
+              model_id: "gemini-pro-vision",
+              model_version: "gemini-1.5-pro-002",
               language: evidence.language,
-              language_direction: evidence.language === 'ar' ? 'rtl' : 'ltr',
+              language_direction: evidence.language === "ar" ? "rtl" : "ltr",
               market: evidence.market,
               evaluated_at: new Date().toISOString(),
-              prompt_version: '0.1.0',
+              prompt_version: "0.1.0",
               limitations: [],
             },
           },
@@ -63,30 +63,25 @@ export class ExperienceReviewerAgent implements Agent {
     const dimensionScores: Record<string, any> = {};
 
     for (const [dimensionName, criteria] of Object.entries(config.criteria)) {
-      const dimensionFindings = findings.filter(f =>
-        Object.keys(criteria).includes(f.data.reviewer_trace.criterion_id)
+      const dimensionFindings = findings.filter((f) =>
+        Object.keys(criteria).includes(f.data.reviewer_trace.criterion_id),
       );
 
       dimensionScores[dimensionName] = calculateDimensionScore(
-        dimensionFindings.map(f => ({
+        dimensionFindings.map((f) => ({
           criterion_id: f.data.reviewer_trace.criterion_id,
           result: f.data.reviewer_trace.result,
           confidence: f.data.reviewer_trace.confidence,
         })),
-        criteria
+        criteria,
       );
     }
 
     const dimensionWeights = Object.fromEntries(
-      Object.entries(config.dimensions).map(([k, v]) => [k, v.weight])
+      Object.entries(config.dimensions).map(([k, v]) => [k, v.weight]),
     );
 
-    const experienceScore = calculateOverallScore(
-      dimensionScores,
-      dimensionWeights,
-      0.95,
-      'high'
-    );
+    const experienceScore = calculateOverallScore(dimensionScores, dimensionWeights, 0.95, "high");
 
     return {
       findings,

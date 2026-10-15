@@ -5,9 +5,7 @@ import { auditCompletionEn } from "./en.js";
 
 export type { AuditCompletionContext };
 
-export function auditCompletionTemplate(
-  context: AuditCompletionContext & { locale: EmailLocale },
-) {
+export function auditCompletionTemplate(context: AuditCompletionContext & { locale: EmailLocale }) {
   const { locale, ...rest } = context;
   const rendered = locale === "ar" ? auditCompletionAr(rest) : auditCompletionEn(rest);
   return {

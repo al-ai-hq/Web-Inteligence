@@ -1,11 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { gunzipSync } from "node:zlib";
 import { request as httpRequest } from "node:http";
-import {
-  startFixtureServer,
-  stopFixtureServer,
-  getFixtureUrl,
-} from "./server.js";
+import { startFixtureServer, stopFixtureServer, getFixtureUrl } from "./server.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -49,9 +49,9 @@ describe("ResendEmailService", () => {
   });
 
   it("calls the Resend API and returns the message id", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ id: "resend-msg-id" }), { status: 200 }),
-    );
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({ id: "resend-msg-id" }), { status: 200 }));
     globalThis.fetch = fetchMock as unknown as typeof fetch;
 
     const service = new ResendEmailService({ apiKey: "re_test", from: "from@example.com" });
@@ -84,9 +84,9 @@ describe("ResendEmailService", () => {
   });
 
   it("throws EmailSendError on Resend failure", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response("Internal Server Error", { status: 500 }),
-    );
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response("Internal Server Error", { status: 500 }));
     globalThis.fetch = fetchMock as unknown as typeof fetch;
 
     const service = new ResendEmailService({ apiKey: "re_test", from: "from@example.com" });

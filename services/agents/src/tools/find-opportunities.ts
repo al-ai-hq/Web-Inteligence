@@ -22,7 +22,8 @@ const inputSchema = z.object({
 export function createFindOpportunitiesTool(): Tool {
   return {
     name: "find_opportunities",
-    description: "Identifies content opportunities by cross-referencing audit findings with keyword clusters.",
+    description:
+      "Identifies content opportunities by cross-referencing audit findings with keyword clusters.",
     inputSchema: {
       type: "object",
       properties: {

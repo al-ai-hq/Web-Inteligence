@@ -4,13 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "../../../../../i18n/navigation";
 
-export function DeleteButton({
-  auditId,
-  secret,
-}: {
-  auditId: string;
-  secret: string;
-}) {
+export function DeleteButton({ auditId, secret }: { auditId: string; secret: string }) {
   const t = useTranslations("report");
   const router = useRouter();
   const [error, setError] = useState(false);
@@ -20,10 +14,9 @@ export function DeleteButton({
       return;
     }
     setError(false);
-    const response = await fetch(
-      `/api/audits/${auditId}?s=${encodeURIComponent(secret)}`,
-      { method: "DELETE" },
-    );
+    const response = await fetch(`/api/audits/${auditId}?s=${encodeURIComponent(secret)}`, {
+      method: "DELETE",
+    });
     if (response.status === 204) {
       router.replace("/");
       router.refresh();

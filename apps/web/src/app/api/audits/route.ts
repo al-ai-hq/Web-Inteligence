@@ -28,7 +28,11 @@ const createAuditRouteSchema = createAuditRequestSchema.extend({
   turnstileToken: z.string().max(2048).optional(),
 });
 
-function rateLimitHeaders(result: { limit: number; remaining: number; resetAt: Date }): Record<string, string> {
+function rateLimitHeaders(result: {
+  limit: number;
+  remaining: number;
+  resetAt: Date;
+}): Record<string, string> {
   return {
     "X-RateLimit-Limit": String(result.limit),
     "X-RateLimit-Remaining": String(Math.max(0, result.remaining)),
@@ -48,9 +52,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   const services = await getAuditServices();
   const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const user = cookieValue
-    ? await services.auth.getSessionUser(hashToken(cookieValue))
-    : null;
+  const user = cookieValue ? await services.auth.getSessionUser(hashToken(cookieValue)) : null;
   const secret = request.nextUrl.searchParams.get("s") ?? undefined;
   const outcome = await authorizeRecord(services.store, id, secret, user?.id ?? null);
 
@@ -97,9 +99,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const sessionTokenHash = cookieValue ? hashToken(cookieValue) : "";
-  const user = cookieValue
-    ? await services.auth.getSessionUser(sessionTokenHash)
-    : null;
+  const user = cookieValue ? await services.auth.getSessionUser(sessionTokenHash) : null;
 
   const suspicious = await services.rateLimiter.isSuspicious(ip);
   if (suspicious) {
@@ -148,11 +148,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  const counts =
-    verifyEligibilityCookie(
-      request.cookies.get(ELIGIBILITY_COOKIE_NAME)?.value ?? "",
-      services.cookieSecret,
-    ) ?? { rich_count: 0, reduced_count: 0, preview_count: 0 };
+  const counts = verifyEligibilityCookie(
+    request.cookies.get(ELIGIBILITY_COOKIE_NAME)?.value ?? "",
+    services.cookieSecret,
+  ) ?? { rich_count: 0, reduced_count: 0, preview_count: 0 };
 
   const tier = decideTier(counts);
   const secret = generateAuditSecret();
@@ -169,7 +168,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   void services.dispatcher.dispatch(record.id).catch(() => undefined);
 
   const response = NextResponse.json(
-    { id: record.id, secret, status_url: `/${parsed.data.locale}/audit/${record.id}`, redirect_url: user ? `/${parsed.data.locale}/dashboard` : null },
+    {
+      id: record.id,
+      secret,
+      status_url: `/${parsed.data.locale}/audit/${record.id}`,
+      redirect_url: user ? `/${parsed.data.locale}/dashboard` : null,
+    },
     { status: 201, headers: rateLimitHeaders(rateLimitResult) },
   );
   response.cookies.set(
@@ -198,9 +202,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 
   const services = await getAuditServices();
   const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const user = cookieValue
-    ? await services.auth.getSessionUser(hashToken(cookieValue))
-    : null;
+  const user = cookieValue ? await services.auth.getSessionUser(hashToken(cookieValue)) : null;
   const secret = request.nextUrl.searchParams.get("s") ?? undefined;
   const outcome = await authorizeRecord(services.store, id, secret, user?.id ?? null);
 

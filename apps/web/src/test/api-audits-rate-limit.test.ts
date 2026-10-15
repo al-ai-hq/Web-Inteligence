@@ -101,9 +101,7 @@ describe("POST /api/audits rate limiting", () => {
     setAuditServicesForTests(services);
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ success: false }), { status: 200 }),
-      ),
+      vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: false }), { status: 200 })),
     );
 
     const invalidBody = {

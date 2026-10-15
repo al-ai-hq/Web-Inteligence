@@ -12,11 +12,11 @@ export function trackCitation(citation: Citation): void {
 }
 
 export function getCitationsForFact(factId: string): Citation[] {
-  return citations.filter(c => c.fact_id === factId);
+  return citations.filter((c) => c.fact_id === factId);
 }
 
 export function getCitationsForDraft(draftId: string): Citation[] {
-  return citations.filter(c => c.draft_id === draftId);
+  return citations.filter((c) => c.draft_id === draftId);
 }
 
 export function resetCitations(): void {

@@ -3,11 +3,24 @@ import type { FactSheet, FactSheetCreate } from "../fact-sheet.js";
 import type { Lineage } from "../common.js";
 
 const ALLOWED_FACT_SHEET_COLUMNS = new Set([
-  "project_id", "business_name", "site_url", "phone", "email",
-  "description", "address_line1", "address_line2", "address_locality",
-  "address_region", "address_postal_code", "address_country",
-  "geo_latitude", "geo_longitude", "social_profiles",
-  "brand_terms", "operating_hours", "status",
+  "project_id",
+  "business_name",
+  "site_url",
+  "phone",
+  "email",
+  "description",
+  "address_line1",
+  "address_line2",
+  "address_locality",
+  "address_region",
+  "address_postal_code",
+  "address_country",
+  "geo_latitude",
+  "geo_longitude",
+  "social_profiles",
+  "brand_terms",
+  "operating_hours",
+  "status",
 ]);
 
 export class FactSheetStore {
@@ -60,7 +73,11 @@ export class FactSheetStore {
     return result.rows.map((row) => this.rowToFactSheet(row));
   }
 
-  async update(id: string, updates: Partial<FactSheetCreate>, lineage: Lineage): Promise<FactSheet> {
+  async update(
+    id: string,
+    updates: Partial<FactSheetCreate>,
+    lineage: Lineage,
+  ): Promise<FactSheet> {
     const fields: string[] = [];
     const values: unknown[] = [];
     let paramIndex = 1;
@@ -71,7 +88,9 @@ export class FactSheetStore {
           throw new Error(`Invalid fact sheet column: ${key}`);
         }
         fields.push(`${key} = $${paramIndex}`);
-        values.push(value === null ? null : typeof value === "object" ? JSON.stringify(value) : value);
+        values.push(
+          value === null ? null : typeof value === "object" ? JSON.stringify(value) : value,
+        );
         paramIndex++;
       }
     }
@@ -112,7 +131,10 @@ export class FactSheetStore {
       geo_latitude: row["geo_latitude"] as number | null,
       geo_longitude: row["geo_longitude"] as number | null,
       social_profiles: (row["social_profiles"] ?? {}) as Record<string, string>,
-      brand_terms: (row["brand_terms"] ?? {}) as { preferred_name?: string; forbidden_terms?: string[] },
+      brand_terms: (row["brand_terms"] ?? {}) as {
+        preferred_name?: string;
+        forbidden_terms?: string[];
+      },
       operating_hours: (row["operating_hours"] ?? {}) as Record<string, string>,
       status: row["status"] as "draft" | "confirmed" | "superseded",
       lineage: row["lineage"] as Lineage,

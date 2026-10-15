@@ -48,10 +48,7 @@ function verifiedFinding(): ComposerAgentOutcome["findings"][number] {
  * Build PipelineDeps including the runRulesEngine port.
  * The base runRulesEngine returns an empty array; tests override as needed.
  */
-function makeDeps(
-  store: InMemoryAuditStore,
-  overrides: Partial<PipelineDeps> = {},
-): PipelineDeps {
+function makeDeps(store: InMemoryAuditStore, overrides: Partial<PipelineDeps> = {}): PipelineDeps {
   return {
     store,
     validateUrl: async () => ({ ok: true }),

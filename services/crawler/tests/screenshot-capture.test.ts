@@ -23,7 +23,8 @@ describe("captureScreenshots", () => {
 
   it("returns null for viewport when capture fails", async () => {
     const page = mockPage({
-      screenshot: vi.fn()
+      screenshot: vi
+        .fn()
         .mockRejectedValueOnce(new Error("viewport failed"))
         .mockResolvedValue(Buffer.from("fake-png"))
         .mockResolvedValue(Buffer.from("fake-png")),
@@ -57,7 +58,7 @@ describe("captureScreenshots", () => {
     expect(page.screenshot).toHaveBeenCalledWith(
       expect.objectContaining({
         clip: { x: 0, y: 0, width: 1280, height: 1080 },
-      })
+      }),
     );
   });
 });

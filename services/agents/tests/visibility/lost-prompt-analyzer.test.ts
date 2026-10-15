@@ -43,11 +43,30 @@ function makeRun(overrides: Partial<PromptRun> = {}): PromptRun {
 describe("findLostPrompts", () => {
   it("identifies prompts where competitors appear but brand does not", () => {
     const runs = [
-      makeRun({ run_id: "r1", prompt_id: "p1", brand_mentioned: false, competitors_mentioned: ["rival.com"], cited_urls: ["https://rival.com/page"] }),
-      makeRun({ run_id: "r2", prompt_id: "p2", brand_mentioned: true, competitors_mentioned: ["rival.com"], cited_urls: [] }),
+      makeRun({
+        run_id: "r1",
+        prompt_id: "p1",
+        brand_mentioned: false,
+        competitors_mentioned: ["rival.com"],
+        cited_urls: ["https://rival.com/page"],
+      }),
+      makeRun({
+        run_id: "r2",
+        prompt_id: "p2",
+        brand_mentioned: true,
+        competitors_mentioned: ["rival.com"],
+        cited_urls: [],
+      }),
     ];
     const citations: Citation[] = [
-      { citation_id: "c-1", url: "https://rival.com/page", owner_class: "competitor", position: 1, in_final_answer: true, fetched_evidence_id: null },
+      {
+        citation_id: "c-1",
+        url: "https://rival.com/page",
+        owner_class: "competitor",
+        position: 1,
+        in_final_answer: true,
+        fetched_evidence_id: null,
+      },
     ];
 
     const lost = findLostPrompts(runs, citations);

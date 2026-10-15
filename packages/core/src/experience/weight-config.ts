@@ -1,6 +1,6 @@
-import { readFileSync, existsSync } from 'node:fs';
-import { load } from 'js-yaml';
-import { resolve, dirname } from 'node:path';
+import { readFileSync, existsSync } from "node:fs";
+import { load } from "js-yaml";
+import { resolve, dirname } from "node:path";
 
 interface DimensionConfig {
   weight: number;
@@ -15,7 +15,7 @@ interface WeightConfig {
   criteria: Record<string, Record<string, number>>;
 }
 
-const CONFIG_RELATIVE_PATH = 'config/experience-effectiveness.yaml';
+const CONFIG_RELATIVE_PATH = "config/experience-effectiveness.yaml";
 
 function resolveConfigPath(): string {
   // Walk up from CWD to find the config file (handles monorepo sub-packages)
@@ -34,15 +34,16 @@ function resolveConfigPath(): string {
 
 export function loadWeightConfig(): WeightConfig {
   const configPath = resolveConfigPath();
-  const fileContent = readFileSync(configPath, 'utf-8');
+  const fileContent = readFileSync(configPath, "utf-8");
   const config = load(fileContent) as WeightConfig;
 
   return config;
 }
 
-export function validateWeights(
-  weights: Record<string, number>
-): { valid: boolean; error?: string } {
+export function validateWeights(weights: Record<string, number>): {
+  valid: boolean;
+  error?: string;
+} {
   const sum = Object.values(weights).reduce((a, b) => a + b, 0);
 
   if (sum !== 100) {

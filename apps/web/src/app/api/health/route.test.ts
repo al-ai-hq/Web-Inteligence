@@ -1,10 +1,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import { GET } from "./route";
-import {
-  setAuditServicesForTests,
-  type AuditServices,
-} from "../../../services/container";
+import { setAuditServicesForTests, type AuditServices } from "../../../services/container";
 
 afterEach(() => {
   setAuditServicesForTests(null);
@@ -12,9 +9,7 @@ afterEach(() => {
 
 describe("GET /api/health", () => {
   it("returns 200 ok without a database pool", async () => {
-    const response = await GET(
-      new NextRequest("http://localhost:3000/api/health"),
-    );
+    const response = await GET(new NextRequest("http://localhost:3000/api/health"));
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ status: "ok" });
   });
@@ -33,9 +28,7 @@ describe("GET /api/health", () => {
 
     setAuditServicesForTests(fakeServices);
 
-    const response = await GET(
-      new NextRequest("http://localhost:3000/api/health"),
-    );
+    const response = await GET(new NextRequest("http://localhost:3000/api/health"));
     expect(response.status).toBe(200);
     expect(pinged).toBe(true);
     expect(await response.json()).toEqual({ status: "ok" });

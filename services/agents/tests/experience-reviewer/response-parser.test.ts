@@ -24,7 +24,7 @@ describe("parseDimensionResponse", () => {
       "design_hierarchy",
       responseText,
       "en",
-      "us"
+      "us",
     );
 
     expect(findings).toHaveLength(2);
@@ -39,12 +39,7 @@ describe("parseDimensionResponse", () => {
   });
 
   it("returns error findings when JSON parsing fails", () => {
-    const { findings } = parseDimensionResponse(
-      "design_hierarchy",
-      "not valid json",
-      "en",
-      "us"
-    );
+    const { findings } = parseDimensionResponse("design_hierarchy", "not valid json", "en", "us");
 
     expect(findings.length).toBeGreaterThan(0);
     expect(findings[0].result_state).toBe("error");
@@ -64,12 +59,7 @@ describe("parseDimensionResponse", () => {
       ],
     });
 
-    const { findings } = parseDimensionResponse(
-      "design_hierarchy",
-      responseText,
-      "ar",
-      "sa"
-    );
+    const { findings } = parseDimensionResponse("design_hierarchy", responseText, "ar", "sa");
 
     expect(findings[0].data.reviewer_trace.language_direction).toBe("rtl");
   });

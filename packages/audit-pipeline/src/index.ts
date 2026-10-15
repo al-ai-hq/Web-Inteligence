@@ -13,9 +13,7 @@ export {
 export { TIER_NAMES, TIER_SCOPES, decideTier, loadTierScopes } from "./eligibility.js";
 export type { TierName, TierScope } from "./eligibility.js";
 export { REPO_ROOT } from "./paths.js";
-export {
-  InMemoryAuditStore,
-} from "./audit-store.js";
+export { InMemoryAuditStore } from "./audit-store.js";
 export type {
   AuditRecord,
   AuditStore,

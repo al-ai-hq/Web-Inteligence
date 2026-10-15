@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const SchemaResultSchema = z.object({
   json_ld: z.record(z.unknown()),
@@ -11,11 +11,13 @@ export type SchemaResult = z.infer<typeof SchemaResultSchema>;
 export const SchemaDiffSchema = z.object({
   added: z.array(z.string()),
   removed: z.array(z.string()),
-  changed: z.array(z.object({
-    path: z.string(),
-    old_value: z.unknown(),
-    new_value: z.unknown(),
-  })),
+  changed: z.array(
+    z.object({
+      path: z.string(),
+      old_value: z.unknown(),
+      new_value: z.unknown(),
+    }),
+  ),
 });
 
 export type SchemaDiff = z.infer<typeof SchemaDiffSchema>;

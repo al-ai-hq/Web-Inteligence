@@ -38,6 +38,7 @@
 ### Task 1: Database Migrations (0003–0008)
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/migrations/0003_create_fact_sheets.sql`
 - Create: `packages/audit-pipeline/src/migrations/0004_create_fact_register.sql`
 - Create: `packages/audit-pipeline/src/migrations/0005_create_entity_conflicts.sql`
@@ -46,6 +47,7 @@
 - Create: `packages/audit-pipeline/src/migrations/0008_create_nap_observations.sql`
 
 **Interfaces:**
+
 - Consumes: PostgreSQL connection via `Pool` from `pg`
 - Produces: 6 new tables with proper FKs, indexes, and constraints
 
@@ -206,6 +208,7 @@ git commit -m "feat(M7): add database migrations for entity graph tables (0003-0
 ### Task 2: Footprint Store Package + Common Zod Schemas
 
 **Files:**
+
 - Create: `packages/footprint-store/package.json`
 - Create: `packages/footprint-store/tsconfig.json`
 - Create: `packages/footprint-store/src/index.ts`
@@ -213,6 +216,7 @@ git commit -m "feat(M7): add database migrations for entity graph tables (0003-0
 - Create: `packages/footprint-store/src/common.test.ts`
 
 **Interfaces:**
+
 - Consumes: `zod` for runtime validation, `pg` Pool for database access
 - Produces: Common Zod schemas (Lineage, UUID) and package entry point
 
@@ -389,6 +393,7 @@ git commit -m "feat(M7): add footprint-store package with common Zod schemas"
 ### Task 3: FactSheet, FactRegister, EntityConflict Zod Schemas
 
 **Files:**
+
 - Create: `packages/footprint-store/src/fact-sheet.ts`
 - Create: `packages/footprint-store/src/fact-register.ts`
 - Create: `packages/footprint-store/src/entity-conflict.ts`
@@ -397,6 +402,7 @@ git commit -m "feat(M7): add footprint-store package with common Zod schemas"
 - Create: `packages/footprint-store/src/entity-conflict.test.ts`
 
 **Interfaces:**
+
 - Consumes: `LineageSchema` from `./common.js`
 - Produces: Zod schemas and TypeScript types for FactSheet, FactRegisterEntry, EntityConflict
 
@@ -540,10 +546,12 @@ export const FactSheetCreateSchema = z.object({
   geo_latitude: z.number().min(-90).max(90).optional(),
   geo_longitude: z.number().min(-180).max(180).optional(),
   social_profiles: z.record(z.string(), z.string()).optional(),
-  brand_terms: z.object({
-    preferred_name: z.string().optional(),
-    forbidden_terms: z.array(z.string()).optional(),
-  }).optional(),
+  brand_terms: z
+    .object({
+      preferred_name: z.string().optional(),
+      forbidden_terms: z.array(z.string()).optional(),
+    })
+    .optional(),
   operating_hours: z.record(z.string(), z.string()).optional(),
 });
 
@@ -772,7 +780,12 @@ Expected: PASS — 4 tests pass
 ```typescript
 // packages/footprint-store/src/index.ts
 export { LineageSchema, UUIDSchema, type Lineage, type UUID } from "./common.js";
-export { FactSheetSchema, FactSheetCreateSchema, type FactSheet, type FactSheetCreate } from "./fact-sheet.js";
+export {
+  FactSheetSchema,
+  FactSheetCreateSchema,
+  type FactSheet,
+  type FactSheetCreate,
+} from "./fact-sheet.js";
 export { FactRegisterEntrySchema, type FactRegisterEntry } from "./fact-register.js";
 export { EntityConflictSchema, type EntityConflict } from "./entity-conflict.js";
 ```
@@ -794,6 +807,7 @@ git commit -m "feat(M7): add FactSheet, FactRegister, EntityConflict Zod schemas
 ### Task 4: Observation, Location, BrandTerms Zod Schemas
 
 **Files:**
+
 - Create: `packages/footprint-store/src/observations.ts`
 - Create: `packages/footprint-store/src/location.ts`
 - Create: `packages/footprint-store/src/brand-terms.ts`
@@ -802,6 +816,7 @@ git commit -m "feat(M7): add FactSheet, FactRegister, EntityConflict Zod schemas
 - Create: `packages/footprint-store/src/brand-terms.test.ts`
 
 **Interfaces:**
+
 - Consumes: `LineageSchema`, `UUIDSchema` from `./common.js`
 - Produces: Zod schemas for ProfileObservation, PublicSourceObservation, NapObservation, Location, BrandTerms
 
@@ -810,7 +825,11 @@ git commit -m "feat(M7): add FactSheet, FactRegister, EntityConflict Zod schemas
 ```typescript
 // packages/footprint-store/src/observations.test.ts
 import { describe, expect, it } from "vitest";
-import { ProfileObservationSchema, PublicSourceObservationSchema, NapObservationSchema } from "./observations.js";
+import {
+  ProfileObservationSchema,
+  PublicSourceObservationSchema,
+  NapObservationSchema,
+} from "./observations.js";
 
 const baseLineage = {
   record_id: "550e8400-e29b-41d4-a716-446655440000",
@@ -841,7 +860,13 @@ describe("ProfileObservationSchema", () => {
       extracted_name: "Example Business",
       extracted_phone: "+1-555-0100",
       extracted_email: null,
-      extracted_address: { street: "123 Main St", city: "Anytown", region: "CA", postal_code: "90210", country: "US" },
+      extracted_address: {
+        street: "123 Main St",
+        city: "Anytown",
+        region: "CA",
+        postal_code: "90210",
+        country: "US",
+      },
       extracted_hours: { monday: "9:00-17:00" },
       extracted_social: { facebook: "https://fb.com/example" },
       extraction_confidence: 0.85,
@@ -889,7 +914,13 @@ describe("NapObservationSchema", () => {
       source_url: "https://yelp.com/biz/example",
       name_value: "Example Business",
       phone_value: "+1-555-0100",
-      address_value: { street: "123 Main St", city: "Anytown", region: "CA", postal_code: "90210", country: "US" },
+      address_value: {
+        street: "123 Main St",
+        city: "Anytown",
+        region: "CA",
+        postal_code: "90210",
+        country: "US",
+      },
       consistency_score: 0.92,
       inconsistencies: [{ field: "phone", expected: "+1-555-0200", actual: "+1-555-0100" }],
       lineage: baseLineage,
@@ -959,11 +990,13 @@ export const NapObservationSchema = z.object({
   phone_value: z.string().nullable(),
   address_value: z.record(z.string(), z.string()).nullable(),
   consistency_score: z.number().min(0).max(1),
-  inconsistencies: z.array(z.object({
-    field: z.string(),
-    expected: z.string(),
-    actual: z.string(),
-  })),
+  inconsistencies: z.array(
+    z.object({
+      field: z.string(),
+      expected: z.string(),
+      actual: z.string(),
+    }),
+  ),
   lineage: LineageSchema,
   created_at: z.string().datetime(),
 });
@@ -1120,7 +1153,12 @@ Expected: PASS — 3 tests pass
 ```typescript
 // packages/footprint-store/src/index.ts
 export { LineageSchema, UUIDSchema, type Lineage, type UUID } from "./common.js";
-export { FactSheetSchema, FactSheetCreateSchema, type FactSheet, type FactSheetCreate } from "./fact-sheet.js";
+export {
+  FactSheetSchema,
+  FactSheetCreateSchema,
+  type FactSheet,
+  type FactSheetCreate,
+} from "./fact-sheet.js";
 export { FactRegisterEntrySchema, type FactRegisterEntry } from "./fact-register.js";
 export { EntityConflictSchema, type EntityConflict } from "./entity-conflict.js";
 export {
@@ -1152,12 +1190,14 @@ git commit -m "feat(M7): add observation, location, brand-terms Zod schemas"
 ### Task 5: FactSheetStore and EntityConflictStore
 
 **Files:**
+
 - Create: `packages/footprint-store/src/stores/fact-sheet-store.ts`
 - Create: `packages/footprint-store/src/stores/entity-conflict-store.ts`
 - Create: `packages/footprint-store/src/stores/fact-sheet-store.test.ts`
 - Create: `packages/footprint-store/src/stores/entity-conflict-store.test.ts`
 
 **Interfaces:**
+
 - Consumes: `pg` Pool, Zod schemas from parent package
 - Produces: CRUD operations for fact sheets and entity conflicts
 
@@ -1174,7 +1214,9 @@ describe("FactSheetStore", () => {
   let store: FactSheetStore;
 
   beforeEach(() => {
-    pool = new Pool({ connectionString: process.env["TEST_DATABASE_URL"] ?? "postgresql://localhost:5432/wpi_test" });
+    pool = new Pool({
+      connectionString: process.env["TEST_DATABASE_URL"] ?? "postgresql://localhost:5432/wpi_test",
+    });
     store = new FactSheetStore(pool);
   });
 
@@ -1203,12 +1245,15 @@ describe("FactSheetStore", () => {
   };
 
   it("creates and retrieves a fact sheet", async () => {
-    const created = await store.create({
-      project_id: "550e8400-e29b-41d4-a716-446655440001",
-      site_url: "https://example.com",
-      business_name: "Example Business",
-      phone: "+1-555-0100",
-    }, validLineage);
+    const created = await store.create(
+      {
+        project_id: "550e8400-e29b-41d4-a716-446655440001",
+        site_url: "https://example.com",
+        business_name: "Example Business",
+        phone: "+1-555-0100",
+      },
+      validLineage,
+    );
 
     expect(created.id).toBeDefined();
     expect(created.business_name).toBe("Example Business");
@@ -1221,43 +1266,59 @@ describe("FactSheetStore", () => {
 
   it("lists fact sheets by project_id", async () => {
     const projectId = "550e8400-e29b-41d4-a716-446655440099";
-    await store.create({
-      project_id: projectId,
-      site_url: "https://example1.com",
-      business_name: "Business 1",
-    }, validLineage);
-    await store.create({
-      project_id: projectId,
-      site_url: "https://example2.com",
-      business_name: "Business 2",
-    }, validLineage);
+    await store.create(
+      {
+        project_id: projectId,
+        site_url: "https://example1.com",
+        business_name: "Business 1",
+      },
+      validLineage,
+    );
+    await store.create(
+      {
+        project_id: projectId,
+        site_url: "https://example2.com",
+        business_name: "Business 2",
+      },
+      validLineage,
+    );
 
     const list = await store.listByProject(projectId);
     expect(list.length).toBe(2);
   });
 
   it("updates a fact sheet", async () => {
-    const created = await store.create({
-      project_id: "550e8400-e29b-41d4-a716-446655440001",
-      site_url: "https://example.com",
-      business_name: "Old Name",
-    }, validLineage);
+    const created = await store.create(
+      {
+        project_id: "550e8400-e29b-41d4-a716-446655440001",
+        site_url: "https://example.com",
+        business_name: "Old Name",
+      },
+      validLineage,
+    );
 
-    const updated = await store.update(created.id, {
-      business_name: "New Name",
-      phone: "+1-555-9999",
-    }, validLineage);
+    const updated = await store.update(
+      created.id,
+      {
+        business_name: "New Name",
+        phone: "+1-555-9999",
+      },
+      validLineage,
+    );
 
     expect(updated.business_name).toBe("New Name");
     expect(updated.phone).toBe("+1-555-9999");
   });
 
   it("confirms a fact sheet", async () => {
-    const created = await store.create({
-      project_id: "550e8400-e29b-41d4-a716-446655440001",
-      site_url: "https://example.com",
-      business_name: "Example",
-    }, validLineage);
+    const created = await store.create(
+      {
+        project_id: "550e8400-e29b-41d4-a716-446655440001",
+        site_url: "https://example.com",
+        business_name: "Example",
+      },
+      validLineage,
+    );
 
     const confirmed = await store.confirm(created.id, "user@example.com");
     expect(confirmed.status).toBe("confirmed");
@@ -1328,7 +1389,11 @@ export class FactSheetStore {
     return result.rows.map((row) => this.rowToFactSheet(row));
   }
 
-  async update(id: string, updates: Partial<FactSheetCreate>, lineage: Lineage): Promise<FactSheet> {
+  async update(
+    id: string,
+    updates: Partial<FactSheetCreate>,
+    lineage: Lineage,
+  ): Promise<FactSheet> {
     const fields: string[] = [];
     const values: unknown[] = [];
     let paramIndex = 1;
@@ -1377,7 +1442,10 @@ export class FactSheetStore {
       geo_latitude: row["geo_latitude"] as number | null,
       geo_longitude: row["geo_longitude"] as number | null,
       social_profiles: (row["social_profiles"] ?? {}) as Record<string, string>,
-      brand_terms: (row["brand_terms"] ?? {}) as { preferred_name?: string; forbidden_terms?: string[] },
+      brand_terms: (row["brand_terms"] ?? {}) as {
+        preferred_name?: string;
+        forbidden_terms?: string[];
+      },
       operating_hours: (row["operating_hours"] ?? {}) as Record<string, string>,
       status: row["status"] as "draft" | "confirmed" | "superseded",
       lineage: row["lineage"] as Lineage,
@@ -1406,7 +1474,9 @@ describe("EntityConflictStore", () => {
   let store: EntityConflictStore;
 
   beforeEach(() => {
-    pool = new Pool({ connectionString: process.env["TEST_DATABASE_URL"] ?? "postgresql://localhost:5432/wpi_test" });
+    pool = new Pool({
+      connectionString: process.env["TEST_DATABASE_URL"] ?? "postgresql://localhost:5432/wpi_test",
+    });
     store = new EntityConflictStore(pool);
   });
 
@@ -1435,15 +1505,18 @@ describe("EntityConflictStore", () => {
   };
 
   it("creates and retrieves an entity conflict", async () => {
-    const created = await store.create({
-      fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
-      fact_key: "phone",
-      confirmed_value: { value: "+1-555-0100" },
-      conflicting_value: { value: "+1-555-0200" },
-      source_type: "nap_inconsistency",
-      source_id: "google-profile",
-      severity: "high",
-    }, validLineage);
+    const created = await store.create(
+      {
+        fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
+        fact_key: "phone",
+        confirmed_value: { value: "+1-555-0100" },
+        conflicting_value: { value: "+1-555-0200" },
+        source_type: "nap_inconsistency",
+        source_id: "google-profile",
+        severity: "high",
+      },
+      validLineage,
+    );
 
     expect(created.id).toBeDefined();
     expect(created.status).toBe("open");
@@ -1455,36 +1528,45 @@ describe("EntityConflictStore", () => {
 
   it("lists conflicts by fact_sheet_id", async () => {
     const factSheetId = "550e8400-e29b-41d4-a716-446655440099";
-    await store.create({
-      fact_sheet_id: factSheetId,
-      fact_key: "phone",
-      confirmed_value: null,
-      conflicting_value: { value: "+1-555-0100" },
-      source_type: "nap_inconsistency",
-      severity: "medium",
-    }, validLineage);
-    await store.create({
-      fact_sheet_id: factSheetId,
-      fact_key: "address",
-      confirmed_value: null,
-      conflicting_value: { value: "456 Oak Ave" },
-      source_type: "extractor_disagreement",
-      severity: "low",
-    }, validLineage);
+    await store.create(
+      {
+        fact_sheet_id: factSheetId,
+        fact_key: "phone",
+        confirmed_value: null,
+        conflicting_value: { value: "+1-555-0100" },
+        source_type: "nap_inconsistency",
+        severity: "medium",
+      },
+      validLineage,
+    );
+    await store.create(
+      {
+        fact_sheet_id: factSheetId,
+        fact_key: "address",
+        confirmed_value: null,
+        conflicting_value: { value: "456 Oak Ave" },
+        source_type: "extractor_disagreement",
+        severity: "low",
+      },
+      validLineage,
+    );
 
     const list = await store.listByFactSheet(factSheetId);
     expect(list.length).toBe(2);
   });
 
   it("resolves a conflict", async () => {
-    const created = await store.create({
-      fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
-      fact_key: "phone",
-      confirmed_value: null,
-      conflicting_value: { value: "+1-555-0200" },
-      source_type: "nap_inconsistency",
-      severity: "high",
-    }, validLineage);
+    const created = await store.create(
+      {
+        fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
+        fact_key: "phone",
+        confirmed_value: null,
+        conflicting_value: { value: "+1-555-0200" },
+        source_type: "nap_inconsistency",
+        severity: "high",
+      },
+      validLineage,
+    );
 
     const resolved = await store.resolve(
       created.id,
@@ -1500,14 +1582,17 @@ describe("EntityConflictStore", () => {
   });
 
   it("dismisses a conflict", async () => {
-    const created = await store.create({
-      fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
-      fact_key: "email",
-      confirmed_value: null,
-      conflicting_value: { value: "old@example.com" },
-      source_type: "connector_conflict",
-      severity: "low",
-    }, validLineage);
+    const created = await store.create(
+      {
+        fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
+        fact_key: "email",
+        confirmed_value: null,
+        conflicting_value: { value: "old@example.com" },
+        source_type: "connector_conflict",
+        severity: "low",
+      },
+      validLineage,
+    );
 
     const dismissed = await store.dismiss(created.id, "user@example.com", "False positive");
     expect(dismissed.status).toBe("dismissed");
@@ -1611,7 +1696,8 @@ export class EntityConflictStore {
       fact_key: row["fact_key"] as string,
       confirmed_value: row["confirmed_value"] ?? null,
       conflicting_value: row["conflicting_value"],
-      source_type: row["source_type"] as "nap_inconsistency" | "extractor_disagreement" | "connector_conflict",
+      source_type: row["source_type"] as
+        "nap_inconsistency" | "extractor_disagreement" | "connector_conflict",
       source_id: row["source_id"] as string | null,
       severity: row["severity"] as "low" | "medium" | "high" | "critical",
       status: row["status"] as "open" | "investigating" | "resolved" | "dismissed",
@@ -1636,7 +1722,12 @@ Expected: PASS — 4 tests pass
 ```typescript
 // packages/footprint-store/src/index.ts
 export { LineageSchema, UUIDSchema, type Lineage, type UUID } from "./common.js";
-export { FactSheetSchema, FactSheetCreateSchema, type FactSheet, type FactSheetCreate } from "./fact-sheet.js";
+export {
+  FactSheetSchema,
+  FactSheetCreateSchema,
+  type FactSheet,
+  type FactSheetCreate,
+} from "./fact-sheet.js";
 export { FactRegisterEntrySchema, type FactRegisterEntry } from "./fact-register.js";
 export { EntityConflictSchema, type EntityConflict } from "./entity-conflict.js";
 export {
@@ -1670,10 +1761,12 @@ git commit -m "feat(M7): add FactSheetStore and EntityConflictStore with CRUD op
 ### Task 6: Observation CRUD Stores
 
 **Files:**
+
 - Create: `packages/footprint-store/src/stores/observation-stores.ts`
 - Create: `packages/footprint-store/src/stores/observation-stores.test.ts`
 
 **Interfaces:**
+
 - Consumes: `pg` Pool, observation Zod schemas
 - Produces: PublicSourceObservationStore, ProfileObservationStore, NapObservationStore
 
@@ -1683,14 +1776,20 @@ git commit -m "feat(M7): add FactSheetStore and EntityConflictStore with CRUD op
 // packages/footprint-store/src/stores/observation-stores.test.ts
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { Pool } from "pg";
-import { PublicSourceObservationStore, ProfileObservationStore, NapObservationStore } from "./observation-stores.js";
+import {
+  PublicSourceObservationStore,
+  ProfileObservationStore,
+  NapObservationStore,
+} from "./observation-stores.js";
 
 describe("PublicSourceObservationStore", () => {
   let pool: Pool;
   let store: PublicSourceObservationStore;
 
   beforeEach(() => {
-    pool = new Pool({ connectionString: process.env["TEST_DATABASE_URL"] ?? "postgresql://localhost:5432/wpi_test" });
+    pool = new Pool({
+      connectionString: process.env["TEST_DATABASE_URL"] ?? "postgresql://localhost:5432/wpi_test",
+    });
     store = new PublicSourceObservationStore(pool);
   });
 
@@ -1720,13 +1819,16 @@ describe("PublicSourceObservationStore", () => {
 
   it("creates and lists public source observations", async () => {
     const factSheetId = "550e8400-e29b-41d4-a716-446655440001";
-    await store.create({
-      fact_sheet_id: factSheetId,
-      source_platform: "google",
-      source_url: "https://google.com/maps/place/example",
-      discovered_at: "2026-10-11T10:00:00Z",
-      profile_data: { name: "Example Business", phone: "+1-555-0100" },
-    }, baseLineage);
+    await store.create(
+      {
+        fact_sheet_id: factSheetId,
+        source_platform: "google",
+        source_url: "https://google.com/maps/place/example",
+        discovered_at: "2026-10-11T10:00:00Z",
+        profile_data: { name: "Example Business", phone: "+1-555-0100" },
+      },
+      baseLineage,
+    );
 
     const list = await store.listByFactSheet(factSheetId);
     expect(list.length).toBe(1);
@@ -1739,7 +1841,9 @@ describe("ProfileObservationStore", () => {
   let store: ProfileObservationStore;
 
   beforeEach(() => {
-    pool = new Pool({ connectionString: process.env["TEST_DATABASE_URL"] ?? "postgresql://localhost:5432/wpi_test" });
+    pool = new Pool({
+      connectionString: process.env["TEST_DATABASE_URL"] ?? "postgresql://localhost:5432/wpi_test",
+    });
     store = new ProfileObservationStore(pool);
   });
 
@@ -1769,17 +1873,20 @@ describe("ProfileObservationStore", () => {
 
   it("creates and lists profile observations", async () => {
     const factSheetId = "550e8400-e29b-41d4-a716-446655440001";
-    await store.create({
-      fact_sheet_id: factSheetId,
-      source_url: "https://google.com/maps/place/example",
-      extracted_name: "Example Business",
-      extracted_phone: "+1-555-0100",
-      extracted_email: null,
-      extracted_address: { street: "123 Main St", city: "Anytown" },
-      extracted_hours: { monday: "9:00-17:00" },
-      extracted_social: { facebook: "https://fb.com/example" },
-      extraction_confidence: 0.85,
-    }, baseLineage);
+    await store.create(
+      {
+        fact_sheet_id: factSheetId,
+        source_url: "https://google.com/maps/place/example",
+        extracted_name: "Example Business",
+        extracted_phone: "+1-555-0100",
+        extracted_email: null,
+        extracted_address: { street: "123 Main St", city: "Anytown" },
+        extracted_hours: { monday: "9:00-17:00" },
+        extracted_social: { facebook: "https://fb.com/example" },
+        extraction_confidence: 0.85,
+      },
+      baseLineage,
+    );
 
     const list = await store.listByFactSheet(factSheetId);
     expect(list.length).toBe(1);
@@ -1793,7 +1900,9 @@ describe("NapObservationStore", () => {
   let store: NapObservationStore;
 
   beforeEach(() => {
-    pool = new Pool({ connectionString: process.env["TEST_DATABASE_URL"] ?? "postgresql://localhost:5432/wpi_test" });
+    pool = new Pool({
+      connectionString: process.env["TEST_DATABASE_URL"] ?? "postgresql://localhost:5432/wpi_test",
+    });
     store = new NapObservationStore(pool);
   });
 
@@ -1823,15 +1932,18 @@ describe("NapObservationStore", () => {
 
   it("creates and lists NAP observations", async () => {
     const factSheetId = "550e8400-e29b-41d4-a716-446655440001";
-    await store.create({
-      fact_sheet_id: factSheetId,
-      source_url: "https://yelp.com/biz/example",
-      name_value: "Example Business",
-      phone_value: "+1-555-0100",
-      address_value: { street: "123 Main St", city: "Anytown" },
-      consistency_score: 0.92,
-      inconsistencies: [{ field: "phone", expected: "+1-555-0200", actual: "+1-555-0100" }],
-    }, baseLineage);
+    await store.create(
+      {
+        fact_sheet_id: factSheetId,
+        source_url: "https://yelp.com/biz/example",
+        name_value: "Example Business",
+        phone_value: "+1-555-0100",
+        address_value: { street: "123 Main St", city: "Anytown" },
+        consistency_score: 0.92,
+        inconsistencies: [{ field: "phone", expected: "+1-555-0200", actual: "+1-555-0100" }],
+      },
+      baseLineage,
+    );
 
     const list = await store.listByFactSheet(factSheetId);
     expect(list.length).toBe(1);
@@ -1851,7 +1963,11 @@ Expected: FAIL — module `./observation-stores.js` not found
 ```typescript
 // packages/footprint-store/src/stores/observation-stores.ts
 import type { Pool } from "pg";
-import type { PublicSourceObservation, ProfileObservation, NapObservation } from "../observations.js";
+import type {
+  PublicSourceObservation,
+  ProfileObservation,
+  NapObservation,
+} from "../observations.js";
 import type { Lineage } from "../common.js";
 
 export class PublicSourceObservationStore {
@@ -1871,7 +1987,14 @@ export class PublicSourceObservationStore {
       `INSERT INTO public_source_observations (fact_sheet_id, source_platform, source_url, discovered_at, profile_data, lineage)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [input.fact_sheet_id, input.source_platform, input.source_url, input.discovered_at, JSON.stringify(input.profile_data), JSON.stringify(lineage)],
+      [
+        input.fact_sheet_id,
+        input.source_platform,
+        input.source_url,
+        input.discovered_at,
+        JSON.stringify(input.profile_data),
+        JSON.stringify(lineage),
+      ],
     );
     return this.rowToObservation(result.rows[0]!);
   }
@@ -2013,7 +2136,11 @@ export class NapObservationStore {
       phone_value: row["phone_value"] as string | null,
       address_value: row["address_value"] as Record<string, string> | null,
       consistency_score: row["consistency_score"] as number,
-      inconsistencies: (row["inconsistencies"] ?? []) as Array<{ field: string; expected: string; actual: string }>,
+      inconsistencies: (row["inconsistencies"] ?? []) as Array<{
+        field: string;
+        expected: string;
+        actual: string;
+      }>,
       lineage: row["lineage"] as Lineage,
       created_at: (row["created_at"] as Date).toISOString(),
     };
@@ -2031,7 +2158,12 @@ Expected: PASS — 3 tests pass
 ```typescript
 // packages/footprint-store/src/index.ts
 export { LineageSchema, UUIDSchema, type Lineage, type UUID } from "./common.js";
-export { FactSheetSchema, FactSheetCreateSchema, type FactSheet, type FactSheetCreate } from "./fact-sheet.js";
+export {
+  FactSheetSchema,
+  FactSheetCreateSchema,
+  type FactSheet,
+  type FactSheetCreate,
+} from "./fact-sheet.js";
 export { FactRegisterEntrySchema, type FactRegisterEntry } from "./fact-register.js";
 export { EntityConflictSchema, type EntityConflict } from "./entity-conflict.js";
 export {
@@ -2046,7 +2178,11 @@ export { LocationSchema, type Location } from "./location.js";
 export { BrandTermsSchema, type BrandTerms } from "./brand-terms.js";
 export { FactSheetStore } from "./stores/fact-sheet-store.js";
 export { EntityConflictStore } from "./stores/entity-conflict-store.js";
-export { PublicSourceObservationStore, ProfileObservationStore, NapObservationStore } from "./stores/observation-stores.js";
+export {
+  PublicSourceObservationStore,
+  ProfileObservationStore,
+  NapObservationStore,
+} from "./stores/observation-stores.js";
 ```
 
 - [ ] **Step 6: Run all tests to verify**
@@ -2066,6 +2202,7 @@ git commit -m "feat(M7): add observation CRUD stores (PublicSource, Profile, NAP
 ### Task 7: Platform URL Patterns & Public Source Discovery
 
 **Files:**
+
 - Create: `packages/public-source-discovery/package.json`
 - Create: `packages/public-source-discovery/tsconfig.json`
 - Create: `packages/public-source-discovery/src/index.ts`
@@ -2075,6 +2212,7 @@ git commit -m "feat(M7): add observation CRUD stores (PublicSource, Profile, NAP
 - Create: `packages/public-source-discovery/src/discovery.test.ts`
 
 **Interfaces:**
+
 - Consumes: Business name and site URL from fact sheet
 - Produces: List of discovered profile URLs for known platforms (Google, Yelp, Facebook, etc.)
 
@@ -2092,7 +2230,10 @@ describe("generateProfileUrls", () => {
       region: "CA",
     });
     expect(urls).toContainEqual(
-      expect.objectContaining({ platform: "google", url: expect.stringContaining("google.com/maps") }),
+      expect.objectContaining({
+        platform: "google",
+        url: expect.stringContaining("google.com/maps"),
+      }),
     );
   });
 
@@ -2109,7 +2250,10 @@ describe("generateProfileUrls", () => {
   it("generates Facebook search URL from business name", () => {
     const urls = generateProfileUrls("Example Business", "https://example.com");
     expect(urls).toContainEqual(
-      expect.objectContaining({ platform: "facebook", url: expect.stringContaining("facebook.com") }),
+      expect.objectContaining({
+        platform: "facebook",
+        url: expect.stringContaining("facebook.com"),
+      }),
     );
   });
 
@@ -2305,6 +2449,7 @@ git commit -m "feat(M7): add public source discovery package with platform URL p
 ### Task 8: HTML Profile Extractor
 
 **Files:**
+
 - Create: `packages/profile-extractor/package.json`
 - Create: `packages/profile-extractor/tsconfig.json`
 - Create: `packages/profile-extractor/src/index.ts`
@@ -2312,6 +2457,7 @@ git commit -m "feat(M7): add public source discovery package with platform URL p
 - Create: `packages/profile-extractor/src/extractor.test.ts`
 
 **Interfaces:**
+
 - Consumes: HTML content from crawled profile pages
 - Produces: Extracted profile data (name, phone, email, address, hours, social links)
 
@@ -2525,6 +2671,7 @@ git commit -m "feat(M7): add profile extractor package for HTML profile data ext
 ### Task 9: NAP Consistency Engine
 
 **Files:**
+
 - Create: `packages/nap-consistency/package.json`
 - Create: `packages/nap-consistency/tsconfig.json`
 - Create: `packages/nap-consistency/src/index.ts`
@@ -2532,6 +2679,7 @@ git commit -m "feat(M7): add profile extractor package for HTML profile data ext
 - Create: `packages/nap-consistency/src/engine.test.ts`
 
 **Interfaces:**
+
 - Consumes: Fact sheet (confirmed values) + profile observations (extracted values)
 - Produces: NAP consistency score + list of inconsistencies per source
 
@@ -2598,9 +2746,7 @@ describe("computeNapConsistency", () => {
     };
 
     const result = computeNapConsistency(baseFactSheet, observation);
-    expect(result.inconsistencies).toContainEqual(
-      expect.objectContaining({ field: "name" }),
-    );
+    expect(result.inconsistencies).toContainEqual(expect.objectContaining({ field: "name" }));
   });
 
   it("detects address field mismatch", () => {
@@ -2836,10 +2982,12 @@ git commit -m "feat(M7): add NAP consistency engine for comparing fact sheet aga
 ### Task 10: Conflict Detector
 
 **Files:**
+
 - Create: `packages/nap-consistency/src/conflict-detector.ts`
 - Create: `packages/nap-consistency/src/conflict-detector.test.ts`
 
 **Interfaces:**
+
 - Consumes: NAP consistency results across multiple sources
 - Produces: List of entity conflicts ready for persistence
 
@@ -2857,9 +3005,7 @@ describe("detectConflicts", () => {
       {
         source_url: "https://yelp.com/biz/example",
         consistency_score: 0.75,
-        inconsistencies: [
-          { field: "phone", expected: "+1-555-0100", actual: "+1-555-0200" },
-        ],
+        inconsistencies: [{ field: "phone", expected: "+1-555-0100", actual: "+1-555-0200" }],
       },
     ];
 
@@ -2924,9 +3070,7 @@ describe("detectConflicts", () => {
       {
         source_url: "https://facebook.com/example",
         consistency_score: 0.75,
-        inconsistencies: [
-          { field: "phone", expected: "+1-555-0100", actual: "+1-555-0300" },
-        ],
+        inconsistencies: [{ field: "phone", expected: "+1-555-0100", actual: "+1-555-0300" }],
       },
     ];
 
@@ -3024,12 +3168,14 @@ git commit -m "feat(M7): add conflict detector for generating entity conflicts f
 ### Task 11: Agent Tools (read_specialist_evidence, read_confirmed_facts)
 
 **Files:**
+
 - Create: `services/agents/src/tools/read-specialist-evidence.ts`
 - Create: `services/agents/src/tools/read-confirmed-facts.ts`
 - Create: `services/agents/src/tools/read-specialist-evidence.test.ts`
 - Create: `services/agents/src/tools/read-confirmed-facts.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ToolContext` with `audit_id` and optional `db` PoolClient
 - Produces: `ToolResult` with evidence data and appropriate source_tier
 
@@ -3078,7 +3224,8 @@ import type { Tool, ToolContext, ToolResult } from "./types.js";
 
 export class ReadSpecialistEvidenceTool implements Tool {
   name = "read_specialist_evidence";
-  description = "Read specialist evidence extracted from public profiles and third-party sources for the current audit.";
+  description =
+    "Read specialist evidence extracted from public profiles and third-party sources for the current audit.";
   inputSchema = {
     type: "object",
     properties: {
@@ -3171,13 +3318,15 @@ import type { Tool, ToolContext, ToolResult } from "./types.js";
 
 export class ReadConfirmedFactsTool implements Tool {
   name = "read_confirmed_facts";
-  description = "Read confirmed facts from the fact sheet register. These are human-verified facts that the Fixer and brief writer may use.";
+  description =
+    "Read confirmed facts from the fact sheet register. These are human-verified facts that the Fixer and brief writer may use.";
   inputSchema = {
     type: "object",
     properties: {
       fact_sheet_id: {
         type: "string",
-        description: "Specific fact sheet ID to read from. If omitted, reads all confirmed fact sheets for the project.",
+        description:
+          "Specific fact sheet ID to read from. If omitted, reads all confirmed fact sheets for the project.",
       },
     },
   };
@@ -3256,10 +3405,12 @@ git commit -m "feat(M7): add read_specialist_evidence and read_confirmed_facts a
 ### Task 12: GEO-011 Evaluator Implementation
 
 **Files:**
+
 - Modify: `packages/rules-engine/src/evaluators/geo.ts:454-460`
 - Modify: `packages/rules-engine/src/evaluators/geo.test.ts`
 
 **Interfaces:**
+
 - Consumes: EvidenceBundle with connectors data
 - Produces: GEO-011 evaluation result (pass/fail/not_applicable)
 
@@ -3425,12 +3576,14 @@ git commit -m "feat(M7): implement GEO-011 business profile consistency evaluato
 ### Task 13: Pipeline Integration — Report Envelope and Composer
 
 **Files:**
+
 - Modify: `packages/audit-pipeline/src/report-envelope.ts`
 - Modify: `packages/audit-pipeline/src/composer.ts`
 - Modify: `packages/audit-pipeline/src/report-envelope.test.ts`
 - Modify: `packages/audit-pipeline/src/composer.test.ts`
 
 **Interfaces:**
+
 - Consumes: Existing report envelope types and composition logic
 - Produces: "entity" FindingSection, entity-analyst agent mapping, geo→entity category mapping
 
@@ -3461,7 +3614,8 @@ In `packages/audit-pipeline/src/report-envelope.ts`:
 
 ```typescript
 // Update FindingSection type (add "entity"):
-export type FindingSection = "technical" | "keywords" | "content" | "performance" | "experience" | "entity";
+export type FindingSection =
+  "technical" | "keywords" | "content" | "performance" | "experience" | "entity";
 
 // Update SECTION_BY_AGENT (add entity-analyst mapping):
 export const SECTION_BY_AGENT: Record<string, FindingSection> = {
@@ -3503,7 +3657,14 @@ In `packages/audit-pipeline/src/composer.ts`:
 
 ```typescript
 // Update SECTION_ORDER (add "entity"):
-const SECTION_ORDER = ["technical", "keywords", "content", "performance", "experience", "entity"] as const;
+const SECTION_ORDER = [
+  "technical",
+  "keywords",
+  "content",
+  "performance",
+  "experience",
+  "entity",
+] as const;
 
 // Update CATEGORY_TO_SECTION (change geo from "content" to "entity"):
 const CATEGORY_TO_SECTION: Record<RuleCategory, FindingSection> = {
@@ -3539,10 +3700,12 @@ git commit -m "feat(M7): add entity section to report envelope and composer"
 ### Task 14: Pipeline Integration — ENRICHING_OPTIONAL Stage
 
 **Files:**
+
 - Modify: `packages/audit-pipeline/src/pipeline.ts`
 - Modify: `packages/audit-pipeline/src/pipeline.test.ts`
 
 **Interfaces:**
+
 - Consumes: PipelineDeps interface, existing pipeline stages
 - Produces: Optional ENRICHING_OPTIONAL stage between EXTRACTING and AUDITING
 
@@ -3602,10 +3765,14 @@ export interface PipelineDeps {
   crawl: (record: AuditRecord, scope: TierScope) => Promise<void>;
   render: (record: AuditRecord) => Promise<void>;
   processEvidence: (record: AuditRecord) => Promise<string[]>;
-  enrichFootprint?: (record: AuditRecord) => Promise<void>;  // ADD THIS LINE
+  enrichFootprint?: (record: AuditRecord) => Promise<void>; // ADD THIS LINE
   runRulesEngine?: (bundle: EvidenceBundle) => Promise<PageRuleResult[]>;
   loadRulesConfig?: () => { rules: LoadedRule[]; scoring: ScoringConfig; catalog: RuleCatalog };
-  runAgents: (record: AuditRecord, evidenceIds: string[], scope: TierScope) => Promise<ComposerAgentOutcome[]>;
+  runAgents: (
+    record: AuditRecord,
+    evidenceIds: string[],
+    scope: TierScope,
+  ) => Promise<ComposerAgentOutcome[]>;
   runConnectors: (url: string, context: AuditContext) => Promise<ConnectorResult[]>;
   tierScopes: Record<Exclude<TierName, "refused">, TierScope>;
   tokenStore?: TokenStore;
@@ -3652,9 +3819,11 @@ git commit -m "feat(M7): add ENRICHING_OPTIONAL pipeline stage for footprint enr
 ### Task 15: Entity-Analyst Agent Config
 
 **Files:**
+
 - Modify: `config/agents/entity-analyst.yaml`
 
 **Interfaces:**
+
 - Consumes: Agent configuration system
 - Produces: Active entity-analyst agent with standard model tier
 
@@ -3667,8 +3836,8 @@ Change `config/agents/entity-analyst.yaml`:
 id: entity-analyst
 name: Entity Analyst
 description: Analyzes public footprint data, entity consistency, and NAP accuracy across sources
-status: active  # Changed from draft
-model_tier: "standard"  # Changed from placeholder
+status: active # Changed from draft
+model_tier: "standard" # Changed from placeholder
 milestone: M7
 
 tools:
@@ -3723,11 +3892,13 @@ git commit -m "feat(M7): activate entity-analyst agent with standard model tier"
 ### Task 16: API Routes — Fact Sheet CRUD
 
 **Files:**
+
 - Create: `apps/web/src/app/[locale]/api/fact-sheets/route.ts`
 - Create: `apps/web/src/app/[locale]/api/fact-sheets/[id]/route.ts`
 - Create: `apps/web/src/app/[locale]/api/fact-sheets/route.test.ts`
 
 **Interfaces:**
+
 - Consumes: FactSheetStore from @wpi/footprint-store
 - Produces: REST API endpoints for fact sheet CRUD
 
@@ -3838,10 +4009,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuditServices } from "@/services/container";
 import { FactSheetCreateSchema } from "@wpi/footprint-store";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const services = await getAuditServices();
   if (!services.pool) {
     return NextResponse.json({ error: "Database not configured" }, { status: 503 });
@@ -3858,10 +4026,7 @@ export async function GET(
   return NextResponse.json(factSheet);
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const body = await request.json();
   const parsed = FactSheetCreateSchema.partial().safeParse(body);
   if (!parsed.success) {
@@ -3906,10 +4071,7 @@ export async function PATCH(
 import { NextRequest, NextResponse } from "next/server";
 import { getAuditServices } from "@/services/container";
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const services = await getAuditServices();
   if (!services.pool) {
     return NextResponse.json({ error: "Database not configured" }, { status: 503 });
@@ -3943,11 +4105,13 @@ git commit -m "feat(M7): add fact sheet CRUD API routes"
 ### Task 17: API Routes — Entity Graph and Conflicts
 
 **Files:**
+
 - Create: `apps/web/src/app/[locale]/api/fact-sheets/[id]/entity-graph/route.ts`
 - Create: `apps/web/src/app/[locale]/api/fact-sheets/[id]/conflicts/route.ts`
 - Create: `apps/web/src/app/[locale]/api/conflicts/[id]/resolve/route.ts`
 
 **Interfaces:**
+
 - Consumes: EntityConflictStore, observation stores
 - Produces: REST API endpoints for entity graph data and conflict resolution
 
@@ -3958,17 +4122,18 @@ git commit -m "feat(M7): add fact sheet CRUD API routes"
 import { NextRequest, NextResponse } from "next/server";
 import { getAuditServices } from "@/services/container";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const services = await getAuditServices();
   if (!services.pool) {
     return NextResponse.json({ error: "Database not configured" }, { status: 503 });
   }
 
-  const { FactSheetStore, PublicSourceObservationStore, ProfileObservationStore, NapObservationStore } =
-    await import("@wpi/footprint-store");
+  const {
+    FactSheetStore,
+    PublicSourceObservationStore,
+    ProfileObservationStore,
+    NapObservationStore,
+  } = await import("@wpi/footprint-store");
 
   const factSheetStore = new FactSheetStore(services.pool);
   const publicSourceStore = new PublicSourceObservationStore(services.pool);
@@ -4002,10 +4167,7 @@ export async function GET(
 import { NextRequest, NextResponse } from "next/server";
 import { getAuditServices } from "@/services/container";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const services = await getAuditServices();
   if (!services.pool) {
     return NextResponse.json({ error: "Database not configured" }, { status: 503 });
@@ -4026,10 +4188,7 @@ export async function GET(
 import { NextRequest, NextResponse } from "next/server";
 import { getAuditServices } from "@/services/container";
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const body = await request.json();
   const { confirmed_value, resolved_by, resolution_note } = body;
 
@@ -4066,10 +4225,7 @@ export async function POST(
 import { NextRequest, NextResponse } from "next/server";
 import { getAuditServices } from "@/services/container";
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const body = await request.json().catch(() => ({}));
   const { resolved_by, resolution_note } = body;
 
@@ -4102,11 +4258,13 @@ git commit -m "feat(M7): add entity graph and conflict resolution API routes"
 ### Task 18: UI — Fact Sheet Editor
 
 **Files:**
+
 - Create: `apps/web/src/app/[locale]/(studio)/projects/[projectId]/fact-sheets/_components/fact-sheet-form.tsx`
 - Create: `apps/web/src/app/[locale]/(studio)/projects/[projectId]/fact-sheets/page.tsx`
 - Create: `apps/web/src/app/[locale]/(studio)/projects/[projectId]/fact-sheets/[id]/page.tsx`
 
 **Interfaces:**
+
 - Consumes: Fact sheet API routes
 - Produces: Fact sheet list page, create/edit form, detail view
 
@@ -4219,9 +4377,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
     };
 
     try {
-      const url = factSheet
-        ? `/api/fact-sheets/${factSheet.id}`
-        : `/api/fact-sheets`;
+      const url = factSheet ? `/api/fact-sheets/${factSheet.id}` : `/api/fact-sheets`;
       const method = factSheet ? "PATCH" : "POST";
 
       const response = await fetch(url, {
@@ -4246,9 +4402,7 @@ export function FactSheetForm({ projectId, factSheet }: FactSheetFormProps) {
 
   return (
     <form action={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded">{error}</div>
-      )}
+      {error && <div className="bg-red-50 text-red-700 p-3 rounded">{error}</div>}
 
       <div>
         <label htmlFor="business_name" className="block text-sm font-medium mb-1">
@@ -4486,7 +4640,8 @@ export default async function FactSheetDetailPage({
               {factSheet.address_line2 && <br />}
               {factSheet.address_line2}
               <br />
-              {factSheet.address_locality}, {factSheet.address_region} {factSheet.address_postal_code}
+              {factSheet.address_locality}, {factSheet.address_region}{" "}
+              {factSheet.address_postal_code}
               <br />
               {factSheet.address_country}
             </address>
@@ -4527,10 +4682,12 @@ git commit -m "feat(M7): add fact sheet editor UI (list, detail, form)"
 ### Task 19: UI — Entity Graph View
 
 **Files:**
+
 - Create: `apps/web/src/app/[locale]/(studio)/projects/[projectId]/entity-graph/[id]/page.tsx`
 - Create: `apps/web/src/app/[locale]/(studio)/projects/[projectId]/entity-graph/[id]/_components/entity-graph-viz.tsx`
 
 **Interfaces:**
+
 - Consumes: Entity graph API route
 - Produces: Visual entity graph showing fact sheet, observations, and NAP consistency
 
@@ -4539,7 +4696,13 @@ git commit -m "feat(M7): add fact sheet editor UI (list, detail, form)"
 ```tsx
 // apps/web/src/app/[locale]/(studio)/projects/[projectId]/entity-graph/[id]/page.tsx
 import { getAuditServices } from "@/services/container";
-import { FactSheetStore, PublicSourceObservationStore, ProfileObservationStore, NapObservationStore, EntityConflictStore } from "@wpi/footprint-store";
+import {
+  FactSheetStore,
+  PublicSourceObservationStore,
+  ProfileObservationStore,
+  NapObservationStore,
+  EntityConflictStore,
+} from "@wpi/footprint-store";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -4575,7 +4738,9 @@ export default async function EntityGraphPage({
     notFound();
   }
 
-  const openConflicts = conflicts.filter((c) => c.status === "open" || c.status === "investigating");
+  const openConflicts = conflicts.filter(
+    (c) => c.status === "open" || c.status === "investigating",
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -4622,7 +4787,12 @@ export default async function EntityGraphPage({
 
 ```tsx
 // apps/web/src/app/[locale]/(studio)/projects/[projectId]/entity-graph/[id]/_components/entity-graph-viz.tsx
-import type { FactSheet, PublicSourceObservation, ProfileObservation, NapObservation } from "@wpi/footprint-store";
+import type {
+  FactSheet,
+  PublicSourceObservation,
+  ProfileObservation,
+  NapObservation,
+} from "@wpi/footprint-store";
 import { useTranslations } from "next-intl";
 
 interface EntityGraphVizProps {
@@ -4632,7 +4802,12 @@ interface EntityGraphVizProps {
   napObservations: NapObservation[];
 }
 
-export function EntityGraphViz({ factSheet, publicSources, profiles, napObservations }: EntityGraphVizProps) {
+export function EntityGraphViz({
+  factSheet,
+  publicSources,
+  profiles,
+  napObservations,
+}: EntityGraphVizProps) {
   const t = useTranslations("entity-graph");
 
   return (
@@ -4658,7 +4833,9 @@ export function EntityGraphViz({ factSheet, publicSources, profiles, napObservat
           {factSheet.address_line1 && (
             <>
               <dt className="text-gray-500">{t("address")}:</dt>
-              <dd>{factSheet.address_line1}, {factSheet.address_locality}</dd>
+              <dd>
+                {factSheet.address_line1}, {factSheet.address_locality}
+              </dd>
             </>
           )}
         </dl>
@@ -4667,13 +4844,20 @@ export function EntityGraphViz({ factSheet, publicSources, profiles, napObservat
       {/* Public Sources */}
       {publicSources.length > 0 && (
         <div>
-          <h3 className="text-md font-semibold mb-3">{t("discovered_sources")} ({publicSources.length})</h3>
+          <h3 className="text-md font-semibold mb-3">
+            {t("discovered_sources")} ({publicSources.length})
+          </h3>
           <div className="grid gap-2">
             {publicSources.map((source) => (
               <div key={source.id} className="bg-gray-50 border rounded p-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="font-medium capitalize">{source.source_platform}</span>
-                  <a href={source.source_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs">
+                  <a
+                    href={source.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline text-xs"
+                  >
                     {t("view_source")} &rarr;
                   </a>
                 </div>
@@ -4686,19 +4870,23 @@ export function EntityGraphViz({ factSheet, publicSources, profiles, napObservat
       {/* Profile Observations */}
       {profiles.length > 0 && (
         <div>
-          <h3 className="text-md font-semibold mb-3">{t("extracted_profiles")} ({profiles.length})</h3>
+          <h3 className="text-md font-semibold mb-3">
+            {t("extracted_profiles")} ({profiles.length})
+          </h3>
           <div className="grid gap-3">
             {profiles.map((profile) => (
               <div key={profile.id} className="bg-white border rounded p-4 text-sm">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-500 truncate">{profile.source_url}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded ${
-                    profile.extraction_confidence >= 0.8
-                      ? "bg-green-100 text-green-800"
-                      : profile.extraction_confidence >= 0.5
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
-                  }`}>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded ${
+                      profile.extraction_confidence >= 0.8
+                        ? "bg-green-100 text-green-800"
+                        : profile.extraction_confidence >= 0.5
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                    }`}
+                  >
                     {Math.round(profile.extraction_confidence * 100)}% {t("confidence")}
                   </span>
                 </div>
@@ -4731,20 +4919,24 @@ export function EntityGraphViz({ factSheet, publicSources, profiles, napObservat
               <div key={nap.id} className="bg-white border rounded p-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="truncate text-xs text-gray-500">{nap.source_url}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded font-medium ${
-                    nap.consistency_score >= 0.9
-                      ? "bg-green-100 text-green-800"
-                      : nap.consistency_score >= 0.7
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
-                  }`}>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded font-medium ${
+                      nap.consistency_score >= 0.9
+                        ? "bg-green-100 text-green-800"
+                        : nap.consistency_score >= 0.7
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                    }`}
+                  >
                     {Math.round(nap.consistency_score * 100)}% {t("consistent")}
                   </span>
                 </div>
                 {nap.inconsistencies.length > 0 && (
                   <ul className="mt-2 text-xs text-red-600">
                     {nap.inconsistencies.map((inc, i) => (
-                      <li key={i}>{inc.field}: &quot;{inc.expected}&quot; vs &quot;{inc.actual}&quot;</li>
+                      <li key={i}>
+                        {inc.field}: &quot;{inc.expected}&quot; vs &quot;{inc.actual}&quot;
+                      </li>
                     ))}
                   </ul>
                 )}
@@ -4770,10 +4962,12 @@ git commit -m "feat(M7): add entity graph visualization UI"
 ### Task 20: UI — Conflict Resolution
 
 **Files:**
+
 - Create: `apps/web/src/app/[locale]/(studio)/projects/[projectId]/conflicts/[id]/page.tsx`
 - Create: `apps/web/src/app/[locale]/(studio)/projects/[projectId]/conflicts/[id]/_components/conflict-list.tsx`
 
 **Interfaces:**
+
 - Consumes: Conflicts API route, conflict resolution API route
 - Produces: Conflict list with resolve/dismiss actions
 
@@ -4903,8 +5097,12 @@ export function ConflictList({ conflicts, factSheetId, locale, projectId }: Conf
     }
   };
 
-  const openConflicts = conflicts.filter((c) => c.status === "open" || c.status === "investigating");
-  const resolvedConflicts = conflicts.filter((c) => c.status === "resolved" || c.status === "dismissed");
+  const openConflicts = conflicts.filter(
+    (c) => c.status === "open" || c.status === "investigating",
+  );
+  const resolvedConflicts = conflicts.filter(
+    (c) => c.status === "resolved" || c.status === "dismissed",
+  );
 
   return (
     <div className="space-y-6">
@@ -4926,19 +5124,26 @@ export function ConflictList({ conflicts, factSheetId, locale, projectId }: Conf
       {/* Open conflicts */}
       {openConflicts.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold mb-3">{t("open_conflicts")} ({openConflicts.length})</h2>
+          <h2 className="text-lg font-semibold mb-3">
+            {t("open_conflicts")} ({openConflicts.length})
+          </h2>
           <div className="space-y-3">
             {openConflicts.map((conflict) => (
               <div key={conflict.id} className="border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="font-medium capitalize">{conflict.fact_key}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded ${
-                      conflict.severity === "critical" ? "bg-red-100 text-red-800" :
-                      conflict.severity === "high" ? "bg-orange-100 text-orange-800" :
-                      conflict.severity === "medium" ? "bg-yellow-100 text-yellow-800" :
-                      "bg-gray-100 text-gray-800"
-                    }`}>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded ${
+                        conflict.severity === "critical"
+                          ? "bg-red-100 text-red-800"
+                          : conflict.severity === "high"
+                            ? "bg-orange-100 text-orange-800"
+                            : conflict.severity === "medium"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
                       {conflict.severity}
                     </span>
                   </div>
@@ -5015,7 +5220,9 @@ export function ConflictList({ conflicts, factSheetId, locale, projectId }: Conf
       {/* Resolved conflicts */}
       {resolvedConflicts.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold mb-3 text-gray-500">{t("resolved")} ({resolvedConflicts.length})</h2>
+          <h2 className="text-lg font-semibold mb-3 text-gray-500">
+            {t("resolved")} ({resolvedConflicts.length})
+          </h2>
           <div className="space-y-2">
             {resolvedConflicts.map((conflict) => (
               <div key={conflict.id} className="border rounded p-3 bg-gray-50 text-sm opacity-75">
@@ -5052,10 +5259,12 @@ git commit -m "feat(M7): add conflict resolution UI with resolve/dismiss actions
 ### Task 21: i18n Keys (English + Arabic)
 
 **Files:**
+
 - Modify: `apps/web/messages/en.json`
 - Modify: `apps/web/messages/ar.json`
 
 **Interfaces:**
+
 - Consumes: next-intl message files
 - Produces: Translation keys for fact sheets, entity graph, conflicts
 
@@ -5199,9 +5408,11 @@ git commit -m "feat(M7): add i18n keys for fact sheets, entity graph, and confli
 ### Task 22: Container Wiring
 
 **Files:**
+
 - Modify: `apps/web/src/services/container.ts`
 
 **Interfaces:**
+
 - Consumes: Existing container pattern
 - Produces: Pool in AuditServices, enrichFootprint wired in buildPipeline
 
@@ -5219,7 +5430,7 @@ export interface AuditServices {
   validateUrl: (url: string) => Promise<{ ok: boolean; reason_key?: string }>;
   outputDir: string;
   geminiApiKey: string | undefined;
-  pool?: Pool;  // ADD THIS LINE for M7 stores
+  pool?: Pool; // ADD THIS LINE for M7 stores
 }
 ```
 
@@ -5263,7 +5474,10 @@ function buildPipeline(fields: PipelineFields) {
             businessName: factSheet.business_name,
             siteUrl: factSheet.site_url,
             location: factSheet.address_locality
-              ? { locality: factSheet.address_locality, region: factSheet.address_region ?? undefined }
+              ? {
+                  locality: factSheet.address_locality,
+                  region: factSheet.address_region ?? undefined,
+                }
               : undefined,
           });
 
@@ -5288,13 +5502,16 @@ function buildPipeline(fields: PipelineFields) {
           };
 
           for (const profile of profiles) {
-            await publicSourceStore.create({
-              fact_sheet_id: factSheet.id,
-              source_platform: profile.platform,
-              source_url: profile.url,
-              discovered_at: new Date().toISOString(),
-              profile_data: {},
-            }, lineage);
+            await publicSourceStore.create(
+              {
+                fact_sheet_id: factSheet.id,
+                source_platform: profile.platform,
+                source_url: profile.url,
+                discovered_at: new Date().toISOString(),
+                profile_data: {},
+              },
+              lineage,
+            );
           }
 
           const napResults = [];
@@ -5321,15 +5538,18 @@ function buildPipeline(fields: PipelineFields) {
               },
             );
 
-            await napStore.create({
-              fact_sheet_id: factSheet.id,
-              source_url: profile.url,
-              name_value: null,
-              phone_value: null,
-              address_value: null,
-              consistency_score: napResult.consistency_score,
-              inconsistencies: napResult.inconsistencies,
-            }, lineage);
+            await napStore.create(
+              {
+                fact_sheet_id: factSheet.id,
+                source_url: profile.url,
+                name_value: null,
+                phone_value: null,
+                address_value: null,
+                consistency_score: napResult.consistency_score,
+                inconsistencies: napResult.inconsistencies,
+              },
+              lineage,
+            );
 
             napResults.push(napResult);
           }
@@ -5360,9 +5580,7 @@ const fields: PipelineFields = {
   validateUrl: async (url) => {
     try {
       const result = await validateUrl(url);
-      return result.valid
-        ? { ok: true }
-        : { ok: false, reason_key: "failure.url_invalid" };
+      return result.valid ? { ok: true } : { ok: false, reason_key: "failure.url_invalid" };
     } catch {
       return { ok: false, reason_key: "failure.url_invalid" };
     }
@@ -5374,7 +5592,7 @@ const fields: PipelineFields = {
 
 return {
   ...fields,
-  pool,  // ADD THIS LINE
+  pool, // ADD THIS LINE
   dispatcher: new InProcessDispatcher(async (jobId) => {
     await runAuditPipeline(buildPipeline(fields), jobId);
   }),
@@ -5399,9 +5617,11 @@ git commit -m "feat(M7): wire enrichFootprint and pool into service container"
 ### Task 23: E2E Tests (Playwright)
 
 **Files:**
+
 - Create: `apps/web/e2e/fact-sheet-flow.spec.ts`
 
 **Interfaces:**
+
 - Consumes: Running web application with test database
 - Produces: E2E test covering fact sheet creation → audit → entity graph → conflict resolution
 
@@ -5417,7 +5637,7 @@ test.describe("Fact Sheet to Conflict Resolution Flow", () => {
     await page.goto("/en/projects/test-project/fact-sheets");
 
     // Create a new fact sheet
-    await page.click('text=Create Fact Sheet');
+    await page.click("text=Create Fact Sheet");
     await page.fill('[name="business_name"]', "Test Business");
     await page.fill('[name="site_url"]', "https://test-business.example.com");
     await page.fill('[name="phone"]', "+1-555-0100");
@@ -5433,26 +5653,26 @@ test.describe("Fact Sheet to Conflict Resolution Flow", () => {
     await expect(page.locator("h1")).toContainText("Test Business");
 
     // Navigate to entity graph
-    await page.click('text=View Entity Graph');
+    await page.click("text=View Entity Graph");
     await expect(page.locator("h1")).toContainText("Test Business");
 
     // If conflicts exist, navigate to conflict resolution
-    const conflictLink = page.locator('text=View & resolve');
+    const conflictLink = page.locator("text=View & resolve");
     if (await conflictLink.isVisible()) {
       await conflictLink.click();
 
       // Enter resolver name
-      await page.fill('#resolved_by', "E2E Tester");
+      await page.fill("#resolved_by", "E2E Tester");
 
       // Resolve first conflict if present
       const resolveButton = page.locator('button:has-text("Resolve")').first();
       if (await resolveButton.isVisible()) {
         await resolveButton.click();
-        await page.fill('textarea', "Resolved by E2E test");
+        await page.fill("textarea", "Resolved by E2E test");
         await page.click('button:has-text("Keep confirmed value")');
 
         // Verify conflict was resolved
-        await expect(page.locator('text=Resolved')).toBeVisible();
+        await expect(page.locator("text=Resolved")).toBeVisible();
       }
     }
   });
@@ -5467,7 +5687,7 @@ test.describe("Fact Sheet to Conflict Resolution Flow", () => {
     const factSheetCards = page.locator('a[href*="/fact-sheets/"]');
     const count = await factSheetCards.count();
     if (count > 0) {
-      const statusBadge = factSheetCards.first().locator('span').last();
+      const statusBadge = factSheetCards.first().locator("span").last();
       await expect(statusBadge).toBeVisible();
     }
   });
@@ -5479,13 +5699,13 @@ test.describe("Fact Sheet to Conflict Resolution Flow", () => {
     const firstSheet = page.locator('a[href*="/fact-sheets/"]').first();
     if (await firstSheet.isVisible()) {
       await firstSheet.click();
-      await page.click('text=View Entity Graph');
+      await page.click("text=View Entity Graph");
 
       // Check for NAP consistency section
-      const napSection = page.locator('text=NAP Consistency');
+      const napSection = page.locator("text=NAP Consistency");
       if (await napSection.isVisible()) {
         // Verify consistency scores are displayed as percentages
-        const scoreElements = page.locator('text=/\\d+% consistent/');
+        const scoreElements = page.locator("text=/\\d+% consistent/");
         const scoreCount = await scoreElements.count();
         expect(scoreCount).toBeGreaterThan(0);
       }
@@ -5511,9 +5731,11 @@ git commit -m "feat(M7): add E2E tests for fact sheet to conflict resolution flo
 ### Task 24: Final Verification and Exit Gate
 
 **Files:**
+
 - None (verification only)
 
 **Interfaces:**
+
 - Consumes: All M7 packages, services, and UI
 - Produces: Verification that all exit criteria are met
 
@@ -5560,6 +5782,7 @@ Run: `cd apps/web && npm run dev`
 Open: `http://localhost:3000/en/projects/test-project/fact-sheets`
 
 Verify:
+
 - Fact sheet list page loads
 - Create fact sheet form works
 - Fact sheet detail page displays

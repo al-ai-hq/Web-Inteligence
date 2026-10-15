@@ -24,12 +24,9 @@ export default async function IntegrationsPage({
       )}
 
       <div className="rounded-lg border p-6">
-        <h2 className="mb-2 text-lg font-semibold">
-          Google Search Console &amp; Analytics
-        </h2>
+        <h2 className="mb-2 text-lg font-semibold">Google Search Console &amp; Analytics</h2>
         <p className="mb-4 text-sm text-gray-600">
-          Connect your Google account to include search performance and
-          analytics data in audits.
+          Connect your Google account to include search performance and analytics data in audits.
         </p>
         <form action="/api/oauth/google/authorize" method="GET">
           <input

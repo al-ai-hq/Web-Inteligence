@@ -14,13 +14,7 @@ interface TrendRecord {
   report: { score: { presence_readiness: number | null } | null } | null;
 }
 
-export function TrendChart({
-  records,
-  locale,
-}: {
-  records: TrendRecord[];
-  locale: string;
-}) {
+export function TrendChart({ records, locale }: { records: TrendRecord[]; locale: string }) {
   const t = useTranslations("dashboard");
   const points = buildTrendSeries(records);
 
@@ -28,8 +22,7 @@ export function TrendChart({
     return null;
   }
 
-  const stepX =
-    points.length > 1 ? (WIDTH - PAD_X * 2) / (points.length - 1) : 0;
+  const stepX = points.length > 1 ? (WIDTH - PAD_X * 2) / (points.length - 1) : 0;
 
   const pathD = points
     .map((point, i) => {
@@ -56,14 +49,7 @@ export function TrendChart({
         const y = HEIGHT - PAD_Y - (value / 100) * (HEIGHT - PAD_Y * 2);
         return (
           <g key={value}>
-            <line
-              x1={PAD_X}
-              y1={y}
-              x2={WIDTH - PAD_X}
-              y2={y}
-              stroke={GRID_COLOR}
-              strokeWidth={1}
-            />
+            <line x1={PAD_X} y1={y} x2={WIDTH - PAD_X} y2={y} stroke={GRID_COLOR} strokeWidth={1} />
             <text x={4} y={y + 4} fill={GRID_COLOR} fontSize={10}>
               {value}
             </text>
@@ -73,8 +59,7 @@ export function TrendChart({
       <path d={pathD} fill="none" stroke={SCORE_LINE_COLOR} strokeWidth={2} />
       {points.map((point, i) => {
         const x = PAD_X + i * stepX;
-        const y =
-          HEIGHT - PAD_Y - (point.score / 100) * (HEIGHT - PAD_Y * 2);
+        const y = HEIGHT - PAD_Y - (point.score / 100) * (HEIGHT - PAD_Y * 2);
         return (
           <circle key={point.date} cx={x} cy={y} r={3} fill={SCORE_DOT_COLOR}>
             <title>

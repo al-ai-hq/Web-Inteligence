@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { categoryLabelKey, formatScorePercentage } from "../app/[locale]/audit/[id]/_components/score-card";
+import {
+  categoryLabelKey,
+  formatScorePercentage,
+} from "../app/[locale]/audit/[id]/_components/score-card";
 
 describe("formatScorePercentage", () => {
   it("returns N/A for null", () => {

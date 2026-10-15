@@ -47,11 +47,7 @@ export interface AuditStore {
   getActive(id: string): Promise<GetActiveResult>;
   getRaw(id: string): Promise<AuditRecord | null>;
   transition(id: string, to: string): Promise<TransitionResult>;
-  setFailure(
-    id: string,
-    reasonKey: string,
-    costs?: StoredCosts,
-  ): Promise<TransitionResult>;
+  setFailure(id: string, reasonKey: string, costs?: StoredCosts): Promise<TransitionResult>;
   setOutcome(
     id: string,
     to: "READY_PARTIAL" | "READY_COMPLETE",
@@ -84,7 +80,10 @@ export class InMemoryAuditStore implements AuditStore {
       costs: null,
       created_at: now.toISOString(),
       updated_at: now.toISOString(),
-      expires_at: assignment.userId != null ? null : new Date(now.getTime() + assignment.ttlDays * DAY_MS).toISOString(),
+      expires_at:
+        assignment.userId != null
+          ? null
+          : new Date(now.getTime() + assignment.ttlDays * DAY_MS).toISOString(),
       deleted_at: null,
     };
     this.rows.set(record.id, record);
@@ -128,11 +127,7 @@ export class InMemoryAuditStore implements AuditStore {
     return structuredClone(row);
   }
 
-  async setFailure(
-    id: string,
-    reasonKey: string,
-    costs?: StoredCosts,
-  ): Promise<TransitionResult> {
+  async setFailure(id: string, reasonKey: string, costs?: StoredCosts): Promise<TransitionResult> {
     const row = this.rows.get(id);
     if (!row) {
       throw new Error(`Audit ${id} not found`);

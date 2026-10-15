@@ -32,6 +32,7 @@
 ### Task 1: Scaffold the `@wpi/rate-limiter` package and shared types
 
 **Files:**
+
 - Create: `packages/rate-limiter/package.json`
 - Create: `packages/rate-limiter/tsconfig.json`
 - Create: `packages/rate-limiter/vitest.config.ts`
@@ -40,11 +41,13 @@
 - Modify: `tsconfig.json` (root project references)
 
 **Interfaces:**
+
 - Consumes: none
 - Produces: `@wpi/rate-limiter` package exporting `RateLimitResult`, `RateLimiter`, `TokenBucket`, `InMemoryRateLimiter`, `verifyTurnstileToken`
 
 - [ ] **Step 1: Write the failing test**
-  Create `packages/rate-limiter/tests/types.test.ts`:
+      Create `packages/rate-limiter/tests/types.test.ts`:
+
   ```ts
   import { describe, expect, it } from "vitest";
   import {
@@ -82,9 +85,11 @@
   ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
   ```bash
   pnpm --filter @wpi/rate-limiter test
   ```
+
   Expected: FAIL — `packages/rate-limiter/src/index.ts` does not exist, so Vitest cannot resolve imports.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -172,10 +177,12 @@
      ```
 
 - [ ] **Step 4: Run test to verify it passes**
+
   ```bash
   pnpm install --frozen-lockfile
   pnpm --filter @wpi/rate-limiter test
   ```
+
   Expected: PASS — the public API tests resolve and pass.
 
 - [ ] **Step 5: Commit**
@@ -189,15 +196,18 @@
 ### Task 2: Implement the token bucket
 
 **Files:**
+
 - Create: `packages/rate-limiter/src/token-bucket.ts`
 - Create: `packages/rate-limiter/tests/token-bucket.test.ts`
 
 **Interfaces:**
+
 - Consumes: `{ capacity: number; refillRateMs: number }`
 - Produces: `TokenBucket` with `consume(amount, now?)`, `state(now?)`
 
 - [ ] **Step 1: Write the failing test**
-  Create `packages/rate-limiter/tests/token-bucket.test.ts`:
+      Create `packages/rate-limiter/tests/token-bucket.test.ts`:
+
   ```ts
   import { describe, expect, it } from "vitest";
   import { TokenBucket } from "../src/token-bucket.js";
@@ -237,13 +247,16 @@
   ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
   ```bash
   pnpm --filter @wpi/rate-limiter test tests/token-bucket.test.ts
   ```
+
   Expected: FAIL — `TokenBucket` is not defined.
 
 - [ ] **Step 3: Write minimal implementation**
-  Create `packages/rate-limiter/src/token-bucket.ts`:
+      Create `packages/rate-limiter/src/token-bucket.ts`:
+
   ```ts
   export interface TokenBucketState {
     remaining: number;
@@ -306,9 +319,11 @@
   ```
 
 - [ ] **Step 4: Run test to verify it passes**
+
   ```bash
   pnpm --filter @wpi/rate-limiter test tests/token-bucket.test.ts
   ```
+
   Expected: PASS — token bucket tests pass.
 
 - [ ] **Step 5: Commit**
@@ -322,15 +337,18 @@
 ### Task 3: Implement the in-memory rate limiter
 
 **Files:**
+
 - Create: `packages/rate-limiter/src/in-memory-rate-limiter.ts`
 - Create: `packages/rate-limiter/tests/in-memory-rate-limiter.test.ts`
 
 **Interfaces:**
+
 - Consumes: `TokenBucket`, `RateLimiter` port, constants from spec
 - Produces: `InMemoryRateLimiter` implementing `RateLimiter`
 
 - [ ] **Step 1: Write the failing test**
-  Create `packages/rate-limiter/tests/in-memory-rate-limiter.test.ts`:
+      Create `packages/rate-limiter/tests/in-memory-rate-limiter.test.ts`:
+
   ```ts
   import { describe, expect, it } from "vitest";
   import { InMemoryRateLimiter } from "../src/in-memory-rate-limiter.js";
@@ -389,7 +407,11 @@
       for (let i = 0; i < 50; i++) {
         await limiter.checkUser(userId, projectId, new Date("2026-10-31T23:59:00Z"));
       }
-      const nextMonth = await limiter.checkUser(userId, projectId, new Date("2026-11-01T00:00:01Z"));
+      const nextMonth = await limiter.checkUser(
+        userId,
+        projectId,
+        new Date("2026-11-01T00:00:01Z"),
+      );
       expect(nextMonth.allowed).toBe(true);
       expect(nextMonth.remaining).toBe(49);
     });
@@ -417,13 +439,16 @@
   ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
   ```bash
   pnpm --filter @wpi/rate-limiter test tests/in-memory-rate-limiter.test.ts
   ```
+
   Expected: FAIL — `InMemoryRateLimiter` is not defined.
 
 - [ ] **Step 3: Write minimal implementation**
-  Create `packages/rate-limiter/src/in-memory-rate-limiter.ts`:
+      Create `packages/rate-limiter/src/in-memory-rate-limiter.ts`:
+
   ```ts
   import { TokenBucket } from "./token-bucket.js";
   import type { RateLimitResult, RateLimiter } from "./types.js";
@@ -449,7 +474,10 @@
     async checkAnonymous(ip: string, now: Date = new Date()): Promise<RateLimitResult> {
       let bucket = this.anonymous.get(ip);
       if (!bucket) {
-        bucket = new TokenBucket({ capacity: ANONYMOUS_CAPACITY, refillRateMs: ANONYMOUS_REFILL_MS });
+        bucket = new TokenBucket({
+          capacity: ANONYMOUS_CAPACITY,
+          refillRateMs: ANONYMOUS_REFILL_MS,
+        });
         this.anonymous.set(ip, bucket);
       }
       const allowed = bucket.consume(1, now);
@@ -519,9 +547,11 @@
   ```
 
 - [ ] **Step 4: Run test to verify it passes**
+
   ```bash
   pnpm --filter @wpi/rate-limiter test tests/in-memory-rate-limiter.test.ts
   ```
+
   Expected: PASS — in-memory limiter tests pass.
 
 - [ ] **Step 5: Commit**
@@ -535,15 +565,18 @@
 ### Task 4: Implement the Turnstile client
 
 **Files:**
+
 - Create: `packages/rate-limiter/src/turnstile-client.ts`
 - Create: `packages/rate-limiter/tests/turnstile-client.test.ts`
 
 **Interfaces:**
+
 - Consumes: `TURNSTILE_SECRET_KEY`, `turnstileToken`, optional `ip`
 - Produces: `verifyTurnstileToken(token, ip)` returning `Promise<boolean>`
 
 - [ ] **Step 1: Write the failing test**
-  Create `packages/rate-limiter/tests/turnstile-client.test.ts`:
+      Create `packages/rate-limiter/tests/turnstile-client.test.ts`:
+
   ```ts
   import { describe, expect, it, vi, afterEach } from "vitest";
   import { verifyTurnstileToken } from "../src/turnstile-client.js";
@@ -556,9 +589,9 @@
 
     it("returns true when Cloudflare reports success", async () => {
       process.env["TURNSTILE_SECRET_KEY"] = "secret";
-      const fetchMock = vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ success: true }), { status: 200 }),
-      );
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
       globalThis.fetch = fetchMock as unknown as typeof fetch;
 
       const ok = await verifyTurnstileToken("token", "1.2.3.4");
@@ -575,9 +608,9 @@
 
     it("returns false when Cloudflare reports failure", async () => {
       process.env["TURNSTILE_SECRET_KEY"] = "secret";
-      const fetchMock = vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ success: false }), { status: 200 }),
-      );
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValue(new Response(JSON.stringify({ success: false }), { status: 200 }));
       globalThis.fetch = fetchMock as unknown as typeof fetch;
 
       const ok = await verifyTurnstileToken("token");
@@ -601,18 +634,18 @@
   ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
   ```bash
   pnpm --filter @wpi/rate-limiter test tests/turnstile-client.test.ts
   ```
+
   Expected: FAIL — `verifyTurnstileToken` is not defined.
 
 - [ ] **Step 3: Write minimal implementation**
-  Create `packages/rate-limiter/src/turnstile-client.ts`:
+      Create `packages/rate-limiter/src/turnstile-client.ts`:
+
   ```ts
-  export async function verifyTurnstileToken(
-    token: string,
-    ip?: string,
-  ): Promise<boolean> {
+  export async function verifyTurnstileToken(token: string, ip?: string): Promise<boolean> {
     const secret = process.env["TURNSTILE_SECRET_KEY"];
     if (!secret) {
       return false;
@@ -641,9 +674,11 @@
   ```
 
 - [ ] **Step 4: Run test to verify it passes**
+
   ```bash
   pnpm --filter @wpi/rate-limiter test tests/turnstile-client.test.ts
   ```
+
   Expected: PASS — Turnstile client tests pass.
 
 - [ ] **Step 5: Commit**
@@ -657,6 +692,7 @@
 ### Task 5: Replace the legacy auth rate limiter with `@wpi/rate-limiter`
 
 **Files:**
+
 - Modify: `apps/web/src/services/container.ts`
 - Modify: `apps/web/package.json`
 - Modify: `apps/web/src/test/container.test.ts`
@@ -667,25 +703,20 @@
 - Modify: `packages/auth/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: `RateLimiter` from `@wpi/rate-limiter`
 - Produces: `AuditServices.rateLimiter` typed to the new `@wpi/rate-limiter` interface
 
 - [ ] **Step 1: Write the failing test**
-  Update `apps/web/src/test/container.test.ts` to expect the new rate limiter:
+      Update `apps/web/src/test/container.test.ts` to expect the new rate limiter:
+
   ```ts
   import { afterEach, describe, expect, it } from "vitest";
   import { InMemoryAuditStore } from "@wpi/audit-pipeline";
   import { InMemoryRateLimiter } from "@wpi/rate-limiter";
-  import {
-    getAuditServices,
-    setAuditServicesForTests,
-  } from "../services/container";
+  import { getAuditServices, setAuditServicesForTests } from "../services/container";
 
-  const ENV_KEYS = [
-    "WPI_DISPATCH_MODE",
-    "AUDIT_COOKIE_SECRET",
-    "WPI_DATABASE_URL",
-  ] as const;
+  const ENV_KEYS = ["WPI_DISPATCH_MODE", "AUDIT_COOKIE_SECRET", "WPI_DATABASE_URL"] as const;
 
   afterEach(() => {
     setAuditServicesForTests(null);
@@ -718,9 +749,11 @@
   ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
   ```bash
   pnpm --filter @wpi/web test src/test/container.test.ts
   ```
+
   Expected: FAIL — container imports `RateLimiter` from `@wpi/auth` and the type does not match `InMemoryRateLimiter`.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -742,11 +775,13 @@
   5. Remove `export * from "./rate-limit.js";` from `packages/auth/src/index.ts`.
 
 - [ ] **Step 4: Run test to verify it passes**
+
   ```bash
   pnpm install --frozen-lockfile
   pnpm --filter @wpi/rate-limiter build
   pnpm --filter @wpi/web test src/test/container.test.ts
   ```
+
   Expected: PASS — container builds and exposes the new rate limiter.
 
 - [ ] **Step 5: Commit**
@@ -760,16 +795,19 @@
 ### Task 6: Add rate-limit and Turnstile checks to `POST /api/audits`
 
 **Files:**
+
 - Modify: `apps/web/src/app/api/audits/route.ts`
 - Modify: `apps/web/src/app/api/audits/route.test.ts` (or create `apps/web/src/test/api-audits-rate-limit.test.ts`)
 - Modify: `apps/web/src/app/[locale]/_components/create-audit-client.ts`
 
 **Interfaces:**
+
 - Consumes: `services.rateLimiter`, `getClientIp`, `verifyTurnstileToken`, request body `turnstileToken`
 - Produces: `201` with `X-RateLimit-*` headers, `429` with `Retry-After` and bilingual message, `400` when Turnstile is required/fails
 
 - [ ] **Step 1: Write the failing test**
-  Create `apps/web/src/test/api-audits-rate-limit.test.ts`:
+      Create `apps/web/src/test/api-audits-rate-limit.test.ts`:
+
   ```ts
   import { describe, expect, it, afterEach, vi } from "vitest";
   import { NextRequest } from "next/server";
@@ -788,7 +826,9 @@
       auth: new InMemoryAuthService(),
       rateLimiter: new InMemoryRateLimiter(),
       validateUrl: async (url: string) =>
-        url.startsWith("https://") ? { ok: true } : { ok: false, reason_key: "failure.url_invalid" },
+        url.startsWith("https://")
+          ? { ok: true }
+          : { ok: false, reason_key: "failure.url_invalid" },
       outputDir: "./output",
       geminiApiKey: undefined,
     };
@@ -869,9 +909,11 @@
     it("rejects an invalid turnstile token", async () => {
       const services = makeServices();
       setAuditServicesForTests(services);
-      globalThis.fetch = vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ success: false }), { status: 200 }),
-      ) as unknown as typeof fetch;
+      globalThis.fetch = vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ success: false }), { status: 200 }),
+        ) as unknown as typeof fetch;
 
       const invalidBody = {
         url: "not-a-url",
@@ -890,18 +932,18 @@
         await POST(postAudit(invalidBody));
       }
 
-      const response = await POST(
-        postAudit({ ...invalidBody, turnstileToken: "bad" }),
-      );
+      const response = await POST(postAudit({ ...invalidBody, turnstileToken: "bad" }));
       expect(response.status).toBe(400);
     });
   });
   ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
   ```bash
   pnpm --filter @wpi/web test src/test/api-audits-rate-limit.test.ts
   ```
+
   Expected: FAIL — the route does not read `turnstileToken` or call the new limiter methods.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -913,7 +955,11 @@
        ```
      - Add helper to attach rate-limit headers:
        ```ts
-       function rateLimitHeaders(result: { limit: number; remaining: number; resetAt: Date }): Record<string, string> {
+       function rateLimitHeaders(result: {
+         limit: number;
+         remaining: number;
+         resetAt: Date;
+       }): Record<string, string> {
          return {
            "X-RateLimit-Limit": String(result.limit),
            "X-RateLimit-Remaining": String(Math.max(0, result.remaining)),
@@ -941,9 +987,7 @@
          }
        }
 
-       const user = cookieValue
-         ? await services.auth.getSessionUser(hashToken(cookieValue))
-         : null;
+       const user = cookieValue ? await services.auth.getSessionUser(hashToken(cookieValue)) : null;
 
        const rateLimitResult = user
          ? await services.rateLimiter.checkUser(user.id, user.id)
@@ -984,9 +1028,11 @@
      - Add `"turnstile_required"` to `CreateAuditError` and `mapCreateAuditError`.
 
 - [ ] **Step 4: Run test to verify it passes**
+
   ```bash
   pnpm --filter @wpi/web test src/test/api-audits-rate-limit.test.ts
   ```
+
   Expected: PASS — rate-limit and Turnstile tests pass.
 
 - [ ] **Step 5: Commit**
@@ -1000,6 +1046,7 @@
 ### Task 7: Add the Turnstile widget to the audit form
 
 **Files:**
+
 - Modify: `apps/web/src/app/[locale]/_components/audit-form.tsx`
 - Modify: `apps/web/src/app/[locale]/_components/create-audit-client.ts`
 - Modify: `apps/web/package.json`
@@ -1007,18 +1054,21 @@
 - Modify: `apps/web/src/messages/ar.json`
 
 **Interfaces:**
+
 - Consumes: `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `submitAudit` result, i18n `rateLimit` keys
 - Produces: audit form that renders Turnstile when required and resubmits with a token
 
 - [ ] **Step 1: Write the failing test**
-  Run the web typecheck:
+      Run the web typecheck:
+
   ```bash
   pnpm --filter @wpi/web typecheck
   ```
+
   Expected: FAIL — the form references a `Turnstile` component and `turnstileToken` state that do not exist yet.
 
 - [ ] **Step 2: Run test to verify it fails**
-  (Same command; confirm TypeScript errors reference the missing pieces.)
+      (Same command; confirm TypeScript errors reference the missing pieces.)
 
 - [ ] **Step 3: Write minimal implementation**
   1. Install the lightweight React wrapper:
@@ -1063,22 +1113,26 @@
      - After a `turnstile_required` error, set `turnstileRequired: true` and `setSubmitting(false)`.
      - Render the widget before the submit button when `turnstileRequired`:
        ```tsx
-       {turnstileRequired ? (
-         <div className="flex justify-center">
-           <Turnstile
-             siteKey={process.env["NEXT_PUBLIC_TURNSTILE_SITE_KEY"] ?? ""}
-             onSuccess={(token) => setTurnstileToken(token)}
-           />
-         </div>
-       ) : null}
+       {
+         turnstileRequired ? (
+           <div className="flex justify-center">
+             <Turnstile
+               siteKey={process.env["NEXT_PUBLIC_TURNSTILE_SITE_KEY"] ?? ""}
+               onSuccess={(token) => setTurnstileToken(token)}
+             />
+           </div>
+         ) : null;
+       }
        ```
      - Disable the submit button until a token is available when Turnstile is required.
 
 - [ ] **Step 4: Run test to verify it passes**
+
   ```bash
   pnpm --filter @wpi/web typecheck
   pnpm --filter @wpi/web test src/app/\[locale\]/_components/create-audit-client.test.ts
   ```
+
   Expected: PASS — TypeScript compiles and the existing client tests still pass.
 
 - [ ] **Step 5: Commit**
@@ -1092,26 +1146,30 @@
 ### Task 8: Add integration tests and run full verification
 
 **Files:**
+
 - Create: `apps/web/src/test/api-audits-rate-limit-integration.test.ts` (optional, if not already covered)
 - Modify: `apps/web/src/test/api-audits-post.test.ts` (ensure rate limiter property uses new type)
 - Modify: `apps/web/.env.local`
 
 **Interfaces:**
+
 - Consumes: `@wpi/rate-limiter`, `POST /api/audits`
 - Produces: verified rate-limit and Turnstile behavior
 
 - [ ] **Step 1: Write the failing test**
-  Run the full verification suite:
+      Run the full verification suite:
+
   ```bash
   pnpm typecheck
   pnpm test
   pnpm lint
   pnpm format:check
   ```
+
   Expected: FAIL if any existing tests still reference the deleted `@wpi/auth` `RateLimiter` or if formatting is off.
 
 - [ ] **Step 2: Run test to verify it fails**
-  (Same command; note failures.)
+      (Same command; note failures.)
 
 - [ ] **Step 3: Write minimal implementation**
   1. Update any remaining test helpers that import `RateLimiter` from `@wpi/auth` to use `InMemoryRateLimiter` from `@wpi/rate-limiter`.
@@ -1123,7 +1181,8 @@
   3. Run `pnpm format` if needed.
 
 - [ ] **Step 4: Run test to verify it passes**
-  Run the full verification suite again:
+      Run the full verification suite again:
+
   ```bash
   pnpm install --frozen-lockfile
   pnpm --filter @wpi/rate-limiter build
@@ -1132,6 +1191,7 @@
   pnpm lint
   pnpm format:check
   ```
+
   Expected: all commands pass.
 
 - [ ] **Step 5: Commit**

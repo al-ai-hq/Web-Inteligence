@@ -35,7 +35,7 @@ describe("buildDimensionPrompt", () => {
     const { systemPrompt, content } = buildDimensionPrompt(
       "design_hierarchy",
       mockEvidence,
-      imageParts
+      imageParts,
     );
 
     expect(systemPrompt).toContain("Design hierarchy");
@@ -46,13 +46,9 @@ describe("buildDimensionPrompt", () => {
 
   it("includes extractor results in text content", () => {
     const imageParts: ContentPart[] = [];
-    const { content } = buildDimensionPrompt(
-      "design_hierarchy",
-      mockEvidence,
-      imageParts
-    );
+    const { content } = buildDimensionPrompt("design_hierarchy", mockEvidence, imageParts);
 
-    const textPart = content.find(p => p.type === "text");
+    const textPart = content.find((p) => p.type === "text");
     expect(textPart).toBeDefined();
     expect(textPart!.text).toContain("https://example.com");
     expect(textPart!.text).toContain("en");
@@ -63,11 +59,7 @@ describe("buildDimensionPrompt", () => {
     const imageParts: ContentPart[] = [
       { type: "image", mimeType: "image/png", data: "base64data" },
     ];
-    const { content } = buildDimensionPrompt(
-      "design_hierarchy",
-      mockEvidence,
-      imageParts
-    );
+    const { content } = buildDimensionPrompt("design_hierarchy", mockEvidence, imageParts);
 
     expect(content).toHaveLength(2);
     expect(content[0].type).toBe("text");

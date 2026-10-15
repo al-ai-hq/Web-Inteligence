@@ -58,9 +58,7 @@ describe("InMemoryAuditStore", () => {
   it("rejects an invalid transition", async () => {
     const store = new InMemoryAuditStore();
     const record = await store.create(input());
-    await expect(store.transition(record.id, "COMPOSING")).rejects.toThrow(
-      /Invalid transition/,
-    );
+    await expect(store.transition(record.id, "COMPOSING")).rejects.toThrow(/Invalid transition/);
   });
 
   it("walks the happy path QUEUED -> ... -> READY_COMPLETE", async () => {
@@ -86,7 +84,14 @@ describe("InMemoryAuditStore", () => {
   it("setFailure after a terminal READY status is a no-op returning terminal", async () => {
     const store = new InMemoryAuditStore();
     const record = await store.create(input());
-    for (const status of ["VALIDATING", "CRAWLING", "EXTRACTING", "AUDITING", "COMPOSING", "READY_COMPLETE"]) {
+    for (const status of [
+      "VALIDATING",
+      "CRAWLING",
+      "EXTRACTING",
+      "AUDITING",
+      "COMPOSING",
+      "READY_COMPLETE",
+    ]) {
       await store.transition(record.id, status);
     }
     const result = await store.setFailure(record.id, "failure.pipeline_error");
@@ -118,7 +123,12 @@ describe("InMemoryAuditStore", () => {
       action_board: [],
       costs: { currency: "USD" as const, agents: [], total_usd: 0 },
     };
-    const done = await store.setOutcome(record.id, "READY_COMPLETE", envelope.report, envelope.costs);
+    const done = await store.setOutcome(
+      record.id,
+      "READY_COMPLETE",
+      envelope.report,
+      envelope.costs,
+    );
     expect(done.status).toBe("READY_COMPLETE");
     const raw = await store.getRaw(record.id);
     expect(raw?.costs).toEqual({ currency: "USD", agents: [], total_usd: 0 });

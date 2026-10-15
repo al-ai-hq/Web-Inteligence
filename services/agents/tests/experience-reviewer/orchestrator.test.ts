@@ -79,7 +79,7 @@ describe("reviewExperience", () => {
       expect.objectContaining({
         audit_id: "audit-123",
         agent_name: "experience-reviewer",
-      })
+      }),
     );
   });
 

@@ -1,26 +1,26 @@
 # Seed: M11 AI Content Assistant (SEO Agent Frameworks)
 
-| Field | Value |
-| ----- | ----- |
-| Type | Design seed (pre-intent input material) |
-| Seeds | M11 "AI Content Assistant" in `docs/m9-roadmap.md` (Priority 3) |
-| Source | `seo-agent-skill/` (outside repo) — ai-search-optimization reference (answer-first structure, AI Overviews/ChatGPT/Perplexity tactics), content-brief patterns |
-| Status | draft — input material for the future M11 intent, not an accepted spec |
-| Date | 2026-10-14 |
-| Skill governance | Per CLAUDE.md: port logic into product code, never import skill scripts; LLM usage flows through the M3 provider layer with budget gates |
+| Field            | Value                                                                                                                                                          |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type             | Design seed (pre-intent input material)                                                                                                                        |
+| Seeds            | M11 "AI Content Assistant" in `docs/m9-roadmap.md` (Priority 3)                                                                                                |
+| Source           | `seo-agent-skill/` (outside repo) — ai-search-optimization reference (answer-first structure, AI Overviews/ChatGPT/Perplexity tactics), content-brief patterns |
+| Status           | draft — input material for the future M11 intent, not an accepted spec                                                                                         |
+| Date             | 2026-10-14                                                                                                                                                     |
+| Skill governance | Per CLAUDE.md: port logic into product code, never import skill scripts; LLM usage flows through the M3 provider layer with budget gates                       |
 
 ## Why this seed exists
 
-The M11 roadmap says "Generate SEO-optimized content suggestions, AI-powered meta description generator, Automated internal linking recommendations." WPI already has the substrate: M8 Content & Schema Studio (`@wpi/content-briefs`, `@wpi/content-drafts`, `@wpi/schema-builder`) and the M3 agents service (Gemini provider, tool allowlists, cost tracking). What the skill adds is the *optimization doctrine* — answer-first structure for AI search citation, quotability, entity building — plus guardrails about what AI-generated content must never do (fabricate data, promise rankings).
+The M11 roadmap says "Generate SEO-optimized content suggestions, AI-powered meta description generator, Automated internal linking recommendations." WPI already has the substrate: M8 Content & Schema Studio (`@wpi/content-briefs`, `@wpi/content-drafts`, `@wpi/schema-builder`) and the M3 agents service (Gemini provider, tool allowlists, cost tracking). What the skill adds is the _optimization doctrine_ — answer-first structure for AI search citation, quotability, entity building — plus guardrails about what AI-generated content must never do (fabricate data, promise rankings).
 
 ## Relationship to existing milestones
 
-| Existing capability | Role in M11 |
-| ------------------- | ----------- |
-| M3 agents service (provider layer, cost tracker, circuit breaker, prompt builder) | The ONLY path for generation calls; write-class tools remain forbidden (CLAUDE.md) |
-| M6 AI Visibility Lab (5 provider adapters) | Measurement side: after content ships, visibility runs show whether AI answers cite the new content. M11 does not merge with D-012 separation — generation and measurement stay separate modules |
-| M8 content-briefs / content-drafts / schema-builder | Storage and drafting substrate; M11 fills the scaffold gaps noted in the M8 known-issues (API routes are scaffolds) |
-| M2 rules engine | Post-generation lint: drafts are checked by the same SEO rules so a draft cannot ship what an audit would flag |
+| Existing capability                                                               | Role in M11                                                                                                                                                                                      |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| M3 agents service (provider layer, cost tracker, circuit breaker, prompt builder) | The ONLY path for generation calls; write-class tools remain forbidden (CLAUDE.md)                                                                                                               |
+| M6 AI Visibility Lab (5 provider adapters)                                        | Measurement side: after content ships, visibility runs show whether AI answers cite the new content. M11 does not merge with D-012 separation — generation and measurement stay separate modules |
+| M8 content-briefs / content-drafts / schema-builder                               | Storage and drafting substrate; M11 fills the scaffold gaps noted in the M8 known-issues (API routes are scaffolds)                                                                              |
+| M2 rules engine                                                                   | Post-generation lint: drafts are checked by the same SEO rules so a draft cannot ship what an audit would flag                                                                                   |
 
 ## Proposed pipeline
 
@@ -62,13 +62,13 @@ Trust boundaries: generation happens in the agents service; the assistant has **
 
 ## Policy conformance concerns to carry into the intent
 
-| Policy | Concern |
-| ------ | ------- |
-| cost-guard | Pre-call cap check + per-user generation quota `<DECIDE_AT_M11>` |
-| data-integrity | Generated claims must cite evidence or be flagged; AI-suggested ≠ observed demand |
-| security-baseline | Prompt-injection surface: page context is untrusted content → M3 hardened prompt builder; no tool_use write paths |
-| connector-safety | No CMS/Git writes; export-only |
-| arabic-rtl-a11y | AR drafts, bidi-isolated URLs in drafts, native review flag |
+| Policy                 | Concern                                                                                                              |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| cost-guard             | Pre-call cap check + per-user generation quota `<DECIDE_AT_M11>`                                                     |
+| data-integrity         | Generated claims must cite evidence or be flagged; AI-suggested ≠ observed demand                                    |
+| security-baseline      | Prompt-injection surface: page context is untrusted content → M3 hardened prompt builder; no tool_use write paths    |
+| connector-safety       | No CMS/Git writes; export-only                                                                                       |
+| arabic-rtl-a11y        | AR drafts, bidi-isolated URLs in drafts, native review flag                                                          |
 | google-search-guidance | Do not promise rich results (FAQ rich results stopped May 2026 — CLAUDE.md); copy must not claim guaranteed rankings |
 
 ## Open questions for the M11 intent (do not guess)

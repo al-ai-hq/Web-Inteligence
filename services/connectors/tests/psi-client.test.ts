@@ -43,8 +43,8 @@ describe("fetchPsiData", () => {
       status: 500,
     } as Response);
 
-    await expect(
-      fetchPsiData("https://example.com", "test-key"),
-    ).rejects.toThrow("PSI API returned 500");
+    await expect(fetchPsiData("https://example.com", "test-key")).rejects.toThrow(
+      "PSI API returned 500",
+    );
   });
 });

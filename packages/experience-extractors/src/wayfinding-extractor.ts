@@ -60,7 +60,7 @@ function detectActiveState($: cheerio.CheerioAPI): boolean {
   const activeSelectors = [
     '[class*="active" i]',
     '[class*="current" i]',
-    '[aria-current]',
+    "[aria-current]",
     '[aria-current="page"]',
   ];
 

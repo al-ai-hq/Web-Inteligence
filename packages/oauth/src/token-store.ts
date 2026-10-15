@@ -7,9 +7,7 @@ export class TokenStore {
 
   async save(token: OAuthToken): Promise<void> {
     const accessTokenEncrypted = encrypt(token.accessToken);
-    const refreshTokenEncrypted = token.refreshToken
-      ? encrypt(token.refreshToken)
-      : null;
+    const refreshTokenEncrypted = token.refreshToken ? encrypt(token.refreshToken) : null;
 
     await this.pool.query(
       `INSERT INTO oauth_tokens (

@@ -101,9 +101,7 @@ describe("POST /api/audits rate limiting integration", () => {
 
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ success: true }), { status: 200 }),
-      ),
+      vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 })),
     );
 
     const invalidBody = { ...VALID_BODY, url: "not-a-url" };
@@ -129,9 +127,7 @@ describe("POST /api/audits rate limiting integration", () => {
 
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ success: false }), { status: 200 }),
-      ),
+      vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: false }), { status: 200 })),
     );
 
     const invalidBody = { ...VALID_BODY, url: "not-a-url" };

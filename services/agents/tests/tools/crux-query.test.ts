@@ -17,7 +17,11 @@ describe("crux_query", () => {
     });
 
     const tool = createCruxQueryTool(mockFetch, "test-api-key");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute({ url: "https://example.com" }, ctx);
     expect(result.source_tier).toBe("third_party_verified");
@@ -28,7 +32,11 @@ describe("crux_query", () => {
     const mockFetch = vi.fn().mockResolvedValueOnce({ ok: false, status: 404 });
 
     const tool = createCruxQueryTool(mockFetch, "test-api-key");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute({ url: "https://obscure-site.example" }, ctx);
     expect(result.limitations).toContain("Origin not found in CrUX dataset");

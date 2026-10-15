@@ -26,7 +26,7 @@ describe("PerplexityAdapter", () => {
   });
 
   it("calls Perplexity API and returns completion", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockResolvedValueOnce({
       choices: [{ message: { content: "Perplexity answer" }, finish_reason: "stop" }],
       usage: { prompt_tokens: 30, completion_tokens: 15 },
@@ -44,10 +44,12 @@ describe("PerplexityAdapter", () => {
   });
 
   it("reports unavailable after 3 failures", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockRejectedValue(new Error("down"));
     for (let i = 0; i < 3; i++) {
-      await adapter.complete({ model: "sonar-pro", systemPrompt: "t", userPrompt: "t" }).catch(() => {});
+      await adapter
+        .complete({ model: "sonar-pro", systemPrompt: "t", userPrompt: "t" })
+        .catch(() => {});
     }
     expect(adapter.isAvailable()).toBe(false);
   });

@@ -183,11 +183,7 @@ export interface Finding {
 
 /** Priority group assignment (spec §8.2, precedence order). */
 export type PriorityGroup =
-  | "critical_blocker"
-  | "measurement_fix"
-  | "quick_win"
-  | "strategic_opportunity"
-  | "polish";
+  "critical_blocker" | "measurement_fix" | "quick_win" | "strategic_opportunity" | "polish";
 
 /** Horizon bucket for remediation timeline (spec §8.2). */
 export type Horizon = "0-30d" | "31-60d" | "61-90d";

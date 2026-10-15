@@ -97,26 +97,22 @@ describe("render-manifest", () => {
     });
 
     it("throws on invalid JSON", () => {
-      expect(() => parseManifest("not valid json")).toThrow(
-        "Invalid render manifest format"
-      );
+      expect(() => parseManifest("not valid json")).toThrow("Invalid render manifest format");
     });
 
     it("throws on missing fields", () => {
-      expect(() => parseManifest("{}")).toThrow(
-        "Invalid render manifest format"
-      );
+      expect(() => parseManifest("{}")).toThrow("Invalid render manifest format");
     });
 
     it("throws when entries is not an array", () => {
       expect(() => parseManifest('{"entries": "not array", "threshold": 500}')).toThrow(
-        "Invalid render manifest format"
+        "Invalid render manifest format",
       );
     });
 
     it("throws when threshold is not a number", () => {
       expect(() => parseManifest('{"entries": [], "threshold": "500"}')).toThrow(
-        "Invalid render manifest format"
+        "Invalid render manifest format",
       );
     });
   });

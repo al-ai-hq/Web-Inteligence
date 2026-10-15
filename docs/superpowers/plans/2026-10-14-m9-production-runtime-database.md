@@ -30,6 +30,7 @@
 ### Task 1: Align production environment variable names
 
 **Files:**
+
 - Modify: `packages/oauth/src/encryption.ts:7-17`
 - Modify: `packages/audit-pipeline/src/migrations/migrate-cli.ts:7-9`
 - Modify: `apps/web/src/services/container.ts:285-339`
@@ -41,11 +42,13 @@
 - Test: `packages/oauth/tests/encryption.test.ts`
 
 **Interfaces:**
+
 - Consumes: `process.env.DATABASE_URL`, `process.env.WPI_DATABASE_URL`, `process.env.COOKIE_SECRET`, `process.env.AUDIT_COOKIE_SECRET`, `process.env.ENCRYPTION_KEY`, `process.env.WPI_OAUTH_ENCRYPTION_KEY`
 - Produces: normalized production secrets used by `in_process` runtime, migration runner, and OAuth encryption.
 
 - [ ] **Step 1: Write the failing test**
-  Replace `packages/oauth/tests/encryption.test.ts` so it expects the new `ENCRYPTION_KEY` (32-byte hex) and the legacy `WPI_OAUTH_ENCRYPTION_KEY` (base64) fallback.
+      Replace `packages/oauth/tests/encryption.test.ts` so it expects the new `ENCRYPTION_KEY` (32-byte hex) and the legacy `WPI_OAUTH_ENCRYPTION_KEY` (base64) fallback.
+
   ```ts
   import { describe, it, expect, beforeEach, afterEach } from "vitest";
   import { encrypt, decrypt } from "../src/encryption.js";
@@ -109,9 +112,11 @@
   ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
   ```bash
   pnpm --filter @wpi/oauth test
   ```
+
   Expected: FAIL — tests using `ENCRYPTION_KEY` throw because `packages/oauth/src/encryption.ts` still only reads `WPI_OAUTH_ENCRYPTION_KEY`.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -128,9 +133,7 @@
        if (hexKey) {
          const keyBuffer = Buffer.from(hexKey, "hex");
          if (keyBuffer.length !== 32) {
-           throw new Error(
-             "ENCRYPTION_KEY must be a 32-byte hex string (64 hex characters)",
-           );
+           throw new Error("ENCRYPTION_KEY must be a 32-byte hex string (64 hex characters)");
          }
          return keyBuffer;
        }
@@ -139,9 +142,7 @@
        if (b64Key) {
          const keyBuffer = Buffer.from(b64Key, "base64");
          if (keyBuffer.length !== 32) {
-           throw new Error(
-             "WPI_OAUTH_ENCRYPTION_KEY must be 32 bytes (base64-encoded)",
-           );
+           throw new Error("WPI_OAUTH_ENCRYPTION_KEY must be 32 bytes (base64-encoded)");
          }
          return keyBuffer;
        }
@@ -156,10 +157,7 @@
        const iv = randomBytes(IV_LENGTH);
        const cipher = createCipheriv(ALGORITHM, key, iv);
 
-       const encrypted = Buffer.concat([
-         cipher.update(plaintext, "utf8"),
-         cipher.final(),
-       ]);
+       const encrypted = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
        const authTag = cipher.getAuthTag();
 
        return Buffer.concat([iv, authTag, encrypted]);
@@ -174,10 +172,7 @@
        const decipher = createDecipheriv(ALGORITHM, key, iv);
        decipher.setAuthTag(authTag);
 
-       const decrypted = Buffer.concat([
-         decipher.update(ciphertext),
-         decipher.final(),
-       ]);
+       const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
 
        return decrypted.toString("utf8");
      }
@@ -190,12 +185,9 @@
      import { applyMigrations } from "./migrate.js";
 
      async function main(): Promise<void> {
-       const connectionString =
-         process.env["DATABASE_URL"] ?? process.env["WPI_DATABASE_URL"];
+       const connectionString = process.env["DATABASE_URL"] ?? process.env["WPI_DATABASE_URL"];
        if (!connectionString) {
-         throw new Error(
-           "DATABASE_URL (or WPI_DATABASE_URL) is required to run migrations",
-         );
+         throw new Error("DATABASE_URL (or WPI_DATABASE_URL) is required to run migrations");
        }
        const pool = new Pool({ connectionString });
        try {
@@ -268,9 +260,7 @@
          const store = new InMemoryAuditStore();
          const fields: PipelineFields = {
            store,
-           tierScopes: loadTierScopes(
-             join(REPO_ROOT, "config", "anonymous-eligibility.yaml"),
-           ),
+           tierScopes: loadTierScopes(join(REPO_ROOT, "config", "anonymous-eligibility.yaml")),
            validateUrl: async (url) => localValidateUrl(url),
            outputDir,
            geminiApiKey: process.env["GEMINI_API_KEY"],
@@ -298,15 +288,11 @@
 
        const fields: PipelineFields = {
          store,
-         tierScopes: loadTierScopes(
-           join(REPO_ROOT, "config", "anonymous-eligibility.yaml"),
-         ),
+         tierScopes: loadTierScopes(join(REPO_ROOT, "config", "anonymous-eligibility.yaml")),
          validateUrl: async (url) => {
            try {
              const result = await validateUrl(url);
-             return result.valid
-               ? { ok: true }
-               : { ok: false, reason_key: "failure.url_invalid" };
+             return result.valid ? { ok: true } : { ok: false, reason_key: "failure.url_invalid" };
            } catch {
              return { ok: false, reason_key: "failure.url_invalid" };
            }
@@ -403,15 +389,15 @@
      ```
   8. Update the environment table in `README.md`:
      ```markdown
-     | Variable | Required | Purpose |
-     | --- | --- | --- |
-     | `WPI_DISPATCH_MODE` | no (default `stub`) | `stub` runs a deterministic no-network pipeline; `in_process` runs the real pipeline against Postgres |
-     | `DATABASE_URL` | yes unless `WPI_DISPATCH_MODE=stub` | Postgres connection string for the audit store (legacy `WPI_DATABASE_URL` still works) |
-     | `COOKIE_SECRET` | yes unless `WPI_DISPATCH_MODE=stub` | HMAC secret for the signed eligibility cookie (legacy `AUDIT_COOKIE_SECRET` still works) |
-     | `ENCRYPTION_KEY` | yes for OAuth token storage | 32-byte hex AES-256-GCM key for OAuth tokens (legacy `WPI_OAUTH_ENCRYPTION_KEY` base64 still works) |
-     | `WPI_GEMINI_API_KEY` | no | Enables the agent stage |
-     | `WPI_OUTPUT_DIR` | no (default `./output`) | Crawler/evidence output directory |
-     | `WPI_TEST_DATABASE_URL` | no | Enables the Postgres-backed test suites |
+     | Variable                | Required                            | Purpose                                                                                               |
+     | ----------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------- |
+     | `WPI_DISPATCH_MODE`     | no (default `stub`)                 | `stub` runs a deterministic no-network pipeline; `in_process` runs the real pipeline against Postgres |
+     | `DATABASE_URL`          | yes unless `WPI_DISPATCH_MODE=stub` | Postgres connection string for the audit store (legacy `WPI_DATABASE_URL` still works)                |
+     | `COOKIE_SECRET`         | yes unless `WPI_DISPATCH_MODE=stub` | HMAC secret for the signed eligibility cookie (legacy `AUDIT_COOKIE_SECRET` still works)              |
+     | `ENCRYPTION_KEY`        | yes for OAuth token storage         | 32-byte hex AES-256-GCM key for OAuth tokens (legacy `WPI_OAUTH_ENCRYPTION_KEY` base64 still works)   |
+     | `WPI_GEMINI_API_KEY`    | no                                  | Enables the agent stage                                                                               |
+     | `WPI_OUTPUT_DIR`        | no (default `./output`)             | Crawler/evidence output directory                                                                     |
+     | `WPI_TEST_DATABASE_URL` | no                                  | Enables the Postgres-backed test suites                                                               |
      ```
      Also change the setup example command to:
      ```bash
@@ -419,11 +405,13 @@
      ```
 
 - [ ] **Step 4: Run test to verify it passes**
+
   ```bash
   pnpm --filter @wpi/oauth test
   pnpm typecheck
   pnpm test
   ```
+
   Expected: PASS — `packages/oauth` tests pass, root typecheck is clean, and the container test rejects `in_process` without `DATABASE_URL`.
 
 - [ ] **Step 5: Commit**
@@ -450,6 +438,7 @@
 ### Task 2: Make migrations runnable in the production Docker image
 
 **Files:**
+
 - Modify: `packages/audit-pipeline/src/migrations/migrate.ts:29-32`
 - Modify: `packages/audit-pipeline/package.json:8-12`
 - Modify: `Dockerfile`
@@ -457,11 +446,13 @@
 - Create: `packages/audit-pipeline/tests/migrate-dir.test.ts`
 
 **Interfaces:**
+
 - Consumes: `process.env.WPI_MIGRATIONS_DIR`, `DATABASE_URL`
 - Produces: release-time migration command, Docker image with migration artifacts, fly.toml deploy configuration.
 
 - [ ] **Step 1: Write the failing test**
-  Create `packages/audit-pipeline/tests/migrate-dir.test.ts`:
+      Create `packages/audit-pipeline/tests/migrate-dir.test.ts`:
+
   ```ts
   import { mkdtemp, writeFile } from "node:fs/promises";
   import { tmpdir } from "node:os";
@@ -472,44 +463,43 @@
 
   const DATABASE_URL = process.env["WPI_TEST_DATABASE_URL"];
 
-  describe.skipIf(!DATABASE_URL)(
-    "applyMigrations WPI_MIGRATIONS_DIR override",
-    () => {
-      let pool: Pool;
-      let migrationsDir: string;
+  describe.skipIf(!DATABASE_URL)("applyMigrations WPI_MIGRATIONS_DIR override", () => {
+    let pool: Pool;
+    let migrationsDir: string;
 
-      beforeAll(async () => {
-        pool = new Pool({ connectionString: DATABASE_URL });
-        migrationsDir = await mkdtemp(join(tmpdir(), "wpi-migrations-"));
-        await writeFile(
-          join(migrationsDir, "0001_test.sql"),
-          "CREATE TABLE IF NOT EXISTS migration_dir_test (id serial PRIMARY KEY);",
-        );
-        await pool.query("DROP TABLE IF EXISTS migration_dir_test");
-        await pool.query("DROP TABLE IF EXISTS schema_migrations");
-        process.env["WPI_MIGRATIONS_DIR"] = migrationsDir;
-      });
+    beforeAll(async () => {
+      pool = new Pool({ connectionString: DATABASE_URL });
+      migrationsDir = await mkdtemp(join(tmpdir(), "wpi-migrations-"));
+      await writeFile(
+        join(migrationsDir, "0001_test.sql"),
+        "CREATE TABLE IF NOT EXISTS migration_dir_test (id serial PRIMARY KEY);",
+      );
+      await pool.query("DROP TABLE IF EXISTS migration_dir_test");
+      await pool.query("DROP TABLE IF EXISTS schema_migrations");
+      process.env["WPI_MIGRATIONS_DIR"] = migrationsDir;
+    });
 
-      afterAll(async () => {
-        delete process.env["WPI_MIGRATIONS_DIR"];
-        await pool.query("DROP TABLE IF EXISTS migration_dir_test");
-        await pool.end();
-      });
+    afterAll(async () => {
+      delete process.env["WPI_MIGRATIONS_DIR"];
+      await pool.query("DROP TABLE IF EXISTS migration_dir_test");
+      await pool.end();
+    });
 
-      it("applies migrations from the directory in WPI_MIGRATIONS_DIR", async () => {
-        const result = await applyMigrations(pool);
-        expect(result.applied).toContain("0001_test.sql");
-        const check = await pool.query("SELECT 1 FROM migration_dir_test");
-        expect(check.rowCount).toBeGreaterThan(0);
-      });
-    },
-  );
+    it("applies migrations from the directory in WPI_MIGRATIONS_DIR", async () => {
+      const result = await applyMigrations(pool);
+      expect(result.applied).toContain("0001_test.sql");
+      const check = await pool.query("SELECT 1 FROM migration_dir_test");
+      expect(check.rowCount).toBeGreaterThan(0);
+    });
+  });
   ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
   ```bash
   WPI_TEST_DATABASE_URL="postgres://localhost:5432/wpi_test" pnpm --filter @wpi/audit-pipeline test
   ```
+
   Expected: FAIL — `applyMigrations` ignores `WPI_MIGRATIONS_DIR`, so the temp `0001_test.sql` migration is not applied.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -642,15 +632,19 @@
      ```
 
 - [ ] **Step 4: Run test to verify it passes**
+
   ```bash
   WPI_TEST_DATABASE_URL="postgres://localhost:5432/wpi_test" pnpm --filter @wpi/audit-pipeline test
   ```
+
   Expected: PASS — the new test confirms migrations are loaded from `WPI_MIGRATIONS_DIR`.
 
   Then validate the Docker build locally:
+
   ```bash
   docker build -t wpi-web-m9 -f Dockerfile .
   ```
+
   Expected: image builds successfully and the final layer contains `/app/packages/audit-pipeline/dist/migrations/migrate-cli.js` and `/app/packages/audit-pipeline/src/migrations`.
 
 - [ ] **Step 5: Commit**
@@ -674,24 +668,24 @@
 ### Task 3: Add /api/health route and fly.io health check
 
 **Files:**
+
 - Create: `apps/web/src/app/api/health/route.ts`
 - Create: `apps/web/src/app/api/health/route.test.ts`
 - Modify: `fly.toml` (already updated in Task 2; verify `[[services.http_checks]]`)
 
 **Interfaces:**
+
 - Consumes: `getAuditServices()` from `apps/web/src/services/container.ts`
 - Produces: `GET /api/health` returning `{ status: "ok" }` after confirming the database connection.
 
 - [ ] **Step 1: Write the failing test**
-  Create `apps/web/src/app/api/health/route.test.ts`:
+      Create `apps/web/src/app/api/health/route.test.ts`:
+
   ```ts
   import { describe, it, expect, afterEach } from "vitest";
   import { NextRequest } from "next/server";
   import { GET } from "./route";
-  import {
-    setAuditServicesForTests,
-    type AuditServices,
-  } from "../../../../services/container";
+  import { setAuditServicesForTests, type AuditServices } from "../../../../services/container";
 
   afterEach(() => {
     setAuditServicesForTests(null);
@@ -699,9 +693,7 @@
 
   describe("GET /api/health", () => {
     it("returns 200 ok without a database pool", async () => {
-      const response = await GET(
-        new NextRequest("http://localhost:3000/api/health"),
-      );
+      const response = await GET(new NextRequest("http://localhost:3000/api/health"));
       expect(response.status).toBe(200);
       expect(await response.json()).toEqual({ status: "ok" });
     });
@@ -720,9 +712,7 @@
 
       setAuditServicesForTests(fakeServices);
 
-      const response = await GET(
-        new NextRequest("http://localhost:3000/api/health"),
-      );
+      const response = await GET(new NextRequest("http://localhost:3000/api/health"));
       expect(response.status).toBe(200);
       expect(pinged).toBe(true);
       expect(await response.json()).toEqual({ status: "ok" });
@@ -731,13 +721,16 @@
   ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
   ```bash
   pnpm --filter @wpi/web test
   ```
+
   Expected: FAIL — `apps/web/src/app/api/health/route.ts` does not exist.
 
 - [ ] **Step 3: Write minimal implementation**
-  Create `apps/web/src/app/api/health/route.ts`:
+      Create `apps/web/src/app/api/health/route.ts`:
+
   ```ts
   import { NextResponse, type NextRequest } from "next/server";
   import { getAuditServices } from "../../../services/container";
@@ -754,9 +747,11 @@
   ```
 
 - [ ] **Step 4: Run test to verify it passes**
+
   ```bash
   pnpm --filter @wpi/web test
   ```
+
   Expected: PASS — both health route tests pass.
 
 - [ ] **Step 5: Commit**
@@ -777,14 +772,17 @@
 ### Task 4: Provision fly.io Postgres and set production secrets
 
 **Files:**
+
 - No tracked file changes (all operations are fly.io dashboard/CLI state).
 - Record evidence in: `intent/INT-03-m9-production-readiness/release.md` after the deploy succeeds.
 
 **Interfaces:**
+
 - Consumes: fly.io CLI access and authorized production credentials.
 - Produces: managed Postgres cluster `wpi-web-db`, attached `DATABASE_URL`, and encrypted fly secrets.
 
 - [ ] **Step 1: Provision the production database**
+
   ```bash
   flyctl postgres create \
     --name wpi-web-db \
@@ -792,16 +790,20 @@
     --vm-size shared-cpu-1x \
     --volume-size 10
   ```
+
   Expected: cluster `wpi-web-db` is created in region `fra`.
 
 - [ ] **Step 2: Attach the database to the web app**
+
   ```bash
   flyctl postgres attach wpi-web-db --app wpi-web-delicate-dawn-7818
   ```
+
   Expected: `DATABASE_URL` is added to the app secrets automatically.
 
 - [ ] **Step 3: Set the remaining production secrets**
-  Export the real values in your shell first, then run:
+      Export the real values in your shell first, then run:
+
   ```bash
   flyctl secrets set \
     DATABASE_URL="$DATABASE_URL" \
@@ -813,12 +815,15 @@
     TURNSTILE_SECRET_KEY="$TURNSTILE_SECRET_KEY" \
     --app wpi-web-delicate-dawn-7818
   ```
+
   Expected: fly.io reports the secrets were set and will be available to the next deploy.
 
 - [ ] **Step 4: Verify secrets are registered**
+
   ```bash
   flyctl secrets list --app wpi-web-delicate-dawn-7818
   ```
+
   Expected: `DATABASE_URL`, `ENCRYPTION_KEY`, `COOKIE_SECRET`, `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `RESEND_API_KEY`, and `TURNSTILE_SECRET_KEY` are all listed.
 
 - [ ] **Step 5: Validate the fly configuration**
@@ -832,13 +837,16 @@
 ### Task 5: Deploy and verify persistence
 
 **Files:**
+
 - Record evidence in: `intent/INT-03-m9-production-readiness/release.md`
 
 **Interfaces:**
+
 - Consumes: CI pipeline, fly.io deploy, production database.
 - Produces: deployed production app with persistent data.
 
 - [ ] **Step 1: Run pre-deploy checks locally**
+
   ```bash
   pnpm typecheck
   pnpm test
@@ -846,24 +854,31 @@
   pnpm --filter @wpi/audit-pipeline build
   DATABASE_URL="postgres://localhost:5432/wpi_dev" pnpm --filter @wpi/audit-pipeline migrate:prod
   ```
+
   Expected: all commands exit 0 and the local migration run reports the 17 migrations applied (or already present).
 
 - [ ] **Step 2: Confirm the local migration idempotency**
+
   ```bash
   DATABASE_URL="postgres://localhost:5432/wpi_dev" pnpm --filter @wpi/audit-pipeline migrate:prod
   ```
+
   Expected: second run reports `Applied 0 migration(s): none`.
 
 - [ ] **Step 3: Deploy to fly.io**
+
   ```bash
   flyctl deploy --app wpi-web-delicate-dawn-7818
   ```
+
   Expected: release command runs migrations, the container starts, and the deploy reports success.
 
 - [ ] **Step 4: Run post-deploy health and persistence checks**
+
   ```bash
   curl -sf https://wpi-web-delicate-dawn-7818.fly.dev/api/health
   ```
+
   Expected: returns `{"status":"ok"}` with HTTP 200.
 
   Then verify data survives a redeploy:
@@ -887,7 +902,7 @@
   7. Re-run the user/audit queries; the rows should still exist.
 
 - [ ] **Step 5: Record the phase report**
-  Append the evidence to `intent/INT-03-m9-production-readiness/release.md`:
+      Append the evidence to `intent/INT-03-m9-production-readiness/release.md`:
   - commands run and their outputs (typecheck, tests, deploy, health curl, DB queries),
   - files changed,
   - secrets source (fly secrets, none in repo),

@@ -13,7 +13,8 @@ const inputSchema = z.object({
 export function createEvalRuleTool(ruleEngine: RuleEngine): Tool {
   return {
     name: "eval_rule",
-    description: "Runs a deterministic rule evaluation. The result is FINAL — do not re-score or override it.",
+    description:
+      "Runs a deterministic rule evaluation. The result is FINAL — do not re-score or override it.",
     inputSchema: {
       type: "object",
       properties: {

@@ -1,13 +1,13 @@
 # Seed: M10 Competitor Tracking (SEO Agent Frameworks)
 
-| Field | Value |
-| ----- | ----- |
-| Type | Design seed (pre-intent input material) |
-| Seeds | M10 "Competitor Tracking" in `docs/m9-roadmap.md` (Priority 2) |
-| Source | `seo-agent-skill/` (outside repo) — competitive-intelligence framework (profiling, gap analysis, opportunity scoring, monitoring cadence) |
-| Status | draft — input material for the future M10 intent, not an accepted spec |
-| Date | 2026-10-14 |
-| Skill governance | Per CLAUDE.md: port logic into product code, never import skill scripts (D-009, `forbidden_endpoints.py`) |
+| Field            | Value                                                                                                                                     |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Type             | Design seed (pre-intent input material)                                                                                                   |
+| Seeds            | M10 "Competitor Tracking" in `docs/m9-roadmap.md` (Priority 2)                                                                            |
+| Source           | `seo-agent-skill/` (outside repo) — competitive-intelligence framework (profiling, gap analysis, opportunity scoring, monitoring cadence) |
+| Status           | draft — input material for the future M10 intent, not an accepted spec                                                                    |
+| Date             | 2026-10-14                                                                                                                                |
+| Skill governance | Per CLAUDE.md: port logic into product code, never import skill scripts (D-009, `forbidden_endpoints.py`)                                 |
 
 ## Why this seed exists
 
@@ -15,14 +15,14 @@ The M10 roadmap says "Add competitor URLs to watchlist, Monthly automated compet
 
 ## What WPI can and cannot use (constraint-first design)
 
-| Capability from the skill | Allowed in WPI? | WPI replacement |
-| ------------------------- | --------------- | --------------- |
-| SERP scraping / rank tracking via search pages | ❌ D-009 forbids | GSC Search Analytics API (owned property) + user-exported data |
-| Google Autocomplete / PAA mining | ❌ D-009 forbids | GSC query data for the user's own property; LLM-provider knowledge is NOT evidence (no source) |
-| Competitor backlink profiles (Ahrefs/SEMrush) | ⚠️ Not in M1–M8 connectors; paid API adds cost | Defer to a future decision; M10 ships without third-party backlink data |
-| On-page competitor audits | ✅ Existing M1 crawler + M2 rules engine can audit any submitted URL | Monthly automated competitor audits = re-run the existing audit pipeline on watchlist URLs |
-| PSI / CrUX for competitor pages | ✅ M5 connectors are read-only public APIs | Core Web Vitals comparison — allowed and cheap |
-| Content gap (topics competitors cover) | ✅ Via crawl evidence from competitor audits | Rules-engine findings diff, not scraped SERPs |
+| Capability from the skill                      | Allowed in WPI?                                                      | WPI replacement                                                                                |
+| ---------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| SERP scraping / rank tracking via search pages | ❌ D-009 forbids                                                     | GSC Search Analytics API (owned property) + user-exported data                                 |
+| Google Autocomplete / PAA mining               | ❌ D-009 forbids                                                     | GSC query data for the user's own property; LLM-provider knowledge is NOT evidence (no source) |
+| Competitor backlink profiles (Ahrefs/SEMrush)  | ⚠️ Not in M1–M8 connectors; paid API adds cost                       | Defer to a future decision; M10 ships without third-party backlink data                        |
+| On-page competitor audits                      | ✅ Existing M1 crawler + M2 rules engine can audit any submitted URL | Monthly automated competitor audits = re-run the existing audit pipeline on watchlist URLs     |
+| PSI / CrUX for competitor pages                | ✅ M5 connectors are read-only public APIs                           | Core Web Vitals comparison — allowed and cheap                                                 |
+| Content gap (topics competitors cover)         | ✅ Via crawl evidence from competitor audits                         | Rules-engine findings diff, not scraped SERPs                                                  |
 
 ## Proposed pipeline
 
@@ -64,14 +64,14 @@ Trust boundaries: competitor URLs are untrusted input → full SSRF validation (
 
 ## Policy conformance concerns to carry into the intent
 
-| Policy | Concern |
-| ------ | ------- |
+| Policy                 | Concern                                                                                                                                                                                                         |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | google-search-guidance | D-009 is the binding constraint: no SERP scraping, no Autocomplete. Export-driven keyword gap is the compliant substitute — must be stated in product copy so users don't expect third-party-tool rank tracking |
-| security-baseline | Competitor URLs are user-submitted → identical SSRF/validation path as own audits; watchlist add is an owned-record write |
-| data-integrity | Deltas carry source + as-of + fidelity label; crawl-inferred content gaps never labeled as search-performance data |
-| cost-guard | Monthly schedule spends by default once enabled — needs explicit user confirmation + budget display |
-| arabic-rtl-a11y | Dashboard tables in logical CSS; competitor URLs bidi-isolated |
-| connector-safety | No new connectors in M10; PSI/CrUX reuse only |
+| security-baseline      | Competitor URLs are user-submitted → identical SSRF/validation path as own audits; watchlist add is an owned-record write                                                                                       |
+| data-integrity         | Deltas carry source + as-of + fidelity label; crawl-inferred content gaps never labeled as search-performance data                                                                                              |
+| cost-guard             | Monthly schedule spends by default once enabled — needs explicit user confirmation + budget display                                                                                                             |
+| arabic-rtl-a11y        | Dashboard tables in logical CSS; competitor URLs bidi-isolated                                                                                                                                                  |
+| connector-safety       | No new connectors in M10; PSI/CrUX reuse only                                                                                                                                                                   |
 
 ## Open questions for the M10 intent (do not guess)
 

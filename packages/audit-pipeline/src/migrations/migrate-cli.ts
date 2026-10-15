@@ -4,12 +4,9 @@ import { Pool } from "pg";
 import { applyMigrations } from "./migrate.js";
 
 async function main(): Promise<void> {
-  const connectionString =
-    process.env["DATABASE_URL"] ?? process.env["WPI_DATABASE_URL"];
+  const connectionString = process.env["DATABASE_URL"] ?? process.env["WPI_DATABASE_URL"];
   if (!connectionString) {
-    throw new Error(
-      "DATABASE_URL (or WPI_DATABASE_URL) is required to run migrations",
-    );
+    throw new Error("DATABASE_URL (or WPI_DATABASE_URL) is required to run migrations");
   }
   const pool = new Pool({ connectionString });
   try {

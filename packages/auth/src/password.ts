@@ -29,10 +29,7 @@ export async function hashPassword(password: string): Promise<string> {
   return `${salt.toString("hex")}$${key.toString("hex")}`;
 }
 
-export async function verifyPassword(
-  password: string,
-  stored: string,
-): Promise<boolean> {
+export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const separator = stored.indexOf("$");
   if (separator === -1) {
     return false;

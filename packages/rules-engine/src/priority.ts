@@ -82,11 +82,7 @@ function assignDisplayBand(priorityValue: number): DisplayBand {
 /**
  * Assign group from severity and rule properties (spec §8.2, precedence order).
  */
-function assignGroup(
-  severity: Finding["severity"],
-  impact: number,
-  effort: number,
-): PriorityGroup {
+function assignGroup(severity: Finding["severity"], impact: number, effort: number): PriorityGroup {
   // Precedence: critical_blocker > quick_win > strategic_opportunity > polish
   if (severity === "critical") return "critical_blocker";
   if (effort <= 2 && impact >= 3) return "quick_win";

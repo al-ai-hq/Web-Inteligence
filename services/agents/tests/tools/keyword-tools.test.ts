@@ -5,7 +5,11 @@ import { createMapKeywordsTool } from "../../src/tools/map-keywords.js";
 import { createCheckCannibalizationTool } from "../../src/tools/check-cannibalization.js";
 import type { ToolContext } from "../../src/tools/types.js";
 
-const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+const ctx: ToolContext = {
+  audit_id: "a-1",
+  project_id: "p-1",
+  evidence_bucket: "b",
+} as ToolContext;
 
 describe("import_keywords", () => {
   it("accepts a keyword list and returns structured data", async () => {
@@ -47,12 +51,8 @@ describe("map_keywords", () => {
     const tool = createMapKeywordsTool();
     const result = await tool.execute(
       {
-        clusters: [
-          { id: "c1", keywords: ["seo tips", "how to seo"], primary: "seo tips" },
-        ],
-        urls: [
-          { url: "https://example.com/seo-guide", title: "SEO Guide" },
-        ],
+        clusters: [{ id: "c1", keywords: ["seo tips", "how to seo"], primary: "seo tips" }],
+        urls: [{ url: "https://example.com/seo-guide", title: "SEO Guide" }],
       },
       ctx,
     );

@@ -31,12 +31,14 @@
 ### Task 1: Project Scaffolding
 
 **Files:**
+
 - Modify: `services/agents/package.json`
 - Create: `services/agents/vitest.config.ts`
 - Modify: `services/agents/tsconfig.json`
 - Modify: `services/agents/CLAUDE.md`
 
 **Interfaces:**
+
 - Consumes: nothing (first task)
 - Produces: buildable, testable package with deps installed
 
@@ -129,10 +131,12 @@ git commit -m "feat(agents): scaffold project with dependencies and test config"
 ### Task 2: Runtime Types
 
 **Files:**
+
 - Create: `services/agents/src/runtime/types.ts`
 - Create: `services/agents/tests/runtime/types.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing
 - Produces: `AgentJob`, `AgentResult`, `Finding`, `AgentConfig` types used by all subsequent tasks
 
@@ -140,11 +144,7 @@ git commit -m "feat(agents): scaffold project with dependencies and test config"
 
 ```typescript
 import { describe, it, expect } from "vitest";
-import {
-  agentJobSchema,
-  agentResultSchema,
-  findingSchema,
-} from "../../src/runtime/types.js";
+import { agentJobSchema, agentResultSchema, findingSchema } from "../../src/runtime/types.js";
 
 describe("runtime types", () => {
   describe("agentJobSchema", () => {
@@ -335,11 +335,13 @@ git commit -m "feat(agents): add runtime types with Zod validation"
 ### Task 3: Tool Registry
 
 **Files:**
+
 - Create: `services/agents/src/tools/types.ts`
 - Create: `services/agents/src/tools/registry.ts`
 - Create: `services/agents/tests/tools/registry.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing
 - Produces: `Tool`, `ToolContext`, `ToolResult` interfaces; `ToolRegistry` class used by agent loader and agent instance
 
@@ -492,12 +494,14 @@ git commit -m "feat(agents): add tool registry with allowlist validation"
 ### Task 4: Agent Config Loader
 
 **Files:**
+
 - Create: `services/agents/src/runtime/agent-loader.ts`
 - Create: `services/agents/tests/runtime/agent-loader.test.ts`
 - Create: `services/agents/tests/runtime/fixtures/valid-agent.yaml`
 - Create: `services/agents/tests/runtime/fixtures/invalid-agent.yaml`
 
 **Interfaces:**
+
 - Consumes: `AgentConfig` from `src/runtime/types.ts`, `ToolRegistry` from `src/tools/registry.ts`
 - Produces: `AgentLoader` class with `loadAll(dir)`, `getAgent(name)`, `listAgents()`
 
@@ -637,9 +641,7 @@ export class AgentLoader {
 
   async loadAll(dir: string): Promise<void> {
     const files = await readdir(dir);
-    const yamlFiles = files.filter(
-      (f) => f.endsWith(".yaml") || f.endsWith(".yml"),
-    );
+    const yamlFiles = files.filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"));
 
     for (const file of yamlFiles) {
       const content = await readFile(join(dir, file), "utf-8");
@@ -690,10 +692,12 @@ git commit -m "feat(agents): add agent config loader with YAML parsing and valid
 ### Task 5: Agent Instance (Execution)
 
 **Files:**
+
 - Create: `services/agents/src/runtime/agent-instance.ts`
 - Create: `services/agents/tests/runtime/agent-instance.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AgentInstance` from agent-loader, `Tool` from tools/types, `ProviderAdapter` from providers/types (next task), `AgentJob`/`AgentResult` from runtime/types
 - Produces: `executeAgent()` function — the core execution loop
 
@@ -764,7 +768,11 @@ describe("executeAgent", () => {
         tools,
         systemPrompt: "You are an auditor.",
         userPrompt: "Analyze this evidence.",
-        toolContext: { audit_id: "audit-1", project_id: "proj-1", evidence_bucket: "bucket" } as AgentToolContext,
+        toolContext: {
+          audit_id: "audit-1",
+          project_id: "proj-1",
+          evidence_bucket: "bucket",
+        } as AgentToolContext,
       }),
     ).rejects.toThrowError("Tool 'forbidden_tool' is not in the allowlist for agent 'auditor'");
   });
@@ -809,7 +817,11 @@ describe("executeAgent", () => {
       tools: [tool],
       systemPrompt: "You are an auditor.",
       userPrompt: "Analyze this evidence.",
-      toolContext: { audit_id: "audit-1", project_id: "proj-1", evidence_bucket: "bucket" } as AgentToolContext,
+      toolContext: {
+        audit_id: "audit-1",
+        project_id: "proj-1",
+        evidence_bucket: "bucket",
+      } as AgentToolContext,
     });
 
     expect(result.job_id).toBe("job-1");
@@ -857,7 +869,11 @@ describe("executeAgent", () => {
       tools: [],
       systemPrompt: "You are an auditor.",
       userPrompt: "Analyze.",
-      toolContext: { audit_id: "audit-1", project_id: "proj-1", evidence_bucket: "bucket" } as AgentToolContext,
+      toolContext: {
+        audit_id: "audit-1",
+        project_id: "proj-1",
+        evidence_bucket: "bucket",
+      } as AgentToolContext,
     });
 
     expect(result.findings).toHaveLength(1);
@@ -974,8 +990,19 @@ export async function executeAgent(params: ExecuteAgentParams): Promise<AgentRes
     totalTokensIn += response.usage.tokens_in;
     totalTokensOut += response.usage.tokens_out;
 
-    if (response.finishReason === "stop" || !response.toolCalls || response.toolCalls.length === 0) {
-      const parsed = parseAgentOutput(response.content, job, agentName, totalTokensIn, totalTokensOut, startTime);
+    if (
+      response.finishReason === "stop" ||
+      !response.toolCalls ||
+      response.toolCalls.length === 0
+    ) {
+      const parsed = parseAgentOutput(
+        response.content,
+        job,
+        agentName,
+        totalTokensIn,
+        totalTokensOut,
+        startTime,
+      );
       return parsed;
     }
 
@@ -1102,12 +1129,14 @@ git commit -m "feat(agents): add agent execution loop with tool allowlist enforc
 ### Task 6: Gemini Provider Adapter
 
 **Files:**
+
 - Create: `services/agents/src/providers/gemini-adapter.ts`
 - Create: `services/agents/src/providers/model-resolver.ts`
 - Create: `services/agents/tests/providers/gemini-adapter.test.ts`
 - Create: `services/agents/tests/providers/model-resolver.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ProviderAdapter` from `src/providers/types.ts`
 - Produces: `GeminiAdapter` class, `resolveModel()` function
 
@@ -1153,7 +1182,9 @@ const MODEL_MAP: Record<string, string> = {
 export function resolveModel(tier: string): string {
   const model = MODEL_MAP[tier];
   if (!model) {
-    throw new Error(`Unknown model tier: ${tier}. Known tiers: ${Object.keys(MODEL_MAP).join(", ")}`);
+    throw new Error(
+      `Unknown model tier: ${tier}. Known tiers: ${Object.keys(MODEL_MAP).join(", ")}`,
+    );
   }
   return model;
 }
@@ -1195,7 +1226,9 @@ describe("GeminiAdapter", () => {
   });
 
   it("calls Gemini API and returns completion response", async () => {
-    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    const { __mockGenerateContent } = (await import("@google/genai")) as {
+      __mockGenerateContent: ReturnType<typeof vi.fn>;
+    };
     __mockGenerateContent.mockResolvedValueOnce({
       text: "Hello, world!",
       usageMetadata: {
@@ -1218,7 +1251,9 @@ describe("GeminiAdapter", () => {
   });
 
   it("returns tool_calls when model requests tool use", async () => {
-    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    const { __mockGenerateContent } = (await import("@google/genai")) as {
+      __mockGenerateContent: ReturnType<typeof vi.fn>;
+    };
     __mockGenerateContent.mockResolvedValueOnce({
       text: "",
       functionCalls: [{ name: "get_evidence", args: { evidence_id: "ev-1" } }],
@@ -1233,9 +1268,7 @@ describe("GeminiAdapter", () => {
       model: "gemini-2.0-flash",
       systemPrompt: "You are an auditor.",
       userPrompt: "Analyze.",
-      toolDefinitions: [
-        { name: "get_evidence", description: "Get evidence", inputSchema: {} },
-      ],
+      toolDefinitions: [{ name: "get_evidence", description: "Get evidence", inputSchema: {} }],
     });
 
     expect(result.toolCalls).toHaveLength(1);
@@ -1259,12 +1292,7 @@ Expected: FAIL.
 
 ```typescript
 import { GoogleGenAI } from "@google/genai";
-import type {
-  ProviderAdapter,
-  CompletionRequest,
-  CompletionResponse,
-  ToolCall,
-} from "./types.js";
+import type { ProviderAdapter, CompletionRequest, CompletionResponse, ToolCall } from "./types.js";
 
 export class GeminiAdapter implements ProviderAdapter {
   name = "gemini";
@@ -1308,7 +1336,7 @@ export class GeminiAdapter implements ProviderAdapter {
         arguments: fc.args as Record<string, unknown>,
       })) ?? [];
 
-    const finishReason = toolCalls.length > 0 ? "tool_use" as const : "stop" as const;
+    const finishReason = toolCalls.length > 0 ? ("tool_use" as const) : ("stop" as const);
 
     return {
       content: response.text ?? "",
@@ -1340,11 +1368,13 @@ git commit -m "feat(agents): add Gemini provider adapter with model tier resolut
 ### Task 7: Circuit Breaker
 
 **Files:**
+
 - Create: `services/agents/src/providers/circuit-breaker.ts`
 - Create: `services/agents/tests/providers/circuit-breaker.test.ts`
 - Modify: `services/agents/src/providers/gemini-adapter.ts` (integrate CircuitBreaker)
 
 **Interfaces:**
+
 - Consumes: nothing
 - Produces: `CircuitBreaker` class; integrates into `GeminiAdapter` from Task 6
 
@@ -1495,12 +1525,7 @@ Now that `CircuitBreaker` exists, wire it into the `GeminiAdapter` from Task 6. 
 
 ```typescript
 import { GoogleGenAI } from "@google/genai";
-import type {
-  ProviderAdapter,
-  CompletionRequest,
-  CompletionResponse,
-  ToolCall,
-} from "./types.js";
+import type { ProviderAdapter, CompletionRequest, CompletionResponse, ToolCall } from "./types.js";
 import { CircuitBreaker } from "./circuit-breaker.js";
 
 export class GeminiAdapter implements ProviderAdapter {
@@ -1554,7 +1579,7 @@ export class GeminiAdapter implements ProviderAdapter {
           arguments: fc.args as Record<string, unknown>,
         })) ?? [];
 
-      const finishReason = toolCalls.length > 0 ? "tool_use" as const : "stop" as const;
+      const finishReason = toolCalls.length > 0 ? ("tool_use" as const) : ("stop" as const);
 
       return {
         content: response.text ?? "",
@@ -1576,21 +1601,25 @@ export class GeminiAdapter implements ProviderAdapter {
 Also add a test to `services/agents/tests/providers/gemini-adapter.test.ts` — append this test inside the existing `describe` block:
 
 ```typescript
-  it("reports unavailable when circuit breaker is open", async () => {
-    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
-    // Force 3 consecutive failures to open the breaker
-    __mockGenerateContent.mockRejectedValue(new Error("API down"));
+it("reports unavailable when circuit breaker is open", async () => {
+  const { __mockGenerateContent } = (await import("@google/genai")) as {
+    __mockGenerateContent: ReturnType<typeof vi.fn>;
+  };
+  // Force 3 consecutive failures to open the breaker
+  __mockGenerateContent.mockRejectedValue(new Error("API down"));
 
-    for (let i = 0; i < 3; i++) {
-      await adapter.complete({
+  for (let i = 0; i < 3; i++) {
+    await adapter
+      .complete({
         model: "gemini-2.0-flash",
         systemPrompt: "test",
         userPrompt: "test",
-      }).catch(() => {});
-    }
+      })
+      .catch(() => {});
+  }
 
-    expect(adapter.isAvailable()).toBe(false);
-  });
+  expect(adapter.isAvailable()).toBe(false);
+});
 ```
 
 Run: `cd services/agents && pnpm vitest run tests/providers/gemini-adapter.test.ts`
@@ -1608,10 +1637,12 @@ git commit -m "feat(agents): integrate circuit breaker into Gemini adapter"
 ### Task 8: Cost Tracker
 
 **Files:**
+
 - Create: `services/agents/src/providers/cost-tracker.ts`
 - Create: `services/agents/tests/providers/cost-tracker.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing (uses in-memory store for M3; DB integration deferred)
 - Produces: `CostTracker` class with `record()`, `getAuditCost()`, `getMonthlyTotal()`, `canProceed()`
 
@@ -1648,14 +1679,42 @@ describe("CostTracker", () => {
   });
 
   it("accumulates costs per audit", () => {
-    tracker.record({ audit_id: "audit-1", agent_name: "auditor", model: "gemini-2.0-flash", tokens_in: 100, tokens_out: 50, usd: 0.001 });
-    tracker.record({ audit_id: "audit-1", agent_name: "auditor", model: "gemini-2.0-flash", tokens_in: 200, tokens_out: 100, usd: 0.002 });
+    tracker.record({
+      audit_id: "audit-1",
+      agent_name: "auditor",
+      model: "gemini-2.0-flash",
+      tokens_in: 100,
+      tokens_out: 50,
+      usd: 0.001,
+    });
+    tracker.record({
+      audit_id: "audit-1",
+      agent_name: "auditor",
+      model: "gemini-2.0-flash",
+      tokens_in: 200,
+      tokens_out: 100,
+      usd: 0.002,
+    });
     expect(tracker.getAuditCost("audit-1").total_usd).toBeCloseTo(0.003);
   });
 
   it("tracks monthly total across audits", () => {
-    tracker.record({ audit_id: "audit-1", agent_name: "auditor", model: "gemini-2.0-flash", tokens_in: 100, tokens_out: 50, usd: 1.0 });
-    tracker.record({ audit_id: "audit-2", agent_name: "auditor", model: "gemini-2.0-flash", tokens_in: 100, tokens_out: 50, usd: 2.0 });
+    tracker.record({
+      audit_id: "audit-1",
+      agent_name: "auditor",
+      model: "gemini-2.0-flash",
+      tokens_in: 100,
+      tokens_out: 50,
+      usd: 1.0,
+    });
+    tracker.record({
+      audit_id: "audit-2",
+      agent_name: "auditor",
+      model: "gemini-2.0-flash",
+      tokens_in: 100,
+      tokens_out: 50,
+      usd: 2.0,
+    });
     expect(tracker.getMonthlyTotal()).toBeCloseTo(3.0);
   });
 
@@ -1664,17 +1723,38 @@ describe("CostTracker", () => {
   });
 
   it("blocks calls when monthly paid-stop reached", () => {
-    tracker.record({ audit_id: "audit-1", agent_name: "auditor", model: "gemini-2.0-flash", tokens_in: 0, tokens_out: 0, usd: 140.0 });
+    tracker.record({
+      audit_id: "audit-1",
+      agent_name: "auditor",
+      model: "gemini-2.0-flash",
+      tokens_in: 0,
+      tokens_out: 0,
+      usd: 140.0,
+    });
     expect(tracker.canProceed("audit-2")).toBe(false);
   });
 
   it("blocks calls when per-audit hard cap reached", () => {
-    tracker.record({ audit_id: "audit-1", agent_name: "auditor", model: "gemini-2.0-flash", tokens_in: 0, tokens_out: 0, usd: 4.0 });
+    tracker.record({
+      audit_id: "audit-1",
+      agent_name: "auditor",
+      model: "gemini-2.0-flash",
+      tokens_in: 0,
+      tokens_out: 0,
+      usd: 4.0,
+    });
     expect(tracker.canProceed("audit-1")).toBe(false);
   });
 
   it("returns soft_cap_reached when per-audit soft cap exceeded", () => {
-    tracker.record({ audit_id: "audit-1", agent_name: "auditor", model: "gemini-2.0-flash", tokens_in: 0, tokens_out: 0, usd: 3.5 });
+    tracker.record({
+      audit_id: "audit-1",
+      agent_name: "auditor",
+      model: "gemini-2.0-flash",
+      tokens_in: 0,
+      tokens_out: 0,
+      usd: 3.5,
+    });
     const status = tracker.canProceed("audit-1");
     expect(status).toBe(true);
     expect(tracker.getAuditCost("audit-1").soft_cap_reached).toBe(true);
@@ -1780,10 +1860,12 @@ git commit -m "feat(agents): add cost tracker with monthly and per-audit caps"
 ### Task 9: Prompt Builder
 
 **Files:**
+
 - Create: `services/agents/src/providers/prompt-builder.ts`
 - Create: `services/agents/tests/providers/prompt-builder.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AgentJob` from runtime/types, `AgentConfig` from runtime/types
 - Produces: `buildSystemPrompt()`, `buildUserPrompt()` functions
 
@@ -1973,6 +2055,7 @@ git commit -m "feat(agents): add prompt builder with handoff contract and data-n
 ### Task 10: Local Tools (get_evidence, eval_rule, validate_schema)
 
 **Files:**
+
 - Create: `services/agents/src/tools/get-evidence.ts`
 - Create: `services/agents/src/tools/eval-rule.ts`
 - Create: `services/agents/src/tools/validate-schema.ts`
@@ -1981,6 +2064,7 @@ git commit -m "feat(agents): add prompt builder with handoff contract and data-n
 - Create: `services/agents/tests/tools/validate-schema.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Tool`, `ToolContext`, `ToolResult` from tools/types
 - Produces: Three tool implementations for the auditor agent
 
@@ -2051,8 +2135,13 @@ const inputSchema = z.object({
 export function createGetEvidenceTool(storage: StorageReader): Tool {
   return {
     name: "get_evidence",
-    description: "Reads crawled evidence from Cloud Storage by evidence ID. Returns page content, extracted data, structured data, and metadata.",
-    inputSchema: { type: "object", properties: { evidence_id: { type: "string" } }, required: ["evidence_id"] },
+    description:
+      "Reads crawled evidence from Cloud Storage by evidence ID. Returns page content, extracted data, structured data, and metadata.",
+    inputSchema: {
+      type: "object",
+      properties: { evidence_id: { type: "string" } },
+      required: ["evidence_id"],
+    },
     async execute(input: unknown, context: ToolContext): Promise<ToolResult> {
       const { evidence_id } = inputSchema.parse(input);
       try {
@@ -2104,7 +2193,12 @@ describe("eval_rule", () => {
 
     const result = await tool.execute({ rule_id: "AEO-001", evidence_id: "ev-1" }, ctx);
     expect(result.source_tier).toBe("first_party");
-    expect(result.data).toEqual({ pass: true, score: 0.9, details: "FAQ schema present", final: true });
+    expect(result.data).toEqual({
+      pass: true,
+      score: 0.9,
+      details: "FAQ schema present",
+      final: true,
+    });
   });
 
   it("returns limitation for unknown rule", async () => {
@@ -2145,7 +2239,8 @@ const inputSchema = z.object({
 export function createEvalRuleTool(ruleEngine: RuleEngine): Tool {
   return {
     name: "eval_rule",
-    description: "Runs a deterministic rule evaluation. The result is FINAL — do not re-score or override it.",
+    description:
+      "Runs a deterministic rule evaluation. The result is FINAL — do not re-score or override it.",
     inputSchema: {
       type: "object",
       properties: {
@@ -2307,6 +2402,7 @@ git commit -m "feat(agents): add local tools (get_evidence, eval_rule, validate_
 ### Task 11: External API Tools (psi_query, crux_query, gsc_query)
 
 **Files:**
+
 - Create: `services/agents/src/tools/psi-query.ts`
 - Create: `services/agents/src/tools/crux-query.ts`
 - Create: `services/agents/src/tools/gsc-query.ts`
@@ -2315,6 +2411,7 @@ git commit -m "feat(agents): add local tools (get_evidence, eval_rule, validate_
 - Create: `services/agents/tests/tools/gsc-query.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Tool`, `ToolContext`, `ToolResult` from tools/types, `undici` for HTTP
 - Produces: Three external API tool implementations
 
@@ -2343,7 +2440,11 @@ describe("psi_query", () => {
     });
 
     const tool = createPsiQueryTool(mockFetch, "test-api-key");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute({ url: "https://example.com", strategy: "mobile" }, ctx);
     expect(result.source_tier).toBe("third_party_verified");
@@ -2354,7 +2455,11 @@ describe("psi_query", () => {
     const mockFetch = vi.fn().mockResolvedValueOnce({ ok: false, status: 500 });
 
     const tool = createPsiQueryTool(mockFetch, "test-api-key");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute({ url: "https://example.com", strategy: "mobile" }, ctx);
     expect(result.limitations.length).toBeGreaterThan(0);
@@ -2376,7 +2481,8 @@ const inputSchema = z.object({
 export function createPsiQueryTool(fetchFn: typeof fetch, apiKey: string): Tool {
   return {
     name: "psi_query",
-    description: "Queries Google PageSpeed Insights API for Lighthouse scores and performance metrics.",
+    description:
+      "Queries Google PageSpeed Insights API for Lighthouse scores and performance metrics.",
     inputSchema: {
       type: "object",
       properties: {
@@ -2392,7 +2498,11 @@ export function createPsiQueryTool(fetchFn: typeof fetch, apiKey: string): Tool 
       try {
         const response = await fetchFn(endpoint);
         if (!response.ok) {
-          return { data: null, source_tier: "third_party_verified", limitations: [`PSI API returned ${response.status}`] };
+          return {
+            data: null,
+            source_tier: "third_party_verified",
+            limitations: [`PSI API returned ${response.status}`],
+          };
         }
         const json = (await response.json()) as Record<string, unknown>;
         const lr = json.lighthouseResult as Record<string, unknown> | undefined;
@@ -2442,7 +2552,11 @@ describe("crux_query", () => {
     });
 
     const tool = createCruxQueryTool(mockFetch, "test-api-key");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute({ url: "https://example.com" }, ctx);
     expect(result.source_tier).toBe("third_party_verified");
@@ -2453,7 +2567,11 @@ describe("crux_query", () => {
     const mockFetch = vi.fn().mockResolvedValueOnce({ ok: false, status: 404 });
 
     const tool = createCruxQueryTool(mockFetch, "test-api-key");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute({ url: "https://obscure-site.example" }, ctx);
     expect(result.limitations).toContain("Origin not found in CrUX dataset");
@@ -2493,9 +2611,17 @@ export function createCruxQueryTool(fetchFn: typeof fetch, apiKey: string): Tool
 
         if (!response.ok) {
           if (response.status === 404) {
-            return { data: null, source_tier: "third_party_verified", limitations: ["Origin not found in CrUX dataset"] };
+            return {
+              data: null,
+              source_tier: "third_party_verified",
+              limitations: ["Origin not found in CrUX dataset"],
+            };
           }
-          return { data: null, source_tier: "third_party_verified", limitations: [`CrUX API returned ${response.status}`] };
+          return {
+            data: null,
+            source_tier: "third_party_verified",
+            limitations: [`CrUX API returned ${response.status}`],
+          };
         }
 
         const json = (await response.json()) as Record<string, unknown>;
@@ -2504,8 +2630,12 @@ export function createCruxQueryTool(fetchFn: typeof fetch, apiKey: string): Tool
 
         return {
           data: {
-            lcp_p75: (metrics?.largest_contentful_paint?.percentiles as Record<string, number>)?.p75 ?? null,
-            cls_p75: (metrics?.cumulative_layout_shift?.percentiles as Record<string, number>)?.p75 ?? null,
+            lcp_p75:
+              (metrics?.largest_contentful_paint?.percentiles as Record<string, number>)?.p75 ??
+              null,
+            cls_p75:
+              (metrics?.cumulative_layout_shift?.percentiles as Record<string, number>)?.p75 ??
+              null,
             url,
           },
           source_tier: "third_party_verified",
@@ -2543,7 +2673,11 @@ describe("gsc_query", () => {
     });
 
     const tool = createGscQueryTool(mockFetch, "test-token");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute(
       { site_url: "https://example.com", start_date: "2026-09-01", end_date: "2026-09-30" },
@@ -2557,7 +2691,11 @@ describe("gsc_query", () => {
     const mockFetch = vi.fn().mockResolvedValueOnce({ ok: false, status: 403 });
 
     const tool = createGscQueryTool(mockFetch, "test-token");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute(
       { site_url: "https://example.com", start_date: "2026-09-01", end_date: "2026-09-30" },
@@ -2583,7 +2721,8 @@ const inputSchema = z.object({
 export function createGscQueryTool(fetchFn: typeof fetch, accessToken: string): Tool {
   return {
     name: "gsc_query",
-    description: "Queries Google Search Console API for search performance data (queries, clicks, impressions, position).",
+    description:
+      "Queries Google Search Console API for search performance data (queries, clicks, impressions, position).",
     inputSchema: {
       type: "object",
       properties: {
@@ -2613,7 +2752,11 @@ export function createGscQueryTool(fetchFn: typeof fetch, accessToken: string): 
         });
 
         if (!response.ok) {
-          return { data: null, source_tier: "first_party", limitations: [`GSC API returned ${response.status}`] };
+          return {
+            data: null,
+            source_tier: "first_party",
+            limitations: [`GSC API returned ${response.status}`],
+          };
         }
 
         const json = (await response.json()) as Record<string, unknown>;
@@ -2651,6 +2794,7 @@ git commit -m "feat(agents): add external API tools (psi_query, crux_query, gsc_
 ### Task 12: Keyword Processing Tools
 
 **Files:**
+
 - Create: `services/agents/src/tools/import-keywords.ts`
 - Create: `services/agents/src/tools/cluster-keywords.ts`
 - Create: `services/agents/src/tools/map-keywords.ts`
@@ -2658,6 +2802,7 @@ git commit -m "feat(agents): add external API tools (psi_query, crux_query, gsc_
 - Create: `services/agents/tests/tools/keyword-tools.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Tool`, `ToolContext`, `ToolResult` from tools/types
 - Produces: Four keyword processing tools for keyword-analyst agent
 
@@ -2671,7 +2816,11 @@ import { createMapKeywordsTool } from "../../src/tools/map-keywords.js";
 import { createCheckCannibalizationTool } from "../../src/tools/check-cannibalization.js";
 import type { ToolContext } from "../../src/tools/types.js";
 
-const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+const ctx: ToolContext = {
+  audit_id: "a-1",
+  project_id: "p-1",
+  evidence_bucket: "b",
+} as ToolContext;
 
 describe("import_keywords", () => {
   it("accepts a keyword list and returns structured data", async () => {
@@ -2713,12 +2862,8 @@ describe("map_keywords", () => {
     const tool = createMapKeywordsTool();
     const result = await tool.execute(
       {
-        clusters: [
-          { id: "c1", keywords: ["seo tips", "how to seo"], primary: "seo tips" },
-        ],
-        urls: [
-          { url: "https://example.com/seo-guide", title: "SEO Guide" },
-        ],
+        clusters: [{ id: "c1", keywords: ["seo tips", "how to seo"], primary: "seo tips" }],
+        urls: [{ url: "https://example.com/seo-guide", title: "SEO Guide" }],
       },
       ctx,
     );
@@ -2783,7 +2928,8 @@ const inputSchema = z.object({
 export function createImportKeywordsTool(): Tool {
   return {
     name: "import_keywords",
-    description: "Imports a list of keywords with optional metrics (clicks, impressions, position).",
+    description:
+      "Imports a list of keywords with optional metrics (clicks, impressions, position).",
     inputSchema: {
       type: "object",
       properties: {
@@ -2950,7 +3096,8 @@ const inputSchema = z.object({
 export function createCheckCannibalizationTool(): Tool {
   return {
     name: "check_cannibalization",
-    description: "Detects when multiple URLs are mapped to the same keyword cluster (cannibalization).",
+    description:
+      "Detects when multiple URLs are mapped to the same keyword cluster (cannibalization).",
     inputSchema: {
       type: "object",
       properties: {
@@ -3009,12 +3156,14 @@ git commit -m "feat(agents): add keyword processing tools (import, cluster, map,
 ### Task 13: Content Strategy Tools
 
 **Files:**
+
 - Create: `services/agents/src/tools/find-opportunities.ts`
 - Create: `services/agents/src/tools/write-brief.ts`
 - Create: `services/agents/src/tools/draft-article.ts`
 - Create: `services/agents/tests/tools/content-tools.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Tool`, `ToolContext`, `ToolResult` from tools/types
 - Produces: Three content strategy tools for content-strategist agent
 
@@ -3027,7 +3176,11 @@ import { createWriteBriefTool } from "../../src/tools/write-brief.js";
 import { createDraftArticleTool } from "../../src/tools/draft-article.js";
 import type { ToolContext } from "../../src/tools/types.js";
 
-const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+const ctx: ToolContext = {
+  audit_id: "a-1",
+  project_id: "p-1",
+  evidence_bucket: "b",
+} as ToolContext;
 
 describe("find_opportunities", () => {
   it("identifies content opportunities from findings and keywords", async () => {
@@ -3035,7 +3188,12 @@ describe("find_opportunities", () => {
     const result = await tool.execute(
       {
         findings: [
-          { finding_id: "f-1", rule_id: "AEO-001", result_state: "not_verified", page_url: "https://example.com/page-a" },
+          {
+            finding_id: "f-1",
+            rule_id: "AEO-001",
+            result_state: "not_verified",
+            page_url: "https://example.com/page-a",
+          },
         ],
         keyword_clusters: [
           { id: "c1", primary: "faq examples", keywords: ["faq examples", "faq templates"] },
@@ -3132,7 +3290,8 @@ const inputSchema = z.object({
 export function createFindOpportunitiesTool(): Tool {
   return {
     name: "find_opportunities",
-    description: "Identifies content opportunities by cross-referencing audit findings with keyword clusters.",
+    description:
+      "Identifies content opportunities by cross-referencing audit findings with keyword clusters.",
     inputSchema: {
       type: "object",
       properties: {
@@ -3301,6 +3460,7 @@ git commit -m "feat(agents): add content strategy tools (find_opportunities, wri
 ### Task 14: Orchestration
 
 **Files:**
+
 - Create: `services/agents/src/orchestration/dependency-graph.ts`
 - Create: `services/agents/src/orchestration/orchestrator.ts`
 - Create: `services/agents/src/orchestration/agent-task-handler.ts`
@@ -3310,6 +3470,7 @@ git commit -m "feat(agents): add content strategy tools (find_opportunities, wri
 - Create: `services/agents/tests/orchestration/agent-task-handler.test.ts`
 
 **Interfaces:**
+
 - Consumes: All previous tasks — AgentLoader, ToolRegistry, executeAgent, GeminiAdapter, CostTracker, all tools
 - Produces: Complete orchestration layer with dependency resolution, task dispatch, and HTTP handler
 
@@ -3351,7 +3512,9 @@ describe("DependencyGraph", () => {
 
     expect(graph.getReadyAgents(allAgents, [])).toEqual(["auditor"]);
     expect(graph.getReadyAgents(allAgents, ["auditor"])).toEqual(["keyword-analyst"]);
-    expect(graph.getReadyAgents(allAgents, ["auditor", "keyword-analyst"])).toEqual(["content-strategist"]);
+    expect(graph.getReadyAgents(allAgents, ["auditor", "keyword-analyst"])).toEqual([
+      "content-strategist",
+    ]);
   });
 });
 ```
@@ -3424,7 +3587,11 @@ describe("Orchestrator", () => {
       capture_time: "2026-10-01T00:00:00Z",
     };
 
-    const jobs = orchestrator.createJobs(baseJob, ["auditor", "keyword-analyst", "content-strategist"]);
+    const jobs = orchestrator.createJobs(baseJob, [
+      "auditor",
+      "keyword-analyst",
+      "content-strategist",
+    ]);
     expect(jobs).toHaveLength(3);
     expect(jobs[0]!.agent_name).toBe("auditor");
     expect(jobs[1]!.agent_name).toBe("keyword-analyst");
@@ -3437,8 +3604,12 @@ describe("Orchestrator", () => {
 
     expect(orchestrator.getNextAgents(allAgents, [])).toEqual(["auditor"]);
     expect(orchestrator.getNextAgents(allAgents, ["auditor"])).toEqual(["keyword-analyst"]);
-    expect(orchestrator.getNextAgents(allAgents, ["auditor", "keyword-analyst"])).toEqual(["content-strategist"]);
-    expect(orchestrator.getNextAgents(allAgents, ["auditor", "keyword-analyst", "content-strategist"])).toEqual([]);
+    expect(orchestrator.getNextAgents(allAgents, ["auditor", "keyword-analyst"])).toEqual([
+      "content-strategist",
+    ]);
+    expect(
+      orchestrator.getNextAgents(allAgents, ["auditor", "keyword-analyst", "content-strategist"]),
+    ).toEqual([]);
   });
 
   it("checks if all agents are complete", () => {
@@ -3446,7 +3617,9 @@ describe("Orchestrator", () => {
     const allAgents = ["auditor", "keyword-analyst", "content-strategist"];
 
     expect(orchestrator.isComplete(allAgents, ["auditor"])).toBe(false);
-    expect(orchestrator.isComplete(allAgents, ["auditor", "keyword-analyst", "content-strategist"])).toBe(true);
+    expect(
+      orchestrator.isComplete(allAgents, ["auditor", "keyword-analyst", "content-strategist"]),
+    ).toBe(true);
   });
 });
 ```
@@ -3461,10 +3634,7 @@ import { randomUUID } from "node:crypto";
 export class Orchestrator {
   private graph = new DependencyGraph();
 
-  createJobs(
-    baseJob: Omit<AgentJob, "job_id" | "agent_name">,
-    agents: string[],
-  ): AgentJob[] {
+  createJobs(baseJob: Omit<AgentJob, "job_id" | "agent_name">, agents: string[]): AgentJob[] {
     const ordered = this.graph.getExecutionOrder(agents);
     return ordered.map((agentName) => ({
       ...baseJob,

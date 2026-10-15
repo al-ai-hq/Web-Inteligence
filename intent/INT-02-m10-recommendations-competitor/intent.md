@@ -1,17 +1,17 @@
 # Intent: M10 Recommendations Engine and Competitor Tracking
 
-| Field | Value |
-| ----- | ----- |
-| ID | INT-02 |
-| Status | draft |
-| Author (originator) | <DECIDE_AT_M10: product owner name> |
-| Product owner | <DECIDE_AT_M10: name> |
-| SEO lead | <DECIDE_AT_M10: name> |
-| Milestone | M10 (docs/m9-roadmap.md Priority 2: User Engagement) |
-| Ticket | none |
-| Created | 2026-10-14 |
-| Depends on | M9 (Production Readiness) complete; M8 Content & Schema Studio complete |
-| Risk class | standard (no write-class tools, no CMS/Git writes, no new connectors) |
+| Field               | Value                                                                   |
+| ------------------- | ----------------------------------------------------------------------- |
+| ID                  | INT-02                                                                  |
+| Status              | draft                                                                   |
+| Author (originator) | <DECIDE_AT_M10: product owner name>                                     |
+| Product owner       | <DECIDE_AT_M10: name>                                                   |
+| SEO lead            | <DECIDE_AT_M10: name>                                                   |
+| Milestone           | M10 (docs/m9-roadmap.md Priority 2: User Engagement)                    |
+| Ticket              | none                                                                    |
+| Created             | 2026-10-14                                                              |
+| Depends on          | M9 (Production Readiness) complete; M8 Content & Schema Studio complete |
+| Risk class          | standard (no write-class tools, no CMS/Git writes, no new connectors)   |
 
 ## Problem
 
@@ -49,6 +49,7 @@ From the M10 roadmap and the design seeds, complete and reviewed:
 **Users:** signed-in users (recommendations engine, competitor tracking), product owner (scoring thresholds, playbook content), SEO lead (industry classification logic, playbook accuracy), data engineer (CSV upload schema, outcome-log joins).
 
 **Systems:**
+
 - `apps/web` — new UI pages (action board, competitor dashboard, CSV upload)
 - `packages/recommendations` (new) — priority scoring, industry classification, playbook overlay, outcome log
 - `packages/competitors` (new) — watchlist store, scheduler, gap analysis engine

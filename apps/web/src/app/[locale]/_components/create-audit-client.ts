@@ -17,13 +17,9 @@ export interface CreateAuditSuccess {
 export type CreateAuditError = "url_invalid" | "rate_limited" | "turnstile_required" | "generic";
 
 export type CreateAuditResult =
-  | { ok: true; data: CreateAuditSuccess }
-  | { ok: false; error: CreateAuditError };
+  { ok: true; data: CreateAuditSuccess } | { ok: false; error: CreateAuditError };
 
-export function mapCreateAuditError(
-  status: number,
-  body: { error?: unknown },
-): CreateAuditError {
+export function mapCreateAuditError(status: number, body: { error?: unknown }): CreateAuditError {
   if (body.error === "url_invalid") {
     return "url_invalid";
   }
@@ -36,9 +32,7 @@ export function mapCreateAuditError(
   return "generic";
 }
 
-export async function submitAudit(
-  payload: CreateAuditPayload,
-): Promise<CreateAuditResult> {
+export async function submitAudit(payload: CreateAuditPayload): Promise<CreateAuditResult> {
   let response: Response;
   try {
     response = await fetch("/api/audits", {

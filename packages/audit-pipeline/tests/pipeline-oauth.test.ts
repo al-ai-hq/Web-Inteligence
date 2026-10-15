@@ -14,10 +14,9 @@ class InMemoryTokenStore {
     accessToken: string;
     expiresAt: Date;
   }): Promise<void> {
-    this.tokens.set(
-      `${opts.userId}:${opts.provider}:${opts.siteUrl}`,
-      { accessToken: opts.accessToken },
-    );
+    this.tokens.set(`${opts.userId}:${opts.provider}:${opts.siteUrl}`, {
+      accessToken: opts.accessToken,
+    });
   }
 
   async findByUserAndSite(
@@ -31,9 +30,7 @@ class InMemoryTokenStore {
     return { access_token_encrypted: Buffer.from(token.accessToken) };
   }
 
-  async decryptAccessToken(stored: {
-    access_token_encrypted: Buffer;
-  }): Promise<string> {
+  async decryptAccessToken(stored: { access_token_encrypted: Buffer }): Promise<string> {
     return stored.access_token_encrypted.toString("utf8");
   }
 }
@@ -113,9 +110,7 @@ describe("pipeline with OAuth tokens", () => {
       auditId,
     );
 
-    expect(capturedContext?.auth?.google?.accessToken).toBe(
-      "test-access-token",
-    );
+    expect(capturedContext?.auth?.google?.accessToken).toBe("test-access-token");
   });
 
   it("continues without auth when no token exists", async () => {

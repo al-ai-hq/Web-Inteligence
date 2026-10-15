@@ -9,9 +9,9 @@ describe("verifyTurnstileToken", () => {
 
   it("returns true when Cloudflare reports success", async () => {
     process.env["TURNSTILE_SECRET_KEY"] = "secret";
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ success: true }), { status: 200 }),
-    );
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
     globalThis.fetch = fetchMock as unknown as typeof fetch;
 
     const ok = await verifyTurnstileToken("token", "1.2.3.4");
@@ -28,9 +28,9 @@ describe("verifyTurnstileToken", () => {
 
   it("returns false when Cloudflare reports failure", async () => {
     process.env["TURNSTILE_SECRET_KEY"] = "secret";
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ success: false }), { status: 200 }),
-    );
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({ success: false }), { status: 200 }));
     globalThis.fetch = fetchMock as unknown as typeof fetch;
 
     const ok = await verifyTurnstileToken("token");

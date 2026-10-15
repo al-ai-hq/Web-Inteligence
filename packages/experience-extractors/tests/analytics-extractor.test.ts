@@ -147,7 +147,10 @@ describe("analytics-extractor", () => {
   });
 
   it("handles empty HTML", () => {
-    const result = extractAnalyticsDetection({ ...baseEvidence, html: "<html><body></body></html>" });
+    const result = extractAnalyticsDetection({
+      ...baseEvidence,
+      html: "<html><body></body></html>",
+    });
 
     expect(result.hasAnalytics).toBe(false);
     expect(result.hasGA4).toBe(false);

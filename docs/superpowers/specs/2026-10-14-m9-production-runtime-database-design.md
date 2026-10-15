@@ -10,13 +10,13 @@ Run the WPI web app on fly.io with a managed Postgres database, production-grade
 
 ## User Decisions
 
-| Decision | Choice | Implication |
-|----------|--------|-------------|
-| Database provider | fly.io managed Postgres | Same platform, automated backups, attach via `flyctl postgres attach` |
-| App platform | fly.io (existing) | No Vercel function limits or Deployment Protection issues |
-| Custom domain | Deferred | Use `wpi-web-delicate-dawn-7818.fly.dev` for pilot; custom domain added later without code changes |
-| Migration runner | Release command in `fly.toml` | Migrations run before app starts on every deploy |
-| Dispatch mode | `in_process` | Web container runs the audit pipeline in-process against the same database |
+| Decision          | Choice                        | Implication                                                                                        |
+| ----------------- | ----------------------------- | -------------------------------------------------------------------------------------------------- |
+| Database provider | fly.io managed Postgres       | Same platform, automated backups, attach via `flyctl postgres attach`                              |
+| App platform      | fly.io (existing)             | No Vercel function limits or Deployment Protection issues                                          |
+| Custom domain     | Deferred                      | Use `wpi-web-delicate-dawn-7818.fly.dev` for pilot; custom domain added later without code changes |
+| Migration runner  | Release command in `fly.toml` | Migrations run before app starts on every deploy                                                   |
+| Dispatch mode     | `in_process`                  | Web container runs the audit pipeline in-process against the same database                         |
 
 ## Architecture
 
@@ -79,6 +79,7 @@ flyctl secrets set \
 ```
 
 **Key rules:**
+
 - `ENCRYPTION_KEY` and `COOKIE_SECRET` must be 32-byte hex strings (256 bits). Generate with `openssl rand -hex 32`.
 - `DATABASE_URL` is injected by `flyctl postgres attach`; rotate it only if compromised.
 - `RESEND_API_KEY` and `TURNSTILE_SECRET_KEY` are added by sub-projects 2 and 3 but set once on the same app.
@@ -116,6 +117,7 @@ Add a package script to `packages/audit-pipeline/package.json`:
 ```
 
 `migrate.js` reads `DATABASE_URL`, connects with `pg`, and applies any pending migrations from `src/migrations/`. It must:
+
 - Exit 0 on success.
 - Exit non-zero on failure so the deploy fails before the app starts.
 - Be idempotent: re-running on an already-migrated database is a no-op.
@@ -182,6 +184,7 @@ The existing boot guard refuses `WPI_DISPATCH_MODE=stub` in production. Extend i
 ### Rollback
 
 If a deploy fails:
+
 - Migration failures: fix the migration and redeploy. The release command prevents the bad version from serving traffic.
 - App failures: find the previous release image with `flyctl releases list` and redeploy it with `flyctl deploy --image <image-ref>`, or roll back via the fly.io dashboard.
 - Database corruption: restore from the latest fly.io volume snapshot.

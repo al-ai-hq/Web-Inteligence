@@ -1,12 +1,12 @@
 # Seed: M10 Recommendations Engine (SEO Agent Frameworks)
 
-| Field | Value |
-| ----- | ----- |
-| Type | Design seed (pre-intent input material) |
-| Seeds | M10 "Recommendations Engine" in `docs/m9-roadmap.md` (Priority 2) |
-| Source | `seo-agent-skill/` (outside repo) — prioritization matrix, industry playbooks, knowledge-growth loop |
-| Status | draft — input material for the future M10 intent, not an accepted spec |
-| Date | 2026-10-14 |
+| Field            | Value                                                                                                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Type             | Design seed (pre-intent input material)                                                                                                                                  |
+| Seeds            | M10 "Recommendations Engine" in `docs/m9-roadmap.md` (Priority 2)                                                                                                        |
+| Source           | `seo-agent-skill/` (outside repo) — prioritization matrix, industry playbooks, knowledge-growth loop                                                                     |
+| Status           | draft — input material for the future M10 intent, not an accepted spec                                                                                                   |
+| Date             | 2026-10-14                                                                                                                                                               |
 | Skill governance | Per CLAUDE.md: skill content is ported into product code and tested; nothing is imported from any skill directory (`forbidden_endpoints.py` blocks skill-script imports) |
 
 ## Why this seed exists
@@ -15,13 +15,13 @@ The M10 roadmap item says "Personalized action items based on business type, Pri
 
 ## What is ported from the skill
 
-| Skill concept | WPI product form |
-| ------------- | ---------------- |
-| Priority Score = (Impact × 2) − Effort − Timeline (each 1–10) | Deterministic scoring function over audit findings; NOT a rule-weight change (no `methodology_version` bump — this is a downstream ranking layer, not the rules engine) |
-| Quick Win / Strategic / Fill-In / Defer categories | Categorization of the action board items shown on the report |
-| Industry playbooks (SaaS, e-commerce, local, publisher, professional services) | `config/recommendations/industry-playbooks.yaml` (D-010: config-sourced, with source + date per entry) |
-| Site stage (new <1yr / growth 1–3yr / mature 3+yr) | Derived per-audit attribute (first-seen date from audit history or user-declared) |
-| Knowledge-growth loop (what was done → what was measured) | Outcome-tracking table: applied recommendations link back to later audits to record measured deltas with `fidelity_label` |
+| Skill concept                                                                  | WPI product form                                                                                                                                                        |
+| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Priority Score = (Impact × 2) − Effort − Timeline (each 1–10)                  | Deterministic scoring function over audit findings; NOT a rule-weight change (no `methodology_version` bump — this is a downstream ranking layer, not the rules engine) |
+| Quick Win / Strategic / Fill-In / Defer categories                             | Categorization of the action board items shown on the report                                                                                                            |
+| Industry playbooks (SaaS, e-commerce, local, publisher, professional services) | `config/recommendations/industry-playbooks.yaml` (D-010: config-sourced, with source + date per entry)                                                                  |
+| Site stage (new <1yr / growth 1–3yr / mature 3+yr)                             | Derived per-audit attribute (first-seen date from audit history or user-declared)                                                                                       |
+| Knowledge-growth loop (what was done → what was measured)                      | Outcome-tracking table: applied recommendations link back to later audits to record measured deltas with `fidelity_label`                                               |
 
 ## Proposed pipeline
 
@@ -62,12 +62,12 @@ Deterministic scoring adds no paid calls. The outcome loop reuses existing audit
 
 ## Policy conformance concerns to carry into the intent
 
-| Policy | Concern |
-| ------ | ------- |
-| data-integrity | Outcome deltas must not imply causation; correlation-only records need a fidelity label such as `correlation_only` |
-| arabic-rtl-a11y | New action-board UI in logical CSS, bidi-isolated URLs |
-| security-baseline | "Mark applied" is an owned-record write → `authorizeRecord` ownership guard required |
-| cost-guard | No paid calls; confirm |
+| Policy            | Concern                                                                                                            |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ |
+| data-integrity    | Outcome deltas must not imply causation; correlation-only records need a fidelity label such as `correlation_only` |
+| arabic-rtl-a11y   | New action-board UI in logical CSS, bidi-isolated URLs                                                             |
+| security-baseline | "Mark applied" is an owned-record write → `authorizeRecord` ownership guard required                               |
+| cost-guard        | No paid calls; confirm                                                                                             |
 
 ## Open questions for the M10 intent (do not guess)
 

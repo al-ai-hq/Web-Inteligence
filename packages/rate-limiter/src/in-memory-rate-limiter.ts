@@ -78,7 +78,11 @@ export class InMemoryRateLimiter implements RateLimiter {
     };
   }
 
-  async userState(userId: string, projectId: string, now: Date = new Date()): Promise<RateLimitResult> {
+  async userState(
+    userId: string,
+    projectId: string,
+    now: Date = new Date(),
+  ): Promise<RateLimitResult> {
     const key = `user:${userId}:project:${projectId}`;
     const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
     const keyWithMonth = `${key}:month:${monthStart.toISOString()}`;

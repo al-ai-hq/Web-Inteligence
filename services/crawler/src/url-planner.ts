@@ -5,10 +5,7 @@ import { parseSitemap } from "@wpi/security";
 // ---------------------------------------------------------------------------
 
 export type SamplingMode =
-  | "single_page"
-  | "priority_pages"
-  | "representative_sample"
-  | "full_bounded";
+  "single_page" | "priority_pages" | "representative_sample" | "full_bounded";
 
 export interface PlanUrlsOptions {
   rootUrl: string;
@@ -30,9 +27,8 @@ export interface PlanUrlsOptions {
 function normalizeUrl(url: string): string {
   const trimmed = url.trim();
   // Lowercase scheme and hostname only
-  return trimmed.replace(
-    /^([a-zA-Z]+:\/\/[^/?#]+)/,
-    (_match, authority: string) => authority.toLowerCase(),
+  return trimmed.replace(/^([a-zA-Z]+:\/\/[^/?#]+)/, (_match, authority: string) =>
+    authority.toLowerCase(),
   );
 }
 
@@ -136,8 +132,7 @@ export async function bfsCrawl(
  * Main entry point — dispatches based on sampling mode.
  */
 export async function planUrls(options: PlanUrlsOptions): Promise<string[]> {
-  const { rootUrl, samplingMode, maxPages, maxDepth, sitemapXml, fetchAndParse } =
-    options;
+  const { rootUrl, samplingMode, maxPages, maxDepth, sitemapXml, fetchAndParse } = options;
 
   switch (samplingMode) {
     case "single_page":
@@ -151,9 +146,7 @@ export async function planUrls(options: PlanUrlsOptions): Promise<string[]> {
 
     case "representative_sample": {
       if (!fetchAndParse) {
-        throw new Error(
-          "fetchAndParse is required for representative_sample mode",
-        );
+        throw new Error("fetchAndParse is required for representative_sample mode");
       }
       const entries = sitemapXml ? parseSitemap(sitemapXml) : [];
       const sitemapUrls = entries.map((e) => e.url);

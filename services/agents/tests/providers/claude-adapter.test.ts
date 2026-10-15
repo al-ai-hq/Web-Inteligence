@@ -29,7 +29,9 @@ describe("ClaudeAdapter", () => {
   });
 
   it("calls Claude API and returns completion response", async () => {
-    const { __mockCreate } = await import("@anthropic-ai/sdk") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("@anthropic-ai/sdk")) as {
+      __mockCreate: ReturnType<typeof vi.fn>;
+    };
     __mockCreate.mockResolvedValueOnce({
       content: [{ type: "text", text: "Hello from Claude!" }],
       usage: { input_tokens: 20, output_tokens: 10 },
@@ -55,20 +57,24 @@ describe("ClaudeAdapter", () => {
         systemPrompt: "test",
         userPrompt: "test",
         webSearch: { enabled: true },
-      })
+      }),
     ).rejects.toThrow("web search not supported");
   });
 
   it("reports unavailable after 3 consecutive failures", async () => {
-    const { __mockCreate } = await import("@anthropic-ai/sdk") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("@anthropic-ai/sdk")) as {
+      __mockCreate: ReturnType<typeof vi.fn>;
+    };
     __mockCreate.mockRejectedValue(new Error("API down"));
 
     for (let i = 0; i < 3; i++) {
-      await adapter.complete({
-        model: "claude-sonnet-4-20250514",
-        systemPrompt: "test",
-        userPrompt: "test",
-      }).catch(() => {});
+      await adapter
+        .complete({
+          model: "claude-sonnet-4-20250514",
+          systemPrompt: "test",
+          userPrompt: "test",
+        })
+        .catch(() => {});
     }
 
     expect(adapter.isAvailable()).toBe(false);

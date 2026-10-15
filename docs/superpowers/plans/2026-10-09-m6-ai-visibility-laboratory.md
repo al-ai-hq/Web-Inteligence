@@ -27,10 +27,12 @@
 ### Task 1: Visibility Types
 
 **Files:**
+
 - Create: `services/agents/src/visibility/types.ts`
 - Test: `services/agents/tests/visibility/types.test.ts`
 
 **Interfaces:**
+
 - Consumes: JSON schemas at `schemas/prompt-run.schema.json`, `schemas/prompt-panel-run.schema.json`, `schemas/prompt-set.schema.json`, `schemas/citation.schema.json`, `schemas/accuracy-issue.schema.json`
 - Produces: TypeScript interfaces used by all later visibility tasks — `PromptRun`, `PromptPanelRun`, `PromptSet`, `PromptTemplate`, `Citation`, `AccuracyIssue`, `VisibilityIntake`, `PanelRunResult`, `VisibilityMetrics`
 
@@ -186,12 +188,7 @@ export type PromptRunStatus =
   | "skipped_breaker";
 
 export type PanelRunState =
-  | "APPROVED"
-  | "BUILDING_PROMPTS"
-  | "RUNNING"
-  | "ANALYZING"
-  | "COMPLETE"
-  | "PARTIAL";
+  "APPROVED" | "BUILDING_PROMPTS" | "RUNNING" | "ANALYZING" | "COMPLETE" | "PARTIAL";
 
 export type OwnerClass = "owned" | "competitor" | "third_party" | "unknown";
 
@@ -219,12 +216,7 @@ export type AccuracyIssueStatus =
   | "dismissed";
 
 export type EscalationReason =
-  | "legal"
-  | "defamation"
-  | "trademark"
-  | "fraud"
-  | "disputed_claim"
-  | "wikipedia_wikidata";
+  "legal" | "defamation" | "trademark" | "fraud" | "disputed_claim" | "wikipedia_wikidata";
 
 export type CapCheckDecision =
   | "allowed"
@@ -416,10 +408,12 @@ git commit -m "feat(M6): add visibility type definitions from JSON schemas"
 ### Task 2: Configurable Circuit Breaker
 
 **Files:**
+
 - Modify: `services/agents/src/providers/circuit-breaker.ts`
 - Modify: `services/agents/tests/providers/circuit-breaker.test.ts`
 
 **Interfaces:**
+
 - Consumes: Nothing from earlier tasks
 - Produces: `CircuitBreaker` class with constructor accepting `CircuitBreakerConfig`, exported `CircuitBreakerConfig` interface, `DEFAULT_CIRCUIT_BREAKER_CONFIG` constant
 
@@ -432,37 +426,38 @@ Append to the existing file:
 ```typescript
 // Append to existing describe block in services/agents/tests/providers/circuit-breaker.test.ts
 
-  it("accepts custom failure threshold", () => {
-    const { CircuitBreaker } = await import("../../src/providers/circuit-breaker.js");
-    const cb = new CircuitBreaker({ failureThreshold: 5, cooldownMs: 15 * 60 * 1000 });
-    for (let i = 0; i < 4; i++) cb.recordFailure();
-    expect(cb.isAvailable()).toBe(true);
-    cb.recordFailure();
-    expect(cb.isAvailable()).toBe(false);
-  });
+it("accepts custom failure threshold", () => {
+  const { CircuitBreaker } = await import("../../src/providers/circuit-breaker.js");
+  const cb = new CircuitBreaker({ failureThreshold: 5, cooldownMs: 15 * 60 * 1000 });
+  for (let i = 0; i < 4; i++) cb.recordFailure();
+  expect(cb.isAvailable()).toBe(true);
+  cb.recordFailure();
+  expect(cb.isAvailable()).toBe(false);
+});
 
-  it("accepts custom cooldown period", () => {
-    const { CircuitBreaker } = await import("../../src/providers/circuit-breaker.js");
-    const cb = new CircuitBreaker({ failureThreshold: 3, cooldownMs: 60_000 });
-    cb.recordFailure();
-    cb.recordFailure();
-    cb.recordFailure();
-    expect(cb.isAvailable()).toBe(false);
+it("accepts custom cooldown period", () => {
+  const { CircuitBreaker } = await import("../../src/providers/circuit-breaker.js");
+  const cb = new CircuitBreaker({ failureThreshold: 3, cooldownMs: 60_000 });
+  cb.recordFailure();
+  cb.recordFailure();
+  cb.recordFailure();
+  expect(cb.isAvailable()).toBe(false);
 
-    vi.advanceTimersByTime(60_000);
-    expect(cb.isAvailable()).toBe(true);
-  });
+  vi.advanceTimersByTime(60_000);
+  expect(cb.isAvailable()).toBe(true);
+});
 
-  it("default constructor uses default config (backward compatible)", () => {
-    const { CircuitBreaker, DEFAULT_CIRCUIT_BREAKER_CONFIG } = await import("../../src/providers/circuit-breaker.js");
-    expect(DEFAULT_CIRCUIT_BREAKER_CONFIG.failureThreshold).toBe(3);
-    expect(DEFAULT_CIRCUIT_BREAKER_CONFIG.cooldownMs).toBe(15 * 60 * 1000);
-    const cb = new CircuitBreaker();
-    cb.recordFailure();
-    cb.recordFailure();
-    cb.recordFailure();
-    expect(cb.isAvailable()).toBe(false);
-  });
+it("default constructor uses default config (backward compatible)", () => {
+  const { CircuitBreaker, DEFAULT_CIRCUIT_BREAKER_CONFIG } =
+    await import("../../src/providers/circuit-breaker.js");
+  expect(DEFAULT_CIRCUIT_BREAKER_CONFIG.failureThreshold).toBe(3);
+  expect(DEFAULT_CIRCUIT_BREAKER_CONFIG.cooldownMs).toBe(15 * 60 * 1000);
+  const cb = new CircuitBreaker();
+  cb.recordFailure();
+  cb.recordFailure();
+  cb.recordFailure();
+  expect(cb.isAvailable()).toBe(false);
+});
 ```
 
 Note: the existing tests use `new CircuitBreaker()` with no args — they must still pass.
@@ -548,10 +543,12 @@ git commit -m "feat(M6): make circuit breaker thresholds configurable"
 ### Task 3: Cost Ledger Evolution
 
 **Files:**
+
 - Create: `services/agents/src/providers/cost-ledger.ts`
 - Test: `services/agents/tests/providers/cost-ledger.test.ts`
 
 **Interfaces:**
+
 - Consumes: `CapCheckDecision` from `visibility/types.ts`
 - Produces: `CostLedger` class with `preCallCheck()`, `postCallRecord()`, `getMonthlyTotal()`, `getAuditCost()`. Exports `CostLedgerEntry`, `CostLedgerConfig`, `CapCheck` interfaces.
 
@@ -637,8 +634,24 @@ describe("CostLedger", () => {
   });
 
   it("getMonthlyTotal sums across audits", () => {
-    ledger.postCallRecord({ audit_id: "a1", provider: "gemini", model_id: "m", tokens_in: 0, tokens_out: 0, amount: 1.0, workflow: "prompt_panel" });
-    ledger.postCallRecord({ audit_id: "a2", provider: "claude", model_id: "m", tokens_in: 0, tokens_out: 0, amount: 2.0, workflow: "anonymous_audit" });
+    ledger.postCallRecord({
+      audit_id: "a1",
+      provider: "gemini",
+      model_id: "m",
+      tokens_in: 0,
+      tokens_out: 0,
+      amount: 1.0,
+      workflow: "prompt_panel",
+    });
+    ledger.postCallRecord({
+      audit_id: "a2",
+      provider: "claude",
+      model_id: "m",
+      tokens_in: 0,
+      tokens_out: 0,
+      amount: 2.0,
+      workflow: "anonymous_audit",
+    });
     expect(ledger.getMonthlyTotal()).toBeCloseTo(3.0);
   });
 });
@@ -675,7 +688,15 @@ export interface PostCallInput {
   tokens_in: number;
   tokens_out: number;
   amount: number;
-  workflow: "anonymous_audit" | "registered_audit" | "prompt_panel" | "keyword_sync" | "content" | "verification" | "report" | "other";
+  workflow:
+    | "anonymous_audit"
+    | "registered_audit"
+    | "prompt_panel"
+    | "keyword_sync"
+    | "content"
+    | "verification"
+    | "report"
+    | "other";
 }
 
 interface LedgerEntry {
@@ -777,12 +798,14 @@ git commit -m "feat(M6): add cost ledger with pre-call cap checks"
 ### Task 4: Model Resolver and CompletionRequest Extensions
 
 **Files:**
+
 - Modify: `services/agents/src/providers/model-resolver.ts`
 - Modify: `services/agents/src/providers/types.ts`
 - Modify: `services/agents/tests/providers/model-resolver.test.ts`
 - Test: `services/agents/tests/providers/types.test.ts` (append)
 
 **Interfaces:**
+
 - Consumes: Nothing from earlier tasks
 - Produces: Extended `CompletionRequest` with `webSearch` and `location` fields; `MODEL_PRICING` with entries for Claude, OpenAI, Perplexity, Grok models; `resolveModelForProvider()` function
 
@@ -793,33 +816,33 @@ Append to existing `services/agents/tests/providers/model-resolver.test.ts`:
 ```typescript
 // Append to existing describe block
 
-  it("returns pricing for Claude model", async () => {
-    const { getModelPricing } = await import("../../src/providers/model-resolver.js");
-    const pricing = getModelPricing("claude-sonnet-4-20250514");
-    expect(pricing.inputPer1k).toBeGreaterThan(0);
-    expect(pricing.outputPer1k).toBeGreaterThan(0);
-  });
+it("returns pricing for Claude model", async () => {
+  const { getModelPricing } = await import("../../src/providers/model-resolver.js");
+  const pricing = getModelPricing("claude-sonnet-4-20250514");
+  expect(pricing.inputPer1k).toBeGreaterThan(0);
+  expect(pricing.outputPer1k).toBeGreaterThan(0);
+});
 
-  it("returns pricing for OpenAI model", async () => {
-    const { getModelPricing } = await import("../../src/providers/model-resolver.js");
-    const pricing = getModelPricing("gpt-4o");
-    expect(pricing.inputPer1k).toBeGreaterThan(0);
-    expect(pricing.outputPer1k).toBeGreaterThan(0);
-  });
+it("returns pricing for OpenAI model", async () => {
+  const { getModelPricing } = await import("../../src/providers/model-resolver.js");
+  const pricing = getModelPricing("gpt-4o");
+  expect(pricing.inputPer1k).toBeGreaterThan(0);
+  expect(pricing.outputPer1k).toBeGreaterThan(0);
+});
 
-  it("returns pricing for Perplexity model", async () => {
-    const { getModelPricing } = await import("../../src/providers/model-resolver.js");
-    const pricing = getModelPricing("sonar-pro");
-    expect(pricing.inputPer1k).toBeGreaterThan(0);
-    expect(pricing.outputPer1k).toBeGreaterThan(0);
-  });
+it("returns pricing for Perplexity model", async () => {
+  const { getModelPricing } = await import("../../src/providers/model-resolver.js");
+  const pricing = getModelPricing("sonar-pro");
+  expect(pricing.inputPer1k).toBeGreaterThan(0);
+  expect(pricing.outputPer1k).toBeGreaterThan(0);
+});
 
-  it("returns pricing for Grok model", async () => {
-    const { getModelPricing } = await import("../../src/providers/model-resolver.js");
-    const pricing = getModelPricing("grok-3");
-    expect(pricing.inputPer1k).toBeGreaterThan(0);
-    expect(pricing.outputPer1k).toBeGreaterThan(0);
-  });
+it("returns pricing for Grok model", async () => {
+  const { getModelPricing } = await import("../../src/providers/model-resolver.js");
+  const pricing = getModelPricing("grok-3");
+  expect(pricing.inputPer1k).toBeGreaterThan(0);
+  expect(pricing.outputPer1k).toBeGreaterThan(0);
+});
 ```
 
 Create new test file `services/agents/tests/providers/types.test.ts`:
@@ -915,10 +938,12 @@ git commit -m "feat(M6): extend CompletionRequest with webSearch/location, add p
 ### Task 5: Claude Adapter
 
 **Files:**
+
 - Create: `services/agents/src/providers/claude-adapter.ts`
 - Test: `services/agents/tests/providers/claude-adapter.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ProviderAdapter`, `CompletionRequest`, `CompletionResponse` from `providers/types.ts`; `CircuitBreaker` from `providers/circuit-breaker.ts`; `CostLedger` from `providers/cost-ledger.ts`
 - Produces: `ClaudeAdapter` class implementing `ProviderAdapter`
 
@@ -957,7 +982,9 @@ describe("ClaudeAdapter", () => {
   });
 
   it("calls Claude API and returns completion response", async () => {
-    const { __mockCreate } = await import("@anthropic-ai/sdk") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("@anthropic-ai/sdk")) as {
+      __mockCreate: ReturnType<typeof vi.fn>;
+    };
     __mockCreate.mockResolvedValueOnce({
       content: [{ type: "text", text: "Hello from Claude!" }],
       usage: { input_tokens: 20, output_tokens: 10 },
@@ -983,20 +1010,24 @@ describe("ClaudeAdapter", () => {
         systemPrompt: "test",
         userPrompt: "test",
         webSearch: { enabled: true },
-      })
+      }),
     ).rejects.toThrow("web search not supported");
   });
 
   it("reports unavailable after 3 consecutive failures", async () => {
-    const { __mockCreate } = await import("@anthropic-ai/sdk") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("@anthropic-ai/sdk")) as {
+      __mockCreate: ReturnType<typeof vi.fn>;
+    };
     __mockCreate.mockRejectedValue(new Error("API down"));
 
     for (let i = 0; i < 3; i++) {
-      await adapter.complete({
-        model: "claude-sonnet-4-20250514",
-        systemPrompt: "test",
-        userPrompt: "test",
-      }).catch(() => {});
+      await adapter
+        .complete({
+          model: "claude-sonnet-4-20250514",
+          systemPrompt: "test",
+          userPrompt: "test",
+        })
+        .catch(() => {});
     }
 
     expect(adapter.isAvailable()).toBe(false);
@@ -1014,11 +1045,7 @@ Expected: FAIL — module not found
 ```typescript
 // services/agents/src/providers/claude-adapter.ts
 import Anthropic from "@anthropic-ai/sdk";
-import type {
-  ProviderAdapter,
-  CompletionRequest,
-  CompletionResponse,
-} from "./types.js";
+import type { ProviderAdapter, CompletionRequest, CompletionResponse } from "./types.js";
 import { CircuitBreaker } from "./circuit-breaker.js";
 
 export class ClaudeAdapter implements ProviderAdapter {
@@ -1103,10 +1130,12 @@ git commit -m "feat(M6): add Claude provider adapter"
 ### Task 6: OpenAI Adapter
 
 **Files:**
+
 - Create: `services/agents/src/providers/openai-adapter.ts`
 - Test: `services/agents/tests/providers/openai-adapter.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ProviderAdapter`, `CompletionRequest`, `CompletionResponse` from `providers/types.ts`; `CircuitBreaker`; `CostLedger`
 - Produces: `OpenAIAdapter` class implementing `ProviderAdapter`
 
@@ -1141,7 +1170,7 @@ describe("OpenAIAdapter", () => {
   });
 
   it("calls OpenAI API and returns completion response", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockResolvedValueOnce({
       choices: [{ message: { content: "Hello from OpenAI!" }, finish_reason: "stop" }],
       usage: { prompt_tokens: 15, completion_tokens: 8 },
@@ -1160,7 +1189,7 @@ describe("OpenAIAdapter", () => {
   });
 
   it("maps length finish reason to max_tokens", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockResolvedValueOnce({
       choices: [{ message: { content: "Partial" }, finish_reason: "length" }],
       usage: { prompt_tokens: 10, completion_tokens: 100 },
@@ -1176,11 +1205,13 @@ describe("OpenAIAdapter", () => {
   });
 
   it("reports unavailable after 3 consecutive failures", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockRejectedValue(new Error("API down"));
 
     for (let i = 0; i < 3; i++) {
-      await adapter.complete({ model: "gpt-4o", systemPrompt: "t", userPrompt: "t" }).catch(() => {});
+      await adapter
+        .complete({ model: "gpt-4o", systemPrompt: "t", userPrompt: "t" })
+        .catch(() => {});
     }
 
     expect(adapter.isAvailable()).toBe(false);
@@ -1198,11 +1229,7 @@ Expected: FAIL — module not found
 ```typescript
 // services/agents/src/providers/openai-adapter.ts
 import OpenAI from "openai";
-import type {
-  ProviderAdapter,
-  CompletionRequest,
-  CompletionResponse,
-} from "./types.js";
+import type { ProviderAdapter, CompletionRequest, CompletionResponse } from "./types.js";
 import { CircuitBreaker } from "./circuit-breaker.js";
 
 export class OpenAIAdapter implements ProviderAdapter {
@@ -1290,12 +1317,14 @@ git commit -m "feat(M6): add OpenAI provider adapter"
 ### Task 7: Perplexity and Grok Adapters
 
 **Files:**
+
 - Create: `services/agents/src/providers/perplexity-adapter.ts`
 - Create: `services/agents/src/providers/grok-adapter.ts`
 - Test: `services/agents/tests/providers/perplexity-adapter.test.ts`
 - Test: `services/agents/tests/providers/grok-adapter.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ProviderAdapter`, `CompletionRequest`, `CompletionResponse`; `CircuitBreaker`; `openai` SDK (both use OpenAI-compatible APIs)
 - Produces: `PerplexityAdapter`, `GrokAdapter` classes
 
@@ -1330,7 +1359,7 @@ describe("PerplexityAdapter", () => {
   });
 
   it("calls Perplexity API and returns completion", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockResolvedValueOnce({
       choices: [{ message: { content: "Perplexity answer" }, finish_reason: "stop" }],
       usage: { prompt_tokens: 30, completion_tokens: 15 },
@@ -1348,10 +1377,12 @@ describe("PerplexityAdapter", () => {
   });
 
   it("reports unavailable after 3 failures", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockRejectedValue(new Error("down"));
     for (let i = 0; i < 3; i++) {
-      await adapter.complete({ model: "sonar-pro", systemPrompt: "t", userPrompt: "t" }).catch(() => {});
+      await adapter
+        .complete({ model: "sonar-pro", systemPrompt: "t", userPrompt: "t" })
+        .catch(() => {});
     }
     expect(adapter.isAvailable()).toBe(false);
   });
@@ -1387,7 +1418,7 @@ describe("GrokAdapter", () => {
   });
 
   it("calls Grok API and returns completion", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockResolvedValueOnce({
       choices: [{ message: { content: "Grok answer" }, finish_reason: "stop" }],
       usage: { prompt_tokens: 25, completion_tokens: 12 },
@@ -1404,10 +1435,12 @@ describe("GrokAdapter", () => {
   });
 
   it("reports unavailable after 3 failures", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockRejectedValue(new Error("down"));
     for (let i = 0; i < 3; i++) {
-      await adapter.complete({ model: "grok-3", systemPrompt: "t", userPrompt: "t" }).catch(() => {});
+      await adapter
+        .complete({ model: "grok-3", systemPrompt: "t", userPrompt: "t" })
+        .catch(() => {});
     }
     expect(adapter.isAvailable()).toBe(false);
   });
@@ -1424,11 +1457,7 @@ Expected: FAIL — modules not found
 ```typescript
 // services/agents/src/providers/perplexity-adapter.ts
 import OpenAI from "openai";
-import type {
-  ProviderAdapter,
-  CompletionRequest,
-  CompletionResponse,
-} from "./types.js";
+import type { ProviderAdapter, CompletionRequest, CompletionResponse } from "./types.js";
 import { CircuitBreaker } from "./circuit-breaker.js";
 
 export class PerplexityAdapter implements ProviderAdapter {
@@ -1488,11 +1517,7 @@ export class PerplexityAdapter implements ProviderAdapter {
 ```typescript
 // services/agents/src/providers/grok-adapter.ts
 import OpenAI from "openai";
-import type {
-  ProviderAdapter,
-  CompletionRequest,
-  CompletionResponse,
-} from "./types.js";
+import type { ProviderAdapter, CompletionRequest, CompletionResponse } from "./types.js";
 import { CircuitBreaker } from "./circuit-breaker.js";
 
 export class GrokAdapter implements ProviderAdapter {
@@ -1570,10 +1595,12 @@ git commit -m "feat(M6): add Perplexity and Grok provider adapters"
 ### Task 8: Adapter Factory
 
 **Files:**
+
 - Create: `services/agents/src/providers/adapter-factory.ts`
 - Test: `services/agents/tests/providers/adapter-factory.test.ts`
 
 **Interfaces:**
+
 - Consumes: `GeminiAdapter`, `ClaudeAdapter`, `OpenAIAdapter`, `PerplexityAdapter`, `GrokAdapter`; `ProviderAdapter` type
 - Produces: `createAdapter(engine, apiKey)` function returning `ProviderAdapter`
 
@@ -1668,10 +1695,12 @@ git commit -m "feat(M6): add adapter factory for engine-based instantiation"
 ### Task 9: Visibility Prompt Builder
 
 **Files:**
+
 - Create: `services/agents/src/visibility/prompt-builder.ts`
 - Test: `services/agents/tests/visibility/prompt-builder.test.ts`
 
 **Interfaces:**
+
 - Consumes: `VisibilityIntake` from `visibility/types.ts`; template YAML at `config/prompt-panels/templates/en.yaml`
 - Produces: `buildVisibilityPrompts(intake, panelTier, templates)` function returning `FilledPrompt[]`
 
@@ -1701,20 +1730,41 @@ const intake: VisibilityIntake = {
 describe("buildVisibilityPrompts", () => {
   it("fills free panel templates with intake values", () => {
     const templates = [
-      { id: "free-discovery", panel: "free" as const, branded: false, text: "Which organizations provide {offering} for {audience} in {market}?", placeholders: ["offering", "audience", "market"] },
-      { id: "free-branded-knowledge", panel: "free" as const, branded: true, text: "What does {brand} do, and who does it serve?", placeholders: ["brand"] },
+      {
+        id: "free-discovery",
+        panel: "free" as const,
+        branded: false,
+        text: "Which organizations provide {offering} for {audience} in {market}?",
+        placeholders: ["offering", "audience", "market"],
+      },
+      {
+        id: "free-branded-knowledge",
+        panel: "free" as const,
+        branded: true,
+        text: "What does {brand} do, and who does it serve?",
+        placeholders: ["brand"],
+      },
     ];
 
     const result = buildVisibilityPrompts(intake, "free", templates);
     expect(result).toHaveLength(2);
-    expect(result[0]!.final_prompt).toBe("Which organizations provide cloud hosting for startups in Saudi Arabia?");
+    expect(result[0]!.final_prompt).toBe(
+      "Which organizations provide cloud hosting for startups in Saudi Arabia?",
+    );
     expect(result[0]!.prompt_id).toBe("free-discovery");
     expect(result[1]!.final_prompt).toBe("What does Acme do, and who does it serve?");
   });
 
   it("fills connected panel templates", () => {
     const templates = [
-      { id: "panel-local", panel: "connected" as const, category: "local", branded: false, text: "Which providers offer {offering} near {city}?", placeholders: ["offering", "city"] },
+      {
+        id: "panel-local",
+        panel: "connected" as const,
+        category: "local",
+        branded: false,
+        text: "Which providers offer {offering} near {city}?",
+        placeholders: ["offering", "city"],
+      },
     ];
 
     const result = buildVisibilityPrompts(intake, "connected", templates);
@@ -1725,18 +1775,35 @@ describe("buildVisibilityPrompts", () => {
   it("throws when required placeholder is missing", () => {
     const noCity: VisibilityIntake = { ...intake, city: null };
     const templates = [
-      { id: "panel-local", panel: "connected" as const, category: "local", branded: false, text: "Which providers offer {offering} near {city}?", placeholders: ["offering", "city"] },
+      {
+        id: "panel-local",
+        panel: "connected" as const,
+        category: "local",
+        branded: false,
+        text: "Which providers offer {offering} near {city}?",
+        placeholders: ["offering", "city"],
+      },
     ];
 
-    expect(() => buildVisibilityPrompts(noCity, "connected", templates)).toThrow("Missing value for placeholder: city");
+    expect(() => buildVisibilityPrompts(noCity, "connected", templates)).toThrow(
+      "Missing value for placeholder: city",
+    );
   });
 
   it("throws when unresolved placeholder remains", () => {
     const templates = [
-      { id: "test", panel: "free" as const, branded: false, text: "What about {unknown_placeholder}?", placeholders: ["unknown_placeholder"] },
+      {
+        id: "test",
+        panel: "free" as const,
+        branded: false,
+        text: "What about {unknown_placeholder}?",
+        placeholders: ["unknown_placeholder"],
+      },
     ];
 
-    expect(() => buildVisibilityPrompts(intake, "free", templates)).toThrow("Missing value for placeholder: unknown_placeholder");
+    expect(() => buildVisibilityPrompts(intake, "free", templates)).toThrow(
+      "Missing value for placeholder: unknown_placeholder",
+    );
   });
 });
 ```
@@ -1835,10 +1902,12 @@ git commit -m "feat(M6): add visibility prompt builder with template filling"
 ### Task 10: Response Analyzer
 
 **Files:**
+
 - Create: `services/agents/src/visibility/response-analyzer.ts`
 - Test: `services/agents/tests/visibility/response-analyzer.test.ts`
 
 **Interfaces:**
+
 - Consumes: `VisibilityIntake`, `Citation`, `AccuracyIssue`, `MentionSpan` from `visibility/types.ts`
 - Produces: `analyzeResponse(responseText, intake, promptFamily)` function returning `AnalysisResult`
 
@@ -1888,7 +1957,11 @@ describe("analyzeResponse", () => {
   });
 
   it("detects competitor mentions", () => {
-    const result = analyzeResponse("Check out rival.com and competitor.io for hosting.", intake, "comparison");
+    const result = analyzeResponse(
+      "Check out rival.com and competitor.io for hosting.",
+      intake,
+      "comparison",
+    );
     expect(result.competitors_mentioned.length).toBe(2);
   });
 
@@ -1928,11 +2001,7 @@ describe("analyzeResponse", () => {
   });
 
   it("returns no accuracy issues for non-brand-facts families", () => {
-    const result = analyzeResponse(
-      "Acme was founded in 2018.",
-      intake,
-      "discovery",
-    );
+    const result = analyzeResponse("Acme was founded in 2018.", intake, "discovery");
     expect(result.accuracy_issues).toHaveLength(0);
   });
 });
@@ -1947,7 +2016,13 @@ Expected: FAIL — module not found
 
 ```typescript
 // services/agents/src/visibility/response-analyzer.ts
-import type { VisibilityIntake, Citation, AccuracyIssue, MentionSpan, OwnerClass } from "./types.js";
+import type {
+  VisibilityIntake,
+  Citation,
+  AccuracyIssue,
+  MentionSpan,
+  OwnerClass,
+} from "./types.js";
 
 export interface AnalysisResult {
   brand_mentioned: boolean;
@@ -1979,11 +2054,15 @@ function classifyUrl(url: string, intake: VisibilityIntake): OwnerClass {
   const domain = getDomain(url);
   if (!domain) return "unknown";
   if (domain === intake.brand_domain || domain.endsWith(`.${intake.brand_domain}`)) return "owned";
-  if (intake.competitor_domains.some((cd) => domain === cd || domain.endsWith(`.${cd}`))) return "competitor";
+  if (intake.competitor_domains.some((cd) => domain === cd || domain.endsWith(`.${cd}`)))
+    return "competitor";
   return "third_party";
 }
 
-function findMentions(text: string, intake: VisibilityIntake): { brandSpans: MentionSpan[]; competitorDomains: string[] } {
+function findMentions(
+  text: string,
+  intake: VisibilityIntake,
+): { brandSpans: MentionSpan[]; competitorDomains: string[] } {
   const brandSpans: MentionSpan[] = [];
   const names = [intake.brand_name, ...intake.brand_aliases];
 
@@ -2015,9 +2094,7 @@ function checkFacts(text: string, intake: VisibilityIntake, runId: string): Accu
   const issues: AccuracyIssue[] = [];
   for (const fact of intake.brand_facts) {
     if (!text.toLowerCase().includes(fact.claim.toLowerCase())) {
-      const contradictingPatterns = [
-        /\d{4}/g,
-      ];
+      const contradictingPatterns = [/\d{4}/g];
       for (const pattern of contradictingPatterns) {
         const matches = text.match(pattern);
         if (matches) {
@@ -2066,9 +2143,10 @@ export function analyzeResponse(
 
   const brandUrlCited = citations.some((c) => c.owner_class === "owned");
 
-  const accuracyIssues = promptFamily === "brand_facts" || promptFamily === "branded"
-    ? checkFacts(responseText, intake, "pending")
-    : [];
+  const accuracyIssues =
+    promptFamily === "brand_facts" || promptFamily === "branded"
+      ? checkFacts(responseText, intake, "pending")
+      : [];
 
   return {
     brand_mentioned: brandSpans.length > 0,
@@ -2098,10 +2176,12 @@ git commit -m "feat(M6): add response analyzer with mention, citation, and accur
 ### Task 11: Metrics Engine
 
 **Files:**
+
 - Create: `services/agents/src/visibility/metrics-engine.ts`
 - Test: `services/agents/tests/visibility/metrics-engine.test.ts`
 
 **Interfaces:**
+
 - Consumes: `PromptRun`, `VisibilityMetrics` from `visibility/types.ts`
 - Produces: `computeMetrics(runs, totalConfiguredProviders)` function returning `VisibilityMetrics`
 
@@ -2153,7 +2233,9 @@ function makeRun(overrides: Partial<PromptRun> = {}): PromptRun {
 
 describe("computeMetrics", () => {
   it("returns unavailable metrics when zero valid runs", () => {
-    const runs = [makeRun({ status: "error", counted_in_denominator: null, brand_mentioned: null })];
+    const runs = [
+      makeRun({ status: "error", counted_in_denominator: null, brand_mentioned: null }),
+    ];
     const metrics = computeMetrics(runs, 5);
     expect(metrics.mention_rate).toBeNull();
     expect(metrics.recommendation_rate).toBeNull();
@@ -2245,18 +2327,21 @@ export function computeMetrics(
   const validCount = validRuns.length;
   const smallCell = validCount < 10;
 
-  const mentionRate = validCount === 0
-    ? null
-    : validRuns.filter((r) => r.brand_mentioned === true).length / validCount;
+  const mentionRate =
+    validCount === 0
+      ? null
+      : validRuns.filter((r) => r.brand_mentioned === true).length / validCount;
 
   const brandMentionedRuns = validRuns.filter((r) => r.brand_mentioned === true);
-  const recommendationRate = brandMentionedRuns.length === 0
-    ? null
-    : brandMentionedRuns.filter((r) => r.recommended === true).length / brandMentionedRuns.length;
+  const recommendationRate =
+    brandMentionedRuns.length === 0
+      ? null
+      : brandMentionedRuns.filter((r) => r.recommended === true).length / brandMentionedRuns.length;
 
-  const domainCitationRate = validCount === 0
-    ? null
-    : validRuns.filter((r) => r.brand_url_cited === true).length / validCount;
+  const domainCitationRate =
+    validCount === 0
+      ? null
+      : validRuns.filter((r) => r.brand_url_cited === true).length / validCount;
 
   const brandMentionCount = brandMentionedRuns.length;
   const totalMentionCount = validRuns.reduce(
@@ -2271,9 +2356,8 @@ export function computeMetrics(
   );
 
   const enginesWithValid = new Set(validRuns.map((r) => r.engine));
-  const providerCoverage = totalConfiguredProviders === 0
-    ? 0
-    : enginesWithValid.size / totalConfiguredProviders;
+  const providerCoverage =
+    totalConfiguredProviders === 0 ? 0 : enginesWithValid.size / totalConfiguredProviders;
 
   return {
     mention_rate: mentionRate,
@@ -2305,10 +2389,12 @@ git commit -m "feat(M6): add metrics engine with valid denominators and small-ce
 ### Task 12: Lost-Prompt Analyzer
 
 **Files:**
+
 - Create: `services/agents/src/visibility/lost-prompt-analyzer.ts`
 - Test: `services/agents/tests/visibility/lost-prompt-analyzer.test.ts`
 
 **Interfaces:**
+
 - Consumes: `PromptRun`, `Citation`, `LostPrompt` from `visibility/types.ts`
 - Produces: `findLostPrompts(runs, citations)` function returning `LostPrompt[]`
 
@@ -2361,11 +2447,30 @@ function makeRun(overrides: Partial<PromptRun> = {}): PromptRun {
 describe("findLostPrompts", () => {
   it("identifies prompts where competitors appear but brand does not", () => {
     const runs = [
-      makeRun({ run_id: "r1", prompt_id: "p1", brand_mentioned: false, competitors_mentioned: ["rival.com"], cited_urls: ["https://rival.com/page"] }),
-      makeRun({ run_id: "r2", prompt_id: "p2", brand_mentioned: true, competitors_mentioned: ["rival.com"], cited_urls: [] }),
+      makeRun({
+        run_id: "r1",
+        prompt_id: "p1",
+        brand_mentioned: false,
+        competitors_mentioned: ["rival.com"],
+        cited_urls: ["https://rival.com/page"],
+      }),
+      makeRun({
+        run_id: "r2",
+        prompt_id: "p2",
+        brand_mentioned: true,
+        competitors_mentioned: ["rival.com"],
+        cited_urls: [],
+      }),
     ];
     const citations: Citation[] = [
-      { citation_id: "c-1", url: "https://rival.com/page", owner_class: "competitor", position: 1, in_final_answer: true, fetched_evidence_id: null },
+      {
+        citation_id: "c-1",
+        url: "https://rival.com/page",
+        owner_class: "competitor",
+        position: 1,
+        in_final_answer: true,
+        fetched_evidence_id: null,
+      },
     ];
 
     const lost = findLostPrompts(runs, citations);
@@ -2408,10 +2513,7 @@ Expected: FAIL — module not found
 // services/agents/src/visibility/lost-prompt-analyzer.ts
 import type { PromptRun, Citation, LostPrompt } from "./types.js";
 
-export function findLostPrompts(
-  runs: PromptRun[],
-  _citations: Citation[],
-): LostPrompt[] {
+export function findLostPrompts(runs: PromptRun[], _citations: Citation[]): LostPrompt[] {
   const lostByPrompt = new Map<string, { run: PromptRun; urls: string[] }>();
 
   for (const run of runs) {
@@ -2458,10 +2560,12 @@ git commit -m "feat(M6): add lost-prompt analyzer for competitor-only prompts"
 ### Task 13: Panel Runner
 
 **Files:**
+
 - Create: `services/agents/src/visibility/panel-runner.ts`
 - Test: `services/agents/tests/visibility/panel-runner.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ProviderAdapter` from `providers/types.ts`; `CostLedger` from `providers/cost-ledger.ts`; `buildVisibilityPrompts`, `FilledPrompt` from `visibility/prompt-builder.ts`; `analyzeResponse` from `visibility/response-analyzer.ts`; `computeMetrics` from `visibility/metrics-engine.ts`; `PromptRun`, `PromptPanelRun`, `PanelRunResult`, `VisibilityIntake` from `visibility/types.ts`
 - Produces: `PanelRunner` class with `execute(intake, templates, adapters, ledger)` method returning `PanelRunResult`
 
@@ -2511,12 +2615,21 @@ const intake: VisibilityIntake = {
 };
 
 const templates = [
-  { id: "free-discovery", panel: "free" as const, branded: false, text: "Which organizations provide {offering} for {audience} in {market}?", placeholders: ["offering", "audience", "market"] },
+  {
+    id: "free-discovery",
+    panel: "free" as const,
+    branded: false,
+    text: "Which organizations provide {offering} for {audience} in {market}?",
+    placeholders: ["offering", "audience", "market"],
+  },
 ];
 
 describe("PanelRunner", () => {
   it("executes prompts across adapters and returns results", async () => {
-    const adapters = [mockAdapter("gemini", "Acme is great."), mockAdapter("claude", "I recommend Acme.")];
+    const adapters = [
+      mockAdapter("gemini", "Acme is great."),
+      mockAdapter("claude", "I recommend Acme."),
+    ];
     const ledger = new CostLedger();
     const runner = new PanelRunner();
 
@@ -2571,7 +2684,11 @@ describe("PanelRunner", () => {
   it("sets state to PARTIAL when some runs fail", async () => {
     const adapters = [
       mockAdapter("gemini", "Acme is great."),
-      { name: "claude", isAvailable: () => true, complete: vi.fn().mockRejectedValue(new Error("fail")) } as unknown as ProviderAdapter,
+      {
+        name: "claude",
+        isAvailable: () => true,
+        complete: vi.fn().mockRejectedValue(new Error("fail")),
+      } as unknown as ProviderAdapter,
     ];
     const ledger = new CostLedger();
     const runner = new PanelRunner();
@@ -2658,7 +2775,18 @@ export class PanelRunner {
           const startedAt = new Date();
 
           if (!adapter.isAvailable()) {
-            runs.push(this.makeRun(runId, panelRunId, prompt, adapter.name, intake, startedAt, "skipped_breaker", null));
+            runs.push(
+              this.makeRun(
+                runId,
+                panelRunId,
+                prompt,
+                adapter.name,
+                intake,
+                startedAt,
+                "skipped_breaker",
+                null,
+              ),
+            );
             panelRun.skipped_runs++;
             continue;
           }
@@ -2666,11 +2794,16 @@ export class PanelRunner {
           try {
             const response = await adapter.complete({
               model: adapter.name === "gemini" ? "gemini-2.0-flash" : "default",
-              systemPrompt: "You are a helpful assistant answering questions about businesses and services.",
+              systemPrompt:
+                "You are a helpful assistant answering questions about businesses and services.",
               userPrompt: prompt.final_prompt,
             });
 
-            const analysis = analyzeResponse(response.content, intake, prompt.category ?? prompt.panel);
+            const analysis = analyzeResponse(
+              response.content,
+              intake,
+              prompt.category ?? prompt.panel,
+            );
 
             ledger.postCallRecord({
               audit_id: "pending",
@@ -2682,7 +2815,16 @@ export class PanelRunner {
               workflow: "prompt_panel",
             });
 
-            const run = this.makeRun(runId, panelRunId, prompt, adapter.name, intake, startedAt, "valid", null);
+            const run = this.makeRun(
+              runId,
+              panelRunId,
+              prompt,
+              adapter.name,
+              intake,
+              startedAt,
+              "valid",
+              null,
+            );
             run.brand_mentioned = analysis.brand_mentioned;
             run.mention_spans = analysis.mention_spans;
             run.competitors_mentioned = analysis.competitors_mentioned;
@@ -2697,7 +2839,18 @@ export class PanelRunner {
             allIssues.push(...analysis.accuracy_issues);
             panelRun.valid_runs++;
           } catch {
-            runs.push(this.makeRun(runId, panelRunId, prompt, adapter.name, intake, startedAt, "error", "provider_error"));
+            runs.push(
+              this.makeRun(
+                runId,
+                panelRunId,
+                prompt,
+                adapter.name,
+                intake,
+                startedAt,
+                "error",
+                "provider_error",
+              ),
+            );
             panelRun.failed_runs++;
           }
         }
@@ -2709,7 +2862,13 @@ export class PanelRunner {
 
     const metrics = computeMetrics(runs, adapters.length);
 
-    return { panel_run: panelRun, runs, citations: allCitations, accuracy_issues: allIssues, metrics };
+    return {
+      panel_run: panelRun,
+      runs,
+      citations: allCitations,
+      accuracy_issues: allIssues,
+      metrics,
+    };
   }
 
   private makeRun(
@@ -2781,10 +2940,12 @@ git commit -m "feat(M6): add panel runner with state machine and budget/breaker 
 ### Task 14: Visibility Module Index and Barrel Exports
 
 **Files:**
+
 - Create: `services/agents/src/visibility/index.ts`
 - Modify: `services/agents/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: All visibility modules
 - Produces: Public API for the visibility module
 
@@ -2872,6 +3033,7 @@ Expected: All tests pass across all packages
 - [ ] **Step 5: Verify exit criteria**
 
 Check each exit criterion from the spec:
+
 1. ✅ All 5 provider adapters pass unit tests (gemini existing + claude, openai, perplexity, grok new)
 2. ✅ Panel runner executes free panel end-to-end (tested in Task 13)
 3. ✅ Metrics engine produces correct rates with valid denominators (Task 11)

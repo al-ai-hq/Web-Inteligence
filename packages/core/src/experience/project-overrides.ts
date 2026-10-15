@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { validateWeights } from './weight-config.js';
+import { readFileSync } from "node:fs";
+import { validateWeights } from "./weight-config.js";
 
 interface DimensionConfig {
   weight: number;
@@ -20,7 +20,10 @@ interface DimensionOverride {
 
 interface ProjectOverrides {
   dimensions: Record<string, DimensionOverride>;
-  criteria: Record<string, { weight: number; justification: string; approved_by: string; approved_at: string }>;
+  criteria: Record<
+    string,
+    { weight: number; justification: string; approved_by: string; approved_at: string }
+  >;
 }
 
 interface OverrideMetadata {
@@ -30,7 +33,7 @@ interface OverrideMetadata {
 
 export function applyOverrides(
   baseConfig: WeightConfig,
-  overrides: ProjectOverrides
+  overrides: ProjectOverrides,
 ): WeightConfig & { metadata: OverrideMetadata } {
   const validation = validateOverrides(overrides);
 
@@ -56,7 +59,7 @@ export function applyOverrides(
   }
 
   const mergedWeights = Object.fromEntries(
-    Object.entries(mergedDimensions).map(([k, v]) => [k, v.weight])
+    Object.entries(mergedDimensions).map(([k, v]) => [k, v.weight]),
   );
   const weightValidation = validateWeights(mergedWeights);
 
@@ -80,15 +83,13 @@ export function applyOverrides(
 }
 
 export function loadProjectOverrides(filePath: string): ProjectOverrides {
-  const content = readFileSync(filePath, 'utf-8');
+  const content = readFileSync(filePath, "utf-8");
   return JSON.parse(content) as ProjectOverrides;
 }
 
-export function validateOverrides(
-  overrides: ProjectOverrides
-): { valid: boolean; error?: string } {
+export function validateOverrides(overrides: ProjectOverrides): { valid: boolean; error?: string } {
   for (const [dimensionName, override] of Object.entries(overrides.dimensions)) {
-    if (!override.justification || override.justification.trim() === '') {
+    if (!override.justification || override.justification.trim() === "") {
       return {
         valid: false,
         error: `Override for ${dimensionName} missing justification`,

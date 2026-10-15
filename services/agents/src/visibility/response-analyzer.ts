@@ -1,4 +1,10 @@
-import type { VisibilityIntake, Citation, AccuracyIssue, MentionSpan, OwnerClass } from "./types.js";
+import type {
+  VisibilityIntake,
+  Citation,
+  AccuracyIssue,
+  MentionSpan,
+  OwnerClass,
+} from "./types.js";
 
 export interface AnalysisResult {
   brand_mentioned: boolean;
@@ -30,11 +36,15 @@ function classifyUrl(url: string, intake: VisibilityIntake): OwnerClass {
   const domain = getDomain(url);
   if (!domain) return "unknown";
   if (domain === intake.brand_domain || domain.endsWith(`.${intake.brand_domain}`)) return "owned";
-  if (intake.competitor_domains.some((cd) => domain === cd || domain.endsWith(`.${cd}`))) return "competitor";
+  if (intake.competitor_domains.some((cd) => domain === cd || domain.endsWith(`.${cd}`)))
+    return "competitor";
   return "third_party";
 }
 
-function findMentions(text: string, intake: VisibilityIntake): { brandSpans: MentionSpan[]; competitorDomains: string[] } {
+function findMentions(
+  text: string,
+  intake: VisibilityIntake,
+): { brandSpans: MentionSpan[]; competitorDomains: string[] } {
   const brandSpans: MentionSpan[] = [];
   const names = [intake.brand_name, ...intake.brand_aliases];
 
@@ -67,9 +77,7 @@ function checkFacts(text: string, intake: VisibilityIntake, runId: string): Accu
   const issues: AccuracyIssue[] = [];
   for (const fact of intake.brand_facts) {
     if (!text.toLowerCase().includes(fact.claim.toLowerCase())) {
-      const contradictingPatterns = [
-        /\d{4}/g,
-      ];
+      const contradictingPatterns = [/\d{4}/g];
       for (const pattern of contradictingPatterns) {
         const matches = text.match(pattern);
         if (matches) {
@@ -118,9 +126,10 @@ export function analyzeResponse(
 
   const brandUrlCited = citations.some((c) => c.owner_class === "owned");
 
-  const accuracyIssues = promptFamily === "brand_facts" || promptFamily === "branded"
-    ? checkFacts(responseText, intake, "pending")
-    : [];
+  const accuracyIssues =
+    promptFamily === "brand_facts" || promptFamily === "branded"
+      ? checkFacts(responseText, intake, "pending")
+      : [];
 
   return {
     brand_mentioned: brandSpans.length > 0,

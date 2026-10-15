@@ -1,10 +1,6 @@
 // services/agents/src/providers/perplexity-adapter.ts
 import OpenAI from "openai";
-import type {
-  ProviderAdapter,
-  CompletionRequest,
-  CompletionResponse,
-} from "./types.js";
+import type { ProviderAdapter, CompletionRequest, CompletionResponse } from "./types.js";
 import { CircuitBreaker } from "./circuit-breaker.js";
 
 export class PerplexityAdapter implements ProviderAdapter {

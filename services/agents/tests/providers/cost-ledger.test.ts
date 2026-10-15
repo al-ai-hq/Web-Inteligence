@@ -76,8 +76,24 @@ describe("CostLedger", () => {
   });
 
   it("getMonthlyTotal sums across audits", () => {
-    ledger.postCallRecord({ audit_id: "a1", provider: "gemini", model_id: "m", tokens_in: 0, tokens_out: 0, amount: 1.0, workflow: "prompt_panel" });
-    ledger.postCallRecord({ audit_id: "a2", provider: "claude", model_id: "m", tokens_in: 0, tokens_out: 0, amount: 2.0, workflow: "anonymous_audit" });
+    ledger.postCallRecord({
+      audit_id: "a1",
+      provider: "gemini",
+      model_id: "m",
+      tokens_in: 0,
+      tokens_out: 0,
+      amount: 1.0,
+      workflow: "prompt_panel",
+    });
+    ledger.postCallRecord({
+      audit_id: "a2",
+      provider: "claude",
+      model_id: "m",
+      tokens_in: 0,
+      tokens_out: 0,
+      amount: 2.0,
+      workflow: "anonymous_audit",
+    });
     expect(ledger.getMonthlyTotal()).toBeCloseTo(3.0);
   });
 });

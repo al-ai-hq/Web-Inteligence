@@ -12,6 +12,7 @@
 M6 tests how AI providers (ChatGPT, Claude, Gemini, Perplexity, Grok) respond to prompts about an audited website. It measures **observed presence** — mentions, citations, competitor share, accuracy issues — and is reported separately from Presence Readiness (D-012: observed presence is never blended into the readiness score).
 
 Two panel tiers:
+
 - **Free (anonymous audit):** 8 prompts × providers × 1 run. Results shown as counts, not percentages.
 - **Connected (registered):** 20–40 prompts × providers × 3 runs, 6 categories. Full metrics with small-cell rules.
 
@@ -98,14 +99,14 @@ graph TD
 
 ### Component Responsibilities
 
-| Component | Responsibility |
-|-----------|---------------|
-| **Provider Gateway** | Extends `ProviderAdapter` with 4 new adapters, configurable circuit breakers, cost ledger integration |
-| **Panel Runner** | Orchestrates prompt × engine × repeat executions with state machine, budget/breaker checks |
-| **Visibility Prompt Builder** | Fills prompt templates with intake values (brand, market, offering, etc.) |
-| **Response Analyzer** | Runs visibility-tester tools on provider responses to extract mentions, citations, accuracy |
-| **Metrics Engine** | Computes rates with valid denominators and small-cell rules |
-| **Lost-Prompt Analyzer** | Identifies prompts where competitors appear but brand does not |
+| Component                     | Responsibility                                                                                        |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **Provider Gateway**          | Extends `ProviderAdapter` with 4 new adapters, configurable circuit breakers, cost ledger integration |
+| **Panel Runner**              | Orchestrates prompt × engine × repeat executions with state machine, budget/breaker checks            |
+| **Visibility Prompt Builder** | Fills prompt templates with intake values (brand, market, offering, etc.)                             |
+| **Response Analyzer**         | Runs visibility-tester tools on provider responses to extract mentions, citations, accuracy           |
+| **Metrics Engine**            | Computes rates with valid denominators and small-cell rules                                           |
+| **Lost-Prompt Analyzer**      | Identifies prompts where competitors appear but brand does not                                        |
 
 ---
 
@@ -134,14 +135,15 @@ graph LR
 
 **New adapter files** (all under `services/agents/src/providers/`):
 
-| File | Provider | SDK | Web Search |
-|------|----------|-----|------------|
-| `claude-adapter.ts` | Anthropic Claude | `@anthropic-ai/sdk` | Not supported; `webSearch.enabled` → error |
-| `openai-adapter.ts` | OpenAI | `openai` | Via `web_search_preview` tool ( Responses API) |
-| `perplexity-adapter.ts` | Perplexity | `openai` (compatible) | Built-in; always on |
-| `grok-adapter.ts` | xAI Grok | `openai` (compatible) | Via `search` parameter |
+| File                    | Provider         | SDK                   | Web Search                                     |
+| ----------------------- | ---------------- | --------------------- | ---------------------------------------------- |
+| `claude-adapter.ts`     | Anthropic Claude | `@anthropic-ai/sdk`   | Not supported; `webSearch.enabled` → error     |
+| `openai-adapter.ts`     | OpenAI           | `openai`              | Via `web_search_preview` tool ( Responses API) |
+| `perplexity-adapter.ts` | Perplexity       | `openai` (compatible) | Built-in; always on                            |
+| `grok-adapter.ts`       | xAI Grok         | `openai` (compatible) | Via `search` parameter                         |
 
 Each adapter:
+
 1. Wraps a `ConfigurableCircuitBreaker` (Section 3.2)
 2. Records cost entries to the `CostLedger` (Section 3.3)
 3. Maps provider-specific errors to `error_class` enum values from `prompt-run.schema.json`
@@ -164,8 +166,8 @@ stateDiagram-v2
 
 ```typescript
 export interface CircuitBreakerConfig {
-  failureThreshold: number;   // was hard-coded OPEN_AFTER_FAILURES = 3
-  cooldownMs: number;         // was hard-coded COOLDOWN_MS = 15 * 60 * 1000
+  failureThreshold: number; // was hard-coded OPEN_AFTER_FAILURES = 3
+  cooldownMs: number; // was hard-coded COOLDOWN_MS = 15 * 60 * 1000
 }
 
 export class CircuitBreaker {
@@ -192,12 +194,25 @@ export interface CostLedgerEntry {
   model_id?: string;
   audit_id?: string;
   project_id?: string;
-  workflow: "anonymous_audit" | "registered_audit" | "prompt_panel" | "keyword_sync" | "content" | "verification" | "report" | "other";
+  workflow:
+    | "anonymous_audit"
+    | "registered_audit"
+    | "prompt_panel"
+    | "keyword_sync"
+    | "content"
+    | "verification"
+    | "report"
+    | "other";
   tokens?: { input: number; output: number };
   amount: number;
   source: "pre_call_estimate" | "post_call_actual" | "billing_export";
   cap_check?: {
-    decision: "allowed" | "allowed_soft_cap_reached" | "denied_audit_hard_cap" | "denied_monthly_cap" | "denied_breaker_open";
+    decision:
+      | "allowed"
+      | "allowed_soft_cap_reached"
+      | "denied_audit_hard_cap"
+      | "denied_monthly_cap"
+      | "denied_breaker_open";
     month_to_date: number;
     checked_at: Date;
   };
@@ -206,6 +221,7 @@ export interface CostLedgerEntry {
 ```
 
 The `CostTracker` class becomes `CostLedger` with:
+
 - `record(entry)` → validates against schema shape, stores
 - `preCallCheck(auditId, estimatedCost)` → returns cap_check decision before the call
 - `postCallRecord(result)` → records actual cost with `source: "post_call_actual"`
@@ -254,6 +270,7 @@ stateDiagram-v2
 **File:** `services/agents/src/visibility/panel-runner.ts`
 
 The runner:
+
 1. Loads the prompt set (free or connected) from YAML config
 2. For each prompt × engine × repeat combination:
    a. Checks circuit breaker → if open, creates `skipped_breaker` run
@@ -281,7 +298,15 @@ interface PromptRun {
   model_id: string;
   market: string;
   language: "ar" | "en";
-  status: "queued" | "running" | "valid" | "error" | "timeout" | "refused" | "skipped_budget" | "skipped_breaker";
+  status:
+    | "queued"
+    | "running"
+    | "valid"
+    | "error"
+    | "timeout"
+    | "refused"
+    | "skipped_budget"
+    | "skipped_breaker";
   counted_in_denominator: boolean | null;
   brand_mentioned: boolean | null;
   recommended: boolean | null;
@@ -382,18 +407,19 @@ graph LR
 
 **Intake → placeholder mapping:**
 
-| Placeholder | Source | Required |
-|-------------|--------|----------|
-| `{brand}` | audit.brand_name | Yes |
-| `{offering}` | audit.offering_description | Yes |
-| `{audience}` | audit.target_audience | Yes |
-| `{market}` | audit.market | Yes |
-| `{city}` | audit.city | Only for local prompts |
-| `{category}` | audit.category | Yes |
-| `{use_case}` | audit.use_case | For connected panel |
-| `{requirement}` | audit.requirement | For connected panel |
+| Placeholder     | Source                     | Required               |
+| --------------- | -------------------------- | ---------------------- |
+| `{brand}`       | audit.brand_name           | Yes                    |
+| `{offering}`    | audit.offering_description | Yes                    |
+| `{audience}`    | audit.target_audience      | Yes                    |
+| `{market}`      | audit.market               | Yes                    |
+| `{city}`        | audit.city                 | Only for local prompts |
+| `{category}`    | audit.category             | Yes                    |
+| `{use_case}`    | audit.use_case             | For connected panel    |
+| `{requirement}` | audit.requirement          | For connected panel    |
 
 Templates use `{placeholder}` syntax. The builder:
+
 1. Loads the template YAML for the requested panel tier + language
 2. For each prompt in the template, replaces placeholders with intake values
 3. Validates no unresolved placeholders remain
@@ -434,21 +460,25 @@ graph TD
 ```
 
 **`analyze_response`:**
+
 - Scans response text for brand name, known competitors, and entity variants
 - Returns: `brand_mentioned: boolean`, `mention_spans: [{start, end, text}]`, `competitors_mentioned: string[]`
 
 **`match_entity`:**
+
 - Resolves a mention span to a known entity (brand, competitor, third party)
 - Uses the audit's entity register (brand name + aliases, competitor list from intake)
 - Returns: `entity_id`, `entity_type`, `confidence`
 
 **`normalize_citation`:**
+
 - Takes a URL extracted from the response
 - Classifies as `owned` (matches audit domain), `competitor` (matches known competitor domain), `third_party` (neither), or `unknown`
 - Tracks position (1st, 2nd, 3rd cited URL) and whether it appears in the final answer
 - Returns: `Citation` record matching `schemas/citation.schema.json`
 
 **`check_brand_facts`:**
+
 - Compares factual claims in the response against the audit's fact register (brand facts from intake)
 - Detects: wrong prices, outdated info, incorrect location, wrong founder/owner, policy errors
 - Returns: `AccuracyIssue` records matching `schemas/accuracy-issue.schema.json`
@@ -490,14 +520,14 @@ stateDiagram-v2
 
 ### 7.1 Metrics
 
-| Metric | Formula | Panel Tier |
-|--------|---------|------------|
-| `mention_rate` | valid runs where `brand_mentioned=true` / valid runs | Connected |
-| `recommendation_rate` | valid runs where `recommended=true` / valid runs where `brand_mentioned=true` | Connected |
-| `domain_citation_rate` | valid runs where `brand_url_cited=true` / valid runs | Connected |
-| `share_of_observed_mentions` | brand mentions / (brand + all competitor mentions) | Both |
-| `accuracy_issue_count` | count of open accuracy issues | Connected |
-| `provider_coverage` | providers with ≥1 valid run / total configured providers | Connected |
+| Metric                       | Formula                                                                       | Panel Tier |
+| ---------------------------- | ----------------------------------------------------------------------------- | ---------- |
+| `mention_rate`               | valid runs where `brand_mentioned=true` / valid runs                          | Connected  |
+| `recommendation_rate`        | valid runs where `recommended=true` / valid runs where `brand_mentioned=true` | Connected  |
+| `domain_citation_rate`       | valid runs where `brand_url_cited=true` / valid runs                          | Connected  |
+| `share_of_observed_mentions` | brand mentions / (brand + all competitor mentions)                            | Both       |
+| `accuracy_issue_count`       | count of open accuracy issues                                                 | Connected  |
+| `provider_coverage`          | providers with ≥1 valid run / total configured providers                      | Connected  |
 
 ### 7.2 Small-Cell Rule
 
@@ -547,10 +577,10 @@ Output: a list of lost prompts with competitor-cited URLs, gap notes, and a sche
 
 AI Visibility results are **never** blended into the Presence Readiness score. The two are independent result sets:
 
-| Result Set | Score | Purpose |
-|-----------|-------|---------|
-| Presence Readiness (M5) | 0–100% | Can the brand be found online? |
-| AI Visibility (M6) | Metrics + counts | How do AI providers describe the brand? |
+| Result Set              | Score            | Purpose                                 |
+| ----------------------- | ---------------- | --------------------------------------- |
+| Presence Readiness (M5) | 0–100%           | Can the brand be found online?          |
+| AI Visibility (M6)      | Metrics + counts | How do AI providers describe the brand? |
 
 They may be displayed side-by-side in the report but are computed and stored independently. No shared scoring formula.
 
@@ -589,22 +619,22 @@ TypeScript types derived from JSON schemas live in `services/agents/src/visibili
 
 ## 11. Dependencies
 
-| Package | Purpose | Used By |
-|---------|---------|---------|
-| `@anthropic-ai/sdk` | Claude API | `claude-adapter.ts` |
-| `openai` | OpenAI + Perplexity + Grok (compatible APIs) | `openai-adapter.ts`, `perplexity-adapter.ts`, `grok-adapter.ts` |
-| `@google/genai` | Gemini API (existing) | `gemini-adapter.ts` |
-| `js-yaml` | Prompt template loading | `prompt-builder.ts` |
+| Package             | Purpose                                      | Used By                                                         |
+| ------------------- | -------------------------------------------- | --------------------------------------------------------------- |
+| `@anthropic-ai/sdk` | Claude API                                   | `claude-adapter.ts`                                             |
+| `openai`            | OpenAI + Perplexity + Grok (compatible APIs) | `openai-adapter.ts`, `perplexity-adapter.ts`, `grok-adapter.ts` |
+| `@google/genai`     | Gemini API (existing)                        | `gemini-adapter.ts`                                             |
+| `js-yaml`           | Prompt template loading                      | `prompt-builder.ts`                                             |
 
 ---
 
 ## 12. Open Items Resolved by M6
 
-| Open Item | Resolution |
-|-----------|-----------|
-| OI-013: Runtime AI providers for launch | `providers.yaml` defines 5 providers; all disabled by default; tenant opt-in via config |
-| OI-051: Prompt families consolidation | Connected panel uses 6 families from detailed spec; V4 additional families disabled |
-| OI-052: Arabic prompt templates | Templates marked `needs_native_review: true`; M6 ships English templates, Arabic flagged for review |
+| Open Item                               | Resolution                                                                                          |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| OI-013: Runtime AI providers for launch | `providers.yaml` defines 5 providers; all disabled by default; tenant opt-in via config             |
+| OI-051: Prompt families consolidation   | Connected panel uses 6 families from detailed spec; V4 additional families disabled                 |
+| OI-052: Arabic prompt templates         | Templates marked `needs_native_review: true`; M6 ships English templates, Arabic flagged for review |
 
 ---
 
@@ -626,6 +656,7 @@ All tests follow TDD: write failing test first, implement minimal code, verify p
 ## 14. Exit Criteria
 
 M6 is complete when:
+
 1. All 5 provider adapters pass unit tests with mocked responses
 2. Panel runner executes free panel (8 prompts × 1 run) end-to-end
 3. Panel runner executes connected panel (20+ prompts × 3 runs) end-to-end

@@ -36,10 +36,7 @@ export class PgAuthService implements AuthService {
     }
   }
 
-  async verifyCredentials(
-    email: string,
-    password: string,
-  ): Promise<SessionUser | null> {
+  async verifyCredentials(email: string, password: string): Promise<SessionUser | null> {
     const normalized = email.trim().toLowerCase();
     const result = await this.pool.query<{ id: string; email: string; password_hash: string }>(
       "SELECT id, email, password_hash FROM users WHERE email = $1",
@@ -138,10 +135,7 @@ export class PgAuthService implements AuthService {
     return token;
   }
 
-  async consumePasswordResetToken(
-    token: string,
-    newPassword: string,
-  ): Promise<boolean> {
+  async consumePasswordResetToken(token: string, newPassword: string): Promise<boolean> {
     const tokenHash = hashToken(token);
     const client = await this.pool.connect();
     try {
@@ -164,10 +158,9 @@ export class PgAuthService implements AuthService {
         newHash,
         row.user_id,
       ]);
-      await client.query(
-        "UPDATE password_reset_tokens SET used_at = now() WHERE token_hash = $1",
-        [tokenHash],
-      );
+      await client.query("UPDATE password_reset_tokens SET used_at = now() WHERE token_hash = $1", [
+        tokenHash,
+      ]);
       await client.query("COMMIT");
       return true;
     } catch (error) {

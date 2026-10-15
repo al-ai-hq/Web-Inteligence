@@ -25,7 +25,7 @@ export function createManifest(threshold: number): RenderManifest {
 export function addToManifest(
   manifest: RenderManifest,
   url: string,
-  textByteLength: number
+  textByteLength: number,
 ): RenderManifest {
   if (!shouldRender(textByteLength, manifest.threshold)) {
     return manifest;
@@ -49,11 +49,7 @@ export function parseManifest(json: string): RenderManifest {
   }
   // Basic validation
   const obj = parsed as Record<string, unknown> | null;
-  if (
-    !obj ||
-    !Array.isArray(obj["entries"]) ||
-    typeof obj["threshold"] !== "number"
-  ) {
+  if (!obj || !Array.isArray(obj["entries"]) || typeof obj["threshold"] !== "number") {
     throw new Error("Invalid render manifest format");
   }
   return obj as unknown as RenderManifest;

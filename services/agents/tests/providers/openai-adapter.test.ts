@@ -26,7 +26,7 @@ describe("OpenAIAdapter", () => {
   });
 
   it("calls OpenAI API and returns completion response", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockResolvedValueOnce({
       choices: [{ message: { content: "Hello from OpenAI!" }, finish_reason: "stop" }],
       usage: { prompt_tokens: 15, completion_tokens: 8 },
@@ -45,7 +45,7 @@ describe("OpenAIAdapter", () => {
   });
 
   it("maps length finish reason to max_tokens", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockResolvedValueOnce({
       choices: [{ message: { content: "Partial" }, finish_reason: "length" }],
       usage: { prompt_tokens: 10, completion_tokens: 100 },
@@ -61,11 +61,13 @@ describe("OpenAIAdapter", () => {
   });
 
   it("reports unavailable after 3 consecutive failures", async () => {
-    const { __mockCreate } = await import("openai") as { __mockCreate: ReturnType<typeof vi.fn> };
+    const { __mockCreate } = (await import("openai")) as { __mockCreate: ReturnType<typeof vi.fn> };
     __mockCreate.mockRejectedValue(new Error("API down"));
 
     for (let i = 0; i < 3; i++) {
-      await adapter.complete({ model: "gpt-4o", systemPrompt: "t", userPrompt: "t" }).catch(() => {});
+      await adapter
+        .complete({ model: "gpt-4o", systemPrompt: "t", userPrompt: "t" })
+        .catch(() => {});
     }
 
     expect(adapter.isAvailable()).toBe(false);

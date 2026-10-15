@@ -6,13 +6,13 @@ Status: PASS
 
 ## Exit Gate
 
-| Proof | Command | Fixture | Status |
-|-------|---------|---------|--------|
-| 1. Reproduce score | `python3 -m scripts.proofs.proof_1_reproduce_score` | `scripts/proofs/fixtures/proof_1/` | PASS |
-| 2. Reject invalid record | `python3 -m scripts.proofs.proof_2_reject_invalid` | `scripts/proofs/fixtures/proof_2/` | PASS |
-| 3. Trace lineage | `python3 -m scripts.proofs.proof_3_trace_lineage` | `scripts/proofs/fixtures/proof_3/` | PASS |
-| 4. Deny unauthorized | `python3 -m scripts.proofs.proof_4_deny_unauthorized` | `scripts/proofs/fixtures/proof_4/` | PASS |
-| 5. Cost hard stop | `python3 -m scripts.proofs.proof_5_cost_hard_stop` | `scripts/proofs/fixtures/proof_5/` | PASS |
+| Proof                    | Command                                               | Fixture                            | Status |
+| ------------------------ | ----------------------------------------------------- | ---------------------------------- | ------ |
+| 1. Reproduce score       | `python3 -m scripts.proofs.proof_1_reproduce_score`   | `scripts/proofs/fixtures/proof_1/` | PASS   |
+| 2. Reject invalid record | `python3 -m scripts.proofs.proof_2_reject_invalid`    | `scripts/proofs/fixtures/proof_2/` | PASS   |
+| 3. Trace lineage         | `python3 -m scripts.proofs.proof_3_trace_lineage`     | `scripts/proofs/fixtures/proof_3/` | PASS   |
+| 4. Deny unauthorized     | `python3 -m scripts.proofs.proof_4_deny_unauthorized` | `scripts/proofs/fixtures/proof_4/` | PASS   |
+| 5. Cost hard stop        | `python3 -m scripts.proofs.proof_5_cost_hard_stop`    | `scripts/proofs/fixtures/proof_5/` | PASS   |
 
 Runner: `pnpm proofs` -- 5/5 passed
 
@@ -26,14 +26,14 @@ None required.
 
 ## Open Assumptions
 
-| Placeholder | Assumption | Review by |
-|-------------|-----------|-----------|
-| Google Cloud region | us-central1 | M4 |
-| Identity provider | Google Identity Platform | M4 |
-| Retention for change snapshots | 12 months | M4 legal |
-| Hosting overrun | alert_only | M0 |
-| Anonymous sub-budget | USD 30 | M1 |
-| Reduced/preview per-audit caps | 1.50/0.50 | M1 |
+| Placeholder                    | Assumption               | Review by |
+| ------------------------------ | ------------------------ | --------- |
+| Google Cloud region            | us-central1              | M4        |
+| Identity provider              | Google Identity Platform | M4        |
+| Retention for change snapshots | 12 months                | M4 legal  |
+| Hosting overrun                | alert_only               | M0        |
+| Anonymous sub-budget           | USD 30                   | M1        |
+| Reduced/preview per-audit caps | 1.50/0.50                | M1        |
 
 ## Verification
 

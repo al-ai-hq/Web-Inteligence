@@ -13,7 +13,8 @@ const inputSchema = z.object({
 export function createWriteBriefTool(): Tool {
   return {
     name: "write_brief",
-    description: "Produces a content brief linked to specific audit evidence and keyword clusters. Checks for cannibalization and normalizes Arabic keywords.",
+    description:
+      "Produces a content brief linked to specific audit evidence and keyword clusters. Checks for cannibalization and normalizes Arabic keywords.",
     inputSchema: {
       type: "object",
       properties: {
@@ -41,7 +42,11 @@ export function createWriteBriefTool(): Tool {
 
       const existingMappings = new Map<string, string>();
       const cannibalization = opportunity.cluster_id
-        ? checkCannibalization(opportunity.cluster_id, opportunity.target_url ?? null, existingMappings)
+        ? checkCannibalization(
+            opportunity.cluster_id,
+            opportunity.target_url ?? null,
+            existingMappings,
+          )
         : { ok: true as const };
 
       return {
@@ -60,7 +65,9 @@ export function createWriteBriefTool(): Tool {
           cannibalization_check: cannibalization,
         },
         source_tier: "first_party",
-        limitations: !cannibalization.ok ? ["Cannibalization detected: cluster already mapped to existing page"] : [],
+        limitations: !cannibalization.ok
+          ? ["Cannibalization detected: cluster already mapped to existing page"]
+          : [],
       };
     },
   };

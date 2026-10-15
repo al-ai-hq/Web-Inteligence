@@ -5,10 +5,7 @@ import { randomUUID } from "node:crypto";
 export class Orchestrator {
   private graph = new DependencyGraph();
 
-  createJobs(
-    baseJob: Omit<AgentJob, "job_id" | "agent_name">,
-    agents: string[],
-  ): AgentJob[] {
+  createJobs(baseJob: Omit<AgentJob, "job_id" | "agent_name">, agents: string[]): AgentJob[] {
     const ordered = this.graph.getExecutionOrder(agents);
     return ordered.map((agentName) => ({
       ...baseJob,

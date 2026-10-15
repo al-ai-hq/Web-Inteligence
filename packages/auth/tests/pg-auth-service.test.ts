@@ -18,11 +18,17 @@ describe.skipIf(!DATABASE_URL)("PgAuthService", () => {
     await pool.query("DROP TABLE IF EXISTS users CASCADE");
     await pool.query("DROP TABLE IF EXISTS schema_migrations");
     const usersSql = await readFile(
-      new URL("../../audit-pipeline/src/migrations/0016_create_users_sessions.sql", import.meta.url),
+      new URL(
+        "../../audit-pipeline/src/migrations/0016_create_users_sessions.sql",
+        import.meta.url,
+      ),
       "utf8",
     );
     const tokensSql = await readFile(
-      new URL("../../audit-pipeline/src/migrations/0018_password_reset_tokens.sql", import.meta.url),
+      new URL(
+        "../../audit-pipeline/src/migrations/0018_password_reset_tokens.sql",
+        import.meta.url,
+      ),
       "utf8",
     );
     await pool.query(usersSql);

@@ -17,11 +17,11 @@ main:
               containerOverrides:
                 - env:
                     - name: AUDIT_ID
-                      value: '${input.audit_id}'
+                      value: "${input.audit_id}"
                     - name: AUDIT_SCOPE
-                      value: '${input.audit_scope}'
+                      value: "${input.audit_scope}"
                     - name: LANDING_BUCKET
-                      value: '${input.landing_bucket}'
+                      value: "${input.landing_bucket}"
         result: crawl_operation
 
     # -----------------------------------------------------------------------
@@ -30,8 +30,8 @@ main:
     - check_crawl_result:
         call: poll_crawl_job
         args:
-          crawl_project: '${input.crawl_project}'
-          operation_name: '${crawl_operation.name}'
+          crawl_project: "${input.crawl_project}"
+          operation_name: "${crawl_operation.name}"
           timeout_seconds: 900
         result: crawl_result
 
@@ -45,7 +45,7 @@ main:
 
     - check_render_manifest:
         switch:
-          - condition: '${crawl_result.render_manifest_exists == true}'
+          - condition: "${crawl_result.render_manifest_exists == true}"
             next: start_render_job
         next: start_evidence_processor
 
@@ -58,16 +58,16 @@ main:
               containerOverrides:
                 - env:
                     - name: AUDIT_ID
-                      value: '${input.audit_id}'
+                      value: "${input.audit_id}"
                     - name: LANDING_BUCKET
-                      value: '${input.landing_bucket}'
+                      value: "${input.landing_bucket}"
         result: render_operation
 
     - check_render_result:
         call: poll_render_job
         args:
-          crawl_project: '${input.crawl_project}'
-          operation_name: '${render_operation.name}'
+          crawl_project: "${input.crawl_project}"
+          operation_name: "${render_operation.name}"
           timeout_seconds: 300
         result: render_result
 
@@ -83,18 +83,18 @@ main:
               containerOverrides:
                 - env:
                     - name: AUDIT_ID
-                      value: '${input.audit_id}'
+                      value: "${input.audit_id}"
                     - name: LANDING_BUCKET
-                      value: '${input.landing_bucket}'
+                      value: "${input.landing_bucket}"
                     - name: APP_PROJECT
-                      value: '${input.app_project}'
+                      value: "${input.app_project}"
         result: evidence_operation
 
     - check_evidence_result:
         call: poll_evidence_job
         args:
-          app_project: '${input.app_project}'
-          operation_name: '${evidence_operation.name}'
+          app_project: "${input.app_project}"
+          operation_name: "${evidence_operation.name}"
           timeout_seconds: 600
         result: evidence_result
 
@@ -107,18 +107,18 @@ main:
           url: '${"https://" + input.app_project + ".run.app/api/audits/" + input.audit_id + "/transition"}'
           auth:
             type: OAuth2
-            scopes: 'https://www.googleapis.com/auth/cloud-platform'
+            scopes: "https://www.googleapis.com/auth/cloud-platform"
           body:
-            state: 'AUDITING'
-            audit_id: '${input.audit_id}'
+            state: "AUDITING"
+            audit_id: "${input.audit_id}"
         result: audit_transition
 
     - return_success:
         return:
-          audit_id: '${input.audit_id}'
-          status: 'AUDITING'
-          crawl_status: '${crawl_result.status}'
-          render_status: '${render_result.status}'
+          audit_id: "${input.audit_id}"
+          status: "AUDITING"
+          crawl_status: "${crawl_result.status}"
+          render_status: "${render_result.status}"
 
 # ===========================================================================
 # Subworkflow: Poll crawl job status
@@ -128,11 +128,11 @@ poll_crawl_job:
   steps:
     - init:
         assign:
-          - start_time: '${sys.now()}'
+          - start_time: "${sys.now()}"
           - elapsed: 0
 
     - poll_loop:
-        while: '${elapsed < timeout_seconds}'
+        while: "${elapsed < timeout_seconds}"
         steps:
           - wait:
               call: sys.sleep
@@ -161,23 +161,23 @@ poll_crawl_job:
 
           - update_elapsed:
               assign:
-                - elapsed: '${sys.now() - start_time}'
+                - elapsed: "${sys.now() - start_time}"
 
     - crawl_timeout:
         raise:
           code: 408
-          message: 'crawl timeout after 15 minutes'
+          message: "crawl timeout after 15 minutes"
 
     - crawl_failed:
         switch:
-          - condition: '${job_status.status.conditions[0].exitCode == 42}'
+          - condition: "${job_status.status.conditions[0].exitCode == 42}"
             next: ssrf_blocked
         next: crawl_generic_failure
 
     - ssrf_blocked:
         raise:
           code: 403
-          message: 'SSRF attempt blocked'
+          message: "SSRF attempt blocked"
 
     - crawl_generic_failure:
         raise:
@@ -186,8 +186,8 @@ poll_crawl_job:
 
     - crawl_success:
         return:
-          status: 'SUCCESS'
-          render_manifest_exists: '${job_status.status.conditions[0].render_manifest_exists != null}'
+          status: "SUCCESS"
+          render_manifest_exists: "${job_status.status.conditions[0].render_manifest_exists != null}"
 
 # ===========================================================================
 # Subworkflow: Poll render job status
@@ -197,11 +197,11 @@ poll_render_job:
   steps:
     - init:
         assign:
-          - start_time: '${sys.now()}'
+          - start_time: "${sys.now()}"
           - elapsed: 0
 
     - poll_loop:
-        while: '${elapsed < timeout_seconds}'
+        while: "${elapsed < timeout_seconds}"
         steps:
           - wait:
               call: sys.sleep
@@ -230,21 +230,21 @@ poll_render_job:
 
           - update_elapsed:
               assign:
-                - elapsed: '${sys.now() - start_time}'
+                - elapsed: "${sys.now() - start_time}"
 
     - render_timeout:
         return:
-          status: 'TIMEOUT'
-          warning: 'render job timed out, continuing with raw evidence only'
+          status: "TIMEOUT"
+          warning: "render job timed out, continuing with raw evidence only"
 
     - render_failed:
         return:
-          status: 'FAILED'
-          warning: 'render job failed, continuing with raw evidence only'
+          status: "FAILED"
+          warning: "render job failed, continuing with raw evidence only"
 
     - render_success:
         return:
-          status: 'SUCCESS'
+          status: "SUCCESS"
 
 # ===========================================================================
 # Subworkflow: Poll evidence processor job status
@@ -254,11 +254,11 @@ poll_evidence_job:
   steps:
     - init:
         assign:
-          - start_time: '${sys.now()}'
+          - start_time: "${sys.now()}"
           - elapsed: 0
 
     - poll_loop:
-        while: '${elapsed < timeout_seconds}'
+        while: "${elapsed < timeout_seconds}"
         steps:
           - wait:
               call: sys.sleep
@@ -287,18 +287,18 @@ poll_evidence_job:
 
           - update_elapsed:
               assign:
-                - elapsed: '${sys.now() - start_time}'
+                - elapsed: "${sys.now() - start_time}"
 
     - evidence_timeout:
         raise:
           code: 408
-          message: 'evidence processing failed'
+          message: "evidence processing failed"
 
     - evidence_failed:
         raise:
           code: 500
-          message: 'evidence processing failed'
+          message: "evidence processing failed"
 
     - evidence_success:
         return:
-          status: 'SUCCESS'
+          status: "SUCCESS"

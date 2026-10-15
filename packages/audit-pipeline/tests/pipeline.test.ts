@@ -39,10 +39,7 @@ function verifiedFinding(): ComposerAgentOutcome["findings"][number] {
   };
 }
 
-function makeDeps(
-  store: InMemoryAuditStore,
-  overrides: Partial<PipelineDeps> = {},
-): PipelineDeps {
+function makeDeps(store: InMemoryAuditStore, overrides: Partial<PipelineDeps> = {}): PipelineDeps {
   return {
     store,
     validateUrl: async () => ({ ok: true }),
@@ -226,9 +223,7 @@ describe("ENRICHING_OPTIONAL stage", () => {
   it("continues pipeline even if enrichFootprint fails", async () => {
     const store = new InMemoryAuditStore();
     const auditId = await seedAudit(store);
-    const enrichFootprint = vi
-      .fn()
-      .mockRejectedValue(new Error("enrichment failed"));
+    const enrichFootprint = vi.fn().mockRejectedValue(new Error("enrichment failed"));
     const deps = makeDeps(store, { enrichFootprint });
 
     const result = await runAuditPipeline(deps, auditId);

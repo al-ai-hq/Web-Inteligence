@@ -15,16 +15,54 @@ import type { RuleEvaluation, PageEvaluator } from "../types.js";
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const AUDIENCE_KEYWORDS = [
-  "businesses", "business", "developers", "developer", "homeowners", "homeowner",
-  "teams", "team", "freelancers", "freelancer", "agencies", "agency", "professionals",
-  "professional", "students", "student", "teachers", "teacher", "engineers", "engineer",
-  "designers", "designer", "marketers", "marketer", "founders", "founder", "executives",
-  "executive", "managers", "manager", "creators", "creator", "for you", "for your",
+  "businesses",
+  "business",
+  "developers",
+  "developer",
+  "homeowners",
+  "homeowner",
+  "teams",
+  "team",
+  "freelancers",
+  "freelancer",
+  "agencies",
+  "agency",
+  "professionals",
+  "professional",
+  "students",
+  "student",
+  "teachers",
+  "teacher",
+  "engineers",
+  "engineer",
+  "designers",
+  "designer",
+  "marketers",
+  "marketer",
+  "founders",
+  "founder",
+  "executives",
+  "executive",
+  "managers",
+  "manager",
+  "creators",
+  "creator",
+  "for you",
+  "for your",
 ];
 
 const GEO_KEYWORDS = [
-  "worldwide", "global", "international", "nationwide", "local", "near me",
-  "available in", "serves", "serving", "area", "region",
+  "worldwide",
+  "global",
+  "international",
+  "nationwide",
+  "local",
+  "near me",
+  "available in",
+  "serves",
+  "serving",
+  "area",
+  "region",
 ];
 
 const LOCATION_PATTERNS = [
@@ -34,37 +72,92 @@ const LOCATION_PATTERNS = [
 ];
 
 const PRICING_KEYWORDS = [
-  "pricing", "price", "cost", "plans", "plan", "subscription", "free", "premium",
-  "enterprise", "quote", "estimate", "budget", "affordable", "expensive", "cheap",
-  "starting at", "per month", "per year", "monthly", "yearly",
+  "pricing",
+  "price",
+  "cost",
+  "plans",
+  "plan",
+  "subscription",
+  "free",
+  "premium",
+  "enterprise",
+  "quote",
+  "estimate",
+  "budget",
+  "affordable",
+  "expensive",
+  "cheap",
+  "starting at",
+  "per month",
+  "per year",
+  "monthly",
+  "yearly",
 ];
 
-const PRICING_PATTERNS = [
-  /\$[\d,]+(?:\.\d{2})?/,
-  /\b\d+(?:\.\d{2})?\s*(?:USD|EUR|GBP|SAR|AED)\b/i,
-];
+const PRICING_PATTERNS = [/\$[\d,]+(?:\.\d{2})?/, /\b\d+(?:\.\d{2})?\s*(?:USD|EUR|GBP|SAR|AED)\b/i];
 
 const PROCESS_KEYWORDS = [
-  "how it works", "process", "steps", "guide", "tutorial", "getting started",
-  "get started", "begin", "workflow", "methodology", "approach", "phase",
-  "step 1", "step 2", "step 3", "first", "second", "third", "finally",
+  "how it works",
+  "process",
+  "steps",
+  "guide",
+  "tutorial",
+  "getting started",
+  "get started",
+  "begin",
+  "workflow",
+  "methodology",
+  "approach",
+  "phase",
+  "step 1",
+  "step 2",
+  "step 3",
+  "first",
+  "second",
+  "third",
+  "finally",
 ];
 
 const COMPARISON_KEYWORDS = [
-  "vs", "versus", "compare", "comparison", "difference", "better", "worse",
-  "best", "worst", "top", "choose", "which", "suitable", "trade-off", "tradeoff",
-  "pros and cons", "advantages", "disadvantages", "features",
+  "vs",
+  "versus",
+  "compare",
+  "comparison",
+  "difference",
+  "better",
+  "worse",
+  "best",
+  "worst",
+  "top",
+  "choose",
+  "which",
+  "suitable",
+  "trade-off",
+  "tradeoff",
+  "pros and cons",
+  "advantages",
+  "disadvantages",
+  "features",
 ];
 
-const FAQ_KEYWORDS = [
-  "faq", "frequently asked", "common questions", "questions", "q&a", "qa",
-];
+const FAQ_KEYWORDS = ["faq", "frequently asked", "common questions", "questions", "q&a", "qa"];
 
 const QUESTION_PATTERN = /\b(?:what|how|why|when|where|who|which|can|do|does|is|are)\b.*\?/i;
 
 const FRESHNESS_KEYWORDS = [
-  "updated", "update", "latest", "new", "recent", "current", "modified",
-  "published", "posted", "released", "version", "changelog", "news",
+  "updated",
+  "update",
+  "latest",
+  "new",
+  "recent",
+  "current",
+  "modified",
+  "published",
+  "posted",
+  "released",
+  "version",
+  "changelog",
+  "news",
 ];
 
 const DATE_PATTERNS = [
@@ -74,9 +167,23 @@ const DATE_PATTERNS = [
 ];
 
 const CTA_KEYWORDS = [
-  "contact", "get started", "sign up", "subscribe", "buy now", "order",
-  "request", "quote", "demo", "trial", "call us", "email", "reach out",
-  "learn more", "start", "begin", "join",
+  "contact",
+  "get started",
+  "sign up",
+  "subscribe",
+  "buy now",
+  "order",
+  "request",
+  "quote",
+  "demo",
+  "trial",
+  "call us",
+  "email",
+  "reach out",
+  "learn more",
+  "start",
+  "begin",
+  "join",
 ];
 
 function textContains(text: string, keywords: string[]): boolean {
@@ -307,9 +414,10 @@ export const evalAEO010: PageEvaluator = (page, _bundle) => {
   }
 
   // Check structured data for date fields
-  const hasDateSD = hasStructuredDataField(page.structured_data, "dateModified") ||
-                    hasStructuredDataField(page.structured_data, "datePublished") ||
-                    hasStructuredDataField(page.structured_data, "lastReviewed");
+  const hasDateSD =
+    hasStructuredDataField(page.structured_data, "dateModified") ||
+    hasStructuredDataField(page.structured_data, "datePublished") ||
+    hasStructuredDataField(page.structured_data, "lastReviewed");
   if (hasDateSD) {
     return { result: "pass", evidence_ids: [page.evidence_id] };
   }

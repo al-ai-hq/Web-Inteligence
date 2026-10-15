@@ -1,22 +1,22 @@
-import { describe, it, expect } from 'vitest';
-import { calculateDimensionScore, calculateOverallScore } from './scoring-engine.js';
+import { describe, it, expect } from "vitest";
+import { calculateDimensionScore, calculateOverallScore } from "./scoring-engine.js";
 
-describe('calculateDimensionScore', () => {
-  it('should calculate dimension score with all pass results', () => {
+describe("calculateDimensionScore", () => {
+  it("should calculate dimension score with all pass results", () => {
     const findings = [
-      { criterion_id: 'EXP-DH-01', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-02', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-03', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-04', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-05', result: 'pass', confidence: 'high' },
+      { criterion_id: "EXP-DH-01", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-02", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-03", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-04", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-05", result: "pass", confidence: "high" },
     ];
 
     const weights = {
-      'EXP-DH-01': 25,
-      'EXP-DH-02': 20,
-      'EXP-DH-03': 20,
-      'EXP-DH-04': 15,
-      'EXP-DH-05': 20,
+      "EXP-DH-01": 25,
+      "EXP-DH-02": 20,
+      "EXP-DH-03": 20,
+      "EXP-DH-04": 15,
+      "EXP-DH-05": 20,
     };
 
     const result = calculateDimensionScore(findings, weights);
@@ -28,21 +28,21 @@ describe('calculateDimensionScore', () => {
     expect(result.not_applicable_count).toBe(0);
   });
 
-  it('should calculate dimension score with mixed results', () => {
+  it("should calculate dimension score with mixed results", () => {
     const findings = [
-      { criterion_id: 'EXP-DH-01', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-02', result: 'partial', confidence: 'medium' },
-      { criterion_id: 'EXP-DH-03', result: 'fail', confidence: 'high' },
-      { criterion_id: 'EXP-DH-04', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-05', result: 'not_applicable', confidence: 'high' },
+      { criterion_id: "EXP-DH-01", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-02", result: "partial", confidence: "medium" },
+      { criterion_id: "EXP-DH-03", result: "fail", confidence: "high" },
+      { criterion_id: "EXP-DH-04", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-05", result: "not_applicable", confidence: "high" },
     ];
 
     const weights = {
-      'EXP-DH-01': 25,
-      'EXP-DH-02': 20,
-      'EXP-DH-03': 20,
-      'EXP-DH-04': 15,
-      'EXP-DH-05': 20,
+      "EXP-DH-01": 25,
+      "EXP-DH-02": 20,
+      "EXP-DH-03": 20,
+      "EXP-DH-04": 15,
+      "EXP-DH-05": 20,
     };
 
     const result = calculateDimensionScore(findings, weights);
@@ -56,15 +56,15 @@ describe('calculateDimensionScore', () => {
     expect(result.not_applicable_count).toBe(1);
   });
 
-  it('should handle all not_applicable results', () => {
+  it("should handle all not_applicable results", () => {
     const findings = [
-      { criterion_id: 'EXP-DH-01', result: 'not_applicable', confidence: 'high' },
-      { criterion_id: 'EXP-DH-02', result: 'not_applicable', confidence: 'high' },
+      { criterion_id: "EXP-DH-01", result: "not_applicable", confidence: "high" },
+      { criterion_id: "EXP-DH-02", result: "not_applicable", confidence: "high" },
     ];
 
     const weights = {
-      'EXP-DH-01': 50,
-      'EXP-DH-02': 50,
+      "EXP-DH-01": 50,
+      "EXP-DH-02": 50,
     };
 
     const result = calculateDimensionScore(findings, weights);
@@ -76,14 +76,44 @@ describe('calculateDimensionScore', () => {
   });
 });
 
-describe('calculateOverallScore', () => {
-  it('should calculate overall score from dimension scores', () => {
+describe("calculateOverallScore", () => {
+  it("should calculate overall score from dimension scores", () => {
     const dimensionScores = {
-      design_hierarchy: { score: 80, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      copy_and_positioning_clarity: { score: 90, coverage: 1.0, criteria_count: 4, applicable_count: 4, not_applicable_count: 0 },
-      ux_and_navigation: { score: 85, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      trust_and_proof: { score: 75, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      conversion_path_and_measurement: { score: 70, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
+      design_hierarchy: {
+        score: 80,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      copy_and_positioning_clarity: {
+        score: 90,
+        coverage: 1.0,
+        criteria_count: 4,
+        applicable_count: 4,
+        not_applicable_count: 0,
+      },
+      ux_and_navigation: {
+        score: 85,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      trust_and_proof: {
+        score: 75,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      conversion_path_and_measurement: {
+        score: 70,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
     };
 
     const dimensionWeights = {
@@ -94,22 +124,52 @@ describe('calculateOverallScore', () => {
       conversion_path_and_measurement: 20,
     };
 
-    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.95, 'high');
+    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.95, "high");
 
     // overall = (80*20 + 90*20 + 85*20 + 75*20 + 70*20) / 100
     // overall = (1600 + 1800 + 1700 + 1500 + 1400) / 100 = 8000 / 100 = 80
     expect(result.experience_effectiveness).toBe(80);
-    expect(result.confidence).toBe('high');
-    expect(result.fidelity_label).toBe('assessed');
+    expect(result.confidence).toBe("high");
+    expect(result.fidelity_label).toBe("assessed");
   });
 
-  it('should set confidence to medium when coverage is 0.70-0.90', () => {
+  it("should set confidence to medium when coverage is 0.70-0.90", () => {
     const dimensionScores = {
-      design_hierarchy: { score: 80, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      copy_and_positioning_clarity: { score: 90, coverage: 1.0, criteria_count: 4, applicable_count: 4, not_applicable_count: 0 },
-      ux_and_navigation: { score: 85, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      trust_and_proof: { score: 75, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      conversion_path_and_measurement: { score: 70, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
+      design_hierarchy: {
+        score: 80,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      copy_and_positioning_clarity: {
+        score: 90,
+        coverage: 1.0,
+        criteria_count: 4,
+        applicable_count: 4,
+        not_applicable_count: 0,
+      },
+      ux_and_navigation: {
+        score: 85,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      trust_and_proof: {
+        score: 75,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      conversion_path_and_measurement: {
+        score: 70,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
     };
 
     const dimensionWeights = {
@@ -120,18 +180,48 @@ describe('calculateOverallScore', () => {
       conversion_path_and_measurement: 20,
     };
 
-    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.80, 'medium');
+    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.8, "medium");
 
-    expect(result.confidence).toBe('medium');
+    expect(result.confidence).toBe("medium");
   });
 
-  it('should set confidence to low when coverage is below 0.70', () => {
+  it("should set confidence to low when coverage is below 0.70", () => {
     const dimensionScores = {
-      design_hierarchy: { score: 80, coverage: 0.5, criteria_count: 5, applicable_count: 3, not_applicable_count: 2 },
-      copy_and_positioning_clarity: { score: 90, coverage: 0.5, criteria_count: 4, applicable_count: 2, not_applicable_count: 2 },
-      ux_and_navigation: { score: 85, coverage: 0.5, criteria_count: 5, applicable_count: 3, not_applicable_count: 2 },
-      trust_and_proof: { score: 75, coverage: 0.5, criteria_count: 5, applicable_count: 3, not_applicable_count: 2 },
-      conversion_path_and_measurement: { score: 70, coverage: 0.5, criteria_count: 5, applicable_count: 3, not_applicable_count: 2 },
+      design_hierarchy: {
+        score: 80,
+        coverage: 0.5,
+        criteria_count: 5,
+        applicable_count: 3,
+        not_applicable_count: 2,
+      },
+      copy_and_positioning_clarity: {
+        score: 90,
+        coverage: 0.5,
+        criteria_count: 4,
+        applicable_count: 2,
+        not_applicable_count: 2,
+      },
+      ux_and_navigation: {
+        score: 85,
+        coverage: 0.5,
+        criteria_count: 5,
+        applicable_count: 3,
+        not_applicable_count: 2,
+      },
+      trust_and_proof: {
+        score: 75,
+        coverage: 0.5,
+        criteria_count: 5,
+        applicable_count: 3,
+        not_applicable_count: 2,
+      },
+      conversion_path_and_measurement: {
+        score: 70,
+        coverage: 0.5,
+        criteria_count: 5,
+        applicable_count: 3,
+        not_applicable_count: 2,
+      },
     };
 
     const dimensionWeights = {
@@ -142,8 +232,8 @@ describe('calculateOverallScore', () => {
       conversion_path_and_measurement: 20,
     };
 
-    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.50, 'low');
+    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.5, "low");
 
-    expect(result.confidence).toBe('low');
+    expect(result.confidence).toBe("low");
   });
 });

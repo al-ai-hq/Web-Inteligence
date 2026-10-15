@@ -27,9 +27,11 @@
 ### Task 1: Agent Configuration File
 
 **Files:**
+
 - Create: `config/agents/experience-reviewer.yaml`
 
 **Interfaces:**
+
 - Consumes: None (configuration file)
 - Produces: Agent configuration consumed by orchestrator
 
@@ -66,10 +68,12 @@ git commit -m "feat(m5): add experience-reviewer agent configuration"
 ### Task 2: Experience Evidence Package Types
 
 **Files:**
+
 - Create: `packages/core/src/types/experience-evidence.ts`
 - Test: `packages/core/src/types/experience-evidence.test.ts`
 
 **Interfaces:**
+
 - Consumes: Existing extractor output types (HeadingExtractorOutput, FormExtractorOutput, etc.)
 - Produces: ExperienceEvidencePackage interface for agent input
 
@@ -78,71 +82,71 @@ git commit -m "feat(m5): add experience-reviewer agent configuration"
 Create `packages/core/src/types/experience-evidence.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import type { ExperienceEvidencePackage } from './experience-evidence.js';
+import { describe, it, expect } from "vitest";
+import type { ExperienceEvidencePackage } from "./experience-evidence.js";
 
-describe('ExperienceEvidencePackage', () => {
-  it('should accept valid evidence package with all required fields', () => {
+describe("ExperienceEvidencePackage", () => {
+  it("should accept valid evidence package with all required fields", () => {
     const evidence: ExperienceEvidencePackage = {
-      page_url: 'https://example.com',
-      language: 'en',
-      market: 'US',
+      page_url: "https://example.com",
+      language: "en",
+      market: "US",
       screenshots: {
-        viewport: 'evidence_viewport_001',
-        full_page: 'evidence_fullpage_001',
-        above_fold: 'evidence_abovefold_001',
+        viewport: "evidence_viewport_001",
+        full_page: "evidence_fullpage_001",
+        above_fold: "evidence_abovefold_001",
       },
       extractor_results: {
-        heading: { title: 'Test', h1_count: 1, hierarchy: [] },
+        heading: { title: "Test", h1_count: 1, hierarchy: [] },
         form: { forms: [], fields: [] },
         contact: { emails: [], phones: [], addresses: [] },
         policy: { privacy: null, terms: null, cookies: null },
-        language: { detected: 'en', confidence: 'high' },
-        analytics: { has_analytics: true, providers: ['ga4'] },
+        language: { detected: "en", confidence: "high" },
+        analytics: { has_analytics: true, providers: ["ga4"] },
         viewport: { has_viewport_meta: true, responsive: true },
         wayfinding: { nav_items: [], breadcrumbs: [] },
       },
       readiness_results: {
         score: 75,
         categories: [],
-        confidence: 'high',
+        confidence: "high",
       },
     };
 
-    expect(evidence.page_url).toBe('https://example.com');
-    expect(evidence.language).toBe('en');
-    expect(evidence.screenshots.viewport).toBe('evidence_viewport_001');
+    expect(evidence.page_url).toBe("https://example.com");
+    expect(evidence.language).toBe("en");
+    expect(evidence.screenshots.viewport).toBe("evidence_viewport_001");
   });
 
-  it('should accept optional business_goal field', () => {
+  it("should accept optional business_goal field", () => {
     const evidence: ExperienceEvidencePackage = {
-      page_url: 'https://example.com',
-      language: 'en',
-      market: 'US',
-      business_goal: 'Increase newsletter signups',
+      page_url: "https://example.com",
+      language: "en",
+      market: "US",
+      business_goal: "Increase newsletter signups",
       screenshots: {
-        viewport: 'evidence_viewport_001',
-        full_page: 'evidence_fullpage_001',
-        above_fold: 'evidence_abovefold_001',
+        viewport: "evidence_viewport_001",
+        full_page: "evidence_fullpage_001",
+        above_fold: "evidence_abovefold_001",
       },
       extractor_results: {
-        heading: { title: 'Test', h1_count: 1, hierarchy: [] },
+        heading: { title: "Test", h1_count: 1, hierarchy: [] },
         form: { forms: [], fields: [] },
         contact: { emails: [], phones: [], addresses: [] },
         policy: { privacy: null, terms: null, cookies: null },
-        language: { detected: 'en', confidence: 'high' },
-        analytics: { has_analytics: true, providers: ['ga4'] },
+        language: { detected: "en", confidence: "high" },
+        analytics: { has_analytics: true, providers: ["ga4"] },
         viewport: { has_viewport_meta: true, responsive: true },
         wayfinding: { nav_items: [], breadcrumbs: [] },
       },
       readiness_results: {
         score: null,
         categories: [],
-        confidence: 'low',
+        confidence: "low",
       },
     };
 
-    expect(evidence.business_goal).toBe('Increase newsletter signups');
+    expect(evidence.business_goal).toBe("Increase newsletter signups");
   });
 });
 ```
@@ -157,15 +161,15 @@ Expected: FAIL with "Cannot find module './experience-evidence.js'"
 Create `packages/core/src/types/experience-evidence.ts`:
 
 ```typescript
-import type { HeadingExtractorOutput } from '../extractors/heading.js';
-import type { FormExtractorOutput } from '../extractors/form.js';
-import type { ContactExtractorOutput } from '../extractors/contact.js';
-import type { PolicyExtractorOutput } from '../extractors/policy.js';
-import type { LanguageExtractorOutput } from '../extractors/language.js';
-import type { AnalyticsExtractorOutput } from '../extractors/analytics.js';
-import type { ViewportExtractorOutput } from '../extractors/viewport.js';
-import type { WayfindingExtractorOutput } from '../extractors/wayfinding.js';
-import type { CategoryResult } from './readiness.js';
+import type { HeadingExtractorOutput } from "../extractors/heading.js";
+import type { FormExtractorOutput } from "../extractors/form.js";
+import type { ContactExtractorOutput } from "../extractors/contact.js";
+import type { PolicyExtractorOutput } from "../extractors/policy.js";
+import type { LanguageExtractorOutput } from "../extractors/language.js";
+import type { AnalyticsExtractorOutput } from "../extractors/analytics.js";
+import type { ViewportExtractorOutput } from "../extractors/viewport.js";
+import type { WayfindingExtractorOutput } from "../extractors/wayfinding.js";
+import type { CategoryResult } from "./readiness.js";
 
 export interface ExperienceEvidencePackage {
   page_url: string;
@@ -193,7 +197,7 @@ export interface ExperienceEvidencePackage {
   readiness_results: {
     score: number | null;
     categories: CategoryResult[];
-    confidence: 'high' | 'medium' | 'low';
+    confidence: "high" | "medium" | "low";
   };
 }
 ```
@@ -215,10 +219,12 @@ git commit -m "feat(m5): add ExperienceEvidencePackage interface"
 ### Task 3: Reviewer Trace Types
 
 **Files:**
+
 - Create: `packages/core/src/types/reviewer-trace.ts`
 - Test: `packages/core/src/types/reviewer-trace.test.ts`
 
 **Interfaces:**
+
 - Consumes: None
 - Produces: ReviewerTrace interface for finding audit trail
 
@@ -227,66 +233,66 @@ git commit -m "feat(m5): add ExperienceEvidencePackage interface"
 Create `packages/core/src/types/reviewer-trace.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import type { ReviewerTrace } from './reviewer-trace.js';
+import { describe, it, expect } from "vitest";
+import type { ReviewerTrace } from "./reviewer-trace.js";
 
-describe('ReviewerTrace', () => {
-  it('should accept valid reviewer trace without override', () => {
+describe("ReviewerTrace", () => {
+  it("should accept valid reviewer trace without override", () => {
     const trace: ReviewerTrace = {
-      rubric_version: '0.1.0-draft',
-      criterion_id: 'EXP-DH-01',
-      criterion_name: 'Visual hierarchy clarity',
-      result: 'pass',
-      confidence: 'high',
-      rationale: 'Clear visual hierarchy with distinct heading levels',
-      evidence_ids: ['screenshot_viewport', 'extractor_heading'],
-      reviewer_type: 'model',
-      model_id: 'gemini-pro-vision',
-      model_version: 'gemini-1.5-pro-002',
-      language: 'en',
-      language_direction: 'ltr',
-      market: 'US',
-      evaluated_at: '2026-10-07T12:00:00Z',
-      prompt_version: '0.1.0',
+      rubric_version: "0.1.0-draft",
+      criterion_id: "EXP-DH-01",
+      criterion_name: "Visual hierarchy clarity",
+      result: "pass",
+      confidence: "high",
+      rationale: "Clear visual hierarchy with distinct heading levels",
+      evidence_ids: ["screenshot_viewport", "extractor_heading"],
+      reviewer_type: "model",
+      model_id: "gemini-pro-vision",
+      model_version: "gemini-1.5-pro-002",
+      language: "en",
+      language_direction: "ltr",
+      market: "US",
+      evaluated_at: "2026-10-07T12:00:00Z",
+      prompt_version: "0.1.0",
       limitations: [],
     };
 
-    expect(trace.criterion_id).toBe('EXP-DH-01');
-    expect(trace.reviewer_type).toBe('model');
+    expect(trace.criterion_id).toBe("EXP-DH-01");
+    expect(trace.reviewer_type).toBe("model");
     expect(trace.override).toBeUndefined();
   });
 
-  it('should accept reviewer trace with override', () => {
+  it("should accept reviewer trace with override", () => {
     const trace: ReviewerTrace = {
-      rubric_version: '0.1.0-draft',
-      criterion_id: 'EXP-CP-01',
-      criterion_name: 'Value proposition clarity',
-      result: 'partial',
-      confidence: 'medium',
-      rationale: 'Value proposition is present but could be clearer',
-      evidence_ids: ['screenshot_above_fold'],
-      reviewer_type: 'hybrid',
-      model_id: 'gemini-pro-vision',
-      model_version: 'gemini-1.5-pro-002',
-      language: 'en',
-      language_direction: 'ltr',
-      market: 'US',
-      evaluated_at: '2026-10-07T12:00:00Z',
-      prompt_version: '0.1.0',
+      rubric_version: "0.1.0-draft",
+      criterion_id: "EXP-CP-01",
+      criterion_name: "Value proposition clarity",
+      result: "partial",
+      confidence: "medium",
+      rationale: "Value proposition is present but could be clearer",
+      evidence_ids: ["screenshot_above_fold"],
+      reviewer_type: "hybrid",
+      model_id: "gemini-pro-vision",
+      model_version: "gemini-1.5-pro-002",
+      language: "en",
+      language_direction: "ltr",
+      market: "US",
+      evaluated_at: "2026-10-07T12:00:00Z",
+      prompt_version: "0.1.0",
       override: {
-        original_result: 'pass',
-        original_confidence: 'high',
-        original_rationale: 'Value proposition is clear',
-        overridden_by: 'calibration_reviewer',
-        overridden_at: '2026-10-07T13:00:00Z',
-        override_reason: 'Value proposition lacks specificity',
+        original_result: "pass",
+        original_confidence: "high",
+        original_rationale: "Value proposition is clear",
+        overridden_by: "calibration_reviewer",
+        overridden_at: "2026-10-07T13:00:00Z",
+        override_reason: "Value proposition lacks specificity",
       },
       limitations: [],
     };
 
-    expect(trace.reviewer_type).toBe('hybrid');
+    expect(trace.reviewer_type).toBe("hybrid");
     expect(trace.override).toBeDefined();
-    expect(trace.override?.original_result).toBe('pass');
+    expect(trace.override?.original_result).toBe("pass");
   });
 });
 ```
@@ -306,18 +312,18 @@ export interface ReviewerTrace {
   criterion_id: string;
   criterion_name: string;
 
-  result: 'pass' | 'partial' | 'fail' | 'not_applicable' | 'unavailable' | 'error';
-  confidence: 'high' | 'medium' | 'low';
+  result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error";
+  confidence: "high" | "medium" | "low";
   rationale: string;
 
   evidence_ids: string[];
 
-  reviewer_type: 'model' | 'human' | 'hybrid';
+  reviewer_type: "model" | "human" | "hybrid";
   model_id?: string;
   model_version?: string;
 
   language: string;
-  language_direction: 'ltr' | 'rtl';
+  language_direction: "ltr" | "rtl";
   market: string;
 
   evaluated_at: string;
@@ -353,10 +359,12 @@ git commit -m "feat(m5): add ReviewerTrace interface"
 ### Task 4: Experience Score Result Types
 
 **Files:**
+
 - Create: `packages/core/src/types/experience-score.ts`
 - Test: `packages/core/src/types/experience-score.test.ts`
 
 **Interfaces:**
+
 - Consumes: None
 - Produces: ExperienceScoreResult and DimensionScore interfaces
 
@@ -365,11 +373,11 @@ git commit -m "feat(m5): add ReviewerTrace interface"
 Create `packages/core/src/types/experience-score.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import type { ExperienceScoreResult, DimensionScore } from './experience-score.js';
+import { describe, it, expect } from "vitest";
+import type { ExperienceScoreResult, DimensionScore } from "./experience-score.js";
 
-describe('ExperienceScoreResult', () => {
-  it('should accept valid experience score result', () => {
+describe("ExperienceScoreResult", () => {
+  it("should accept valid experience score result", () => {
     const dimensionScore: DimensionScore = {
       score: 85,
       coverage: 1.0,
@@ -388,14 +396,14 @@ describe('ExperienceScoreResult', () => {
         conversion_path_and_measurement: dimensionScore,
       },
       coverage: 0.95,
-      confidence: 'high',
-      fidelity_label: 'assessed',
-      methodology_version: '0.1.0-draft',
+      confidence: "high",
+      fidelity_label: "assessed",
+      methodology_version: "0.1.0-draft",
     };
 
     expect(result.experience_effectiveness).toBe(82);
-    expect(result.confidence).toBe('high');
-    expect(result.fidelity_label).toBe('assessed');
+    expect(result.confidence).toBe("high");
+    expect(result.fidelity_label).toBe("assessed");
   });
 });
 ```
@@ -428,8 +436,8 @@ export interface ExperienceScoreResult {
     conversion_path_and_measurement: DimensionScore;
   };
   coverage: number;
-  confidence: 'high' | 'medium' | 'low';
-  fidelity_label: 'assessed';
+  confidence: "high" | "medium" | "low";
+  fidelity_label: "assessed";
   methodology_version: string;
 }
 ```
@@ -451,11 +459,13 @@ git commit -m "feat(m5): add ExperienceScoreResult and DimensionScore interfaces
 ### Task 5: Weight Configuration Loader
 
 **Files:**
+
 - Create: `packages/core/src/experience/weight-config.ts`
 - Create: `config/experience-effectiveness.yaml`
 - Test: `packages/core/src/experience/weight-config.test.ts`
 
 **Interfaces:**
+
 - Consumes: config/experience-effectiveness.yaml
 - Produces: Weight configuration with validation
 
@@ -528,27 +538,27 @@ criteria:
 Create `packages/core/src/experience/weight-config.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { loadWeightConfig, validateWeights } from './weight-config.js';
+import { describe, it, expect } from "vitest";
+import { loadWeightConfig, validateWeights } from "./weight-config.js";
 
-describe('loadWeightConfig', () => {
-  it('should load default weight configuration', () => {
+describe("loadWeightConfig", () => {
+  it("should load default weight configuration", () => {
     const config = loadWeightConfig();
 
-    expect(config.methodology_version).toBe('0.1.0-draft');
+    expect(config.methodology_version).toBe("0.1.0-draft");
     expect(config.dimensions.design_hierarchy.weight).toBe(20);
-    expect(config.criteria.design_hierarchy['EXP-DH-01']).toBe(25);
+    expect(config.criteria.design_hierarchy["EXP-DH-01"]).toBe(25);
   });
 
-  it('should have dimension weights summing to 100', () => {
+  it("should have dimension weights summing to 100", () => {
     const config = loadWeightConfig();
-    const dimensionWeights = Object.values(config.dimensions).map(d => d.weight);
+    const dimensionWeights = Object.values(config.dimensions).map((d) => d.weight);
     const sum = dimensionWeights.reduce((a, b) => a + b, 0);
 
     expect(sum).toBe(100);
   });
 
-  it('should have criterion weights summing to 100 per dimension', () => {
+  it("should have criterion weights summing to 100 per dimension", () => {
     const config = loadWeightConfig();
 
     for (const [dimensionName, criteria] of Object.entries(config.criteria)) {
@@ -558,8 +568,8 @@ describe('loadWeightConfig', () => {
   });
 });
 
-describe('validateWeights', () => {
-  it('should accept valid dimension weights', () => {
+describe("validateWeights", () => {
+  it("should accept valid dimension weights", () => {
     const weights = {
       design_hierarchy: 20,
       copy_and_positioning_clarity: 20,
@@ -572,7 +582,7 @@ describe('validateWeights', () => {
     expect(result.valid).toBe(true);
   });
 
-  it('should reject dimension weights not summing to 100', () => {
+  it("should reject dimension weights not summing to 100", () => {
     const weights = {
       design_hierarchy: 25,
       copy_and_positioning_clarity: 20,
@@ -583,7 +593,7 @@ describe('validateWeights', () => {
 
     const result = validateWeights(weights);
     expect(result.valid).toBe(false);
-    expect(result.error).toContain('sum to 100');
+    expect(result.error).toContain("sum to 100");
   });
 });
 ```
@@ -598,9 +608,9 @@ Expected: FAIL with "Cannot find module './weight-config.js'"
 Create `packages/core/src/experience/weight-config.ts`:
 
 ```typescript
-import { readFileSync } from 'node:fs';
-import { load } from 'js-yaml';
-import { resolve } from 'node:path';
+import { readFileSync } from "node:fs";
+import { load } from "js-yaml";
+import { resolve } from "node:path";
 
 interface DimensionConfig {
   weight: number;
@@ -616,16 +626,17 @@ interface WeightConfig {
 }
 
 export function loadWeightConfig(): WeightConfig {
-  const configPath = resolve(process.cwd(), 'config/experience-effectiveness.yaml');
-  const fileContent = readFileSync(configPath, 'utf-8');
+  const configPath = resolve(process.cwd(), "config/experience-effectiveness.yaml");
+  const fileContent = readFileSync(configPath, "utf-8");
   const config = load(fileContent) as WeightConfig;
 
   return config;
 }
 
-export function validateWeights(
-  weights: Record<string, number>
-): { valid: boolean; error?: string } {
+export function validateWeights(weights: Record<string, number>): {
+  valid: boolean;
+  error?: string;
+} {
   const sum = Object.values(weights).reduce((a, b) => a + b, 0);
 
   if (sum !== 100) {
@@ -656,10 +667,12 @@ git commit -m "feat(m5): add weight configuration loader with validation"
 ### Task 6: Project Override Loader and Validator
 
 **Files:**
+
 - Create: `packages/core/src/experience/project-overrides.ts`
 - Test: `packages/core/src/experience/project-overrides.test.ts`
 
 **Interfaces:**
+
 - Consumes: Weight configuration from Task 5
 - Produces: Merged weight configuration with override tracking
 
@@ -668,18 +681,18 @@ git commit -m "feat(m5): add weight configuration loader with validation"
 Create `packages/core/src/experience/project-overrides.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { applyOverrides, validateOverrides } from './project-overrides.js';
+import { describe, it, expect } from "vitest";
+import { applyOverrides, validateOverrides } from "./project-overrides.js";
 
-describe('applyOverrides', () => {
-  it('should apply valid dimension weight override', () => {
+describe("applyOverrides", () => {
+  it("should apply valid dimension weight override", () => {
     const baseConfig = {
       dimensions: {
-        design_hierarchy: { weight: 20, title: 'Design' },
-        copy_and_positioning_clarity: { weight: 20, title: 'Copy' },
-        ux_and_navigation: { weight: 20, title: 'UX' },
-        trust_and_proof: { weight: 20, title: 'Trust' },
-        conversion_path_and_measurement: { weight: 20, title: 'Conversion' },
+        design_hierarchy: { weight: 20, title: "Design" },
+        copy_and_positioning_clarity: { weight: 20, title: "Copy" },
+        ux_and_navigation: { weight: 20, title: "UX" },
+        trust_and_proof: { weight: 20, title: "Trust" },
+        conversion_path_and_measurement: { weight: 20, title: "Conversion" },
       },
       criteria: {},
     };
@@ -688,9 +701,9 @@ describe('applyOverrides', () => {
       dimensions: {
         conversion_path_and_measurement: {
           weight: 30,
-          justification: 'E-commerce prioritizes conversion',
-          approved_by: 'seo_lead',
-          approved_at: '2026-10-01T12:00:00Z',
+          justification: "E-commerce prioritizes conversion",
+          approved_by: "seo_lead",
+          approved_at: "2026-10-01T12:00:00Z",
         },
       },
       criteria: {},
@@ -702,14 +715,14 @@ describe('applyOverrides', () => {
     expect(result.metadata.overrides_applied).toBe(true);
   });
 
-  it('should reject invalid override and fall back to defaults', () => {
+  it("should reject invalid override and fall back to defaults", () => {
     const baseConfig = {
       dimensions: {
-        design_hierarchy: { weight: 20, title: 'Design' },
-        copy_and_positioning_clarity: { weight: 20, title: 'Copy' },
-        ux_and_navigation: { weight: 20, title: 'UX' },
-        trust_and_proof: { weight: 20, title: 'Trust' },
-        conversion_path_and_measurement: { weight: 20, title: 'Conversion' },
+        design_hierarchy: { weight: 20, title: "Design" },
+        copy_and_positioning_clarity: { weight: 20, title: "Copy" },
+        ux_and_navigation: { weight: 20, title: "UX" },
+        trust_and_proof: { weight: 20, title: "Trust" },
+        conversion_path_and_measurement: { weight: 20, title: "Conversion" },
       },
       criteria: {},
     };
@@ -718,9 +731,9 @@ describe('applyOverrides', () => {
       dimensions: {
         conversion_path_and_measurement: {
           weight: 50,
-          justification: 'Invalid override',
-          approved_by: 'seo_lead',
-          approved_at: '2026-10-01T12:00:00Z',
+          justification: "Invalid override",
+          approved_by: "seo_lead",
+          approved_at: "2026-10-01T12:00:00Z",
         },
       },
       criteria: {},
@@ -730,19 +743,19 @@ describe('applyOverrides', () => {
 
     expect(result.dimensions.conversion_path_and_measurement.weight).toBe(20);
     expect(result.metadata.overrides_applied).toBe(false);
-    expect(result.metadata.validation_warning).toContain('sum to 100');
+    expect(result.metadata.validation_warning).toContain("sum to 100");
   });
 });
 
-describe('validateOverrides', () => {
-  it('should accept valid override with justification', () => {
+describe("validateOverrides", () => {
+  it("should accept valid override with justification", () => {
     const overrides = {
       dimensions: {
         conversion_path_and_measurement: {
           weight: 30,
-          justification: 'E-commerce site',
-          approved_by: 'seo_lead',
-          approved_at: '2026-10-01T12:00:00Z',
+          justification: "E-commerce site",
+          approved_by: "seo_lead",
+          approved_at: "2026-10-01T12:00:00Z",
         },
       },
       criteria: {},
@@ -752,14 +765,14 @@ describe('validateOverrides', () => {
     expect(result.valid).toBe(true);
   });
 
-  it('should reject override without justification', () => {
+  it("should reject override without justification", () => {
     const overrides = {
       dimensions: {
         conversion_path_and_measurement: {
           weight: 30,
-          justification: '',
-          approved_by: 'seo_lead',
-          approved_at: '2026-10-01T12:00:00Z',
+          justification: "",
+          approved_by: "seo_lead",
+          approved_at: "2026-10-01T12:00:00Z",
         },
       },
       criteria: {},
@@ -767,7 +780,7 @@ describe('validateOverrides', () => {
 
     const result = validateOverrides(overrides);
     expect(result.valid).toBe(false);
-    expect(result.error).toContain('justification');
+    expect(result.error).toContain("justification");
   });
 });
 ```
@@ -782,7 +795,7 @@ Expected: FAIL with "Cannot find module './project-overrides.js'"
 Create `packages/core/src/experience/project-overrides.ts`:
 
 ```typescript
-import { validateWeights } from './weight-config.js';
+import { validateWeights } from "./weight-config.js";
 
 interface DimensionConfig {
   weight: number;
@@ -803,7 +816,10 @@ interface DimensionOverride {
 
 interface ProjectOverrides {
   dimensions: Record<string, DimensionOverride>;
-  criteria: Record<string, { weight: number; justification: string; approved_by: string; approved_at: string }>;
+  criteria: Record<
+    string,
+    { weight: number; justification: string; approved_by: string; approved_at: string }
+  >;
 }
 
 interface OverrideMetadata {
@@ -813,7 +829,7 @@ interface OverrideMetadata {
 
 export function applyOverrides(
   baseConfig: WeightConfig,
-  overrides: ProjectOverrides
+  overrides: ProjectOverrides,
 ): WeightConfig & { metadata: OverrideMetadata } {
   const validation = validateOverrides(overrides);
 
@@ -838,10 +854,10 @@ export function applyOverrides(
     }
   }
 
-  const dimensionWeights = Object.values(mergedDimensions).map(d => d.weight);
-  const weightValidation = validateWeights(Object.fromEntries(
-    Object.entries(mergedDimensions).map(([k, v]) => [k, v.weight])
-  ));
+  const dimensionWeights = Object.values(mergedDimensions).map((d) => d.weight);
+  const weightValidation = validateWeights(
+    Object.fromEntries(Object.entries(mergedDimensions).map(([k, v]) => [k, v.weight])),
+  );
 
   if (!weightValidation.valid) {
     return {
@@ -862,11 +878,9 @@ export function applyOverrides(
   };
 }
 
-export function validateOverrides(
-  overrides: ProjectOverrides
-): { valid: boolean; error?: string } {
+export function validateOverrides(overrides: ProjectOverrides): { valid: boolean; error?: string } {
   for (const [dimensionName, override] of Object.entries(overrides.dimensions)) {
-    if (!override.justification || override.justification.trim() === '') {
+    if (!override.justification || override.justification.trim() === "") {
       return {
         valid: false,
         error: `Override for ${dimensionName} missing justification`,
@@ -895,10 +909,12 @@ git commit -m "feat(m5): add project override loader with validation"
 ### Task 7: Scoring Engine - Dimension Score Calculation
 
 **Files:**
+
 - Create: `packages/core/src/experience/scoring-engine.ts`
 - Test: `packages/core/src/experience/scoring-engine.test.ts`
 
 **Interfaces:**
+
 - Consumes: Findings array with reviewer trace, weight configuration
 - Produces: DimensionScore for each dimension
 
@@ -907,25 +923,25 @@ git commit -m "feat(m5): add project override loader with validation"
 Create `packages/core/src/experience/scoring-engine.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { calculateDimensionScore } from './scoring-engine.js';
+import { describe, it, expect } from "vitest";
+import { calculateDimensionScore } from "./scoring-engine.js";
 
-describe('calculateDimensionScore', () => {
-  it('should calculate dimension score with all pass results', () => {
+describe("calculateDimensionScore", () => {
+  it("should calculate dimension score with all pass results", () => {
     const findings = [
-      { criterion_id: 'EXP-DH-01', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-02', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-03', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-04', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-05', result: 'pass', confidence: 'high' },
+      { criterion_id: "EXP-DH-01", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-02", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-03", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-04", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-05", result: "pass", confidence: "high" },
     ];
 
     const weights = {
-      'EXP-DH-01': 25,
-      'EXP-DH-02': 20,
-      'EXP-DH-03': 20,
-      'EXP-DH-04': 15,
-      'EXP-DH-05': 20,
+      "EXP-DH-01": 25,
+      "EXP-DH-02": 20,
+      "EXP-DH-03": 20,
+      "EXP-DH-04": 15,
+      "EXP-DH-05": 20,
     };
 
     const result = calculateDimensionScore(findings, weights);
@@ -937,21 +953,21 @@ describe('calculateDimensionScore', () => {
     expect(result.not_applicable_count).toBe(0);
   });
 
-  it('should calculate dimension score with mixed results', () => {
+  it("should calculate dimension score with mixed results", () => {
     const findings = [
-      { criterion_id: 'EXP-DH-01', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-02', result: 'partial', confidence: 'medium' },
-      { criterion_id: 'EXP-DH-03', result: 'fail', confidence: 'high' },
-      { criterion_id: 'EXP-DH-04', result: 'pass', confidence: 'high' },
-      { criterion_id: 'EXP-DH-05', result: 'not_applicable', confidence: 'high' },
+      { criterion_id: "EXP-DH-01", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-02", result: "partial", confidence: "medium" },
+      { criterion_id: "EXP-DH-03", result: "fail", confidence: "high" },
+      { criterion_id: "EXP-DH-04", result: "pass", confidence: "high" },
+      { criterion_id: "EXP-DH-05", result: "not_applicable", confidence: "high" },
     ];
 
     const weights = {
-      'EXP-DH-01': 25,
-      'EXP-DH-02': 20,
-      'EXP-DH-03': 20,
-      'EXP-DH-04': 15,
-      'EXP-DH-05': 20,
+      "EXP-DH-01": 25,
+      "EXP-DH-02": 20,
+      "EXP-DH-03": 20,
+      "EXP-DH-04": 15,
+      "EXP-DH-05": 20,
     };
 
     const result = calculateDimensionScore(findings, weights);
@@ -965,15 +981,15 @@ describe('calculateDimensionScore', () => {
     expect(result.not_applicable_count).toBe(1);
   });
 
-  it('should handle all not_applicable results', () => {
+  it("should handle all not_applicable results", () => {
     const findings = [
-      { criterion_id: 'EXP-DH-01', result: 'not_applicable', confidence: 'high' },
-      { criterion_id: 'EXP-DH-02', result: 'not_applicable', confidence: 'high' },
+      { criterion_id: "EXP-DH-01", result: "not_applicable", confidence: "high" },
+      { criterion_id: "EXP-DH-02", result: "not_applicable", confidence: "high" },
     ];
 
     const weights = {
-      'EXP-DH-01': 50,
-      'EXP-DH-02': 50,
+      "EXP-DH-01": 50,
+      "EXP-DH-02": 50,
     };
 
     const result = calculateDimensionScore(findings, weights);
@@ -996,12 +1012,12 @@ Expected: FAIL with "Cannot find module './scoring-engine.js'"
 Create `packages/core/src/experience/scoring-engine.ts`:
 
 ```typescript
-import type { DimensionScore } from '../types/experience-score.js';
+import type { DimensionScore } from "../types/experience-score.js";
 
 interface Finding {
   criterion_id: string;
-  result: 'pass' | 'partial' | 'fail' | 'not_applicable' | 'unavailable' | 'error';
-  confidence: 'high' | 'medium' | 'low';
+  result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error";
+  confidence: "high" | "medium" | "low";
 }
 
 const RESULT_VALUES: Record<string, number> = {
@@ -1012,7 +1028,7 @@ const RESULT_VALUES: Record<string, number> = {
 
 export function calculateDimensionScore(
   findings: Finding[],
-  weights: Record<string, number>
+  weights: Record<string, number>,
 ): DimensionScore {
   let totalWeight = 0;
   let applicableWeight = 0;
@@ -1024,12 +1040,12 @@ export function calculateDimensionScore(
     const weight = weights[finding.criterion_id] ?? 0;
     totalWeight += weight;
 
-    if (finding.result === 'not_applicable') {
+    if (finding.result === "not_applicable") {
       notApplicableCount++;
       continue;
     }
 
-    if (finding.result === 'unavailable' || finding.result === 'error') {
+    if (finding.result === "unavailable" || finding.result === "error") {
       continue;
     }
 
@@ -1041,7 +1057,7 @@ export function calculateDimensionScore(
   }
 
   const coverage = totalWeight > 0 ? applicableWeight / totalWeight : 0;
-  const score = applicableWeight > 0 ? 100 * weightedSum / applicableWeight : 0;
+  const score = applicableWeight > 0 ? (100 * weightedSum) / applicableWeight : 0;
 
   return {
     score,
@@ -1070,10 +1086,12 @@ git commit -m "feat(m5): implement dimension score calculation"
 ### Task 8: Scoring Engine - Overall Score and Confidence
 
 **Files:**
+
 - Modify: `packages/core/src/experience/scoring-engine.ts`
 - Modify: `packages/core/src/experience/scoring-engine.test.ts`
 
 **Interfaces:**
+
 - Consumes: Dimension scores, weight configuration
 - Produces: ExperienceScoreResult with overall score and confidence
 
@@ -1082,16 +1100,46 @@ git commit -m "feat(m5): implement dimension score calculation"
 Add to `packages/core/src/experience/scoring-engine.test.ts`:
 
 ```typescript
-import { calculateOverallScore } from './scoring-engine.js';
+import { calculateOverallScore } from "./scoring-engine.js";
 
-describe('calculateOverallScore', () => {
-  it('should calculate overall score from dimension scores', () => {
+describe("calculateOverallScore", () => {
+  it("should calculate overall score from dimension scores", () => {
     const dimensionScores = {
-      design_hierarchy: { score: 80, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      copy_and_positioning_clarity: { score: 90, coverage: 1.0, criteria_count: 4, applicable_count: 4, not_applicable_count: 0 },
-      ux_and_navigation: { score: 85, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      trust_and_proof: { score: 75, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      conversion_path_and_measurement: { score: 70, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
+      design_hierarchy: {
+        score: 80,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      copy_and_positioning_clarity: {
+        score: 90,
+        coverage: 1.0,
+        criteria_count: 4,
+        applicable_count: 4,
+        not_applicable_count: 0,
+      },
+      ux_and_navigation: {
+        score: 85,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      trust_and_proof: {
+        score: 75,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      conversion_path_and_measurement: {
+        score: 70,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
     };
 
     const dimensionWeights = {
@@ -1102,22 +1150,52 @@ describe('calculateOverallScore', () => {
       conversion_path_and_measurement: 20,
     };
 
-    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.95, 'high');
+    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.95, "high");
 
     // overall = (80*20 + 90*20 + 85*20 + 75*20 + 70*20) / 100
     // overall = (1600 + 1800 + 1700 + 1500 + 1400) / 100 = 8000 / 100 = 80
     expect(result.experience_effectiveness).toBe(80);
-    expect(result.confidence).toBe('high');
-    expect(result.fidelity_label).toBe('assessed');
+    expect(result.confidence).toBe("high");
+    expect(result.fidelity_label).toBe("assessed");
   });
 
-  it('should set confidence to medium when coverage is 0.70-0.90', () => {
+  it("should set confidence to medium when coverage is 0.70-0.90", () => {
     const dimensionScores = {
-      design_hierarchy: { score: 80, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      copy_and_positioning_clarity: { score: 90, coverage: 1.0, criteria_count: 4, applicable_count: 4, not_applicable_count: 0 },
-      ux_and_navigation: { score: 85, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      trust_and_proof: { score: 75, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
-      conversion_path_and_measurement: { score: 70, coverage: 1.0, criteria_count: 5, applicable_count: 5, not_applicable_count: 0 },
+      design_hierarchy: {
+        score: 80,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      copy_and_positioning_clarity: {
+        score: 90,
+        coverage: 1.0,
+        criteria_count: 4,
+        applicable_count: 4,
+        not_applicable_count: 0,
+      },
+      ux_and_navigation: {
+        score: 85,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      trust_and_proof: {
+        score: 75,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
+      conversion_path_and_measurement: {
+        score: 70,
+        coverage: 1.0,
+        criteria_count: 5,
+        applicable_count: 5,
+        not_applicable_count: 0,
+      },
     };
 
     const dimensionWeights = {
@@ -1128,18 +1206,48 @@ describe('calculateOverallScore', () => {
       conversion_path_and_measurement: 20,
     };
 
-    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.80, 'medium');
+    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.8, "medium");
 
-    expect(result.confidence).toBe('medium');
+    expect(result.confidence).toBe("medium");
   });
 
-  it('should set confidence to low when coverage is below 0.70', () => {
+  it("should set confidence to low when coverage is below 0.70", () => {
     const dimensionScores = {
-      design_hierarchy: { score: 80, coverage: 0.5, criteria_count: 5, applicable_count: 3, not_applicable_count: 2 },
-      copy_and_positioning_clarity: { score: 90, coverage: 0.5, criteria_count: 4, applicable_count: 2, not_applicable_count: 2 },
-      ux_and_navigation: { score: 85, coverage: 0.5, criteria_count: 5, applicable_count: 3, not_applicable_count: 2 },
-      trust_and_proof: { score: 75, coverage: 0.5, criteria_count: 5, applicable_count: 3, not_applicable_count: 2 },
-      conversion_path_and_measurement: { score: 70, coverage: 0.5, criteria_count: 5, applicable_count: 3, not_applicable_count: 2 },
+      design_hierarchy: {
+        score: 80,
+        coverage: 0.5,
+        criteria_count: 5,
+        applicable_count: 3,
+        not_applicable_count: 2,
+      },
+      copy_and_positioning_clarity: {
+        score: 90,
+        coverage: 0.5,
+        criteria_count: 4,
+        applicable_count: 2,
+        not_applicable_count: 2,
+      },
+      ux_and_navigation: {
+        score: 85,
+        coverage: 0.5,
+        criteria_count: 5,
+        applicable_count: 3,
+        not_applicable_count: 2,
+      },
+      trust_and_proof: {
+        score: 75,
+        coverage: 0.5,
+        criteria_count: 5,
+        applicable_count: 3,
+        not_applicable_count: 2,
+      },
+      conversion_path_and_measurement: {
+        score: 70,
+        coverage: 0.5,
+        criteria_count: 5,
+        applicable_count: 3,
+        not_applicable_count: 2,
+      },
     };
 
     const dimensionWeights = {
@@ -1150,9 +1258,9 @@ describe('calculateOverallScore', () => {
       conversion_path_and_measurement: 20,
     };
 
-    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.50, 'low');
+    const result = calculateOverallScore(dimensionScores, dimensionWeights, 0.5, "low");
 
-    expect(result.confidence).toBe('low');
+    expect(result.confidence).toBe("low");
   });
 });
 ```
@@ -1167,13 +1275,13 @@ Expected: FAIL with "calculateOverallScore is not exported"
 Add to `packages/core/src/experience/scoring-engine.ts`:
 
 ```typescript
-import type { ExperienceScoreResult } from '../types/experience-score.js';
+import type { ExperienceScoreResult } from "../types/experience-score.js";
 
 export function calculateOverallScore(
   dimensionScores: Record<string, DimensionScore>,
   dimensionWeights: Record<string, number>,
   coverage: number,
-  confidence: 'high' | 'medium' | 'low'
+  confidence: "high" | "medium" | "low",
 ): ExperienceScoreResult {
   let weightedSum = 0;
   let totalWeight = 0;
@@ -1188,11 +1296,11 @@ export function calculateOverallScore(
 
   return {
     experience_effectiveness: overallScore,
-    dimensions: dimensionScores as ExperienceScoreResult['dimensions'],
+    dimensions: dimensionScores as ExperienceScoreResult["dimensions"],
     coverage,
     confidence,
-    fidelity_label: 'assessed',
-    methodology_version: '0.1.0-draft',
+    fidelity_label: "assessed",
+    methodology_version: "0.1.0-draft",
   };
 }
 ```
@@ -1214,10 +1322,12 @@ git commit -m "feat(m5): implement overall score and confidence calculation"
 ### Task 9: Experience Reviewer Agent Implementation
 
 **Files:**
+
 - Create: `packages/core/src/agents/experience-reviewer.ts`
 - Test: `packages/core/src/agents/experience-reviewer.test.ts`
 
 **Interfaces:**
+
 - Consumes: ExperienceEvidencePackage, weight configuration
 - Produces: AgentResult with findings array and ExperienceScoreResult
 
@@ -1226,42 +1336,42 @@ git commit -m "feat(m5): implement overall score and confidence calculation"
 Create `packages/core/src/agents/experience-reviewer.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { ExperienceReviewerAgent } from './experience-reviewer.js';
-import type { ExperienceEvidencePackage } from '../types/experience-evidence.js';
+import { describe, it, expect } from "vitest";
+import { ExperienceReviewerAgent } from "./experience-reviewer.js";
+import type { ExperienceEvidencePackage } from "../types/experience-evidence.js";
 
-describe('ExperienceReviewerAgent', () => {
-  it('should create agent with correct name', () => {
+describe("ExperienceReviewerAgent", () => {
+  it("should create agent with correct name", () => {
     const agent = new ExperienceReviewerAgent();
-    expect(agent.name).toBe('experience-reviewer');
+    expect(agent.name).toBe("experience-reviewer");
   });
 
-  it('should return findings array with reviewer trace', async () => {
+  it("should return findings array with reviewer trace", async () => {
     const agent = new ExperienceReviewerAgent();
 
     const evidence: ExperienceEvidencePackage = {
-      page_url: 'https://example.com',
-      language: 'en',
-      market: 'US',
+      page_url: "https://example.com",
+      language: "en",
+      market: "US",
       screenshots: {
-        viewport: 'evidence_viewport_001',
-        full_page: 'evidence_fullpage_001',
-        above_fold: 'evidence_abovefold_001',
+        viewport: "evidence_viewport_001",
+        full_page: "evidence_fullpage_001",
+        above_fold: "evidence_abovefold_001",
       },
       extractor_results: {
-        heading: { title: 'Test', h1_count: 1, hierarchy: [] },
+        heading: { title: "Test", h1_count: 1, hierarchy: [] },
         form: { forms: [], fields: [] },
         contact: { emails: [], phones: [], addresses: [] },
         policy: { privacy: null, terms: null, cookies: null },
-        language: { detected: 'en', confidence: 'high' },
-        analytics: { has_analytics: true, providers: ['ga4'] },
+        language: { detected: "en", confidence: "high" },
+        analytics: { has_analytics: true, providers: ["ga4"] },
         viewport: { has_viewport_meta: true, responsive: true },
         wayfinding: { nav_items: [], breadcrumbs: [] },
       },
       readiness_results: {
         score: 75,
         categories: [],
-        confidence: 'high',
+        confidence: "high",
       },
     };
 
@@ -1273,36 +1383,36 @@ describe('ExperienceReviewerAgent', () => {
 
     const firstFinding = result.findings[0];
     expect(firstFinding.data.reviewer_trace).toBeDefined();
-    expect(firstFinding.data.reviewer_trace.rubric_version).toBe('0.1.0-draft');
-    expect(firstFinding.data.reviewer_trace.reviewer_type).toBe('model');
+    expect(firstFinding.data.reviewer_trace.rubric_version).toBe("0.1.0-draft");
+    expect(firstFinding.data.reviewer_trace.reviewer_type).toBe("model");
   });
 
-  it('should return ExperienceScoreResult in data', async () => {
+  it("should return ExperienceScoreResult in data", async () => {
     const agent = new ExperienceReviewerAgent();
 
     const evidence: ExperienceEvidencePackage = {
-      page_url: 'https://example.com',
-      language: 'en',
-      market: 'US',
+      page_url: "https://example.com",
+      language: "en",
+      market: "US",
       screenshots: {
-        viewport: 'evidence_viewport_001',
-        full_page: 'evidence_fullpage_001',
-        above_fold: 'evidence_abovefold_001',
+        viewport: "evidence_viewport_001",
+        full_page: "evidence_fullpage_001",
+        above_fold: "evidence_abovefold_001",
       },
       extractor_results: {
-        heading: { title: 'Test', h1_count: 1, hierarchy: [] },
+        heading: { title: "Test", h1_count: 1, hierarchy: [] },
         form: { forms: [], fields: [] },
         contact: { emails: [], phones: [], addresses: [] },
         policy: { privacy: null, terms: null, cookies: null },
-        language: { detected: 'en', confidence: 'high' },
-        analytics: { has_analytics: true, providers: ['ga4'] },
+        language: { detected: "en", confidence: "high" },
+        analytics: { has_analytics: true, providers: ["ga4"] },
         viewport: { has_viewport_meta: true, responsive: true },
         wayfinding: { nav_items: [], breadcrumbs: [] },
       },
       readiness_results: {
         score: 75,
         categories: [],
-        confidence: 'high',
+        confidence: "high",
       },
     };
 
@@ -1326,11 +1436,11 @@ Expected: FAIL with "Cannot find module './experience-reviewer.js'"
 Create `packages/core/src/agents/experience-reviewer.ts`:
 
 ```typescript
-import type { Agent } from './agent.js';
-import type { ExperienceEvidencePackage } from '../types/experience-evidence.js';
-import type { ReviewerTrace } from '../types/reviewer-trace.js';
-import { loadWeightConfig } from '../experience/weight-config.js';
-import { calculateDimensionScore, calculateOverallScore } from '../experience/scoring-engine.js';
+import type { Agent } from "./agent.js";
+import type { ExperienceEvidencePackage } from "../types/experience-evidence.js";
+import type { ReviewerTrace } from "../types/reviewer-trace.js";
+import { loadWeightConfig } from "../experience/weight-config.js";
+import { calculateDimensionScore, calculateOverallScore } from "../experience/scoring-engine.js";
 
 interface Finding {
   id: string;
@@ -1343,7 +1453,7 @@ interface Finding {
 }
 
 export class ExperienceReviewerAgent implements Agent {
-  name = 'experience-reviewer';
+  name = "experience-reviewer";
 
   async execute(evidence: ExperienceEvidencePackage): Promise<{
     findings: Finding[];
@@ -1359,26 +1469,26 @@ export class ExperienceReviewerAgent implements Agent {
       for (const criterionId of Object.keys(criteria)) {
         const finding: Finding = {
           id: `exp_${criterionId}_${Date.now()}`,
-          result_state: 'pass',
-          confidence: 'high',
-          evidence_ids: ['screenshot_viewport', 'extractor_heading'],
+          result_state: "pass",
+          confidence: "high",
+          evidence_ids: ["screenshot_viewport", "extractor_heading"],
           data: {
             reviewer_trace: {
               rubric_version: config.methodology_version,
               criterion_id: criterionId,
               criterion_name: `Criterion ${criterionId}`,
-              result: 'pass',
-              confidence: 'high',
-              rationale: 'Automated placeholder - vision model integration pending',
-              evidence_ids: ['screenshot_viewport'],
-              reviewer_type: 'model',
-              model_id: 'gemini-pro-vision',
-              model_version: 'gemini-1.5-pro-002',
+              result: "pass",
+              confidence: "high",
+              rationale: "Automated placeholder - vision model integration pending",
+              evidence_ids: ["screenshot_viewport"],
+              reviewer_type: "model",
+              model_id: "gemini-pro-vision",
+              model_version: "gemini-1.5-pro-002",
               language: evidence.language,
-              language_direction: evidence.language === 'ar' ? 'rtl' : 'ltr',
+              language_direction: evidence.language === "ar" ? "rtl" : "ltr",
               market: evidence.market,
               evaluated_at: new Date().toISOString(),
-              prompt_version: '0.1.0',
+              prompt_version: "0.1.0",
               limitations: [],
             },
           },
@@ -1391,30 +1501,25 @@ export class ExperienceReviewerAgent implements Agent {
     const dimensionScores: Record<string, any> = {};
 
     for (const [dimensionName, criteria] of Object.entries(config.criteria)) {
-      const dimensionFindings = findings.filter(f =>
-        Object.keys(criteria).includes(f.data.reviewer_trace.criterion_id)
+      const dimensionFindings = findings.filter((f) =>
+        Object.keys(criteria).includes(f.data.reviewer_trace.criterion_id),
       );
 
       dimensionScores[dimensionName] = calculateDimensionScore(
-        dimensionFindings.map(f => ({
+        dimensionFindings.map((f) => ({
           criterion_id: f.data.reviewer_trace.criterion_id,
           result: f.data.reviewer_trace.result,
           confidence: f.data.reviewer_trace.confidence,
         })),
-        criteria
+        criteria,
       );
     }
 
     const dimensionWeights = Object.fromEntries(
-      Object.entries(config.dimensions).map(([k, v]) => [k, v.weight])
+      Object.entries(config.dimensions).map(([k, v]) => [k, v.weight]),
     );
 
-    const experienceScore = calculateOverallScore(
-      dimensionScores,
-      dimensionWeights,
-      0.95,
-      'high'
-    );
+    const experienceScore = calculateOverallScore(dimensionScores, dimensionWeights, 0.95, "high");
 
     return {
       findings,
@@ -1443,10 +1548,12 @@ git commit -m "feat(m5): implement experience reviewer agent with scoring"
 ### Task 10: Composer Integration for Experience Section
 
 **Files:**
+
 - Modify: `packages/core/src/composer/composer.ts`
 - Test: `packages/core/src/composer/composer.test.ts`
 
 **Interfaces:**
+
 - Consumes: AgentResult from experience-reviewer
 - Produces: ComposeResult with experience_score field
 
@@ -1455,35 +1562,35 @@ git commit -m "feat(m5): implement experience reviewer agent with scoring"
 Add to `packages/core/src/composer/composer.test.ts`:
 
 ```typescript
-import { composeSections } from './composer.js';
+import { composeSections } from "./composer.js";
 
-describe('composeSections - Experience Effectiveness', () => {
-  it('should add Experience section when experience-reviewer outcome present', () => {
+describe("composeSections - Experience Effectiveness", () => {
+  it("should add Experience section when experience-reviewer outcome present", () => {
     const outcomes = [
       {
-        agent_name: 'experience-reviewer',
+        agent_name: "experience-reviewer",
         ok: true,
         findings: [
           {
-            id: 'exp_001',
-            result_state: 'pass',
-            confidence: 'high',
-            evidence_ids: ['screenshot_viewport'],
+            id: "exp_001",
+            result_state: "pass",
+            confidence: "high",
+            evidence_ids: ["screenshot_viewport"],
             data: {
               reviewer_trace: {
-                rubric_version: '0.1.0-draft',
-                criterion_id: 'EXP-DH-01',
-                criterion_name: 'Visual hierarchy',
-                result: 'pass',
-                confidence: 'high',
-                rationale: 'Clear hierarchy',
-                evidence_ids: ['screenshot_viewport'],
-                reviewer_type: 'model',
-                language: 'en',
-                language_direction: 'ltr',
-                market: 'US',
-                evaluated_at: '2026-10-07T12:00:00Z',
-                prompt_version: '0.1.0',
+                rubric_version: "0.1.0-draft",
+                criterion_id: "EXP-DH-01",
+                criterion_name: "Visual hierarchy",
+                result: "pass",
+                confidence: "high",
+                rationale: "Clear hierarchy",
+                evidence_ids: ["screenshot_viewport"],
+                reviewer_type: "model",
+                language: "en",
+                language_direction: "ltr",
+                market: "US",
+                evaluated_at: "2026-10-07T12:00:00Z",
+                prompt_version: "0.1.0",
                 limitations: [],
               },
             },
@@ -1494,30 +1601,30 @@ describe('composeSections - Experience Effectiveness', () => {
             experience_effectiveness: 82,
             dimensions: {},
             coverage: 0.95,
-            confidence: 'high',
-            fidelity_label: 'assessed',
-            methodology_version: '0.1.0-draft',
+            confidence: "high",
+            fidelity_label: "assessed",
+            methodology_version: "0.1.0-draft",
           },
         },
       },
     ];
 
-    const result = composeSections(outcomes, [], 'standard');
+    const result = composeSections(outcomes, [], "standard");
 
     expect(result.experience_score).toBeDefined();
     expect(result.experience_score?.experience_effectiveness).toBe(82);
   });
 
-  it('should add unavailable block when experience-reviewer missing', () => {
+  it("should add unavailable block when experience-reviewer missing", () => {
     const outcomes = [];
 
-    const result = composeSections(outcomes, [], 'standard');
+    const result = composeSections(outcomes, [], "standard");
 
     expect(result.unavailable).toContainEqual(
       expect.objectContaining({
-        section: 'experience',
-        reason_key: 'unavailable.experience_effectiveness',
-      })
+        section: "experience",
+        reason_key: "unavailable.experience_effectiveness",
+      }),
     );
   });
 });
@@ -1540,10 +1647,10 @@ export interface ComposeResult {
   summary_bullets: string[];
   costs: StoredCosts;
   score: ScoreResult | null;
-  experience_score: ExperienceScoreResult | null;  // NEW
+  experience_score: ExperienceScoreResult | null; // NEW
 }
 
-const EXPERIENCE_SECTION = 'experience';
+const EXPERIENCE_SECTION = "experience";
 
 export function composeSections(
   outcomes: ComposerAgentOutcome[],
@@ -1561,27 +1668,28 @@ export function composeSections(
   let experienceScore: ExperienceScoreResult | null = null;
 
   // Process experience-reviewer outcome separately
-  const experienceOutcome = outcomes.find(o => o.agent_name === 'experience-reviewer');
+  const experienceOutcome = outcomes.find((o) => o.agent_name === "experience-reviewer");
 
   if (!experienceOutcome) {
     unavailable.push({
       section: EXPERIENCE_SECTION,
-      reason_key: 'unavailable.experience_effectiveness',
+      reason_key: "unavailable.experience_effectiveness",
     });
   } else if (!experienceOutcome.ok) {
     unavailable.push({
       section: EXPERIENCE_SECTION,
-      reason_key: experienceOutcome.unavailable_reason_key ?? 'unavailable.experience_effectiveness',
+      reason_key:
+        experienceOutcome.unavailable_reason_key ?? "unavailable.experience_effectiveness",
     });
   } else {
     availableSections.add(EXPERIENCE_SECTION);
 
     for (const finding of experienceOutcome.findings) {
-      if (finding.result_state === 'unavailable') continue;
+      if (finding.result_state === "unavailable") continue;
 
       findings.push({
         id: finding.id,
-        agent: 'experience-reviewer',
+        agent: "experience-reviewer",
         section: EXPERIENCE_SECTION,
         severity: deriveSeverity(finding.data),
         state: finding.result_state,
@@ -1593,7 +1701,8 @@ export function composeSections(
       });
     }
 
-    experienceScore = experienceOutcome.data?.experience_score as ExperienceScoreResult | undefined ?? null;
+    experienceScore =
+      (experienceOutcome.data?.experience_score as ExperienceScoreResult | undefined) ?? null;
   }
 
   return {
@@ -1625,11 +1734,13 @@ git commit -m "feat(m5): integrate experience-reviewer into composer with D-012 
 ### Task 11: Calibration Tool - Test Case Loader
 
 **Files:**
+
 - Create: `packages/calibration/src/test-case-loader.ts`
 - Create: `config/calibration-cases/sample-case.json`
 - Test: `packages/calibration/src/test-case-loader.test.ts`
 
 **Interfaces:**
+
 - Consumes: Calibration test case files
 - Produces: CalibrationTestCase array
 
@@ -1686,12 +1797,12 @@ Create `config/calibration-cases/sample-case.json`:
 Create `packages/calibration/src/test-case-loader.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { loadTestCases } from './test-case-loader.js';
+import { describe, it, expect } from "vitest";
+import { loadTestCases } from "./test-case-loader.js";
 
-describe('loadTestCases', () => {
-  it('should load calibration test cases from directory', () => {
-    const cases = loadTestCases('config/calibration-cases/');
+describe("loadTestCases", () => {
+  it("should load calibration test cases from directory", () => {
+    const cases = loadTestCases("config/calibration-cases/");
 
     expect(Array.isArray(cases)).toBe(true);
     expect(cases.length).toBeGreaterThan(0);
@@ -1714,19 +1825,22 @@ Expected: FAIL with "Cannot find module './test-case-loader.js'"
 Create `packages/calibration/src/test-case-loader.ts`:
 
 ```typescript
-import { readdirSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import type { ExperienceEvidencePackage } from '../../core/src/types/experience-evidence.js';
+import { readdirSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import type { ExperienceEvidencePackage } from "../../core/src/types/experience-evidence.js";
 
 interface CalibrationTestCase {
   case_id: string;
   description: string;
   evidence_package: ExperienceEvidencePackage;
-  human_results: Record<string, {
-    result: 'pass' | 'partial' | 'fail' | 'not_applicable';
-    confidence: 'high' | 'medium' | 'low';
-    rationale: string;
-  }>;
+  human_results: Record<
+    string,
+    {
+      result: "pass" | "partial" | "fail" | "not_applicable";
+      confidence: "high" | "medium" | "low";
+      rationale: string;
+    }
+  >;
   labelled_by: string;
   labelled_at: string;
   language: string;
@@ -1736,13 +1850,13 @@ interface CalibrationTestCase {
 
 export function loadTestCases(directory: string): CalibrationTestCase[] {
   const dirPath = resolve(process.cwd(), directory);
-  const files = readdirSync(dirPath).filter(f => f.endsWith('.json'));
+  const files = readdirSync(dirPath).filter((f) => f.endsWith(".json"));
 
   const cases: CalibrationTestCase[] = [];
 
   for (const file of files) {
     const filePath = resolve(dirPath, file);
-    const content = readFileSync(filePath, 'utf-8');
+    const content = readFileSync(filePath, "utf-8");
     const testCase = JSON.parse(content) as CalibrationTestCase;
     cases.push(testCase);
   }
@@ -1768,10 +1882,12 @@ git commit -m "feat(m5): add calibration test case loader"
 ### Task 12: Calibration Tool - Agreement Metrics
 
 **Files:**
+
 - Create: `packages/calibration/src/agreement-metrics.ts`
 - Test: `packages/calibration/src/agreement-metrics.test.ts`
 
 **Interfaces:**
+
 - Consumes: Model results and human results
 - Produces: Weighted Cohen's kappa, exact match rate, adjacent match rate
 
@@ -1780,21 +1896,21 @@ git commit -m "feat(m5): add calibration test case loader"
 Create `packages/calibration/src/agreement-metrics.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { calculateAgreementMetrics } from './agreement-metrics.js';
+import { describe, it, expect } from "vitest";
+import { calculateAgreementMetrics } from "./agreement-metrics.js";
 
-describe('calculateAgreementMetrics', () => {
-  it('should calculate perfect agreement', () => {
+describe("calculateAgreementMetrics", () => {
+  it("should calculate perfect agreement", () => {
     const modelResults = [
-      { criterion_id: 'EXP-DH-01', result: 'pass' },
-      { criterion_id: 'EXP-DH-02', result: 'partial' },
-      { criterion_id: 'EXP-DH-03', result: 'fail' },
+      { criterion_id: "EXP-DH-01", result: "pass" },
+      { criterion_id: "EXP-DH-02", result: "partial" },
+      { criterion_id: "EXP-DH-03", result: "fail" },
     ];
 
     const humanResults = [
-      { criterion_id: 'EXP-DH-01', result: 'pass' },
-      { criterion_id: 'EXP-DH-02', result: 'partial' },
-      { criterion_id: 'EXP-DH-03', result: 'fail' },
+      { criterion_id: "EXP-DH-01", result: "pass" },
+      { criterion_id: "EXP-DH-02", result: "partial" },
+      { criterion_id: "EXP-DH-03", result: "fail" },
     ];
 
     const metrics = calculateAgreementMetrics(modelResults, humanResults);
@@ -1804,19 +1920,19 @@ describe('calculateAgreementMetrics', () => {
     expect(metrics.weighted_cohen_kappa).toBe(1.0);
   });
 
-  it('should calculate partial agreement', () => {
+  it("should calculate partial agreement", () => {
     const modelResults = [
-      { criterion_id: 'EXP-DH-01', result: 'pass' },
-      { criterion_id: 'EXP-DH-02', result: 'partial' },
-      { criterion_id: 'EXP-DH-03', result: 'fail' },
-      { criterion_id: 'EXP-DH-04', result: 'pass' },
+      { criterion_id: "EXP-DH-01", result: "pass" },
+      { criterion_id: "EXP-DH-02", result: "partial" },
+      { criterion_id: "EXP-DH-03", result: "fail" },
+      { criterion_id: "EXP-DH-04", result: "pass" },
     ];
 
     const humanResults = [
-      { criterion_id: 'EXP-DH-01', result: 'pass' },
-      { criterion_id: 'EXP-DH-02', result: 'fail' },
-      { criterion_id: 'EXP-DH-03', result: 'fail' },
-      { criterion_id: 'EXP-DH-04', result: 'partial' },
+      { criterion_id: "EXP-DH-01", result: "pass" },
+      { criterion_id: "EXP-DH-02", result: "fail" },
+      { criterion_id: "EXP-DH-03", result: "fail" },
+      { criterion_id: "EXP-DH-04", result: "partial" },
     ];
 
     const metrics = calculateAgreementMetrics(modelResults, humanResults);
@@ -1839,14 +1955,14 @@ Create `packages/calibration/src/agreement-metrics.ts`:
 ```typescript
 interface CriterionResult {
   criterion_id: string;
-  result: 'pass' | 'partial' | 'fail' | 'not_applicable';
+  result: "pass" | "partial" | "fail" | "not_applicable";
 }
 
-const RESULT_ORDER = ['fail', 'partial', 'pass', 'not_applicable'];
+const RESULT_ORDER = ["fail", "partial", "pass", "not_applicable"];
 
 export function calculateAgreementMetrics(
   modelResults: CriterionResult[],
-  humanResults: CriterionResult[]
+  humanResults: CriterionResult[],
 ): {
   exact_match_rate: number;
   adjacent_match_rate: number;
@@ -1887,7 +2003,7 @@ export function calculateAgreementMetrics(
 
 function calculateWeightedKappa(
   modelResults: CriterionResult[],
-  humanResults: CriterionResult[]
+  humanResults: CriterionResult[],
 ): number {
   const total = modelResults.length;
 
@@ -1947,10 +2063,12 @@ git commit -m "feat(m5): implement calibration agreement metrics"
 ### Task 13: Calibration Tool - Report Generator
 
 **Files:**
+
 - Create: `packages/calibration/src/report-generator.ts`
 - Test: `packages/calibration/src/report-generator.test.ts`
 
 **Interfaces:**
+
 - Consumes: Agreement metrics from multiple test cases
 - Produces: CalibrationReport
 
@@ -1959,32 +2077,28 @@ git commit -m "feat(m5): implement calibration agreement metrics"
 Create `packages/calibration/src/report-generator.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { generateCalibrationReport } from './report-generator.js';
+import { describe, it, expect } from "vitest";
+import { generateCalibrationReport } from "./report-generator.js";
 
-describe('generateCalibrationReport', () => {
-  it('should generate calibration report with overall metrics', () => {
+describe("generateCalibrationReport", () => {
+  it("should generate calibration report with overall metrics", () => {
     const caseResults = [
       {
-        case_id: 'case-001',
-        model_results: [
-          { criterion_id: 'EXP-DH-01', result: 'pass' },
-        ],
-        human_results: [
-          { criterion_id: 'EXP-DH-01', result: 'pass' },
-        ],
+        case_id: "case-001",
+        model_results: [{ criterion_id: "EXP-DH-01", result: "pass" }],
+        human_results: [{ criterion_id: "EXP-DH-01", result: "pass" }],
       },
     ];
 
     const report = generateCalibrationReport(
       caseResults,
-      'gemini-pro-vision',
-      'gemini-1.5-pro-002',
-      '0.1.0-draft'
+      "gemini-pro-vision",
+      "gemini-1.5-pro-002",
+      "0.1.0-draft",
     );
 
     expect(report.generated_at).toBeDefined();
-    expect(report.model_id).toBe('gemini-pro-vision');
+    expect(report.model_id).toBe("gemini-pro-vision");
     expect(report.overall.total_cases).toBe(1);
     expect(report.overall.exact_match_rate).toBe(1.0);
   });
@@ -2001,7 +2115,7 @@ Expected: FAIL with "Cannot find module './report-generator.js'"
 Create `packages/calibration/src/report-generator.ts`:
 
 ```typescript
-import { calculateAgreementMetrics } from './agreement-metrics.js';
+import { calculateAgreementMetrics } from "./agreement-metrics.js";
 
 interface CaseResult {
   case_id: string;
@@ -2026,7 +2140,7 @@ export function generateCalibrationReport(
   caseResults: CaseResult[],
   modelId: string,
   modelVersion: string,
-  rubricVersion: string
+  rubricVersion: string,
 ): CalibrationReport {
   let totalExact = 0;
   let totalAdjacent = 0;
@@ -2036,7 +2150,7 @@ export function generateCalibrationReport(
   for (const caseResult of caseResults) {
     const metrics = calculateAgreementMetrics(
       caseResult.model_results as any,
-      caseResult.human_results as any
+      caseResult.human_results as any,
     );
 
     totalExact += metrics.exact_match_rate * caseResult.model_results.length;
@@ -2077,10 +2191,12 @@ git commit -m "feat(m5): implement calibration report generator"
 ### Task 14: Calibration CLI Command
 
 **Files:**
+
 - Create: `packages/calibration/src/cli.ts`
 - Create: `package.json` scripts
 
 **Interfaces:**
+
 - Consumes: Test cases, experience-reviewer agent
 - Produces: Calibration report output
 
@@ -2091,15 +2207,15 @@ Create `packages/calibration/src/cli.ts`:
 ```typescript
 #!/usr/bin/env node
 
-import { loadTestCases } from './test-case-loader.js';
-import { generateCalibrationReport } from './report-generator.js';
-import { writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { loadTestCases } from "./test-case-loader.js";
+import { generateCalibrationReport } from "./report-generator.js";
+import { writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 async function main() {
   const args = process.argv.slice(2);
-  const casesDir = args[0] ?? 'config/calibration-cases/';
-  const outputPath = args[1] ?? 'output/calibration-report.json';
+  const casesDir = args[0] ?? "config/calibration-cases/";
+  const outputPath = args[1] ?? "output/calibration-report.json";
 
   console.log(`Loading test cases from ${casesDir}...`);
   const testCases = loadTestCases(casesDir);
@@ -2110,10 +2226,12 @@ async function main() {
   for (const testCase of testCases) {
     console.log(`Processing case ${testCase.case_id}...`);
 
-    const modelResults = Object.entries(testCase.human_results).map(([criterionId, humanResult]) => ({
-      criterion_id: criterionId,
-      result: humanResult.result,
-    }));
+    const modelResults = Object.entries(testCase.human_results).map(
+      ([criterionId, humanResult]) => ({
+        criterion_id: criterionId,
+        result: humanResult.result,
+      }),
+    );
 
     caseResults.push({
       case_id: testCase.case_id,
@@ -2127,9 +2245,9 @@ async function main() {
 
   const report = generateCalibrationReport(
     caseResults,
-    'gemini-pro-vision',
-    'gemini-1.5-pro-002',
-    '0.1.0-draft'
+    "gemini-pro-vision",
+    "gemini-1.5-pro-002",
+    "0.1.0-draft",
   );
 
   const outputFilePath = resolve(process.cwd(), outputPath);
@@ -2143,8 +2261,8 @@ async function main() {
   console.log(`  Adjacent match rate: ${(report.overall.adjacent_match_rate * 100).toFixed(1)}%`);
 }
 
-main().catch(error => {
-  console.error('Calibration failed:', error);
+main().catch((error) => {
+  console.error("Calibration failed:", error);
   process.exit(1);
 });
 ```
@@ -2178,9 +2296,11 @@ git commit -m "feat(m5): add calibration CLI command"
 ### Task 15: Integration Tests
 
 **Files:**
+
 - Create: `tests/integration/experience-effectiveness.test.ts`
 
 **Interfaces:**
+
 - Consumes: Full pipeline with experience-reviewer agent
 - Produces: End-to-end validation
 
@@ -2189,36 +2309,36 @@ git commit -m "feat(m5): add calibration CLI command"
 Create `tests/integration/experience-effectiveness.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { ExperienceReviewerAgent } from '../../packages/core/src/agents/experience-reviewer.js';
-import { composeSections } from '../../packages/core/src/composer/composer.js';
-import type { ExperienceEvidencePackage } from '../../packages/core/src/types/experience-evidence.js';
+import { describe, it, expect } from "vitest";
+import { ExperienceReviewerAgent } from "../../packages/core/src/agents/experience-reviewer.js";
+import { composeSections } from "../../packages/core/src/composer/composer.js";
+import type { ExperienceEvidencePackage } from "../../packages/core/src/types/experience-evidence.js";
 
-describe('Experience Effectiveness - End-to-End', () => {
-  it('should run full pipeline and produce Experience section', async () => {
+describe("Experience Effectiveness - End-to-End", () => {
+  it("should run full pipeline and produce Experience section", async () => {
     const evidence: ExperienceEvidencePackage = {
-      page_url: 'https://example.com',
-      language: 'en',
-      market: 'US',
+      page_url: "https://example.com",
+      language: "en",
+      market: "US",
       screenshots: {
-        viewport: 'evidence_viewport_001',
-        full_page: 'evidence_fullpage_001',
-        above_fold: 'evidence_abovefold_001',
+        viewport: "evidence_viewport_001",
+        full_page: "evidence_fullpage_001",
+        above_fold: "evidence_abovefold_001",
       },
       extractor_results: {
-        heading: { title: 'Test', h1_count: 1, hierarchy: [] },
+        heading: { title: "Test", h1_count: 1, hierarchy: [] },
         form: { forms: [], fields: [] },
         contact: { emails: [], phones: [], addresses: [] },
         policy: { privacy: null, terms: null, cookies: null },
-        language: { detected: 'en', confidence: 'high' },
-        analytics: { has_analytics: true, providers: ['ga4'] },
+        language: { detected: "en", confidence: "high" },
+        analytics: { has_analytics: true, providers: ["ga4"] },
         viewport: { has_viewport_meta: true, responsive: true },
         wayfinding: { nav_items: [], breadcrumbs: [] },
       },
       readiness_results: {
         score: 75,
         categories: [],
-        confidence: 'high',
+        confidence: "high",
       },
     };
 
@@ -2226,54 +2346,52 @@ describe('Experience Effectiveness - End-to-End', () => {
     const agentResult = await agent.execute(evidence);
 
     const composerOutcome = {
-      agent_name: 'experience-reviewer',
+      agent_name: "experience-reviewer",
       ok: true,
       findings: agentResult.findings,
       data: agentResult.data,
     };
 
-    const composeResult = composeSections([composerOutcome], [], 'standard');
+    const composeResult = composeSections([composerOutcome], [], "standard");
 
     expect(composeResult.experience_score).toBeDefined();
     expect(composeResult.experience_score?.experience_effectiveness).toBeGreaterThanOrEqual(0);
     expect(composeResult.experience_score?.experience_effectiveness).toBeLessThanOrEqual(100);
-    expect(composeResult.experience_score?.fidelity_label).toBe('assessed');
+    expect(composeResult.experience_score?.fidelity_label).toBe("assessed");
 
-    const experienceFindings = composeResult.findings.filter(
-      f => f.section === 'experience'
-    );
+    const experienceFindings = composeResult.findings.filter((f) => f.section === "experience");
     expect(experienceFindings.length).toBeGreaterThan(0);
 
     for (const finding of experienceFindings) {
       expect(finding.data.reviewer_trace).toBeDefined();
-      expect(finding.data.reviewer_trace.rubric_version).toBe('0.1.0-draft');
+      expect(finding.data.reviewer_trace.rubric_version).toBe("0.1.0-draft");
     }
   });
 
-  it('should maintain D-012 separation from Presence Readiness', async () => {
+  it("should maintain D-012 separation from Presence Readiness", async () => {
     const evidence: ExperienceEvidencePackage = {
-      page_url: 'https://example.com',
-      language: 'en',
-      market: 'US',
+      page_url: "https://example.com",
+      language: "en",
+      market: "US",
       screenshots: {
-        viewport: 'evidence_viewport_001',
-        full_page: 'evidence_fullpage_001',
-        above_fold: 'evidence_abovefold_001',
+        viewport: "evidence_viewport_001",
+        full_page: "evidence_fullpage_001",
+        above_fold: "evidence_abovefold_001",
       },
       extractor_results: {
-        heading: { title: 'Test', h1_count: 1, hierarchy: [] },
+        heading: { title: "Test", h1_count: 1, hierarchy: [] },
         form: { forms: [], fields: [] },
         contact: { emails: [], phones: [], addresses: [] },
         policy: { privacy: null, terms: null, cookies: null },
-        language: { detected: 'en', confidence: 'high' },
-        analytics: { has_analytics: true, providers: ['ga4'] },
+        language: { detected: "en", confidence: "high" },
+        analytics: { has_analytics: true, providers: ["ga4"] },
         viewport: { has_viewport_meta: true, responsive: true },
         wayfinding: { nav_items: [], breadcrumbs: [] },
       },
       readiness_results: {
         score: 75,
         categories: [],
-        confidence: 'high',
+        confidence: "high",
       },
     };
 
@@ -2281,26 +2399,22 @@ describe('Experience Effectiveness - End-to-End', () => {
     const agentResult = await agent.execute(evidence);
 
     const composerOutcome = {
-      agent_name: 'experience-reviewer',
+      agent_name: "experience-reviewer",
       ok: true,
       findings: agentResult.findings,
       data: agentResult.data,
     };
 
-    const composeResult = composeSections([composerOutcome], [], 'standard');
+    const composeResult = composeSections([composerOutcome], [], "standard");
 
     expect(composeResult.score).toBeNull();
     expect(composeResult.experience_score).not.toBeNull();
 
-    const experienceFindings = composeResult.findings.filter(
-      f => f.section === 'experience'
-    );
-    const technicalFindings = composeResult.findings.filter(
-      f => f.section === 'technical'
-    );
+    const experienceFindings = composeResult.findings.filter((f) => f.section === "experience");
+    const technicalFindings = composeResult.findings.filter((f) => f.section === "technical");
 
     for (const finding of experienceFindings) {
-      expect(finding.agent).toBe('experience-reviewer');
+      expect(finding.agent).toBe("experience-reviewer");
     }
   });
 });
@@ -2323,9 +2437,11 @@ git commit -m "test(m5): add end-to-end integration tests for Experience Effecti
 ### Task 16: Final Verification and Deployment Checklist
 
 **Files:**
+
 - None (verification task)
 
 **Interfaces:**
+
 - Consumes: All previous tasks
 - Produces: Deployment readiness confirmation
 
@@ -2342,6 +2458,7 @@ Expected: Calibration report generated
 - [ ] **Step 3: Verify D-012 separation in composer output**
 
 Review composer test output to ensure:
+
 - Experience section is separate from Technical section
 - experience_score is separate from score
 - No blending or averaging between the two
@@ -2349,6 +2466,7 @@ Review composer test output to ensure:
 - [ ] **Step 4: Verify reviewer trace completeness**
 
 Check that all findings have complete reviewer trace:
+
 - rubric_version
 - criterion_id
 - reviewer_type
@@ -2390,28 +2508,34 @@ git commit -m "docs(m5): add deployment checklist"
 This implementation plan delivers M5 Experience Effectiveness in 16 tasks:
 
 **Core Infrastructure (Tasks 1-6):**
+
 - Agent configuration
 - Type definitions (evidence package, reviewer trace, score result)
 - Weight configuration with validation
 - Project override mechanism
 
 **Scoring Engine (Tasks 7-8):**
+
 - Dimension score calculation
 - Overall score and confidence calculation
 
 **Agent Implementation (Task 9):**
+
 - Experience reviewer agent with placeholder vision model integration
 
 **Integration (Task 10):**
+
 - Composer integration maintaining D-012 separation
 
 **Calibration Tool (Tasks 11-14):**
+
 - Test case loader
 - Agreement metrics (weighted Cohen's kappa)
 - Report generator
 - CLI command
 
 **Testing and Deployment (Tasks 15-16):**
+
 - End-to-end integration tests
 - Deployment checklist
 

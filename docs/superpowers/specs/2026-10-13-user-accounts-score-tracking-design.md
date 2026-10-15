@@ -10,12 +10,12 @@ Let visitors create an account, sign in, and keep every audit they run forever. 
 
 ## User Decisions
 
-| Decision | Choice | Implication |
-|----------|--------|-------------|
-| Auth method | Email/password only | No OAuth, no magic links; zero new dependencies |
-| Existing audits | Clean break | Anonymous audits stay anonymous; no claim/migration flow |
-| Reminders | In-app only | No email service; dashboard banner only |
-| Re-audits | Manual, kept forever | No scheduler; user runs audits on their own cadence |
+| Decision        | Choice               | Implication                                              |
+| --------------- | -------------------- | -------------------------------------------------------- |
+| Auth method     | Email/password only  | No OAuth, no magic links; zero new dependencies          |
+| Existing audits | Clean break          | Anonymous audits stay anonymous; no claim/migration flow |
+| Reminders       | In-app only          | No email service; dashboard banner only                  |
+| Re-audits       | Manual, kept forever | No scheduler; user runs audits on their own cadence      |
 
 ## Architecture
 
@@ -205,12 +205,12 @@ flowchart TD
 
 ## Section 5: Testing
 
-| Layer | Coverage |
-|-------|----------|
-| `packages/auth` unit | scrypt hash/verify round-trip; wrong password → null; unknown email → null (same shape as wrong password); session create → lookup → sliding renewal only after 7 days → expiry → destroy; duplicate email error |
-| `packages/auth` integration | Postgres test container (existing setup in `packages/test-utils`): migrations apply, CRUD on users/sessions/audits with `user_id`, cascade delete |
-| `apps/web` route tests | signup → cookie set → 303 to /dashboard; login wrong password → 401, no cookie; logout clears cookie; `/dashboard` with session renders chart + list; without session → redirect `/login`; owned audit accessible by session without `?s=`, denied without either; anonymous audit expiry unchanged (7 days), owned audit `expires_at IS NULL` never expires |
-| Playwright e2e (chromium) | signup → run audit from landing form → dashboard shows the audit; after completion the score appears; run a second audit → trend shows 2 points; sign out → dashboard redirects to login; anonymous flow (secret link) unchanged |
+| Layer                       | Coverage                                                                                                                                                                                                                                                                                                                                                     |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `packages/auth` unit        | scrypt hash/verify round-trip; wrong password → null; unknown email → null (same shape as wrong password); session create → lookup → sliding renewal only after 7 days → expiry → destroy; duplicate email error                                                                                                                                             |
+| `packages/auth` integration | Postgres test container (existing setup in `packages/test-utils`): migrations apply, CRUD on users/sessions/audits with `user_id`, cascade delete                                                                                                                                                                                                            |
+| `apps/web` route tests      | signup → cookie set → 303 to /dashboard; login wrong password → 401, no cookie; logout clears cookie; `/dashboard` with session renders chart + list; without session → redirect `/login`; owned audit accessible by session without `?s=`, denied without either; anonymous audit expiry unchanged (7 days), owned audit `expires_at IS NULL` never expires |
+| Playwright e2e (chromium)   | signup → run audit from landing form → dashboard shows the audit; after completion the score appears; run a second audit → trend shows 2 points; sign out → dashboard redirects to login; anonymous flow (secret link) unchanged                                                                                                                             |
 
 ## Section 6: Explicitly Out of Scope (YAGNI)
 

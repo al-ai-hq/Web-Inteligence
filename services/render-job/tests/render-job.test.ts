@@ -175,10 +175,9 @@ describe("runRenderJob", () => {
     const expectedHash = urlHash("https://example.com/page1");
     const expectedPath = `evidence/audit-456/rendered/${expectedHash}.json`;
 
-    expect(mockMkdirSync).toHaveBeenCalledWith(
-      expect.stringContaining(`audit-456/rendered`),
-      { recursive: true },
-    );
+    expect(mockMkdirSync).toHaveBeenCalledWith(expect.stringContaining(`audit-456/rendered`), {
+      recursive: true,
+    });
     expect(mockWriteFileSync).toHaveBeenCalledWith(
       expect.stringContaining(expectedPath),
       JSON.stringify(renderResult, null, 2),

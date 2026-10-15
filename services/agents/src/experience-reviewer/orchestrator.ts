@@ -1,11 +1,11 @@
-import type { GeminiAdapter } from '../providers/gemini-adapter.js';
-import { resolveModel, getModelPricing } from '../providers/model-resolver.js';
-import type { CostTracker } from '../providers/cost-tracker.js';
-import { buildDimensionPrompt } from './dimension-prompt.js';
-import { parseDimensionResponse } from './response-parser.js';
-import { loadImagesAsContent } from './image-loader.js';
-import { calculateOverallScore, loadWeightConfig } from '@wpi/core';
-import type { ExperienceEvidencePackage, ExperienceScoreResult } from '@wpi/core';
+import type { GeminiAdapter } from "../providers/gemini-adapter.js";
+import { resolveModel, getModelPricing } from "../providers/model-resolver.js";
+import type { CostTracker } from "../providers/cost-tracker.js";
+import { buildDimensionPrompt } from "./dimension-prompt.js";
+import { parseDimensionResponse } from "./response-parser.js";
+import { loadImagesAsContent } from "./image-loader.js";
+import { calculateOverallScore, loadWeightConfig } from "@wpi/core";
+import type { ExperienceEvidencePackage, ExperienceScoreResult } from "@wpi/core";
 
 export interface OrchestratorDeps {
   adapter: GeminiAdapter;
@@ -14,18 +14,18 @@ export interface OrchestratorDeps {
 }
 
 const DIMENSIONS = [
-  'design_hierarchy',
-  'copy_and_positioning_clarity',
-  'ux_and_navigation',
-  'trust_and_proof',
-  'conversion_path_and_measurement',
+  "design_hierarchy",
+  "copy_and_positioning_clarity",
+  "ux_and_navigation",
+  "trust_and_proof",
+  "conversion_path_and_measurement",
 ];
 
 export async function reviewExperience(
   evidence: ExperienceEvidencePackage,
-  deps: OrchestratorDeps
+  deps: OrchestratorDeps,
 ): Promise<{ findings: any[]; score: ExperienceScoreResult }> {
-  const model = resolveModel('vision_capable');
+  const model = resolveModel("vision_capable");
   const pricing = getModelPricing(model);
 
   const allFindings = [];
@@ -42,7 +42,7 @@ export async function reviewExperience(
     const response = await deps.adapter.complete({
       model,
       systemPrompt: prompt.systemPrompt,
-      userPrompt: '',
+      userPrompt: "",
       content: prompt.content,
       temperature: 0.3,
     });
@@ -53,7 +53,7 @@ export async function reviewExperience(
 
     deps.costTracker.record({
       audit_id: deps.auditId,
-      agent_name: 'experience-reviewer',
+      agent_name: "experience-reviewer",
       model,
       tokens_in: tokensIn,
       tokens_out: tokensOut,
@@ -64,7 +64,7 @@ export async function reviewExperience(
       dimension,
       response.content,
       evidence.language,
-      evidence.market
+      evidence.market,
     );
 
     allFindings.push(...findings);
@@ -73,18 +73,19 @@ export async function reviewExperience(
 
   const config = loadWeightConfig();
   const dimensionWeights = Object.fromEntries(
-    Object.entries(config.dimensions).map(([k, v]) => [k, v.weight])
+    Object.entries(config.dimensions).map(([k, v]) => [k, v.weight]),
   );
 
   const applicableDimensions = Object.keys(dimensionScores).length;
   const coverage = applicableDimensions / DIMENSIONS.length;
-  const confidence = applicableDimensions >= 3 ? 'high' : applicableDimensions >= 1 ? 'medium' : 'low';
+  const confidence =
+    applicableDimensions >= 3 ? "high" : applicableDimensions >= 1 ? "medium" : "low";
 
   const overallScore = calculateOverallScore(
     dimensionScores,
     dimensionWeights,
     coverage,
-    confidence
+    confidence,
   );
 
   return { findings: allFindings, score: overallScore };

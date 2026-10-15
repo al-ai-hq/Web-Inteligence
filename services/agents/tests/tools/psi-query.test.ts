@@ -20,7 +20,11 @@ describe("psi_query", () => {
     });
 
     const tool = createPsiQueryTool(mockFetch, "test-api-key");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute({ url: "https://example.com", strategy: "mobile" }, ctx);
     expect(result.source_tier).toBe("third_party_verified");
@@ -31,7 +35,11 @@ describe("psi_query", () => {
     const mockFetch = vi.fn().mockResolvedValueOnce({ ok: false, status: 500 });
 
     const tool = createPsiQueryTool(mockFetch, "test-api-key");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute({ url: "https://example.com", strategy: "mobile" }, ctx);
     expect(result.limitations.length).toBeGreaterThan(0);

@@ -62,8 +62,21 @@ export async function executeAgent(params: ExecuteAgentParams): Promise<AgentRes
     totalTokensIn += response.usage.tokens_in;
     totalTokensOut += response.usage.tokens_out;
 
-    if (response.finishReason === "stop" || !response.toolCalls || response.toolCalls.length === 0) {
-      const parsed = parseAgentOutput(response.content, job, agentName, provider.name, totalTokensIn, totalTokensOut, startTime, model);
+    if (
+      response.finishReason === "stop" ||
+      !response.toolCalls ||
+      response.toolCalls.length === 0
+    ) {
+      const parsed = parseAgentOutput(
+        response.content,
+        job,
+        agentName,
+        provider.name,
+        totalTokensIn,
+        totalTokensOut,
+        startTime,
+        model,
+      );
       return parsed;
     }
 
@@ -121,7 +134,9 @@ function parseAgentOutput(
 ): AgentResult {
   try {
     const parsed = JSON.parse(content) as Record<string, unknown>;
-    const findings: Finding[] = ((parsed["findings"] as Array<Record<string, unknown>> | undefined) ?? []).map((f: Record<string, unknown>) => ({
+    const findings: Finding[] = (
+      (parsed["findings"] as Array<Record<string, unknown>> | undefined) ?? []
+    ).map((f: Record<string, unknown>) => ({
       finding_id: String(f["finding_id"]),
       rule_id: f["rule_id"] as string | undefined,
       page_url: f["page_url"] as string | undefined,
@@ -137,7 +152,8 @@ function parseAgentOutput(
       agent_name: agentName,
       audit_id: job.audit_id,
       output_evidence_ids: (parsed["output_evidence_ids"] as string[] | undefined) ?? [],
-      result_state: (parsed["result_state"] as AgentResult["result_state"] | undefined) ?? "inferred",
+      result_state:
+        (parsed["result_state"] as AgentResult["result_state"] | undefined) ?? "inferred",
       findings,
       limitations: (parsed["limitations"] as string[] | undefined) ?? [],
       cost: {

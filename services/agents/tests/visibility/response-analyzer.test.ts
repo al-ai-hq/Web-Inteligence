@@ -40,7 +40,11 @@ describe("analyzeResponse", () => {
   });
 
   it("detects competitor mentions", () => {
-    const result = analyzeResponse("Check out rival.com and competitor.io for hosting.", intake, "comparison");
+    const result = analyzeResponse(
+      "Check out rival.com and competitor.io for hosting.",
+      intake,
+      "comparison",
+    );
     expect(result.competitors_mentioned.length).toBe(2);
   });
 
@@ -80,11 +84,7 @@ describe("analyzeResponse", () => {
   });
 
   it("returns no accuracy issues for non-brand-facts families", () => {
-    const result = analyzeResponse(
-      "Acme was founded in 2018.",
-      intake,
-      "discovery",
-    );
+    const result = analyzeResponse("Acme was founded in 2018.", intake, "discovery");
     expect(result.accuracy_issues).toHaveLength(0);
   });
 });

@@ -7,7 +7,9 @@ import type { CrawlConfig } from "../src/config/schema.js";
 // ---------------------------------------------------------------------------
 vi.mock("undici", () => ({
   request: vi.fn(),
-  Agent: vi.fn().mockImplementation(function() { return { close: vi.fn() }; }),
+  Agent: vi.fn().mockImplementation(function () {
+    return { close: vi.fn() };
+  }),
 }));
 
 vi.mock("@wpi/security", async () => {
@@ -46,7 +48,7 @@ function defaultConfig(overrides?: Partial<CrawlConfig>): CrawlConfig {
 function mockResponse(
   statusCode: number,
   body: string,
-  headers?: Record<string, string | string[]>
+  headers?: Record<string, string | string[]>,
 ) {
   return {
     statusCode,
@@ -97,12 +99,10 @@ describe("fetchUrl", () => {
   it("follows redirect after re-validating the new URL", async () => {
     const redirectUrl = "https://example.com/final";
     // First request: 301 redirect
-    mockRequest.mockResolvedValueOnce(
-      mockResponse(301, "", { location: redirectUrl })
-    );
+    mockRequest.mockResolvedValueOnce(mockResponse(301, "", { location: redirectUrl }));
     // Second request: 200 OK
     mockRequest.mockResolvedValueOnce(
-      mockResponse(200, "final body", { "content-type": "text/html" })
+      mockResponse(200, "final body", { "content-type": "text/html" }),
     );
 
     const result = await fetchUrl("https://example.com/", defaultConfig());
@@ -118,26 +118,24 @@ describe("fetchUrl", () => {
 
   it("throws when redirect target is blocked by SSRF validation", async () => {
     mockRequest.mockResolvedValueOnce(
-      mockResponse(302, "", { location: "http://metadata.google.internal/" })
+      mockResponse(302, "", { location: "http://metadata.google.internal/" }),
     );
     // Second call to validateUrl returns invalid
     mockValidateUrl.mockResolvedValueOnce({ valid: true, pinnedIp: "93.184.216.34" });
     mockValidateUrl.mockResolvedValueOnce({ valid: false, reason: "metadata hostname blocked" });
 
     await expect(fetchUrl("https://example.com/", defaultConfig())).rejects.toThrow(
-      /SSRF|metadata hostname blocked/i
+      /SSRF|metadata hostname blocked/i,
     );
   });
 
   it("throws when redirect target resolves to private IP (127.0.0.1)", async () => {
-    mockRequest.mockResolvedValueOnce(
-      mockResponse(302, "", { location: "https://localhost/" })
-    );
+    mockRequest.mockResolvedValueOnce(mockResponse(302, "", { location: "https://localhost/" }));
     mockValidateUrl.mockResolvedValueOnce({ valid: true, pinnedIp: "93.184.216.34" });
     mockValidateUrl.mockResolvedValueOnce({ valid: false, reason: "private IP blocked" });
 
     await expect(fetchUrl("https://example.com/", defaultConfig())).rejects.toThrow(
-      /SSRF|private IP blocked/i
+      /SSRF|private IP blocked/i,
     );
   });
 
@@ -145,12 +143,12 @@ describe("fetchUrl", () => {
     // Every request returns a redirect
     for (let i = 0; i < 12; i++) {
       mockRequest.mockResolvedValueOnce(
-        mockResponse(302, "", { location: `https://example.com/redirect-${i}` })
+        mockResponse(302, "", { location: `https://example.com/redirect-${i}` }),
       );
     }
 
     await expect(fetchUrl("https://example.com/", defaultConfig())).rejects.toThrow(
-      /max redirects/i
+      /max redirects/i,
     );
   });
 
@@ -160,7 +158,7 @@ describe("fetchUrl", () => {
     mockRequest.mockResolvedValueOnce(mockResponse(200, largeBody));
 
     await expect(fetchUrl("https://example.com/", smallConfig)).rejects.toThrow(
-      /too large|response size/i
+      /too large|response size/i,
     );
   });
 
@@ -168,7 +166,7 @@ describe("fetchUrl", () => {
     mockValidateUrl.mockResolvedValueOnce({ valid: false, reason: "scheme not allowed" });
 
     await expect(fetchUrl("ftp://example.com/", defaultConfig())).rejects.toThrow(
-      /SSRF|scheme not allowed/i
+      /SSRF|scheme not allowed/i,
     );
     // Should not have made any HTTP request
     expect(mockRequest).not.toHaveBeenCalled();
@@ -203,7 +201,7 @@ describe("fetchUrl", () => {
       expect.objectContaining({
         headersTimeout: 15_000,
         bodyTimeout: 15_000,
-      })
+      }),
     );
   });
 
@@ -213,7 +211,7 @@ describe("fetchUrl", () => {
     mockRequest.mockResolvedValueOnce(mockResponse(200, largeBody));
 
     await expect(fetchUrl("https://example.com/", smallConfig)).rejects.toThrow(
-      /decompressed|too large/i
+      /decompressed|too large/i,
     );
   });
 
@@ -221,7 +219,7 @@ describe("fetchUrl", () => {
     mockRequest.mockResolvedValueOnce(mockResponse(302, ""));
 
     await expect(fetchUrl("https://example.com/", defaultConfig())).rejects.toThrow(
-      /redirect.*location/i
+      /redirect.*location/i,
     );
   });
 });

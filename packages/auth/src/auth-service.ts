@@ -88,10 +88,7 @@ export class InMemoryAuthService implements AuthService {
     return { id: user.id, email: user.email };
   }
 
-  async verifyCredentials(
-    email: string,
-    password: string,
-  ): Promise<SessionUser | null> {
+  async verifyCredentials(email: string, password: string): Promise<SessionUser | null> {
     const user = this.usersByEmail.get(normalizeEmail(email));
     if (!user) {
       await hashPassword(password);
@@ -161,10 +158,7 @@ export class InMemoryAuthService implements AuthService {
     return token;
   }
 
-  async consumePasswordResetToken(
-    token: string,
-    newPassword: string,
-  ): Promise<boolean> {
+  async consumePasswordResetToken(token: string, newPassword: string): Promise<boolean> {
     const tokenHash = hashToken(token);
     const stored = this.passwordResetTokens.get(tokenHash);
     if (!stored || stored.used || this.now() >= stored.expiresAt) {

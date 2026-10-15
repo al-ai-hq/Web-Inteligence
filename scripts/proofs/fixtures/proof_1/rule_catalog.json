@@ -1,9 +1,9 @@
 {
-  "CRW-001": {"category": "crawlability", "importance_weight": 1},
-  "SEO-001": {"category": "on_page", "importance_weight": 1},
-  "STR-001": {"category": "structured_data", "importance_weight": 1},
-  "AEO-001": {"category": "aeo", "importance_weight": 1},
-  "GEO-001": {"category": "geo", "importance_weight": 1},
-  "I18N-001": {"category": "i18n_accessibility", "importance_weight": 1},
-  "PRF-001": {"category": "performance_security", "importance_weight": 1}
+  "CRW-001": { "category": "crawlability", "importance_weight": 1 },
+  "SEO-001": { "category": "on_page", "importance_weight": 1 },
+  "STR-001": { "category": "structured_data", "importance_weight": 1 },
+  "AEO-001": { "category": "aeo", "importance_weight": 1 },
+  "GEO-001": { "category": "geo", "importance_weight": 1 },
+  "I18N-001": { "category": "i18n_accessibility", "importance_weight": 1 },
+  "PRF-001": { "category": "performance_security", "importance_weight": 1 }
 }

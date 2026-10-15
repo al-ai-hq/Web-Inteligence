@@ -1,39 +1,39 @@
-import { describe, it, expect } from 'vitest';
-import { ExperienceReviewerAgent } from './experience-reviewer.js';
-import type { ExperienceEvidencePackage } from '../types/experience-evidence.js';
+import { describe, it, expect } from "vitest";
+import { ExperienceReviewerAgent } from "./experience-reviewer.js";
+import type { ExperienceEvidencePackage } from "../types/experience-evidence.js";
 
-describe('ExperienceReviewerAgent', () => {
-  it('should create agent with correct name', () => {
+describe("ExperienceReviewerAgent", () => {
+  it("should create agent with correct name", () => {
     const agent = new ExperienceReviewerAgent();
-    expect(agent.name).toBe('experience-reviewer');
+    expect(agent.name).toBe("experience-reviewer");
   });
 
-  it('should return findings array with reviewer trace', async () => {
+  it("should return findings array with reviewer trace", async () => {
     const agent = new ExperienceReviewerAgent();
 
     const evidence: ExperienceEvidencePackage = {
-      page_url: 'https://example.com',
-      language: 'en',
-      market: 'US',
+      page_url: "https://example.com",
+      language: "en",
+      market: "US",
       screenshots: {
-        viewport: 'evidence_viewport_001',
-        full_page: 'evidence_fullpage_001',
-        above_fold: 'evidence_abovefold_001',
+        viewport: "evidence_viewport_001",
+        full_page: "evidence_fullpage_001",
+        above_fold: "evidence_abovefold_001",
       },
       extractor_results: {
-        heading: { title: 'Test', h1_count: 1, hierarchy: [] },
+        heading: { title: "Test", h1_count: 1, hierarchy: [] },
         form: { forms: [], fields: [] },
         contact: { emails: [], phones: [], addresses: [] },
         policy: { privacy: null, terms: null, cookies: null },
-        language: { detected: 'en', confidence: 'high' },
-        analytics: { has_analytics: true, providers: ['ga4'] },
+        language: { detected: "en", confidence: "high" },
+        analytics: { has_analytics: true, providers: ["ga4"] },
         viewport: { has_viewport_meta: true, responsive: true },
         wayfinding: { nav_items: [], breadcrumbs: [] },
       },
       readiness_results: {
         score: 75,
         categories: [],
-        confidence: 'high',
+        confidence: "high",
       },
     };
 
@@ -45,36 +45,36 @@ describe('ExperienceReviewerAgent', () => {
 
     const firstFinding = result.findings[0];
     expect(firstFinding.data.reviewer_trace).toBeDefined();
-    expect(firstFinding.data.reviewer_trace.rubric_version).toBe('0.1.0-draft');
-    expect(firstFinding.data.reviewer_trace.reviewer_type).toBe('model');
+    expect(firstFinding.data.reviewer_trace.rubric_version).toBe("0.1.0-draft");
+    expect(firstFinding.data.reviewer_trace.reviewer_type).toBe("model");
   });
 
-  it('should return ExperienceScoreResult in data', async () => {
+  it("should return ExperienceScoreResult in data", async () => {
     const agent = new ExperienceReviewerAgent();
 
     const evidence: ExperienceEvidencePackage = {
-      page_url: 'https://example.com',
-      language: 'en',
-      market: 'US',
+      page_url: "https://example.com",
+      language: "en",
+      market: "US",
       screenshots: {
-        viewport: 'evidence_viewport_001',
-        full_page: 'evidence_fullpage_001',
-        above_fold: 'evidence_abovefold_001',
+        viewport: "evidence_viewport_001",
+        full_page: "evidence_fullpage_001",
+        above_fold: "evidence_abovefold_001",
       },
       extractor_results: {
-        heading: { title: 'Test', h1_count: 1, hierarchy: [] },
+        heading: { title: "Test", h1_count: 1, hierarchy: [] },
         form: { forms: [], fields: [] },
         contact: { emails: [], phones: [], addresses: [] },
         policy: { privacy: null, terms: null, cookies: null },
-        language: { detected: 'en', confidence: 'high' },
-        analytics: { has_analytics: true, providers: ['ga4'] },
+        language: { detected: "en", confidence: "high" },
+        analytics: { has_analytics: true, providers: ["ga4"] },
         viewport: { has_viewport_meta: true, responsive: true },
         wayfinding: { nav_items: [], breadcrumbs: [] },
       },
       readiness_results: {
         score: 75,
         categories: [],
-        confidence: 'high',
+        confidence: "high",
       },
     };
 

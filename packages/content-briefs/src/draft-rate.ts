@@ -3,7 +3,7 @@ const MAX_DRAFTS_PER_MONTH = 8;
 export function checkDraftRate(
   projectId: string,
   monthStart: Date,
-  currentCount: number
+  currentCount: number,
 ): { ok: boolean; error?: string } {
   if (currentCount >= MAX_DRAFTS_PER_MONTH) {
     return {

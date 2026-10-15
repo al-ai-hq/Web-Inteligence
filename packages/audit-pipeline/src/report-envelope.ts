@@ -1,6 +1,7 @@
 import type { ScoreResult } from "@wpi/rules-engine";
 
-export type FindingSection = "technical" | "keywords" | "content" | "performance" | "experience" | "entity";
+export type FindingSection =
+  "technical" | "keywords" | "content" | "performance" | "experience" | "entity";
 export type FindingSeverity = "critical" | "high" | "medium" | "low" | "info";
 export type FindingState = "verified" | "inferred" | "not_verified";
 

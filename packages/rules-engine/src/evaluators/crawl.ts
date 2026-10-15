@@ -97,9 +97,7 @@ export const evalCRW004: Evaluator = (bundle) => {
   }
   // Check for general block: Disallow: / for wildcard agent
   const hasGeneralBlock = robots.directives.some(
-    (d) =>
-      d.user_agent === "*" &&
-      d.disallow.some((pattern) => pattern === "/"),
+    (d) => d.user_agent === "*" && d.disallow.some((pattern) => pattern === "/"),
   );
   if (hasGeneralBlock) {
     return {

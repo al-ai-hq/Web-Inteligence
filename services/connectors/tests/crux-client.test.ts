@@ -55,8 +55,6 @@ describe("fetchCruxData", () => {
       status: 404,
     } as Response);
 
-    await expect(fetchCruxData("https://example.com")).rejects.toThrow(
-      "CrUX API returned 404",
-    );
+    await expect(fetchCruxData("https://example.com")).rejects.toThrow("CrUX API returned 404");
   });
 });

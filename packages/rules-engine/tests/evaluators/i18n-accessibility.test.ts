@@ -143,9 +143,7 @@ describe("evalI18N002 - Directionality", () => {
   it("returns pass for RTL page with direction in structured data", () => {
     const page = makePage({
       lang: "ar",
-      structured_data: [
-        sd("WebPage", { inLanguage: "ar", direction: "rtl" }),
-      ],
+      structured_data: [sd("WebPage", { inLanguage: "ar", direction: "rtl" })],
     });
     const bundle = makeBundle();
     const result = evalI18N002(page, bundle);
@@ -155,9 +153,7 @@ describe("evalI18N002 - Directionality", () => {
   it("returns pass for RTL page with RTL inLanguage in structured data", () => {
     const page = makePage({
       lang: "ar",
-      structured_data: [
-        sd("WebPage", { inLanguage: "ar" }),
-      ],
+      structured_data: [sd("WebPage", { inLanguage: "ar" })],
     });
     const bundle = makeBundle();
     const result = evalI18N002(page, bundle);
@@ -222,9 +218,7 @@ describe("evalI18N003 - hreflang", () => {
   it("returns fail when only structured data has inLanguage (no alternate links)", () => {
     const page = makePage({
       links: [{ href: "https://example.com/about" }],
-      structured_data: [
-        sd("WebPage", { inLanguage: "en" }),
-      ],
+      structured_data: [sd("WebPage", { inLanguage: "en" })],
     });
     const bundle = makeBundle();
     const result = evalI18N003(page, bundle);
@@ -233,12 +227,8 @@ describe("evalI18N003 - hreflang", () => {
 
   it("returns pass when both alternate links and inLanguage SD exist", () => {
     const page = makePage({
-      links: [
-        { href: "https://example.com/ar/", rel: "alternate" },
-      ],
-      structured_data: [
-        sd("WebPage", { inLanguage: "en" }),
-      ],
+      links: [{ href: "https://example.com/ar/", rel: "alternate" }],
+      structured_data: [sd("WebPage", { inLanguage: "en" })],
     });
     const bundle = makeBundle();
     const result = evalI18N003(page, bundle);
@@ -248,9 +238,7 @@ describe("evalI18N003 - hreflang", () => {
   it("returns fail when only inLanguage SD exists without alternate links", () => {
     const page = makePage({
       links: [{ href: "https://example.com/about" }],
-      structured_data: [
-        sd("WebPage", { inLanguage: "en" }),
-      ],
+      structured_data: [sd("WebPage", { inLanguage: "en" })],
     });
     const bundle = makeBundle();
     const result = evalI18N003(page, bundle);
@@ -272,12 +260,8 @@ describe("evalI18N003 - hreflang", () => {
 
   it("returns fail when inLanguage contains invalid BCP 47 code", () => {
     const page = makePage({
-      links: [
-        { href: "https://example.com/ar/", rel: "alternate" },
-      ],
-      structured_data: [
-        sd("WebPage", { inLanguage: "frazzle" }),
-      ],
+      links: [{ href: "https://example.com/ar/", rel: "alternate" }],
+      structured_data: [sd("WebPage", { inLanguage: "frazzle" })],
     });
     const bundle = makeBundle();
     const result = evalI18N003(page, bundle);
@@ -417,7 +401,9 @@ describe("evalMOB001 - Mobile viewport and layout", () => {
   });
 
   it("returns pass when viewport contains width=device-width among other values", () => {
-    const page = makePage({ viewport_meta: "width=device-width, initial-scale=1, maximum-scale=5" });
+    const page = makePage({
+      viewport_meta: "width=device-width, initial-scale=1, maximum-scale=5",
+    });
     const bundle = makeBundle();
     const result = evalMOB001(page, bundle);
     expect(result.result).toBe("pass");
@@ -456,10 +442,7 @@ describe("evalAGT001 - Agent-operable forms and actions", () => {
 
   it("returns pass when page has form-related links", () => {
     const page = makePage({
-      links: [
-        { href: "https://example.com/about" },
-        { href: "https://example.com/contact" },
-      ],
+      links: [{ href: "https://example.com/about" }, { href: "https://example.com/contact" }],
     });
     const bundle = makeBundle();
     const result = evalAGT001(page, bundle);
@@ -468,9 +451,7 @@ describe("evalAGT001 - Agent-operable forms and actions", () => {
 
   it("returns pass when page has booking URL", () => {
     const page = makePage({
-      links: [
-        { href: "https://example.com/booking" },
-      ],
+      links: [{ href: "https://example.com/booking" }],
     });
     const bundle = makeBundle();
     const result = evalAGT001(page, bundle);
@@ -479,9 +460,7 @@ describe("evalAGT001 - Agent-operable forms and actions", () => {
 
   it("returns pass when structured data has form/action type", () => {
     const page = makePage({
-      structured_data: [
-        sd("OrderAction", { target: "https://example.com/order" }),
-      ],
+      structured_data: [sd("OrderAction", { target: "https://example.com/order" })],
     });
     const bundle = makeBundle();
     const result = evalAGT001(page, bundle);

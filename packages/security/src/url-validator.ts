@@ -25,7 +25,7 @@ export async function validateUrl(url: string): Promise<ValidationResult> {
     return { valid: false, reason: "credentials not allowed" };
   }
 
-  const port = parsed.port ? parseInt(parsed.port, 10) : (parsed.protocol === "https:" ? 443 : 80);
+  const port = parsed.port ? parseInt(parsed.port, 10) : parsed.protocol === "https:" ? 443 : 80;
   if (!ALLOWED_PORTS.includes(port)) {
     return { valid: false, reason: "port not allowed" };
   }

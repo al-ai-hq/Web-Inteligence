@@ -71,25 +71,25 @@ Process for each gap:
 
 Schemas most likely to need fixes:
 
-| Proof | Schemas at risk | Likely gaps |
-|-------|----------------|-------------|
-| 1 (score) | `score-result`, `rule-result`, `common` | Scoring formula fields, weight references |
-| 2 (reject) | `audit`, `audit-scope`, `common` | SSRF validation rules, enum strictness |
-| 3 (lineage) | `report-model`, `lineage-record`, `evidence-object` | Lineage chain fields, fidelity mapping |
-| 4 (deny) | `export-authorization`, `change-set`, `approval` | Authorization check logic, actor enums |
-| 5 (cost stop) | `cost-ledger-entry`, `provider-breaker` | Ledger summation fields, breaker state |
+| Proof         | Schemas at risk                                     | Likely gaps                               |
+| ------------- | --------------------------------------------------- | ----------------------------------------- |
+| 1 (score)     | `score-result`, `rule-result`, `common`             | Scoring formula fields, weight references |
+| 2 (reject)    | `audit`, `audit-scope`, `common`                    | SSRF validation rules, enum strictness    |
+| 3 (lineage)   | `report-model`, `lineage-record`, `evidence-object` | Lineage chain fields, fidelity mapping    |
+| 4 (deny)      | `export-authorization`, `change-set`, `approval`    | Authorization check logic, actor enums    |
+| 5 (cost stop) | `cost-ledger-entry`, `provider-breaker`             | Ledger summation fields, breaker state    |
 
 ## 5. Governance doc updates
 
 Governance docs are updated only when a proof exposes a gap, not in a separate review pass.
 
-| Doc | When it gets updated | What changes |
-|-----|---------------------|--------------|
-| `docs/state-machines.md` | If a proof fixture needs a transition that is not in the table, or a transition references a schema field that does not exist | Add or fix the transition row; align actor names with `common.schema.json` enums |
-| `docs/threat-model.md` | If Proof 4 reveals an IAM gap not in the abuse-case table | Add the abuse case, control, and test reference |
-| `docs/cost-model.md` | If Proof 5 reveals a formula or config mismatch | Fix the formula or the config, not both. Config is the source of truth |
-| `docs/iam-matrix.md` | If Proof 4 shows an actor/permission pair that is missing or wrong | Add the row; align with `common.schema.json` actor enums |
-| `docs/retention-deletion-map.md` | Only if a proof touches retention (unlikely for the 5 proofs) | Probably untouched at M0B |
+| Doc                              | When it gets updated                                                                                                          | What changes                                                                     |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `docs/state-machines.md`         | If a proof fixture needs a transition that is not in the table, or a transition references a schema field that does not exist | Add or fix the transition row; align actor names with `common.schema.json` enums |
+| `docs/threat-model.md`           | If Proof 4 reveals an IAM gap not in the abuse-case table                                                                     | Add the abuse case, control, and test reference                                  |
+| `docs/cost-model.md`             | If Proof 5 reveals a formula or config mismatch                                                                               | Fix the formula or the config, not both. Config is the source of truth           |
+| `docs/iam-matrix.md`             | If Proof 4 shows an actor/permission pair that is missing or wrong                                                            | Add the row; align with `common.schema.json` actor enums                         |
+| `docs/retention-deletion-map.md` | Only if a proof touches retention (unlikely for the 5 proofs)                                                                 | Probably untouched at M0B                                                        |
 
 Rule: A governance doc change must be traceable to a specific proof failure. Observations that do not block a proof are flagged as open items in `release.md`.
 
@@ -97,14 +97,14 @@ Config files (`config/budgets.yaml`, `config/scoring.yaml`, etc.) are treated as
 
 ## 6. Assumptions for open decisions
 
-| Placeholder | Assumption | Rationale |
-|-------------|-----------|-----------|
-| Google Cloud region | `us-central1` | Default for most GCP services, low latency to US users, well-documented. Can move later if data residency requires it. |
-| Identity provider (M4+) | Google Identity Platform (or Firebase Auth) | Already in the GCP ecosystem, integrates with Cloud IAM, minimal new vendor. |
-| Retention for change snapshots and approval records | 12 months (per 02-DETAILED-SPECIFICATION 16 ASSUMPTION) | Already documented as an assumption pending legal review. Flag for M4 legal review. |
-| Hosting overrun behavior (`hosting_overrun` in config) | `<alert_only>` | Hosting cannot be switched off like a provider call. Alerting is the only practical v1 response. |
-| Anonymous sub-budget | USD 30 of the paid-call budget reserved for anonymous audits | Prevents anonymous traffic from consuming the entire budget before registered users get service. |
-| Reduced/preview per-audit caps | reduced: USD 1.50, preview: USD 0.50 | Proportional to the tier scope. `rich` keeps the full USD 4.00 hard cap. |
+| Placeholder                                            | Assumption                                                   | Rationale                                                                                                              |
+| ------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Google Cloud region                                    | `us-central1`                                                | Default for most GCP services, low latency to US users, well-documented. Can move later if data residency requires it. |
+| Identity provider (M4+)                                | Google Identity Platform (or Firebase Auth)                  | Already in the GCP ecosystem, integrates with Cloud IAM, minimal new vendor.                                           |
+| Retention for change snapshots and approval records    | 12 months (per 02-DETAILED-SPECIFICATION 16 ASSUMPTION)      | Already documented as an assumption pending legal review. Flag for M4 legal review.                                    |
+| Hosting overrun behavior (`hosting_overrun` in config) | `<alert_only>`                                               | Hosting cannot be switched off like a provider call. Alerting is the only practical v1 response.                       |
+| Anonymous sub-budget                                   | USD 30 of the paid-call budget reserved for anonymous audits | Prevents anonymous traffic from consuming the entire budget before registered users get service.                       |
+| Reduced/preview per-audit caps                         | reduced: USD 1.50, preview: USD 0.50                         | Proportional to the tier scope. `rich` keeps the full USD 4.00 hard cap.                                               |
 
 Each assumption is recorded in two places: the config file where it applies, and `release.md` as an open item flagged for review.
 

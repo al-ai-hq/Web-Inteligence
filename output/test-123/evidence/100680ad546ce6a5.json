@@ -12,9 +12,7 @@
   "injection_suspected": false,
   "immutable": true,
   "final_url": "https://example.com",
-  "redirect_chain": [
-    "https://example.com"
-  ],
+  "redirect_chain": ["https://example.com"],
   "headings": [
     {
       "level": 1,

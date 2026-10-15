@@ -7,7 +7,7 @@ test.describe("Fact Sheet to Conflict Resolution Flow", () => {
     await page.goto("/en/projects/test-project/fact-sheets");
 
     // Create a new fact sheet
-    await page.click('text=Create Fact Sheet');
+    await page.click("text=Create Fact Sheet");
     await page.fill('[name="business_name"]', "Test Business");
     await page.fill('[name="site_url"]', "https://test-business.example.com");
     await page.fill('[name="phone"]', "+1-555-0100");
@@ -23,26 +23,26 @@ test.describe("Fact Sheet to Conflict Resolution Flow", () => {
     await expect(page.locator("h1")).toContainText("Test Business");
 
     // Navigate to entity graph
-    await page.click('text=View Entity Graph');
+    await page.click("text=View Entity Graph");
     await expect(page.locator("h1")).toContainText("Test Business");
 
     // If conflicts exist, navigate to conflict resolution
-    const conflictLink = page.locator('text=View & resolve');
+    const conflictLink = page.locator("text=View & resolve");
     if (await conflictLink.isVisible()) {
       await conflictLink.click();
 
       // Enter resolver name
-      await page.fill('#resolved_by', "E2E Tester");
+      await page.fill("#resolved_by", "E2E Tester");
 
       // Resolve first conflict if present
       const resolveButton = page.locator('button:has-text("Resolve")').first();
       if (await resolveButton.isVisible()) {
         await resolveButton.click();
-        await page.fill('textarea', "Resolved by E2E test");
+        await page.fill("textarea", "Resolved by E2E test");
         await page.click('button:has-text("Keep confirmed value")');
 
         // Verify conflict was resolved
-        await expect(page.locator('text=Resolved')).toBeVisible();
+        await expect(page.locator("text=Resolved")).toBeVisible();
       }
     }
   });
@@ -57,7 +57,7 @@ test.describe("Fact Sheet to Conflict Resolution Flow", () => {
     const factSheetCards = page.locator('a[href*="/fact-sheets/"]');
     const count = await factSheetCards.count();
     if (count > 0) {
-      const statusBadge = factSheetCards.first().locator('span').last();
+      const statusBadge = factSheetCards.first().locator("span").last();
       await expect(statusBadge).toBeVisible();
     }
   });
@@ -69,13 +69,13 @@ test.describe("Fact Sheet to Conflict Resolution Flow", () => {
     const firstSheet = page.locator('a[href*="/fact-sheets/"]').first();
     if (await firstSheet.isVisible()) {
       await firstSheet.click();
-      await page.click('text=View Entity Graph');
+      await page.click("text=View Entity Graph");
 
       // Check for NAP consistency section
-      const napSection = page.locator('text=NAP Consistency');
+      const napSection = page.locator("text=NAP Consistency");
       if (await napSection.isVisible()) {
         // Verify consistency scores are displayed as percentages
-        const scoreElements = page.locator('text=/\\d+% consistent/');
+        const scoreElements = page.locator("text=/\\d+% consistent/");
         const scoreCount = await scoreElements.count();
         expect(scoreCount).toBeGreaterThan(0);
       }

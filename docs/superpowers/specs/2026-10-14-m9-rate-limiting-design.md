@@ -10,13 +10,13 @@ Add a reusable rate-limiting package (`@wpi/rate-limiter`) that enforces per-IP 
 
 ## User Decisions
 
-| Decision | Choice | Implication |
-|----------|--------|-------------|
-| Storage backend | In-memory | Simple; acceptable for pilot; upgrade path to Redis later |
-| Anonymous limit | 5 audits per hour per IP | Blocks bulk abuse while allowing legitimate retry |
-| Signed-in quota | 50 audits per month per user | Generous pilot quota; project-scoped per D-014 |
-| Failure threshold for CAPTCHA | 3 failed audit submissions in 10 minutes per IP | Balances friction and abuse prevention |
-| CAPTCHA provider | Cloudflare Turnstile | Free tier, privacy-friendly, low friction |
+| Decision                      | Choice                                          | Implication                                               |
+| ----------------------------- | ----------------------------------------------- | --------------------------------------------------------- |
+| Storage backend               | In-memory                                       | Simple; acceptable for pilot; upgrade path to Redis later |
+| Anonymous limit               | 5 audits per hour per IP                        | Blocks bulk abuse while allowing legitimate retry         |
+| Signed-in quota               | 50 audits per month per user                    | Generous pilot quota; project-scoped per D-014            |
+| Failure threshold for CAPTCHA | 3 failed audit submissions in 10 minutes per IP | Balances friction and abuse prevention                    |
+| CAPTCHA provider              | Cloudflare Turnstile                            | Free tier, privacy-friendly, low friction                 |
 
 ## Architecture
 

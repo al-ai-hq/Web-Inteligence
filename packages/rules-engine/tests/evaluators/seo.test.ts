@@ -103,7 +103,9 @@ describe("evalSEO001 - Unique page title", () => {
 
 describe("evalSEO002 - Meta description", () => {
   it("returns pass when page has a useful meta description", () => {
-    const page = makePage({ meta_description: "A detailed description of our services and offerings" });
+    const page = makePage({
+      meta_description: "A detailed description of our services and offerings",
+    });
     const bundle = makeBundle();
     const result = evalSEO002(page, bundle);
     expect(result.result).toBe("pass");
@@ -227,10 +229,7 @@ describe("evalSEO004 - Heading hierarchy", () => {
 describe("evalSEO005 - Internal linking", () => {
   it("returns pass when page has internal links", () => {
     const page = makePage({
-      links: [
-        { href: "https://example.com/about" },
-        { href: "https://example.com/contact" },
-      ],
+      links: [{ href: "https://example.com/about" }, { href: "https://example.com/contact" }],
     });
     const bundle = makeBundle();
     const result = evalSEO005(page, bundle);
@@ -246,10 +245,7 @@ describe("evalSEO005 - Internal linking", () => {
 
   it("returns fail when page has only external links", () => {
     const page = makePage({
-      links: [
-        { href: "https://external.com/page" },
-        { href: "https://other.com/about" },
-      ],
+      links: [{ href: "https://external.com/page" }, { href: "https://other.com/about" }],
     });
     const bundle = makeBundle();
     const result = evalSEO005(page, bundle);
@@ -319,10 +315,7 @@ describe("evalSEO008 - Duplicate content indicators", () => {
   it("returns pass when page has unique content_hash", () => {
     const page = makePage({ evidence_id: "p1", content_hash: "unique1" });
     const bundle = makeBundle({
-      pages: [
-        page,
-        makePage({ evidence_id: "p2", content_hash: "unique2" }),
-      ],
+      pages: [page, makePage({ evidence_id: "p2", content_hash: "unique2" })],
     });
     const result = evalSEO008(page, bundle);
     expect(result.result).toBe("pass");
@@ -331,10 +324,7 @@ describe("evalSEO008 - Duplicate content indicators", () => {
   it("returns fail when page shares content_hash with another page", () => {
     const page = makePage({ evidence_id: "p1", content_hash: "duplicate" });
     const bundle = makeBundle({
-      pages: [
-        page,
-        makePage({ evidence_id: "p2", content_hash: "duplicate" }),
-      ],
+      pages: [page, makePage({ evidence_id: "p2", content_hash: "duplicate" })],
     });
     const result = evalSEO008(page, bundle);
     expect(result.result).toBe("fail");
@@ -446,7 +436,12 @@ describe("evalSPAM001 - Spam-policy screen", () => {
     const pages = [
       makePage({ evidence_id: "p1", word_count: 5, main_content_bytes: 2900, content_hash: "aaa" }),
       makePage({ evidence_id: "p2", word_count: 3, main_content_bytes: 2800, content_hash: "bbb" }),
-      makePage({ evidence_id: "p3", word_count: 500, main_content_bytes: 3000, content_hash: "ccc" }),
+      makePage({
+        evidence_id: "p3",
+        word_count: 500,
+        main_content_bytes: 3000,
+        content_hash: "ccc",
+      }),
     ];
     const bundle = makeBundle({ pages });
     const result = evalSPAM001(bundle);
@@ -456,10 +451,30 @@ describe("evalSPAM001 - Spam-policy screen", () => {
 
   it("returns fail with cap_trigger when doorway pattern detected (near-duplicate clusters)", () => {
     const pages = [
-      makePage({ evidence_id: "p1", content_hash: "same1", word_count: 300, main_content_bytes: 2000 }),
-      makePage({ evidence_id: "p2", content_hash: "same1", word_count: 300, main_content_bytes: 2000 }),
-      makePage({ evidence_id: "p3", content_hash: "same1", word_count: 300, main_content_bytes: 2000 }),
-      makePage({ evidence_id: "p4", content_hash: "unique", word_count: 400, main_content_bytes: 2500 }),
+      makePage({
+        evidence_id: "p1",
+        content_hash: "same1",
+        word_count: 300,
+        main_content_bytes: 2000,
+      }),
+      makePage({
+        evidence_id: "p2",
+        content_hash: "same1",
+        word_count: 300,
+        main_content_bytes: 2000,
+      }),
+      makePage({
+        evidence_id: "p3",
+        content_hash: "same1",
+        word_count: 300,
+        main_content_bytes: 2000,
+      }),
+      makePage({
+        evidence_id: "p4",
+        content_hash: "unique",
+        word_count: 400,
+        main_content_bytes: 2500,
+      }),
     ];
     const bundle = makeBundle({ pages });
     const result = evalSPAM001(bundle);
@@ -477,8 +492,18 @@ describe("evalSPAM001 - Spam-policy screen", () => {
     // A single thin page is not enough to trigger spam
     const pages = [
       makePage({ evidence_id: "p1", word_count: 5, main_content_bytes: 2900, content_hash: "aaa" }),
-      makePage({ evidence_id: "p2", word_count: 500, main_content_bytes: 3000, content_hash: "bbb" }),
-      makePage({ evidence_id: "p3", word_count: 600, main_content_bytes: 3500, content_hash: "ccc" }),
+      makePage({
+        evidence_id: "p2",
+        word_count: 500,
+        main_content_bytes: 3000,
+        content_hash: "bbb",
+      }),
+      makePage({
+        evidence_id: "p3",
+        word_count: 600,
+        main_content_bytes: 3500,
+        content_hash: "ccc",
+      }),
     ];
     const bundle = makeBundle({ pages });
     const result = evalSPAM001(bundle);

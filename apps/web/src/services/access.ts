@@ -1,9 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import {
-  hashAuditSecret,
-  type AuditRecord,
-  type AuditStore,
-} from "@wpi/audit-pipeline";
+import { hashAuditSecret, type AuditRecord, type AuditStore } from "@wpi/audit-pipeline";
 
 export type AccessOutcome =
   | { kind: "authorized"; record: AuditRecord }
@@ -30,8 +26,7 @@ export async function authorizeRecord(
   if (raw === null) {
     return { kind: "not_found" };
   }
-  const ownedByCaller =
-    userId !== undefined && userId !== null && raw.user_id === userId;
+  const ownedByCaller = userId !== undefined && userId !== null && raw.user_id === userId;
   if (!ownedByCaller && !hashesMatch(hashAuditSecret(secret ?? ""), raw.secret_hash)) {
     return { kind: "not_found" };
   }

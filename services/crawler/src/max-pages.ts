@@ -1,7 +1,4 @@
-export function resolveMaxPages(
-  configMaxPages: number,
-  envValue: string | undefined,
-): number {
+export function resolveMaxPages(configMaxPages: number, envValue: string | undefined): number {
   if (envValue === undefined || envValue === "") {
     return configMaxPages;
   }

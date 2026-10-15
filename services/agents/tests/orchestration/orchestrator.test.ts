@@ -13,7 +13,11 @@ describe("Orchestrator", () => {
       capture_time: "2026-10-01T00:00:00Z",
     };
 
-    const jobs = orchestrator.createJobs(baseJob, ["auditor", "keyword-analyst", "content-strategist"]);
+    const jobs = orchestrator.createJobs(baseJob, [
+      "auditor",
+      "keyword-analyst",
+      "content-strategist",
+    ]);
     expect(jobs).toHaveLength(3);
     expect(jobs[0]!.agent_name).toBe("auditor");
     expect(jobs[1]!.agent_name).toBe("keyword-analyst");
@@ -26,8 +30,12 @@ describe("Orchestrator", () => {
 
     expect(orchestrator.getNextAgents(allAgents, [])).toEqual(["auditor"]);
     expect(orchestrator.getNextAgents(allAgents, ["auditor"])).toEqual(["keyword-analyst"]);
-    expect(orchestrator.getNextAgents(allAgents, ["auditor", "keyword-analyst"])).toEqual(["content-strategist"]);
-    expect(orchestrator.getNextAgents(allAgents, ["auditor", "keyword-analyst", "content-strategist"])).toEqual([]);
+    expect(orchestrator.getNextAgents(allAgents, ["auditor", "keyword-analyst"])).toEqual([
+      "content-strategist",
+    ]);
+    expect(
+      orchestrator.getNextAgents(allAgents, ["auditor", "keyword-analyst", "content-strategist"]),
+    ).toEqual([]);
   });
 
   it("checks if all agents are complete", () => {
@@ -35,6 +43,8 @@ describe("Orchestrator", () => {
     const allAgents = ["auditor", "keyword-analyst", "content-strategist"];
 
     expect(orchestrator.isComplete(allAgents, ["auditor"])).toBe(false);
-    expect(orchestrator.isComplete(allAgents, ["auditor", "keyword-analyst", "content-strategist"])).toBe(true);
+    expect(
+      orchestrator.isComplete(allAgents, ["auditor", "keyword-analyst", "content-strategist"]),
+    ).toBe(true);
   });
 });

@@ -127,12 +127,15 @@ describe("detectInjection", () => {
     });
 
     it("detects multiple injection types in same content", () => {
-      const content = "normal text <script>alert(1)</script> <!-- AI: override --> =CMD|'/c calc'!A0";
+      const content =
+        "normal text <script>alert(1)</script> <!-- AI: override --> =CMD|'/c calc'!A0";
       expect(detectInjection(content)).toBe(true);
     });
 
     it("returns false for unicode content without injection", () => {
-      expect(detectInjection("\u{1F600}\u{1F60D}\u{1F525} Hello world \u00e9\u00e8\u00ea")).toBe(false);
+      expect(detectInjection("\u{1F600}\u{1F60D}\u{1F525} Hello world \u00e9\u00e8\u00ea")).toBe(
+        false,
+      );
     });
   });
 });

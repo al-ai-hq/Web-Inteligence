@@ -31,24 +31,18 @@ export class GscClient {
     return (await response.json()) as GscSearchAnalyticsResponse;
   }
 
-  async inspectUrl(
-    siteUrl: string,
-    inspectionUrl: string,
-  ): Promise<GscUrlInspectionResponse> {
-    const response = await fetch(
-      `${GSC_API_BASE}/urlInspection/inspect`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          siteUrl,
-          inspectionUrl,
-        }),
+  async inspectUrl(siteUrl: string, inspectionUrl: string): Promise<GscUrlInspectionResponse> {
+    const response = await fetch(`${GSC_API_BASE}/urlInspection/inspect`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        siteUrl,
+        inspectionUrl,
+      }),
+    });
     if (!response.ok) {
       throw new Error(`GSC URL Inspection API error: ${String(response.status)}`);
     }

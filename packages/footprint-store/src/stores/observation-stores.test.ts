@@ -1,6 +1,10 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { Pool } from "pg";
-import { PublicSourceObservationStore, ProfileObservationStore, NapObservationStore } from "./observation-stores.js";
+import {
+  PublicSourceObservationStore,
+  ProfileObservationStore,
+  NapObservationStore,
+} from "./observation-stores.js";
 
 const DATABASE_URL = process.env["WPI_TEST_DATABASE_URL"];
 
@@ -39,13 +43,16 @@ describe.skipIf(!DATABASE_URL)("PublicSourceObservationStore", () => {
 
   it("creates and lists public source observations", async () => {
     const factSheetId = "550e8400-e29b-41d4-a716-446655440001";
-    await store.create({
-      fact_sheet_id: factSheetId,
-      source_platform: "google",
-      source_url: "https://google.com/maps/place/example",
-      discovered_at: "2026-10-11T10:00:00Z",
-      profile_data: { name: "Example Business", phone: "+1-555-0100" },
-    }, baseLineage);
+    await store.create(
+      {
+        fact_sheet_id: factSheetId,
+        source_platform: "google",
+        source_url: "https://google.com/maps/place/example",
+        discovered_at: "2026-10-11T10:00:00Z",
+        profile_data: { name: "Example Business", phone: "+1-555-0100" },
+      },
+      baseLineage,
+    );
 
     const list = await store.listByFactSheet(factSheetId);
     expect(list.length).toBe(1);
@@ -88,17 +95,20 @@ describe.skipIf(!DATABASE_URL)("ProfileObservationStore", () => {
 
   it("creates and lists profile observations", async () => {
     const factSheetId = "550e8400-e29b-41d4-a716-446655440001";
-    await store.create({
-      fact_sheet_id: factSheetId,
-      source_url: "https://google.com/maps/place/example",
-      extracted_name: "Example Business",
-      extracted_phone: "+1-555-0100",
-      extracted_email: null,
-      extracted_address: { street: "123 Main St", city: "Anytown" },
-      extracted_hours: { monday: "9:00-17:00" },
-      extracted_social: { facebook: "https://fb.com/example" },
-      extraction_confidence: 0.85,
-    }, baseLineage);
+    await store.create(
+      {
+        fact_sheet_id: factSheetId,
+        source_url: "https://google.com/maps/place/example",
+        extracted_name: "Example Business",
+        extracted_phone: "+1-555-0100",
+        extracted_email: null,
+        extracted_address: { street: "123 Main St", city: "Anytown" },
+        extracted_hours: { monday: "9:00-17:00" },
+        extracted_social: { facebook: "https://fb.com/example" },
+        extraction_confidence: 0.85,
+      },
+      baseLineage,
+    );
 
     const list = await store.listByFactSheet(factSheetId);
     expect(list.length).toBe(1);
@@ -142,15 +152,18 @@ describe.skipIf(!DATABASE_URL)("NapObservationStore", () => {
 
   it("creates and lists NAP observations", async () => {
     const factSheetId = "550e8400-e29b-41d4-a716-446655440001";
-    await store.create({
-      fact_sheet_id: factSheetId,
-      source_url: "https://yelp.com/biz/example",
-      name_value: "Example Business",
-      phone_value: "+1-555-0100",
-      address_value: { street: "123 Main St", city: "Anytown" },
-      consistency_score: 0.92,
-      inconsistencies: [{ field: "phone", expected: "+1-555-0200", actual: "+1-555-0100" }],
-    }, baseLineage);
+    await store.create(
+      {
+        fact_sheet_id: factSheetId,
+        source_url: "https://yelp.com/biz/example",
+        name_value: "Example Business",
+        phone_value: "+1-555-0100",
+        address_value: { street: "123 Main St", city: "Anytown" },
+        consistency_score: 0.92,
+        inconsistencies: [{ field: "phone", expected: "+1-555-0200", actual: "+1-555-0100" }],
+      },
+      baseLineage,
+    );
 
     const list = await store.listByFactSheet(factSheetId);
     expect(list.length).toBe(1);

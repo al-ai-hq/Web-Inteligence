@@ -1,8 +1,8 @@
-import type { Page } from 'playwright';
+import type { Page } from "playwright";
 
 export interface ScreenshotImage {
   buffer: Buffer;
-  mime_type: 'image/png';
+  mime_type: "image/png";
   width: number;
   height: number;
 }
@@ -25,11 +25,11 @@ export async function captureScreenshots(page: Page): Promise<ScreenshotResult> 
 
 async function captureViewport(page: Page): Promise<ScreenshotImage | null> {
   try {
-    const buffer = await page.screenshot({ type: 'png' });
+    const buffer = await page.screenshot({ type: "png" });
     const viewport = page.viewportSize();
     return {
       buffer,
-      mime_type: 'image/png',
+      mime_type: "image/png",
       width: viewport?.width ?? 1280,
       height: viewport?.height ?? 720,
     };
@@ -40,11 +40,13 @@ async function captureViewport(page: Page): Promise<ScreenshotImage | null> {
 
 async function captureFullPage(page: Page): Promise<ScreenshotImage | null> {
   try {
-    const buffer = await page.screenshot({ type: 'png', fullPage: true });
-    const dimensions = await page.evaluate('({ width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight })') as { width: number; height: number };
+    const buffer = await page.screenshot({ type: "png", fullPage: true });
+    const dimensions = (await page.evaluate(
+      "({ width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight })",
+    )) as { width: number; height: number };
     return {
       buffer,
-      mime_type: 'image/png',
+      mime_type: "image/png",
       width: dimensions.width,
       height: dimensions.height,
     };
@@ -58,12 +60,12 @@ async function captureAboveFold(page: Page): Promise<ScreenshotImage | null> {
     const viewport = page.viewportSize();
     const width = viewport?.width ?? 1280;
     const buffer = await page.screenshot({
-      type: 'png',
+      type: "png",
       clip: { x: 0, y: 0, width, height: ABOVE_FOLD_HEIGHT },
     });
     return {
       buffer,
-      mime_type: 'image/png',
+      mime_type: "image/png",
       width,
       height: ABOVE_FOLD_HEIGHT,
     };

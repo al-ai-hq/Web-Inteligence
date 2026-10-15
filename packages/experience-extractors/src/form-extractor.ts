@@ -35,7 +35,13 @@ export function extractFormAnalysis(evidence: EvidencePackage): FormAnalysis {
       if (!hasLabel) {
         const $parentLabel = $field.closest("label");
         if ($parentLabel.length > 0) {
-          const labelText = $parentLabel.clone().children("input, textarea, select").remove().end().text().trim();
+          const labelText = $parentLabel
+            .clone()
+            .children("input, textarea, select")
+            .remove()
+            .end()
+            .text()
+            .trim();
           if (labelText) {
             label = labelText;
             hasLabel = true;
@@ -62,11 +68,11 @@ export function extractFormAnalysis(evidence: EvidencePackage): FormAnalysis {
   const totalFields = forms.reduce((sum, form) => sum + form.fieldCount, 0);
   const fieldsWithLabels = forms.reduce(
     (sum, form) => sum + form.fields.filter((f: FormField) => f.hasLabel).length,
-    0
+    0,
   );
   const fieldsRequired = forms.reduce(
     (sum, form) => sum + form.fields.filter((f: FormField) => f.required).length,
-    0
+    0,
   );
   const formsWithPrivacyText = forms.filter((f) => f.hasPrivacyTextNearby).length;
 

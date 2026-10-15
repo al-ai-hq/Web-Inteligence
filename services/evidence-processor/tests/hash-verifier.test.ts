@@ -11,7 +11,10 @@ describe("verifyHash", () => {
   });
 
   it("returns match: false for incorrect hash", () => {
-    const result = verifyHash("hello world", "0000000000000000000000000000000000000000000000000000000000000000");
+    const result = verifyHash(
+      "hello world",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+    );
     expect(result.match).toBe(false);
   });
 
@@ -34,7 +37,9 @@ describe("verifyHash", () => {
     const emptyHash = createHash("sha256").update("").digest("hex");
     const result = verifyHash("", emptyHash);
     expect(result.match).toBe(true);
-    expect(result.computedHash).toBe("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+    expect(result.computedHash).toBe(
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    );
   });
 
   it("handles unicode content", () => {

@@ -163,9 +163,9 @@ function extractUserIdFromIdToken(idToken: string | undefined): string | null {
   try {
     const payload = idToken.split(".")[1];
     if (!payload) return null;
-    const decoded = JSON.parse(
-      Buffer.from(payload, "base64url").toString("utf-8"),
-    ) as { email?: string };
+    const decoded = JSON.parse(Buffer.from(payload, "base64url").toString("utf-8")) as {
+      email?: string;
+    };
     return decoded.email ?? null;
   } catch {
     return null;

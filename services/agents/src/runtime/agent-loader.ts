@@ -18,9 +18,7 @@ export class AgentLoader {
 
   async loadAll(dir: string): Promise<void> {
     const files = await readdir(dir);
-    const yamlFiles = files.filter(
-      (f) => f.endsWith(".yaml") || f.endsWith(".yml"),
-    );
+    const yamlFiles = files.filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"));
 
     for (const file of yamlFiles) {
       const content = await readFile(join(dir, file), "utf-8");

@@ -33,10 +33,7 @@ export function extractPolicyLinks(evidence: EvidencePackage): PolicyLinks {
   };
 }
 
-function classifyPolicyLink(
-  href: string,
-  text: string
-): PolicyLink["type"] | null {
+function classifyPolicyLink(href: string, text: string): PolicyLink["type"] | null {
   const lowerHref = href.toLowerCase();
   const lowerText = text.toLowerCase();
 
@@ -67,11 +64,7 @@ function classifyPolicyLink(
   return null;
 }
 
-function matchesPolicy(
-  href: string,
-  text: string,
-  keywords: string[]
-): boolean {
+function matchesPolicy(href: string, text: string, keywords: string[]): boolean {
   return (
     keywords.some((keyword) => href.includes(keyword)) ||
     keywords.some((keyword) => text.includes(keyword))

@@ -9,7 +9,8 @@ const inputSchema = z.object({
 export function createPsiQueryTool(fetchFn: typeof fetch, apiKey: string): Tool {
   return {
     name: "psi_query",
-    description: "Queries Google PageSpeed Insights API for Lighthouse scores and performance metrics.",
+    description:
+      "Queries Google PageSpeed Insights API for Lighthouse scores and performance metrics.",
     inputSchema: {
       type: "object",
       properties: {
@@ -25,11 +26,16 @@ export function createPsiQueryTool(fetchFn: typeof fetch, apiKey: string): Tool 
       try {
         const response = await fetchFn(endpoint);
         if (!response.ok) {
-          return { data: null, source_tier: "third_party_verified", limitations: [`PSI API returned ${String(response.status)}`] };
+          return {
+            data: null,
+            source_tier: "third_party_verified",
+            limitations: [`PSI API returned ${String(response.status)}`],
+          };
         }
         const json = (await response.json()) as Record<string, unknown>;
         const lr = json["lighthouseResult"] as Record<string, unknown> | undefined;
-        const categories = lr?.["categories"] as Record<string, Record<string, unknown>> | undefined;
+        const categories = lr?.["categories"] as
+          Record<string, Record<string, unknown>> | undefined;
 
         return {
           data: {

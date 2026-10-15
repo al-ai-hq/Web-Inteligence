@@ -12,6 +12,7 @@ Build the deterministic core of the product: a versioned rules engine that evalu
 **Exit gate (from project plan):** independent score reproduction and golden fixtures pass; invalid data cannot produce valid-looking results.
 
 **Decisions locked with user:**
+
 - Evidence-first evaluators: each rule has a TypeScript evaluator grouped by the evidence it consumes.
 - New package `@wpi/rules-engine/` for everything, including the integrity module.
 - No condition-expression DSL, no plugin system.
@@ -76,18 +77,18 @@ Mirrors `schemas/rule-definition.schema.json` field names:
 ```ts
 // Field names mirror config/rules/*.yaml and schemas/rule-definition.schema.json.
 interface LoadedRule {
-  id: string;                       // "CRW-001"
-  category: RuleCategory;           // "crawlability" | "on_page" | "structured_data" | "aeo" | "geo" | "i18n_accessibility" | "performance_security"
+  id: string; // "CRW-001"
+  category: RuleCategory; // "crawlability" | "on_page" | "structured_data" | "aeo" | "geo" | "i18n_accessibility" | "performance_security"
   title: string;
-  importance_weight: number;        // 1-5 for scored rules; 0 for unscored
-  scored: boolean;                  // false for GSC-003, GEO-010, AGT-002, SPAM-001
+  importance_weight: number; // 1-5 for scored rules; 0 for unscored
+  scored: boolean; // false for GSC-003, GEO-010, AGT-002, SPAM-001
   evaluation: "deterministic" | "assessed" | "attested";
-  connected_tier_only: boolean;     // true for GSC-001..003 only
-  requires_data?: "keyword_data" | "business_profile_or_merchant_center";  // SEO-011, SEO-012, GEO-011
-  critical_cap?: string;            // cap id, e.g. "homepage_unretrievable"; max_score resolved from ScoringConfig.critical_caps
-  applicability: string;            // free text from YAML; machine conditions live in evaluators
+  connected_tier_only: boolean; // true for GSC-001..003 only
+  requires_data?: "keyword_data" | "business_profile_or_merchant_center"; // SEO-011, SEO-012, GEO-011
+  critical_cap?: string; // cap id, e.g. "homepage_unretrievable"; max_score resolved from ScoringConfig.critical_caps
+  applicability: string; // free text from YAML; machine conditions live in evaluators
   standards: { pass: string; partial?: string; fail: string };
-  fidelity_label: string;           // "computed" | "assessed" | "observed" | "attested"
+  fidelity_label: string; // "computed" | "assessed" | "observed" | "attested"
 }
 ```
 
@@ -97,8 +98,8 @@ The loader preserves extra YAML fields (`change`, `source_reference`) via zod pa
 
 ```ts
 interface ScoringConfig {
-  methodology_version: string;                      // "0.1.0-draft"
-  category_weights: Record<RuleCategory, number>;   // 20/15/10/20/15/10/10
+  methodology_version: string; // "0.1.0-draft"
+  category_weights: Record<RuleCategory, number>; // 20/15/10/20/15/10/10
   result_values: { pass: 1; partial: 0.5; fail: 0 };
   critical_caps: Array<{ cap_id: string; max_score: number; trigger_rule: string }>;
   confidence: { high_min_coverage: 0.9; medium_min_coverage: 0.7 };
@@ -116,19 +117,19 @@ interface EvidenceBundle {
   locale: "en" | "ar";
   site: {
     root_url: string;
-    homepage: PageEvidence | null;        // null → CRW-001 fail path
-    robots: RobotsEvidence;               // fetched robots.txt content + parsed directives
-    sitemap: SitemapEvidence;             // sitemap availability + URL count
+    homepage: PageEvidence | null; // null → CRW-001 fail path
+    robots: RobotsEvidence; // fetched robots.txt content + parsed directives
+    sitemap: SitemapEvidence; // sitemap availability + URL count
     llms_txt: { present: boolean; references: string[] } | null;
     security: { https_valid: boolean; cert_error?: string; hsts: boolean };
   };
-  pages: PageEvidence[];                  // every crawled page (1..20)
+  pages: PageEvidence[]; // every crawled page (1..20)
   connectors: {
-    psi?: PsiEvidence;                    // lab performance metrics
-    crux?: CruxEvidence;                  // field Core Web Vitals
-    gsc?: GscEvidence;                    // indexing counts (OAuth)
+    psi?: PsiEvidence; // lab performance metrics
+    crux?: CruxEvidence; // field Core Web Vitals
+    gsc?: GscEvidence; // indexing counts (OAuth)
   };
-  keyword_data?: never;                   // M2: keyword rules → not_applicable
+  keyword_data?: never; // M2: keyword rules → not_applicable
 }
 
 interface PageEvidence {
@@ -148,9 +149,9 @@ interface PageEvidence {
   headings: { level: number; text: string }[];
   word_count: number;
   main_content_bytes: number;
-  structured_data: JsonLdBlock[];         // extracted JSON-LD
+  structured_data: JsonLdBlock[]; // extracted JSON-LD
   links: { href: string; rel?: string }[];
-  robots_directive: "index" | "noindex" | "none";   // meta/X-Robots-Tag
+  robots_directive: "index" | "noindex" | "none"; // meta/X-Robots-Tag
 }
 ```
 
@@ -179,6 +180,7 @@ flowchart TD
 ```
 
 Catalog filtering per audit:
+
 - **Tier filtering:** preview tier excludes connected-tier rules (GSC-001..003) entirely — they are not expected, so they do not count against coverage.
 - **`connected_tier_only` with no token (rich/reduced tier):** rule still evaluates — emits `unavailable` with reason `gsc_not_connected` — and **stays in the coverage denominator** (it was expected; absence must lower coverage, not raise the score). See §6.3.
 - **`requires_data` with no data source in M2** (SEO-011, SEO-012 `keyword_data`; GEO-011 `business_profile_or_merchant_center`): the product has no keyword-upload or business-profile feature yet, so these rules are `not_applicable` and excluded from the denominator. When those features ship, the same rules become connector-absence cases (denominator).
@@ -190,12 +192,12 @@ One exported function per rule, named `eval<ID>` (e.g. `evalCRW001`), signature:
 ```ts
 type RuleEvaluation = {
   result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error";
-  evidence_ids: string[];        // >=1 when pass/partial/fail
-  rationale?: string;            // assessed only
-  cap_trigger?: boolean;         // SPAM-001 etc.
+  evidence_ids: string[]; // >=1 when pass/partial/fail
+  rationale?: string; // assessed only
+  cap_trigger?: boolean; // SPAM-001 etc.
 };
-type Evaluator = (bundle: EvidenceBundle) => RuleEvaluation;                 // site-scope rules
-type PageEvaluator = (page: PageEvidence, bundle: EvidenceBundle) => RuleEvaluation;  // per-page rules
+type Evaluator = (bundle: EvidenceBundle) => RuleEvaluation; // site-scope rules
+type PageEvaluator = (page: PageEvidence, bundle: EvidenceBundle) => RuleEvaluation; // per-page rules
 ```
 
 Scope per rule follows the rule's standard text: rules about site-wide artifacts (robots.txt, sitemap, llms.txt, HTTPS, homepage retrieval, sitewide noindex) are site-scope `Evaluator`s; rules whose standard describes individual pages (titles, meta descriptions, headings, structured data on pages, viewport, lang) are per-page `PageEvaluator`s. The implementation plan enumerates the scope of all 77 rules explicitly.
@@ -212,6 +214,7 @@ flowchart TD
 ```
 
 **Handled specially:**
+
 - Assessed rules (AEO-001, AEO-006, AEO-009, GEO-005, GEO-007): engine emits `unavailable` with reason `assessed_pending_agent`. When the auditor agent runs with a real Gemini key, the agent stage converts these to assessed RuleResults via the eval-rule tool (M3 wiring, exercised in M2 integration tests with stub agent).
 - GSC-001..003 (connected tier only): no token → `unavailable`, reason `gsc_not_connected`, counted in coverage denominator; token → GSC-001 evaluates, GSC-002 emits `unavailable`/reason `attested_pending` (attestation checklist is a later milestone; the rule's fidelity fallback is attested), GSC-003 (fidelity observed) is unscored/report-only.
 - SEO-011/SEO-012 (`keyword_data`) and GEO-011 (`business_profile_or_merchant_center`): `not_applicable` in M2 — no such data source exists as a product feature yet (see §4).
@@ -284,11 +287,11 @@ flowchart TD
 
 ### 8.1 Severity mapping (deterministic)
 
-| Rule result | weight ≥ 4 or critical_cap present | weight 3 | weight ≤ 2 |
-|---|---|---|---|
-| fail | critical | high | medium |
-| partial | high | medium | low |
-| pass | — | — | — (no finding) |
+| Rule result | weight ≥ 4 or critical_cap present | weight 3 | weight ≤ 2     |
+| ----------- | ---------------------------------- | -------- | -------------- |
+| fail        | critical                           | high     | medium         |
+| partial     | high                               | medium   | low            |
+| pass        | —                                  | —        | — (no finding) |
 
 Unscored rules: SPAM-001 (critical_cap present) produces a critical finding on `fail`; GSC-003, GEO-010, AGT-002 are report-only — their results render in the report but never produce findings and never enter denominators (scoring.yaml `separation.unscored_rules`).
 
@@ -355,13 +358,13 @@ flowchart TD
 
 ## 12. Error handling
 
-| Condition | Behavior |
-|---|---|
-| Config YAML invalid | `ConfigError` before crawl; audit `FAILED` with `failure.config_invalid` |
-| Evidence hash mismatch | `IntegrityError`; audit `FAILED` with `failure.integrity_error`; no score emitted |
-| Evaluator throws | that rule → `error` result (leaves denominator); engine continues; logged |
-| Missing evidence group (e.g. no PSI) | rules in that group → `unavailable` with reason key |
-| Empty denominator (all rules unavailable) | ScoreResult `value: null`, report shows "not measurable this run" |
+| Condition                                 | Behavior                                                                          |
+| ----------------------------------------- | --------------------------------------------------------------------------------- |
+| Config YAML invalid                       | `ConfigError` before crawl; audit `FAILED` with `failure.config_invalid`          |
+| Evidence hash mismatch                    | `IntegrityError`; audit `FAILED` with `failure.integrity_error`; no score emitted |
+| Evaluator throws                          | that rule → `error` result (leaves denominator); engine continues; logged         |
+| Missing evidence group (e.g. no PSI)      | rules in that group → `unavailable` with reason key                               |
+| Empty denominator (all rules unavailable) | ScoreResult `value: null`, report shows "not measurable this run"                 |
 
 Engine never throws mid-run except integrity/config failures — a buggy evaluator degrades to `error`, never fabricates a pass.
 

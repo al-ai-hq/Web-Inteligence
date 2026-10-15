@@ -57,9 +57,7 @@ describe("computeNapConsistency", () => {
     };
 
     const result = computeNapConsistency(baseFactSheet, observation);
-    expect(result.inconsistencies).toContainEqual(
-      expect.objectContaining({ field: "name" }),
-    );
+    expect(result.inconsistencies).toContainEqual(expect.objectContaining({ field: "name" }));
   });
 
   it("detects address field mismatch", () => {

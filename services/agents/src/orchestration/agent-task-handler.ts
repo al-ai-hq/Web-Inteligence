@@ -1,4 +1,9 @@
-import { agentJobSchema, agentResultSchema, type AgentJob, type AgentResult } from "../runtime/types.js";
+import {
+  agentJobSchema,
+  agentResultSchema,
+  type AgentJob,
+  type AgentResult,
+} from "../runtime/types.js";
 
 interface TaskHandlerDeps {
   executeAgent: (job: AgentJob) => Promise<AgentResult>;

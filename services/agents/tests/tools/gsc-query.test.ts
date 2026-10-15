@@ -15,7 +15,11 @@ describe("gsc_query", () => {
     });
 
     const tool = createGscQueryTool(mockFetch, "test-token");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute(
       { site_url: "https://example.com", start_date: "2026-09-01", end_date: "2026-09-30" },
@@ -29,7 +33,11 @@ describe("gsc_query", () => {
     const mockFetch = vi.fn().mockResolvedValueOnce({ ok: false, status: 403 });
 
     const tool = createGscQueryTool(mockFetch, "test-token");
-    const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+    const ctx: ToolContext = {
+      audit_id: "a-1",
+      project_id: "p-1",
+      evidence_bucket: "b",
+    } as ToolContext;
 
     const result = await tool.execute(
       { site_url: "https://example.com", start_date: "2026-09-01", end_date: "2026-09-30" },

@@ -27,11 +27,7 @@ export function ReminderBanner({ days }: { days: number }) {
   return (
     <div className="flex items-center justify-between rounded border border-blue-200 bg-blue-50 p-4 text-sm">
       <p>{t("reminder", { days })}</p>
-      <button
-        type="button"
-        onClick={handleDismiss}
-        className="ms-4 text-neutral-500 underline"
-      >
+      <button type="button" onClick={handleDismiss} className="ms-4 text-neutral-500 underline">
         {t("dismiss")}
       </button>
     </div>

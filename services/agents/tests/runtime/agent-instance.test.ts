@@ -63,7 +63,11 @@ describe("executeAgent", () => {
         tools,
         systemPrompt: "You are an auditor.",
         userPrompt: "Analyze this evidence.",
-        toolContext: { audit_id: "audit-1", project_id: "proj-1", evidence_bucket: "bucket" } as AgentToolContext,
+        toolContext: {
+          audit_id: "audit-1",
+          project_id: "proj-1",
+          evidence_bucket: "bucket",
+        } as AgentToolContext,
       }),
     ).rejects.toThrowError("Tool 'forbidden_tool' is not in the allowlist for agent 'auditor'");
   });
@@ -108,7 +112,11 @@ describe("executeAgent", () => {
       tools: [tool],
       systemPrompt: "You are an auditor.",
       userPrompt: "Analyze this evidence.",
-      toolContext: { audit_id: "audit-1", project_id: "proj-1", evidence_bucket: "bucket" } as AgentToolContext,
+      toolContext: {
+        audit_id: "audit-1",
+        project_id: "proj-1",
+        evidence_bucket: "bucket",
+      } as AgentToolContext,
     });
 
     expect(result.job_id).toBe("job-1");
@@ -156,7 +164,11 @@ describe("executeAgent", () => {
       tools: [],
       systemPrompt: "You are an auditor.",
       userPrompt: "Analyze.",
-      toolContext: { audit_id: "audit-1", project_id: "proj-1", evidence_bucket: "bucket" } as AgentToolContext,
+      toolContext: {
+        audit_id: "audit-1",
+        project_id: "proj-1",
+        evidence_bucket: "bucket",
+      } as AgentToolContext,
     });
 
     expect(result.findings).toHaveLength(1);
@@ -188,7 +200,11 @@ describe("executeAgent", () => {
       tools: [makeTool("get_evidence")],
       systemPrompt: "You are an auditor.",
       userPrompt: "Analyze this evidence.",
-      toolContext: { audit_id: "audit-1", project_id: "proj-1", evidence_bucket: "bucket" } as AgentToolContext,
+      toolContext: {
+        audit_id: "audit-1",
+        project_id: "proj-1",
+        evidence_bucket: "bucket",
+      } as AgentToolContext,
       model: "gemini-2.0-flash",
       maxIterations: 1,
     });

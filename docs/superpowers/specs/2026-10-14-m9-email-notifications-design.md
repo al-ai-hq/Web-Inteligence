@@ -10,12 +10,12 @@ Add a small, testable email abstraction (`@wpi/email`) with a Resend adapter and
 
 ## User Decisions
 
-| Decision | Choice | Implication |
-|----------|--------|-------------|
-| Provider | Resend | Free tier covers pilot; simple API; domain verification required for production sender |
-| Template format | Plain text + minimal HTML | Easier to maintain; HTML avoids spam-folder bias; bilingual copy |
-| Async strategy | Fire-and-forget Promise | No external queue for pilot; Resend call runs after response is sent |
-| Weekly digest | Deferred to M10 | Out of scope for M9; keeps spec focused |
+| Decision        | Choice                    | Implication                                                                            |
+| --------------- | ------------------------- | -------------------------------------------------------------------------------------- |
+| Provider        | Resend                    | Free tier covers pilot; simple API; domain verification required for production sender |
+| Template format | Plain text + minimal HTML | Easier to maintain; HTML avoids spam-folder bias; bilingual copy                       |
+| Async strategy  | Fire-and-forget Promise   | No external queue for pilot; Resend call runs after response is sent                   |
+| Weekly digest   | Deferred to M10           | Out of scope for M9; keeps spec focused                                                |
 
 ## Architecture
 
@@ -147,14 +147,16 @@ In `apps/web/src/services/container.ts`, extend the audit completion callback:
 onComplete: async (record: AuditRecord, user: User | null) => {
   if (user) {
     const reportUrl = buildReportUrl(record);
-    await emailService.send(auditCompletionTemplate({
-      locale: record.locale,
-      siteUrl: record.url,
-      score: record.score,
-      reportUrl,
-    }));
+    await emailService.send(
+      auditCompletionTemplate({
+        locale: record.locale,
+        siteUrl: record.url,
+        score: record.score,
+        reportUrl,
+      }),
+    );
   }
-}
+};
 ```
 
 Fire the email send inside an un awaited `Promise` so the API response is not delayed. Log failures; do not fail the audit if email fails.

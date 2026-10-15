@@ -63,7 +63,18 @@ export class PanelRunner {
           const startedAt = new Date();
 
           if (!adapter.isAvailable()) {
-            runs.push(this.makeRun(runId, panelRunId, prompt, adapter.name, intake, startedAt, "skipped_breaker", null));
+            runs.push(
+              this.makeRun(
+                runId,
+                panelRunId,
+                prompt,
+                adapter.name,
+                intake,
+                startedAt,
+                "skipped_breaker",
+                null,
+              ),
+            );
             panelRun.skipped_runs++;
             continue;
           }
@@ -71,11 +82,16 @@ export class PanelRunner {
           try {
             const response = await adapter.complete({
               model: adapter.name === "gemini" ? "gemini-2.0-flash" : "default",
-              systemPrompt: "You are a helpful assistant answering questions about businesses and services.",
+              systemPrompt:
+                "You are a helpful assistant answering questions about businesses and services.",
               userPrompt: prompt.final_prompt,
             });
 
-            const analysis = analyzeResponse(response.content, intake, prompt.category ?? prompt.panel);
+            const analysis = analyzeResponse(
+              response.content,
+              intake,
+              prompt.category ?? prompt.panel,
+            );
 
             ledger.postCallRecord({
               audit_id: "pending",
@@ -87,7 +103,16 @@ export class PanelRunner {
               workflow: "prompt_panel",
             });
 
-            const run = this.makeRun(runId, panelRunId, prompt, adapter.name, intake, startedAt, "valid", null);
+            const run = this.makeRun(
+              runId,
+              panelRunId,
+              prompt,
+              adapter.name,
+              intake,
+              startedAt,
+              "valid",
+              null,
+            );
             run.brand_mentioned = analysis.brand_mentioned;
             run.mention_spans = analysis.mention_spans;
             run.competitors_mentioned = analysis.competitors_mentioned;
@@ -102,7 +127,18 @@ export class PanelRunner {
             allIssues.push(...analysis.accuracy_issues);
             panelRun.valid_runs++;
           } catch {
-            runs.push(this.makeRun(runId, panelRunId, prompt, adapter.name, intake, startedAt, "error", "provider_error"));
+            runs.push(
+              this.makeRun(
+                runId,
+                panelRunId,
+                prompt,
+                adapter.name,
+                intake,
+                startedAt,
+                "error",
+                "provider_error",
+              ),
+            );
             panelRun.failed_runs++;
           }
         }
@@ -114,7 +150,13 @@ export class PanelRunner {
 
     const metrics = computeMetrics(runs, adapters.length);
 
-    return { panel_run: panelRun, runs, citations: allCitations, accuracy_issues: allIssues, metrics };
+    return {
+      panel_run: panelRun,
+      runs,
+      citations: allCitations,
+      accuracy_issues: allIssues,
+      metrics,
+    };
   }
 
   private makeRun(

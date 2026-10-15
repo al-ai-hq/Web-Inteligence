@@ -8,7 +8,9 @@ const MODEL_MAP: Record<string, string> = {
 export function resolveModel(tier: string): string {
   const model = MODEL_MAP[tier];
   if (!model) {
-    throw new Error(`Unknown model tier: ${tier}. Known tiers: ${Object.keys(MODEL_MAP).join(", ")}`);
+    throw new Error(
+      `Unknown model tier: ${tier}. Known tiers: ${Object.keys(MODEL_MAP).join(", ")}`,
+    );
   }
   return model;
 }

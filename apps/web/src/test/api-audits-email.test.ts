@@ -57,7 +57,11 @@ function makePipelineDeps(services: AuditServices): PipelineDeps {
             result_state: "verified",
             confidence: "high",
             evidence_ids: ["ev-1"],
-            data: { title: "Missing meta description", recommendation: "Add one", severity: "high" },
+            data: {
+              title: "Missing meta description",
+              recommendation: "Add one",
+              severity: "high",
+            },
             limitations: [],
           },
         ],

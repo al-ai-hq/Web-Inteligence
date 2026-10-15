@@ -119,7 +119,10 @@ describe("evalAEO002 - Audience clarity", () => {
     const page = makePage({
       title: "Welcome",
       meta_description: "A generic page with no audience mention.",
-      headings: [{ level: 1, text: "Welcome" }, { level: 2, text: "About Us" }],
+      headings: [
+        { level: 1, text: "Welcome" },
+        { level: 2, text: "About Us" },
+      ],
     });
     const bundle = makeBundle();
     const result = evalAEO002(page, bundle);
@@ -144,9 +147,7 @@ describe("evalAEO003 - Geographic availability", () => {
 
   it("returns pass when structured data has areaServed", () => {
     const page = makePage({
-      structured_data: [
-        sd("Service", { name: "Consulting", areaServed: "United States" }),
-      ],
+      structured_data: [sd("Service", { name: "Consulting", areaServed: "United States" })],
     });
     const bundle = makeBundle();
     const result = evalAEO003(page, bundle);
@@ -194,9 +195,7 @@ describe("evalAEO004 - Pricing or pricing explanation", () => {
 
   it("returns pass when structured data has price information", () => {
     const page = makePage({
-      structured_data: [
-        sd("Product", { name: "Widget", price: "29.99", priceCurrency: "USD" }),
-      ],
+      structured_data: [sd("Product", { name: "Widget", price: "29.99", priceCurrency: "USD" })],
     });
     const bundle = makeBundle();
     const result = evalAEO004(page, bundle);
@@ -309,9 +308,7 @@ describe("evalAEO007 - FAQ quality", () => {
     const page = makePage({
       structured_data: [
         sd("FAQPage", {
-          mainEntity: [
-            { question: "How?", answer: "Easy." },
-          ],
+          mainEntity: [{ question: "How?", answer: "Easy." }],
         }),
       ],
     });

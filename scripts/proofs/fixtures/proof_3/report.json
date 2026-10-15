@@ -20,7 +20,7 @@
     "prompt_run_ids": [],
     "data_gaps": [],
     "limitations_keys": [],
-    "sample_disclosure": {"pages_checked": 5, "sampled": false}
+    "sample_disclosure": { "pages_checked": 5, "sampled": false }
   },
   "lineage_coverage": {
     "numbers_total": 2,

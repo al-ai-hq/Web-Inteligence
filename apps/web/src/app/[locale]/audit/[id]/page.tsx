@@ -39,9 +39,7 @@ export default async function AuditPage({
   const services = await getAuditServices();
   const cookieStore = await cookies();
   const cookieValue = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-  const user = cookieValue
-    ? await services.auth.getSessionUser(hashToken(cookieValue))
-    : null;
+  const user = cookieValue ? await services.auth.getSessionUser(hashToken(cookieValue)) : null;
   const outcome = await authorizeRecord(services.store, id, s, user?.id ?? null);
 
   if (outcome.kind === "not_found" || outcome.kind === "deleted") {
@@ -89,11 +87,7 @@ export default async function AuditPage({
 
   return (
     <>
-      <ReportView
-        record={{ ...safeRecord, report }}
-        locale={locale}
-        secret={s ?? ""}
-      />
+      <ReportView record={{ ...safeRecord, report }} locale={locale} secret={s ?? ""} />
       {user === null ? (
         <p className="mt-6 text-center">
           <Link href="/signup" className="underline">

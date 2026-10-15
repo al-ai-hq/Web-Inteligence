@@ -14,13 +14,7 @@
  * - evidence_state: deterministic→verified, assessed→inferred, attested→client_stated.
  */
 
-import type {
-  RuleResult,
-  LoadedRule,
-  Finding,
-  Severity,
-  EvidenceState,
-} from "./types.js";
+import type { RuleResult, LoadedRule, Finding, Severity, EvidenceState } from "./types.js";
 
 /** Results that produce findings. */
 const FINDING_RESULTS = new Set(["fail", "partial"]);

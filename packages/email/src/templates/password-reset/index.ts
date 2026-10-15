@@ -5,9 +5,7 @@ import { passwordResetEn } from "./en.js";
 
 export type { PasswordResetContext };
 
-export function passwordResetTemplate(
-  context: PasswordResetContext & { locale: EmailLocale },
-) {
+export function passwordResetTemplate(context: PasswordResetContext & { locale: EmailLocale }) {
   const { locale, ...rest } = context;
   const rendered = locale === "ar" ? passwordResetAr(rest) : passwordResetEn(rest);
   return {

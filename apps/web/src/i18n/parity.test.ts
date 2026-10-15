@@ -2,13 +2,7 @@ import { describe, expect, it } from "vitest";
 import ar from "../messages/ar.json";
 import en from "../messages/en.json";
 
-type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 function keyPaths(value: JsonValue, prefix = ""): string[] {
   if (typeof value === "string") {

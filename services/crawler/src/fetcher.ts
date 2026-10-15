@@ -23,10 +23,7 @@ const MAX_REDIRECTS = 10;
 // ---------------------------------------------------------------------------
 // Implementation
 // ---------------------------------------------------------------------------
-export async function fetchUrl(
-  url: string,
-  config: CrawlConfig
-): Promise<FetchResult> {
+export async function fetchUrl(url: string, config: CrawlConfig): Promise<FetchResult> {
   // Validate the initial URL
   const initialValidation = await validateUrl(url);
   if (!initialValidation.valid) {
@@ -42,9 +39,7 @@ export async function fetchUrl(
     // Connect to pinned IP to prevent DNS rebinding (TOCTOU fix)
     const targetUrl = currentIp ? rewriteToIp(currentUrl, currentIp) : currentUrl;
     const hostname = new URL(currentUrl).hostname;
-    const dispatcher = currentIp
-      ? new Agent({ connect: { servername: hostname } })
-      : undefined;
+    const dispatcher = currentIp ? new Agent({ connect: { servername: hostname } }) : undefined;
     try {
       const response = await request(targetUrl, {
         method: "GET",
@@ -72,15 +67,13 @@ export async function fetchUrl(
         const redirectValidation = await validateUrl(redirectUrl);
         if (!redirectValidation.valid) {
           throw new Error(
-            `SSRF validation failed for redirect to ${redirectUrl}: ${redirectValidation.reason}`
+            `SSRF validation failed for redirect to ${redirectUrl}: ${redirectValidation.reason}`,
           );
         }
 
         redirectCount++;
         if (redirectCount > MAX_REDIRECTS) {
-          throw new Error(
-            `Max redirects (${MAX_REDIRECTS}) exceeded. Last URL: ${currentUrl}`
-          );
+          throw new Error(`Max redirects (${MAX_REDIRECTS}) exceeded. Last URL: ${currentUrl}`);
         }
 
         redirectChain.push(redirectUrl);
@@ -96,14 +89,14 @@ export async function fetchUrl(
       const bodyByteLength = Buffer.byteLength(body, "utf-8");
       if (bodyByteLength > config.max_decompressed_size_bytes) {
         throw new Error(
-          `Decompressed response too large: ${bodyByteLength} bytes exceeds limit of ${config.max_decompressed_size_bytes} bytes`
+          `Decompressed response too large: ${bodyByteLength} bytes exceeds limit of ${config.max_decompressed_size_bytes} bytes`,
         );
       }
 
       // Check response body size against max_response_size_bytes
       if (bodyByteLength > config.max_response_size_bytes) {
         throw new Error(
-          `Response too large: ${bodyByteLength} bytes exceeds limit of ${config.max_response_size_bytes} bytes`
+          `Response too large: ${bodyByteLength} bytes exceeds limit of ${config.max_response_size_bytes} bytes`,
         );
       }
 

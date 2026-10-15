@@ -18,10 +18,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const services = await getAuditServices();
-  const ok = await services.auth.consumePasswordResetToken(
-    parsed.data.token,
-    parsed.data.password,
-  );
+  const ok = await services.auth.consumePasswordResetToken(parsed.data.token, parsed.data.password);
   if (!ok) {
     return NextResponse.json({ error: "invalid_token" }, { status: 400 });
   }

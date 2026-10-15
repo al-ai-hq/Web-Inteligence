@@ -18,18 +18,21 @@ function isInternalLink(href: string, rootUrl: string): boolean {
     return linkUrl.origin === root.origin;
   } catch {
     // Relative URLs are internal
-    return href.startsWith("/") || (!href.includes("://") && href !== "#" && !href.startsWith("javascript:"));
+    return (
+      href.startsWith("/") ||
+      (!href.includes("://") && href !== "#" && !href.startsWith("javascript:"))
+    );
   }
 }
 
 function isDescriptiveHref(href: string): boolean {
   // Generic patterns that are not descriptive
   const genericPatterns = [
-    /^.*[?&]id=\d+/,       // query param IDs
-    /^.*\/click\b/,        // generic "click" paths
-    /^.*\/page\/\d+$/,     // numeric page paths
-    /^#$/,                  // hash only
-    /^javascript:/,         // javascript links
+    /^.*[?&]id=\d+/, // query param IDs
+    /^.*\/click\b/, // generic "click" paths
+    /^.*\/page\/\d+$/, // numeric page paths
+    /^#$/, // hash only
+    /^javascript:/, // javascript links
   ];
   return !genericPatterns.some((p) => p.test(href));
 }
@@ -239,9 +242,7 @@ export const evalSPAM001: Evaluator = (bundle) => {
   // Pages with very low word count but substantial main_content_bytes suggest
   // text is hidden via CSS tricks (e.g., display:none, visibility:hidden, or
   // same-color-as-background text).
-  const thinPages = pages.filter(
-    (p) => p.word_count < 10 && p.main_content_bytes > 1000,
-  );
+  const thinPages = pages.filter((p) => p.word_count < 10 && p.main_content_bytes > 1000);
   // Need at least 2 thin pages to indicate "scaled" pattern
   if (thinPages.length >= 2) {
     return {

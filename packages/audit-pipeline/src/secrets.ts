@@ -42,8 +42,13 @@ export function verifyEligibilityCookie(value: string, secret: string): Eligibil
       reduced_count?: unknown;
       preview_count?: unknown;
     };
-    const isCount = (v: unknown): v is number => typeof v === "number" && Number.isInteger(v) && v >= 0;
-    if (!isCount(parsed.rich_count) || !isCount(parsed.reduced_count) || !isCount(parsed.preview_count)) {
+    const isCount = (v: unknown): v is number =>
+      typeof v === "number" && Number.isInteger(v) && v >= 0;
+    if (
+      !isCount(parsed.rich_count) ||
+      !isCount(parsed.reduced_count) ||
+      !isCount(parsed.preview_count)
+    ) {
       return null;
     }
     return {

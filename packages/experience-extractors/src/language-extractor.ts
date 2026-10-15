@@ -35,8 +35,8 @@ function detectVisibleSwitcher($: cheerio.CheerioAPI): boolean {
     '[id*="language-selector" i]',
     '[id*="lang-switch" i]',
     '[id*="lang-selector" i]',
-    '[data-language-selector]',
-    '[data-language-switcher]',
+    "[data-language-selector]",
+    "[data-language-switcher]",
     '[role*="language-switcher" i]',
     '[role*="language-selector" i]',
   ];

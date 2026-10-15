@@ -32,6 +32,7 @@ From spec §10 plus repo rules — every task implicitly includes these:
 ### Task 1: Scaffold `@wpi/audit-pipeline` + audit state machine
 
 **Files:**
+
 - Create: `packages/audit-pipeline/package.json`
 - Create: `packages/audit-pipeline/tsconfig.json`
 - Create: `packages/audit-pipeline/vitest.config.ts`
@@ -45,6 +46,7 @@ From spec §10 plus repo rules — every task implicitly includes these:
 - Modify: `services/render-job/package.json` — add `exports` map
 
 **Interfaces:**
+
 - Consumes: nothing (first task).
 - Produces: `AUDIT_STATUSES`, `AuditStatus`, `TERMINAL_STATUSES`, `TerminalStatus`, `isTerminal(status)`, `canTransition(from, to)` — used by Tasks 6, 7, 11, 12.
 
@@ -276,12 +278,7 @@ Replace `packages/audit-pipeline/src/index.ts` with:
 ```ts
 export const AUDIT_PIPELINE_VERSION = "0.0.0";
 
-export {
-  AUDIT_STATUSES,
-  TERMINAL_STATUSES,
-  canTransition,
-  isTerminal,
-} from "./workflow-states.js";
+export { AUDIT_STATUSES, TERMINAL_STATUSES, canTransition, isTerminal } from "./workflow-states.js";
 export type { AuditStatus, TerminalStatus } from "./workflow-states.js";
 ```
 
@@ -307,11 +304,13 @@ git commit -m "feat(audit-pipeline): scaffold package with audit state machine"
 ### Task 2: Audit context schema (zod)
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/audit-context.ts`
 - Test: `packages/audit-pipeline/tests/audit-context.test.ts`
 - Modify: `packages/audit-pipeline/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces: `LOCALES`, `Locale`, `auditContextSchema`, `AuditContext`, `createAuditRequestSchema`, `CreateAuditRequest` — used by Tasks 6 (store context field), 10 (agent stage), 15 (POST route).
 
@@ -437,11 +436,7 @@ export type CreateAuditRequest = z.infer<typeof createAuditRequestSchema>;
 Append to `packages/audit-pipeline/src/index.ts`:
 
 ```ts
-export {
-  LOCALES,
-  auditContextSchema,
-  createAuditRequestSchema,
-} from "./audit-context.js";
+export { LOCALES, auditContextSchema, createAuditRequestSchema } from "./audit-context.js";
 export type { AuditContext, CreateAuditRequest, Locale } from "./audit-context.js";
 ```
 
@@ -462,11 +457,13 @@ git commit -m "feat(audit-pipeline): audit context and create-audit request sche
 ### Task 3: Secret-link helpers (audit secret + eligibility cookie)
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/secrets.ts`
 - Test: `packages/audit-pipeline/tests/secrets.test.ts`
 - Modify: `packages/audit-pipeline/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces: `ELIGIBILITY_COOKIE_NAME`, `generateAuditSecret()`, `hashAuditSecret(secret)`, `EligibilityCounts`, `signEligibilityCookie(counts, secret)`, `verifyEligibilityCookie(value, secret)`, `incrementEligibilityCookie(counts, tier, secret)` — used by Tasks 4, 15, 16.
 
@@ -604,8 +601,13 @@ export function verifyEligibilityCookie(value: string, secret: string): Eligibil
       reduced_count?: unknown;
       preview_count?: unknown;
     };
-    const isCount = (v: unknown): v is number => typeof v === "number" && Number.isInteger(v) && v >= 0;
-    if (!isCount(parsed.rich_count) || !isCount(parsed.reduced_count) || !isCount(parsed.preview_count)) {
+    const isCount = (v: unknown): v is number =>
+      typeof v === "number" && Number.isInteger(v) && v >= 0;
+    if (
+      !isCount(parsed.rich_count) ||
+      !isCount(parsed.reduced_count) ||
+      !isCount(parsed.preview_count)
+    ) {
       return null;
     }
     return {
@@ -664,11 +666,13 @@ git commit -m "feat(audit-pipeline): audit secrets and signed eligibility cookie
 ### Task 4: Tier scopes and eligibility decision
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/eligibility.ts`
 - Test: `packages/audit-pipeline/tests/eligibility.test.ts`
 - Modify: `packages/audit-pipeline/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: `EligibilityCounts` (Task 3).
 - Produces: `TIER_NAMES`, `TierName`, `TierScope {maxPages, actionBoardCap, comparisons, roadmap, aiVisibilityPanel}`, `TIER_SCOPES` (constant), `decideTier(counts)`, `loadTierScopes(configPath)` — used by Tasks 8, 11, 12, 15.
 
@@ -725,13 +729,13 @@ describe("loadTierScopes", () => {
     writeFileSync(
       configPath,
       [
-        "version: \"0.1.0-draft\"",
+        'version: "0.1.0-draft"',
         "tiers:",
         "  rich:",
         "    scope:",
         "      max_representative_pages: 20",
         "      comparisons: 1",
-        "      ai_visibility_panel: \"config/prompt-panels/free-panel.yaml\"",
+        '      ai_visibility_panel: "config/prompt-panels/free-panel.yaml"',
         "      action_board: { min: 8, max: 12 }",
         "      preliminary_roadmap: true",
         "  reduced:",
@@ -772,7 +776,11 @@ describe("loadTierScopes", () => {
   it("throws when a tier scope is missing", () => {
     const dir = mkdtempSync(join(tmpdir(), "wpi-elig-"));
     const configPath = join(dir, "broken.yaml");
-    writeFileSync(configPath, "tiers:\n  rich:\n    scope:\n      max_representative_pages: 20\n", "utf8");
+    writeFileSync(
+      configPath,
+      "tiers:\n  rich:\n    scope:\n      max_representative_pages: 20\n",
+      "utf8",
+    );
     expect(() => loadTierScopes(configPath)).toThrow(/reduced/);
   });
 });
@@ -804,9 +812,27 @@ export interface TierScope {
 }
 
 export const TIER_SCOPES: Record<Exclude<TierName, "refused">, TierScope> = {
-  rich: { maxPages: 20, actionBoardCap: 12, comparisons: 1, roadmap: true, aiVisibilityPanel: true },
-  reduced: { maxPages: 10, actionBoardCap: 12, comparisons: 0, roadmap: false, aiVisibilityPanel: false },
-  preview: { maxPages: 1, actionBoardCap: 3, comparisons: 0, roadmap: false, aiVisibilityPanel: false },
+  rich: {
+    maxPages: 20,
+    actionBoardCap: 12,
+    comparisons: 1,
+    roadmap: true,
+    aiVisibilityPanel: true,
+  },
+  reduced: {
+    maxPages: 10,
+    actionBoardCap: 12,
+    comparisons: 0,
+    roadmap: false,
+    aiVisibilityPanel: false,
+  },
+  preview: {
+    maxPages: 1,
+    actionBoardCap: 3,
+    comparisons: 0,
+    roadmap: false,
+    aiVisibilityPanel: false,
+  },
 };
 
 export function decideTier(counts: EligibilityCounts): Exclude<TierName, "refused"> {
@@ -871,11 +897,13 @@ git commit -m "feat(audit-pipeline): tier scopes and eligibility decision"
 The pipeline needs to cap the crawler per tier without editing `config/crawl-limits.yaml`. Add a small resolver that lets an env var tighten (never loosen) the YAML-configured cap.
 
 **Files:**
+
 - Create: `services/crawler/src/max-pages.ts`
 - Modify: `services/crawler/src/index.ts` (plan call site, ~line 126)
 - Test: `services/crawler/tests/max-pages.test.ts`
 
 **Interfaces:**
+
 - Consumes: `config.max_pages` from the crawler's existing YAML config loading.
 - Produces: `resolveMaxPages(configMaxPages: number, envValue: string | undefined): number`, exported from `services/crawler/src/index.ts`. The pipeline (Task 15) sets `MAX_PAGES` env to the tier's `scope.maxPages` before invoking `runCrawlJob`.
 
@@ -925,10 +953,7 @@ Expected: FAIL — cannot resolve `../src/max-pages.js` (module not found).
 `services/crawler/src/max-pages.ts`:
 
 ```ts
-export function resolveMaxPages(
-  configMaxPages: number,
-  envValue: string | undefined,
-): number {
+export function resolveMaxPages(configMaxPages: number, envValue: string | undefined): number {
   if (envValue === undefined || envValue === "") {
     return configMaxPages;
   }
@@ -988,6 +1013,7 @@ git commit -m "feat(crawler): MAX_PAGES env override clamped to config cap"
 ### Task 6: Report envelope types + shared paths + `AuditStore` port + in-memory store
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/paths.ts`
 - Create: `packages/audit-pipeline/src/report-envelope.ts`
 - Create: `packages/audit-pipeline/src/audit-store.ts`
@@ -996,6 +1022,7 @@ git commit -m "feat(crawler): MAX_PAGES env override clamped to config cap"
 - Test: `packages/audit-pipeline/tests/paths.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AuditContext` (Task 2), `TierName`, `TierScope` (Task 4), `canTransition`, `isTerminal` (Task 1).
 - Produces (used by Tasks 7, 8, 9, 10, 11, 12, 15, 16): `REPO_ROOT`; types `FindingSection`, `FindingSeverity`, `FindingState`, `StoredFinding`, `UnavailableBlock`, `StoredCostLine`, `StoredCosts`, `StoredActionItem`, `ComposerFinding`, `ComposerAgentOutcome`, `ReportSampleDisclosure`, `ReportModel`, `StoredReportEnvelope`; `SECTION_BY_AGENT`; `AuditRecord`, `CreateAuditInput`, `GetActiveResult`, `TransitionResult`, `AuditStore`, `InMemoryAuditStore`.
 
@@ -1080,9 +1107,7 @@ describe("InMemoryAuditStore", () => {
   it("rejects an invalid transition", async () => {
     const store = new InMemoryAuditStore();
     const record = await store.create(input());
-    await expect(store.transition(record.id, "COMPOSING")).rejects.toThrow(
-      /Invalid transition/,
-    );
+    await expect(store.transition(record.id, "COMPOSING")).rejects.toThrow(/Invalid transition/);
   });
 
   it("walks the happy path QUEUED -> ... -> READY_COMPLETE", async () => {
@@ -1108,7 +1133,14 @@ describe("InMemoryAuditStore", () => {
   it("setFailure after a terminal READY status is a no-op returning terminal", async () => {
     const store = new InMemoryAuditStore();
     const record = await store.create(input());
-    for (const status of ["VALIDATING", "CRAWLING", "EXTRACTING", "AUDITING", "COMPOSING", "READY_COMPLETE"]) {
+    for (const status of [
+      "VALIDATING",
+      "CRAWLING",
+      "EXTRACTING",
+      "AUDITING",
+      "COMPOSING",
+      "READY_COMPLETE",
+    ]) {
       await store.transition(record.id, status);
     }
     const result = await store.setFailure(record.id, "failure.pipeline_error");
@@ -1140,7 +1172,12 @@ describe("InMemoryAuditStore", () => {
       action_board: [],
       costs: { currency: "USD" as const, agents: [], total_usd: 0 },
     };
-    const done = await store.setOutcome(record.id, "READY_COMPLETE", envelope.report, envelope.costs);
+    const done = await store.setOutcome(
+      record.id,
+      "READY_COMPLETE",
+      envelope.report,
+      envelope.costs,
+    );
     expect(done.status).toBe("READY_COMPLETE");
     const raw = await store.getRaw(record.id);
     expect(raw?.costs).toEqual({ currency: "USD", agents: [], total_usd: 0 });
@@ -1361,11 +1398,7 @@ export interface AuditStore {
   getActive(id: string): Promise<GetActiveResult>;
   getRaw(id: string): Promise<AuditRecord | null>;
   transition(id: string, to: string): Promise<TransitionResult>;
-  setFailure(
-    id: string,
-    reasonKey: string,
-    costs?: StoredCosts,
-  ): Promise<TransitionResult>;
+  setFailure(id: string, reasonKey: string, costs?: StoredCosts): Promise<TransitionResult>;
   setOutcome(
     id: string,
     to: "READY_PARTIAL" | "READY_COMPLETE",
@@ -1440,11 +1473,7 @@ export class InMemoryAuditStore implements AuditStore {
     return structuredClone(row);
   }
 
-  async setFailure(
-    id: string,
-    reasonKey: string,
-    costs?: StoredCosts,
-  ): Promise<TransitionResult> {
+  async setFailure(id: string, reasonKey: string, costs?: StoredCosts): Promise<TransitionResult> {
     const row = this.rows.get(id);
     if (!row) {
       throw new Error(`Audit ${id} not found`);
@@ -1535,9 +1564,7 @@ export {
 export { TIER_NAMES, TIER_SCOPES, decideTier, loadTierScopes } from "./eligibility.js";
 export type { TierName, TierScope } from "./eligibility.js";
 export { REPO_ROOT } from "./paths.js";
-export {
-  InMemoryAuditStore,
-} from "./audit-store.js";
+export { InMemoryAuditStore } from "./audit-store.js";
 export type {
   AuditRecord,
   AuditStore,
@@ -1582,6 +1609,7 @@ git commit -m "feat(audit-pipeline): report envelope types, AuditStore port, in-
 ### Task 7: SQL migrations + `PostgresAuditStore` + migrate CLI
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/migrations/0001_create_audits.sql`
 - Create: `packages/audit-pipeline/src/migrations/migrate.ts`
 - Create: `packages/audit-pipeline/src/migrations/migrate-cli.ts`
@@ -1591,6 +1619,7 @@ git commit -m "feat(audit-pipeline): report envelope types, AuditStore port, in-
 - Test: `packages/audit-pipeline/tests/postgres-audit-store.test.ts` (skipped unless `WPI_TEST_DATABASE_URL` is set)
 
 **Interfaces:**
+
 - Consumes: `AuditStore` port + `AuditRecord` (Task 6), `canTransition` (Task 1), `packageRoot` via `REPO_ROOT` (Task 6).
 - Produces: `applyMigrations(pool, migrationsDir?)`, `MIGRATIONS_DIR`, `PostgresAuditStore` (implements `AuditStore`), `MigrationResult { applied: string[] }`, and a `wpi-migrate` bin. Used by Task 15 (container) and Task 20 (docs/verification).
 
@@ -1764,9 +1793,7 @@ export async function applyMigrations(
     await client.query(
       "CREATE TABLE IF NOT EXISTS schema_migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())",
     );
-    const files = (await readdir(migrationsDir))
-      .filter((name) => name.endsWith(".sql"))
-      .sort();
+    const files = (await readdir(migrationsDir)).filter((name) => name.endsWith(".sql")).sort();
     const applied: string[] = [];
     for (const name of files) {
       const seen = await client.query("SELECT 1 FROM schema_migrations WHERE name = $1", [name]);
@@ -1810,7 +1837,9 @@ async function main(): Promise<void> {
   const pool = new Pool({ connectionString });
   try {
     const result = await applyMigrations(pool);
-    console.log(`Applied ${result.applied.length} migration(s): ${result.applied.join(", ") || "none"}`);
+    console.log(
+      `Applied ${result.applied.length} migration(s): ${result.applied.join(", ") || "none"}`,
+    );
   } finally {
     await pool.end();
   }
@@ -1838,9 +1867,7 @@ Add to `packages/audit-pipeline/package.json`, inside the top-level object (afte
 
 ```ts
 import type { Pool, QueryResultRow } from "pg";
-import type {
-  AuditContext,
-} from "./audit-context.js";
+import type { AuditContext } from "./audit-context.js";
 import type {
   AuditRecord,
   AuditStore,
@@ -1957,11 +1984,7 @@ export class PostgresAuditStore implements AuditStore {
     return rowToRecord(result.rows[0]);
   }
 
-  async setFailure(
-    id: string,
-    reasonKey: string,
-    costs?: StoredCosts,
-  ): Promise<TransitionResult> {
+  async setFailure(id: string, reasonKey: string, costs?: StoredCosts): Promise<TransitionResult> {
     const raw = await this.getRaw(id);
     if (!raw) {
       throw new Error(`Audit ${id} not found`);
@@ -2059,11 +2082,13 @@ git commit -m "feat(audit-pipeline): SQL migrations, PostgresAuditStore, wpi-mig
 ### Task 8: Composer — findings, unavailable blocks, action board, costs
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/composer.ts`
 - Modify: `packages/audit-pipeline/src/index.ts`
 - Test: `packages/audit-pipeline/tests/composer.test.ts`
 
 **Interfaces:**
+
 - Consumes: `FindingSection`, `FindingSeverity`, `StoredFinding`, `StoredActionItem`, `StoredCostLine`, `StoredCosts`, `UnavailableBlock`, `ComposerAgentOutcome`, `SECTION_BY_AGENT` (Task 6), `TierScope` (Task 4).
 - Produces: `deriveSeverity(data)`, `deriveUnavailable(scope)`, `deriveActionItems(findings, cap)`, `ComposeResult`, `composeSections(outcomes, scope)` — used by Tasks 11, 12.
 
@@ -2124,13 +2149,27 @@ describe("deriveUnavailable", () => {
     const keys = blocks.map((b) => b.reason_key);
     expect(keys).toContain("unavailable.score");
     expect(keys).toContain("unavailable.experience_effectiveness");
-    expect(blocks.every((b) => b.section === "technical" || b.section === "comparison" || b.section === "ai_visibility_panel")).toBe(true);
+    expect(
+      blocks.every(
+        (b) =>
+          b.section === "technical" ||
+          b.section === "comparison" ||
+          b.section === "ai_visibility_panel",
+      ),
+    ).toBe(true);
   });
 
   it("adds comparison for tiers with comparisons > 0 and the panel when enabled", () => {
     const rich = deriveUnavailable(TIER_SCOPES.rich);
-    expect(rich.some((b) => b.section === "comparison" && b.reason_key === "unavailable.comparison")).toBe(true);
-    expect(rich.some((b) => b.section === "ai_visibility_panel" && b.reason_key === "unavailable.ai_visibility_panel")).toBe(true);
+    expect(
+      rich.some((b) => b.section === "comparison" && b.reason_key === "unavailable.comparison"),
+    ).toBe(true);
+    expect(
+      rich.some(
+        (b) =>
+          b.section === "ai_visibility_panel" && b.reason_key === "unavailable.ai_visibility_panel",
+      ),
+    ).toBe(true);
   });
 
   it("omits comparison and panel for preview", () => {
@@ -2143,7 +2182,12 @@ describe("deriveUnavailable", () => {
 describe("deriveActionItems", () => {
   it("keeps only findings with a recommendation and caps the board", () => {
     const findings = [
-      finding({ id: "a", data: { title: "T", recommendation: "Do A" }, confidence: "high", severity: "high" }),
+      finding({
+        id: "a",
+        data: { title: "T", recommendation: "Do A" },
+        confidence: "high",
+        severity: "high",
+      }),
       finding({ id: "b", data: { recommendation: "Do B" }, confidence: "low", severity: "low" }),
       finding({ id: "c", data: { title: "No rec" } }),
     ];
@@ -2155,10 +2199,7 @@ describe("deriveActionItems", () => {
   });
 
   it("falls back to a truncated recommendation as the title", () => {
-    const items = deriveActionItems(
-      [finding({ data: { recommendation: "x".repeat(80) } })],
-      12,
-    );
+    const items = deriveActionItems([finding({ data: { recommendation: "x".repeat(80) } })], 12);
     expect(items[0]?.title).toBe("x".repeat(60));
   });
 
@@ -2220,19 +2261,30 @@ describe("composeSections", () => {
             },
           ],
         }),
-        outcome({ agent_name: "mystery-agent", ok: false, unavailable_reason_key: "unavailable.generic" }),
+        outcome({
+          agent_name: "mystery-agent",
+          ok: false,
+          unavailable_reason_key: "unavailable.generic",
+        }),
       ],
       TIER_SCOPES.preview,
     );
     expect(result.findings).toHaveLength(0);
-    expect(result.unavailable).toContainEqual({ section: "technical", reason_key: "unavailable.generic" });
+    expect(result.unavailable).toContainEqual({
+      section: "technical",
+      reason_key: "unavailable.generic",
+    });
   });
 
   it("summary bullets only cover sections whose agent succeeded", () => {
     const result = composeSections(
       [
         outcome({ agent_name: "auditor" }),
-        outcome({ agent_name: "keyword-analyst", ok: false, unavailable_reason_key: "unavailable.agent.keyword-analyst" }),
+        outcome({
+          agent_name: "keyword-analyst",
+          ok: false,
+          unavailable_reason_key: "unavailable.agent.keyword-analyst",
+        }),
         outcome({ agent_name: "content-strategist" }),
       ],
       TIER_SCOPES.reduced,
@@ -2283,12 +2335,7 @@ const SECTION_ORDER = ["technical", "keywords", "content"] as const;
 
 export function deriveSeverity(data: Record<string, unknown>): FindingSeverity {
   const value = data["severity"];
-  if (
-    value === "critical" ||
-    value === "high" ||
-    value === "medium" ||
-    value === "low"
-  ) {
+  if (value === "critical" || value === "high" || value === "medium" || value === "low") {
     return value;
   }
   return "info";
@@ -2308,10 +2355,7 @@ export function deriveUnavailable(scope: TierScope): UnavailableBlock[] {
   return blocks;
 }
 
-export function deriveActionItems(
-  findings: StoredFinding[],
-  cap: number,
-): StoredActionItem[] {
+export function deriveActionItems(findings: StoredFinding[], cap: number): StoredActionItem[] {
   const items: StoredActionItem[] = [];
   for (const finding of findings) {
     const recommendation = finding.data["recommendation"];
@@ -2349,10 +2393,7 @@ export interface ComposeResult {
   costs: StoredCosts;
 }
 
-export function composeSections(
-  outcomes: ComposerAgentOutcome[],
-  scope: TierScope,
-): ComposeResult {
+export function composeSections(outcomes: ComposerAgentOutcome[], scope: TierScope): ComposeResult {
   const findings: StoredFinding[] = [];
   const unavailable: UnavailableBlock[] = [];
   const costLines: StoredCostLine[] = [];
@@ -2444,11 +2485,13 @@ git commit -m "feat(audit-pipeline): composer for findings, unavailable blocks, 
 ### Task 9: Report-model builder + Ajv 2020-12 validator against `schemas/`
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/report-model.ts`
 - Modify: `packages/audit-pipeline/src/index.ts`
 - Test: `packages/audit-pipeline/tests/report-model.test.ts`
 
 **Interfaces:**
+
 - Consumes: `StoredFinding` (Task 6), `REPO_ROOT` (Task 6), `schemas/report-model.schema.json` + `schemas/common.schema.json` (repo root, pre-existing).
 - Produces: `BuildReportModelParams`, `buildReportModel(params): ReportModel`, `validateReportModel(report: unknown, schemasDir: string): void` — used by Tasks 11 and 12.
 
@@ -2545,9 +2588,7 @@ export interface BuildReportModelParams {
 }
 
 export function buildReportModel(params: BuildReportModelParams): ReportModel {
-  const withLineage = params.findings.filter(
-    (finding) => finding.evidence_ids.length > 0,
-  ).length;
+  const withLineage = params.findings.filter((finding) => finding.evidence_ids.length > 0).length;
   return {
     report_id: randomUUID(),
     audit_id: params.auditId,
@@ -2635,6 +2676,7 @@ git commit -m "feat(audit-pipeline): report model builder + Ajv 2020-12 validato
 ### Task 10: Agent stage — agents package exports, evidence storage, config loader, per-agent run
 
 **Files:**
+
 - Modify: `services/agents/src/tools/get-evidence.ts:4` — add `export` to `StorageReader` (one word)
 - Modify: `services/agents/src/index.ts` — replace whole file (adds 9 tool-factory exports + 2 type exports)
 - Create: `packages/audit-pipeline/src/evidence-storage.ts`
@@ -2644,6 +2686,7 @@ git commit -m "feat(audit-pipeline): report model builder + Ajv 2020-12 validato
 - Test: `packages/audit-pipeline/tests/agent-stage.test.ts`
 
 **Interfaces:**
+
 - Consumes: from `@wpi/agents` — `executeAgent`, `AgentResult` (`{job_id, agent_name, audit_id, output_evidence_ids, result_state, findings: Finding[], limitations, cost: {engine, tokens_in, tokens_out, usd}, duration_ms}`), `ExecuteAgentParams` (`{agentName, allowedTools, job, provider, tools, systemPrompt, userPrompt, toolContext: {audit_id, project_id, evidence_bucket}, model?, maxIterations?}`), `GeminiAdapter(apiKey: string)`, `Orchestrator.createJobs(baseJob: Omit<AgentJob, "job_id" | "agent_name">, agents: string[]): AgentJob[]`, `ToolRegistry.register/get/resolveAll`, `buildSystemPrompt({agentName, modelTier, readsUntrustedContent})`, `buildUserPrompt({job, evidenceContext})`, `resolveModel(tier: string)`, `CostTracker.record({audit_id, agent_name, model, tokens_in, tokens_out, usd})` and `CostTracker.canProceed(auditId)`; from earlier tasks — `AuditContext` (Task 2), `REPO_ROOT` (Task 6), `ComposerAgentOutcome` (Task 6, `report-envelope.ts`); the `yaml` dependency from Task 1's package.json
 - Produces: `M4_AGENT_NAMES: readonly ["auditor", "keyword-analyst", "content-strategist"]`, `M4AgentName`, `AgentStageDeps`, `runAgentStage(deps: AgentStageDeps): Promise<ComposerAgentOutcome[]>`, `FsEvidenceStorage(outputDir: string)` implementing `StorageReader`, `agentConfigSchema`, `AgentYamlConfig`, `loadAgentConfig(path: string): AgentYamlConfig` — consumed by Task 11 (`runAgents` wiring) and Task 15 (container)
 
@@ -2656,16 +2699,8 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import {
-  CostTracker,
-  type AgentResult,
-  type ExecuteAgentParams,
-} from "@wpi/agents";
-import {
-  M4_AGENT_NAMES,
-  runAgentStage,
-  type AgentStageDeps,
-} from "../src/agent-stage.js";
+import { CostTracker, type AgentResult, type ExecuteAgentParams } from "@wpi/agents";
+import { M4_AGENT_NAMES, runAgentStage, type AgentStageDeps } from "../src/agent-stage.js";
 import { FsEvidenceStorage } from "../src/evidence-storage.js";
 import { agentConfigSchema, loadAgentConfig } from "../src/agent-config.js";
 import { REPO_ROOT } from "../src/paths.js";
@@ -3093,11 +3128,13 @@ git commit -m "feat(audit-pipeline): agent stage with per-agent tool allowlists 
 ### Task 11: Audit pipeline orchestrator
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/pipeline.ts`
 - Modify: `packages/audit-pipeline/src/index.ts`
 - Test: `packages/audit-pipeline/tests/pipeline.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AuditStore`/`AuditRecord` (Task 6), `composeSections` (Task 8), `buildReportModel`/`validateReportModel` (Task 9), `TIER_SCOPES`/`TierName`/`TierScope` (Task 4), `REPO_ROOT` (Task 6), `ComposerAgentOutcome` (Task 6).
 - Produces: `PipelineDeps`, `PipelineOutcome = "completed" | "partial" | "failed" | "stopped"`, `PipelineStoppedError`, `BASE_LIMITATION_KEYS`, `runAuditPipeline(deps: PipelineDeps, auditId: string): Promise<PipelineOutcome>` — consumed by Task 15 (container wires `InProcessDispatcher` to it).
 
@@ -3147,10 +3184,7 @@ function verifiedFinding(): ComposerAgentOutcome["findings"][number] {
   };
 }
 
-function makeDeps(
-  store: InMemoryAuditStore,
-  overrides: Partial<PipelineDeps> = {},
-): PipelineDeps {
+function makeDeps(store: InMemoryAuditStore, overrides: Partial<PipelineDeps> = {}): PipelineDeps {
   return {
     store,
     validateUrl: async () => ({ ok: true }),
@@ -3414,7 +3448,8 @@ export async function runAuditPipeline(
       action_board: composed.action_board,
       costs: composed.costs,
     };
-    const to = composed.findings.length > 0 ? ("READY_COMPLETE" as const) : ("READY_PARTIAL" as const);
+    const to =
+      composed.findings.length > 0 ? ("READY_COMPLETE" as const) : ("READY_PARTIAL" as const);
     await deps.store.setOutcome(auditId, to, envelope, envelope.costs);
     return to === "READY_COMPLETE" ? "completed" : "partial";
   } catch (error) {
@@ -3456,11 +3491,13 @@ git commit -m "feat(audit-pipeline): audit pipeline orchestrator"
 ### Task 12: Dispatchers (in-process + stub) and scoped env
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/dispatcher.ts`
 - Modify: `packages/audit-pipeline/src/index.ts`
 - Test: `packages/audit-pipeline/tests/dispatcher.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AuditStore`/`AuditRecord` (Task 6), `buildReportModel`/`validateReportModel` (Task 9), `deriveActionItems`/`deriveUnavailable` (Task 8), `TIER_SCOPES` (Task 4), `REPO_ROOT` (Task 6), `StoredFinding`/`StoredReportEnvelope` (Task 6).
 - Produces: `JobDispatcher` (`{dispatch(jobId: string): Promise<void>}`), `InProcessDispatcher(run)` (serializes jobs through one chain; a rejected run rejects only its own dispatch promise and never blocks the next), `scopedEnv(overrides, fn)` (set/delete env vars for the duration of `fn`, restore in `finally`), `sleep(ms)`, `StubDispatcher(store, delayMs?)` (dev/e2e engine that walks QUEUED → READY_COMPLETE with two deterministic findings, no network, no LLM) — consumed by Task 15 (container).
 
@@ -3472,12 +3509,7 @@ git commit -m "feat(audit-pipeline): audit pipeline orchestrator"
 import { describe, expect, it, vi } from "vitest";
 import { InMemoryAuditStore } from "../src/audit-store.js";
 import type { AuditContext } from "../src/audit-context.js";
-import {
-  InProcessDispatcher,
-  scopedEnv,
-  sleep,
-  StubDispatcher,
-} from "../src/dispatcher.js";
+import { InProcessDispatcher, scopedEnv, sleep, StubDispatcher } from "../src/dispatcher.js";
 
 const AUDIT_CONTEXT: AuditContext = {
   organization: "Example Corp",
@@ -3759,12 +3791,14 @@ git commit -m "feat(audit-pipeline): in-process + stub dispatchers with scoped e
 ### Task 13: Web i18n foundation — next-intl, Tailwind v4, bilingual catalogs
 
 **Files:**
+
 - Delete: `apps/web/app/layout.tsx`, `apps/web/app/page.tsx` (Task 1 placeholders)
 - Modify: `apps/web/next.config.ts` (remove built-in `i18n` key — incompatible with next-intl app router), `apps/web/package.json`, `apps/web/tsconfig.json`
 - Create: `apps/web/postcss.config.mjs`, `apps/web/vitest.config.ts`, `apps/web/src/i18n/routing.ts`, `apps/web/src/i18n/navigation.ts`, `apps/web/src/i18n/request.ts`, `apps/web/src/middleware.ts`, `apps/web/src/app/[locale]/layout.tsx`, `apps/web/src/app/globals.css`, `apps/web/src/messages/en.json`, `apps/web/src/messages/ar.json`
 - Test: `apps/web/src/i18n/parity.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing from the pipeline yet (this task is self-contained).
 - Produces: `routing` (next-intl routing config, locales `["en","ar"]`, default `"en"`); `Link`/`redirect`/`usePathname`/`useRouter` from `src/i18n/navigation.ts`; message namespaces `common`, `nav`, `landing`, `form`, `status`, `report`, `failure`, `unavailable`, `limitation`, `error`, `pages` (identical key trees in en.json and ar.json — enforced by the parity test); root layout at `src/app/[locale]/layout.tsx` that sets `dir="rtl"` for Arabic and provides both font variables.
 
@@ -3781,13 +3815,7 @@ import { describe, expect, it } from "vitest";
 import ar from "../messages/ar.json";
 import en from "../messages/en.json";
 
-type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 function keyPaths(value: JsonValue, prefix = ""): string[] {
   if (typeof value === "string") {
@@ -3982,9 +4010,7 @@ import { routing } from "./routing";
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;
-  const locale = hasLocale(routing.locales, requested)
-    ? requested
-    : routing.defaultLocale;
+  const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
   return {
     locale,
     messages: (await import(`../messages/${locale}.json`)).default,
@@ -4011,8 +4037,7 @@ export const config = {
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter), var(--font-plex-arabic), ui-sans-serif, system-ui,
-    sans-serif;
+  --font-sans: var(--font-inter), var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
 }
 ```
 
@@ -4043,11 +4068,7 @@ export function generateStaticParams(): Array<{ locale: string }> {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "nav" });
   return { title: t("brand") };
@@ -4411,10 +4432,12 @@ git commit -m "feat(web): i18n foundation with next-intl, Tailwind v4, bilingual
 ### Task 14: Landing page and audit form client
 
 **Files:**
+
 - Create: `apps/web/src/app/[locale]/_components/create-audit-client.ts`, `apps/web/src/app/[locale]/_components/audit-form.tsx`, `apps/web/src/app/[locale]/page.tsx`
 - Test: `apps/web/src/app/[locale]/_components/create-audit-client.test.ts`
 
 **Interfaces:**
+
 - Consumes: wire shape `{url, locale, context}` from Task 2 (`createAuditRequestSchema`); `AuditContext` type from `@wpi/audit-pipeline` (Task 2). POST /api/audits (Task 15) responds 201 `{id, secret, status_url}`, 400 `{error: "url_invalid"}`, 429 `{}`, other `{}`.
 - Produces: `CreateAuditPayload {url: string; locale: "en" | "ar"; context: AuditContext}`; `CreateAuditSuccess {id: string; secret: string; status_url: string}`; `CreateAuditError = "url_invalid" | "rate_limited" | "generic"`; `CreateAuditResult = {ok: true; data: CreateAuditSuccess} | {ok: false; error: CreateAuditError}`; `mapCreateAuditError(status: number, body: {error?: unknown}): CreateAuditError`; `submitAudit(payload: CreateAuditPayload): Promise<CreateAuditResult>`; `<AuditForm />` client component; landing page RSC at `src/app/[locale]/page.tsx`.
 
@@ -4425,10 +4448,7 @@ git commit -m "feat(web): i18n foundation with next-intl, Tailwind v4, bilingual
 ```ts
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AuditContext } from "@wpi/audit-pipeline";
-import {
-  mapCreateAuditError,
-  submitAudit,
-} from "./create-audit-client";
+import { mapCreateAuditError, submitAudit } from "./create-audit-client";
 
 const CONTEXT: AuditContext = {
   organization: "Example Corp",
@@ -4458,12 +4478,9 @@ afterEach(() => {
 
 describe("submitAudit", () => {
   it("posts to /api/audits and returns the success payload", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      jsonResponse(
-        { id: "a1", secret: "s1", status_url: "/en/audit/a1" },
-        201,
-      ),
-    );
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ id: "a1", secret: "s1", status_url: "/en/audit/a1" }, 201));
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await submitAudit(PAYLOAD);
@@ -4479,10 +4496,7 @@ describe("submitAudit", () => {
   });
 
   it("maps a 400 url_invalid response", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(jsonResponse({ error: "url_invalid" }, 400)),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ error: "url_invalid" }, 400)));
 
     const result = await submitAudit(PAYLOAD);
 
@@ -4498,10 +4512,7 @@ describe("submitAudit", () => {
   });
 
   it("maps network failure to generic", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockRejectedValue(new Error("offline")),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
 
     const result = await submitAudit(PAYLOAD);
 
@@ -4509,10 +4520,7 @@ describe("submitAudit", () => {
   });
 
   it("maps a malformed 201 body to generic", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(jsonResponse({ nope: true }, 201)),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ nope: true }, 201)));
 
     const result = await submitAudit(PAYLOAD);
 
@@ -4565,13 +4573,9 @@ export interface CreateAuditSuccess {
 export type CreateAuditError = "url_invalid" | "rate_limited" | "generic";
 
 export type CreateAuditResult =
-  | { ok: true; data: CreateAuditSuccess }
-  | { ok: false; error: CreateAuditError };
+  { ok: true; data: CreateAuditSuccess } | { ok: false; error: CreateAuditError };
 
-export function mapCreateAuditError(
-  status: number,
-  body: { error?: unknown },
-): CreateAuditError {
+export function mapCreateAuditError(status: number, body: { error?: unknown }): CreateAuditError {
   if (body.error === "url_invalid") {
     return "url_invalid";
   }
@@ -4581,9 +4585,7 @@ export function mapCreateAuditError(
   return "generic";
 }
 
-export async function submitAudit(
-  payload: CreateAuditPayload,
-): Promise<CreateAuditResult> {
+export async function submitAudit(payload: CreateAuditPayload): Promise<CreateAuditResult> {
   let response: Response;
   try {
     response = await fetch("/api/audits", {
@@ -4817,11 +4819,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "../../i18n/navigation";
 import { AuditForm } from "./_components/audit-form";
 
-export default async function LandingPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("landing");
@@ -4893,10 +4891,12 @@ git commit -m "feat(web): landing page and audit form client"
 ### Task 15: Audit services container, instrumentation, POST /api/audits
 
 **Files:**
+
 - Create: `apps/web/src/services/container.ts`, `apps/web/src/instrumentation.ts`, `apps/web/src/app/api/audits/route.ts`
 - Test: `apps/web/src/test/container.test.ts`, `apps/web/src/test/api-audits-post.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AuditStore`/`InMemoryAuditStore`/`PostgresAuditStore`/`applyMigrations`/`MIGRATIONS_DIR` (Task 7); `JobDispatcher`/`InProcessDispatcher`/`StubDispatcher`/`runAuditPipeline` (Task 11) and `scopedEnv` (Task 12); `TIER_SCOPES`/`TierScope`/`TierName`/`loadTierScopes`/`decideTier` (Task 4); `ELIGIBILITY_COOKIE_NAME`/`generateAuditSecret`/`hashAuditSecret`/`verifyEligibilityCookie`/`incrementEligibilityCookie` (Task 3); `createAuditRequestSchema` (Task 2); `runAgentStage`/`M4_AGENT_NAMES`/`CostTracker` (Task 10); `ComposerAgentOutcome` (Task 8); `REPO_ROOT` (Task 6); `validateUrl` from `@wpi/security`; `runCrawlJob` from `@wpi/crawler`; `runRenderJob` from `@wpi/render-job`; `runEvidenceProcessor` from `@wpi/evidence-processor`.
 - Produces: `AuditServices {store: AuditStore; dispatcher: JobDispatcher; tierScopes: Record<Exclude<TierName, "refused">, TierScope>; cookieSecret: string; validateUrl: (url: string) => Promise<{ok: boolean; reason_key?: string}>; outputDir: string; geminiApiKey: string | undefined}`; `getAuditServices(): Promise<AuditServices>` (initializes once, caches); `setAuditServicesForTests(value: AuditServices | null): void`; `register()` in instrumentation that warms the container on the nodejs runtime; `POST /api/audits` returning 201 `{id, secret, status_url}` + signed eligibility cookie, or 400.
 
@@ -4907,10 +4907,7 @@ git commit -m "feat(web): landing page and audit form client"
 ```ts
 import { afterEach, describe, expect, it } from "vitest";
 import { InMemoryAuditStore } from "@wpi/audit-pipeline";
-import {
-  getAuditServices,
-  setAuditServicesForTests,
-} from "../services/container";
+import { getAuditServices, setAuditServicesForTests } from "../services/container";
 
 const ENV_KEYS = ["WPI_DISPATCH_MODE", "AUDIT_COOKIE_SECRET", "WPI_DATABASE_URL"] as const;
 
@@ -4947,18 +4944,11 @@ describe("getAuditServices", () => {
 
 ```ts
 import { afterEach, describe, expect, it } from "vitest";
-import {
-  InMemoryAuditStore,
-  TIER_SCOPES,
-  type AuditStore,
-} from "@wpi/audit-pipeline";
+import { InMemoryAuditStore, TIER_SCOPES, type AuditStore } from "@wpi/audit-pipeline";
 import type { NextRequest } from "next/server";
 import type { AuditContext } from "@wpi/audit-pipeline";
 import { POST } from "../app/api/audits/route";
-import {
-  setAuditServicesForTests,
-  type AuditServices,
-} from "../services/container";
+import { setAuditServicesForTests, type AuditServices } from "../services/container";
 
 const CONTEXT: AuditContext = {
   organization: "Example Corp",
@@ -5146,10 +5136,7 @@ function buildPipeline(fields: PipelineFields) {
         () => runCrawlJob(),
       ),
     render: (record: AuditRecord) =>
-      scopedEnv(
-        { AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir },
-        () => runRenderJob(),
-      ),
+      scopedEnv({ AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir }, () => runRenderJob()),
     processEvidence: async (record: AuditRecord): Promise<string[]> => {
       await runEvidenceProcessor();
       const files = await readdir(join(fields.outputDir, record.id, "evidence"));
@@ -5185,9 +5172,7 @@ function buildPipeline(fields: PipelineFields) {
   };
 }
 
-function localValidateUrl(
-  url: string,
-): { ok: boolean; reason_key?: string } {
+function localValidateUrl(url: string): { ok: boolean; reason_key?: string } {
   try {
     const parsed = new URL(url);
     if (parsed.protocol === "http:" || parsed.protocol === "https:") {
@@ -5238,9 +5223,7 @@ async function buildServices(): Promise<AuditServices> {
     validateUrl: async (url) => {
       try {
         const result = await validateUrl(url);
-        return result.valid
-          ? { ok: true }
-          : { ok: false, reason_key: "failure.url_invalid" };
+        return result.valid ? { ok: true } : { ok: false, reason_key: "failure.url_invalid" };
       } catch {
         return { ok: false, reason_key: "failure.url_invalid" };
       }
@@ -5251,9 +5234,7 @@ async function buildServices(): Promise<AuditServices> {
 
   return {
     ...fields,
-    dispatcher: new InProcessDispatcher((jobId) =>
-      runAuditPipeline(buildPipeline(fields), jobId),
-    ),
+    dispatcher: new InProcessDispatcher((jobId) => runAuditPipeline(buildPipeline(fields), jobId)),
     cookieSecret,
   };
 }
@@ -5312,11 +5293,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // reCAPTCHA enforcement lands with the identity decision (docs/decisions.md D-011).
   void process.env["WPI_RECAPTCHA_SECRET"];
 
-  const counts =
-    verifyEligibilityCookie(
-      request.cookies.get(ELIGIBILITY_COOKIE_NAME)?.value ?? "",
-      services.cookieSecret,
-    ) ?? { rich_count: 0, reduced_count: 0, preview_count: 0 };
+  const counts = verifyEligibilityCookie(
+    request.cookies.get(ELIGIBILITY_COOKIE_NAME)?.value ?? "",
+    services.cookieSecret,
+  ) ?? { rich_count: 0, reduced_count: 0, preview_count: 0 };
 
   const tier = decideTier(counts);
   const secret = generateAuditSecret();
@@ -5373,10 +5353,12 @@ git commit -m "feat(web): audit services container, instrumentation, POST /api/a
 ### Task 16: Access guard, status/DELETE routes, export denial
 
 **Files:**
+
 - Create: `apps/web/src/services/access.ts`, `apps/web/src/app/api/audits/[id]/status/route.ts`, `apps/web/src/app/api/audits/[id]/route.ts`, `apps/web/src/app/api/export/route.ts`, `apps/web/src/app/api/export/[...path]/route.ts`
 - Test: `apps/web/src/test/api-routes.test.ts`
 
 **Interfaces:**
+
 - Consumes: `hashAuditSecret` (Task 3); `AuditRecord`/`AuditStore` (Task 6); `AuditServices`/`setAuditServicesForTests` (Task 15).
 - Produces: `AccessOutcome = {kind: "authorized"; record: AuditRecord} | {kind: "not_found"} | {kind: "deleted"} | {kind: "expired"}`; `authorizeRecord(store: AuditStore, id: string, secret: string | undefined): Promise<AccessOutcome>`; `GET /api/audits/[id]/status` (200 `{id, status, failure_reason, has_report}` / 404 `{error: "not_found"}` / 410 `{error: "deleted"|"expired"}`, all with `X-Robots-Tag: noindex, nofollow` + `Cache-Control: no-store`); `DELETE /api/audits/[id]` (204 / 404 / 410); every `/api/export/*` method returns 403 `{error: "export_denied"}`.
 
@@ -5399,10 +5381,7 @@ import { GET as statusGET } from "../app/api/audits/[id]/status/route";
 import { DELETE as auditDELETE } from "../app/api/audits/[id]/route";
 import { GET as exportGET, POST as exportPOST } from "../app/api/export/route";
 import { authorizeRecord } from "../services/access";
-import {
-  setAuditServicesForTests,
-  type AuditServices,
-} from "../services/container";
+import { setAuditServicesForTests, type AuditServices } from "../services/container";
 
 const CONTEXT: AuditContext = {
   organization: "Example Corp",
@@ -5600,11 +5579,7 @@ Expected: FAIL — cannot resolve `../services/access`.
 
 ```ts
 import { timingSafeEqual } from "node:crypto";
-import {
-  hashAuditSecret,
-  type AuditRecord,
-  type AuditStore,
-} from "@wpi/audit-pipeline";
+import { hashAuditSecret, type AuditRecord, type AuditStore } from "@wpi/audit-pipeline";
 
 export type AccessOutcome =
   | { kind: "authorized"; record: AuditRecord }
@@ -5780,10 +5755,12 @@ git commit -m "feat(web): access guard, status/delete routes, export denial"
 ### Task 17: Audit status page with poller, report view, and self-delete
 
 **Files:**
+
 - Create: `apps/web/src/services/audit-view.ts`, `apps/web/src/app/[locale]/audit/[id]/page.tsx`, `apps/web/src/app/[locale]/audit/[id]/_components/status-poller.tsx`, `apps/web/src/app/[locale]/audit/[id]/_components/report-view.tsx`, `apps/web/src/app/[locale]/audit/[id]/_components/delete-button.tsx`, `apps/web/src/app/[locale]/not-found.tsx`
 - Test: `apps/web/src/test/audit-view.test.ts`
 
 **Interfaces:**
+
 - Consumes: `authorizeRecord` (Task 16), `getAuditServices` (Task 15), `AuditRecord`/`StoredReportEnvelope` (Task 6), `Link` (Task 13), message namespaces `status`/`report`/`error` (Task 13).
 - Produces: `AuditView = {kind: "running"} | {kind: "ready"} | {kind: "failed"; reasonKey: string}`; `describeAuditView(status: string, failureReason: string | null): AuditView`; `<StatusPoller auditId secret />` (client, polls GET /api/audits/[id]/status every 3s, refreshes on READY/FAILED); `<ReportView record locale secret />` (server, renders findings/unavailable/limitations/action board/delete); audit page RSC with `robots: noindex, nofollow` metadata; `[locale]/not-found.tsx`.
 
@@ -5837,14 +5814,9 @@ Expected: FAIL — cannot resolve `../services/audit-view`.
 
 ```ts
 export type AuditView =
-  | { kind: "running" }
-  | { kind: "ready" }
-  | { kind: "failed"; reasonKey: string };
+  { kind: "running" } | { kind: "ready" } | { kind: "failed"; reasonKey: string };
 
-export function describeAuditView(
-  status: string,
-  failureReason: string | null,
-): AuditView {
+export function describeAuditView(status: string, failureReason: string | null): AuditView {
   if (status === "READY_COMPLETE" || status === "READY_PARTIAL") {
     return { kind: "ready" };
   }
@@ -5958,22 +5930,9 @@ import { useEffect, useState } from "react";
 
 const POLL_INTERVAL_MS = 3000;
 
-const STAGES = [
-  "QUEUED",
-  "VALIDATING",
-  "CRAWLING",
-  "EXTRACTING",
-  "AUDITING",
-  "COMPOSING",
-] as const;
+const STAGES = ["QUEUED", "VALIDATING", "CRAWLING", "EXTRACTING", "AUDITING", "COMPOSING"] as const;
 
-export function StatusPoller({
-  auditId,
-  secret,
-}: {
-  auditId: string;
-  secret: string;
-}) {
+export function StatusPoller({ auditId, secret }: { auditId: string; secret: string }) {
   const t = useTranslations("status");
   const router = useRouter();
   const [currentStatus, setCurrentStatus] = useState<string | null>(null);
@@ -6014,7 +5973,8 @@ export function StatusPoller({
     };
   }, [auditId, router, secret]);
 
-  const currentIndex = currentStatus !== null ? STAGES.indexOf(currentStatus as (typeof STAGES)[number]) : -1;
+  const currentIndex =
+    currentStatus !== null ? STAGES.indexOf(currentStatus as (typeof STAGES)[number]) : -1;
 
   return (
     <div className="space-y-6 py-16 text-center" aria-live="polite">
@@ -6095,9 +6055,7 @@ export async function ReportView({
     <div className="space-y-10 py-8">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold">{t("sections_title")}</h1>
-        <p className="text-sm text-neutral-600">
-          {tStatus(`stage_${record.status}`)}
-        </p>
+        <p className="text-sm text-neutral-600">{tStatus(`stage_${record.status}`)}</p>
         {envelope.report.content.sample_disclosure.sampled ? (
           <p className="text-sm text-neutral-500">
             {t("sample_disclosure", {
@@ -6192,7 +6150,11 @@ export async function ReportView({
       ) : null}
 
       <div className="flex flex-wrap items-center gap-4 border-t border-neutral-200 pt-6">
-        <button type="button" disabled className="rounded bg-neutral-200 px-4 py-2 text-sm text-neutral-500">
+        <button
+          type="button"
+          disabled
+          className="rounded bg-neutral-200 px-4 py-2 text-sm text-neutral-500"
+        >
           {t("claim_cta")}
         </button>
         <Link href="/" className="text-sm underline">
@@ -6221,13 +6183,7 @@ and extend the type import at the top to `import type { AuditRecord, StoredFindi
 import { useTranslations } from "next-intl";
 import { useRouter } from "../../../../../i18n/navigation";
 
-export function DeleteButton({
-  auditId,
-  secret,
-}: {
-  auditId: string;
-  secret: string;
-}) {
+export function DeleteButton({ auditId, secret }: { auditId: string; secret: string }) {
   const t = useTranslations("report");
   const router = useRouter();
 
@@ -6235,10 +6191,9 @@ export function DeleteButton({
     if (!window.confirm(t("delete_confirm"))) {
       return;
     }
-    const response = await fetch(
-      `/api/audits/${auditId}?s=${encodeURIComponent(secret)}`,
-      { method: "DELETE" },
-    );
+    const response = await fetch(`/api/audits/${auditId}?s=${encodeURIComponent(secret)}`, {
+      method: "DELETE",
+    });
     if (response.status === 204) {
       router.replace("/");
       router.refresh();
@@ -6246,7 +6201,11 @@ export function DeleteButton({
   }
 
   return (
-    <button type="button" onClick={() => void handleDelete()} className="text-sm text-red-600 underline">
+    <button
+      type="button"
+      onClick={() => void handleDelete()}
+      className="text-sm text-red-600 underline"
+    >
       {t("delete_audit")}
     </button>
   );
@@ -6290,10 +6249,12 @@ git commit -m "feat(web): audit status page with poller and report view"
 ### Task 18: Static pages (Methodology, Privacy, Terms) and decision D-022
 
 **Files:**
+
 - Create: `apps/web/src/app/[locale]/methodology/page.tsx`, `apps/web/src/app/[locale]/privacy/page.tsx`, `apps/web/src/app/[locale]/terms/page.tsx`
 - Modify: `docs/decisions.md` (append-only register)
 
 **Interfaces:**
+
 - Consumes: `pages.methodology`/`pages.privacy`/`pages.terms` message namespaces (Task 13).
 - Produces: three static RSC pages reachable from the header nav.
 
@@ -6304,11 +6265,7 @@ git commit -m "feat(web): audit status page with poller and report view"
 ```tsx
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-export default async function MethodologyPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function MethodologyPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "pages.methodology" });
@@ -6354,9 +6311,11 @@ git commit -m "feat(web): static pages and decision D-022"
 ### Task 19: Playwright e2e — audit journey and accessibility
 
 **Files:**
+
 - Create: `apps/web/playwright.config.ts`, `apps/web/e2e/audit-journey.spec.ts`
 
 **Interfaces:**
+
 - Consumes: stub dispatcher (Task 12, via `WPI_DISPATCH_MODE=stub` — completes an audit in ~1s with no network), form field ids from Task 14, report headings from Task 17, DELETE route from Task 16.
 - Produces: `pnpm --filter @wpi/web exec playwright test` — 5 tests (EN journey incl. delete, AR journey, axe on landing EN/AR, axe on report).
 
@@ -6499,9 +6458,11 @@ git commit -m "test(web): Playwright e2e audit journey with accessibility checks
 ### Task 20: Final verification and README
 
 **Files:**
+
 - Modify: `README.md` (append M4-web section)
 
 **Interfaces:**
+
 - Consumes: everything built in Tasks 1–19.
 - Produces: a green workspace and setup docs for the next engineer.
 
@@ -6540,7 +6501,7 @@ Expected: PASS. (Skip if no local Postgres — the in-memory suites cover the sa
 
 - [ ] **Step 5: Append the M4-web section to README.md**
 
-```markdown
+````markdown
 ## M4-web: free audit (apps/web)
 
 ### Prerequisites
@@ -6556,17 +6517,18 @@ createdb wpi_dev
 createdb wpi_test
 pnpm --filter @wpi/audit-pipeline exec wpi-migrate
 ```
+````
 
 ### Environment variables (apps/web)
 
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `WPI_DISPATCH_MODE` | no (default `in_process`) | `stub` runs a deterministic no-network pipeline for local dev and E2E; `in_process` runs the real pipeline |
-| `WPI_DATABASE_URL` | yes unless `WPI_DISPATCH_MODE=stub` | Postgres connection string for the audit store |
-| `AUDIT_COOKIE_SECRET` | yes unless `WPI_DISPATCH_MODE=stub` | HMAC secret for the signed eligibility cookie |
-| `WPI_GEMINI_API_KEY` | no | Enables the agent stage; without it agent sections render as `unavailable` with a reason |
-| `WPI_OUTPUT_DIR` | no (default `./output`) | Crawler/evidence output directory |
-| `WPI_TEST_DATABASE_URL` | no | Enables the `PostgresAuditStore` test suite |
+| Variable                | Required                            | Purpose                                                                                                    |
+| ----------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `WPI_DISPATCH_MODE`     | no (default `in_process`)           | `stub` runs a deterministic no-network pipeline for local dev and E2E; `in_process` runs the real pipeline |
+| `WPI_DATABASE_URL`      | yes unless `WPI_DISPATCH_MODE=stub` | Postgres connection string for the audit store                                                             |
+| `AUDIT_COOKIE_SECRET`   | yes unless `WPI_DISPATCH_MODE=stub` | HMAC secret for the signed eligibility cookie                                                              |
+| `WPI_GEMINI_API_KEY`    | no                                  | Enables the agent stage; without it agent sections render as `unavailable` with a reason                   |
+| `WPI_OUTPUT_DIR`        | no (default `./output`)             | Crawler/evidence output directory                                                                          |
+| `WPI_TEST_DATABASE_URL` | no                                  | Enables the `PostgresAuditStore` test suite                                                                |
 
 ### Tests
 
@@ -6575,12 +6537,12 @@ pnpm --filter @wpi/web exec playwright install chromium   # once
 pnpm -r --no-bail test                                    # unit + route tests
 pnpm --filter @wpi/web exec playwright test               # E2E (runs in stub mode)
 ```
-```
+
+````
 
 - [ ] **Step 6: Commit**
 
 ```bash
 git add README.md
 git commit -m "docs(readme): M4-web setup, env vars, and test commands"
-```
-
+````

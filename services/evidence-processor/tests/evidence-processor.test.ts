@@ -10,18 +10,10 @@ vi.mock("node:fs", () => ({
   writeFileSync: vi.fn(),
 }));
 
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 
 // Import after mocking
-const { runEvidenceProcessor, EVIDENCE_PROCESSOR_VERSION } = await import(
-  "../src/index.js"
-);
+const { runEvidenceProcessor, EVIDENCE_PROCESSOR_VERSION } = await import("../src/index.js");
 
 function urlToHash(url: string): string {
   return createHash("sha256").update(url).digest("hex").slice(0, 16);
@@ -110,9 +102,7 @@ describe("runEvidenceProcessor", () => {
 
     it("throws when input directory does not exist", async () => {
       vi.mocked(existsSync).mockReturnValue(false);
-      await expect(runEvidenceProcessor()).rejects.toThrow(
-        "Input directory does not exist",
-      );
+      await expect(runEvidenceProcessor()).rejects.toThrow("Input directory does not exist");
     });
   });
 
@@ -152,7 +142,8 @@ describe("runEvidenceProcessor", () => {
 
     it("skips non-JSON files in raw directory", async () => {
       vi.mocked(readdirSync).mockImplementation((path) => {
-        if (path === RAW_DIR) return ["readme.txt", "data.json", "image.png"] as unknown as import("node:fs").Dirent[];
+        if (path === RAW_DIR)
+          return ["readme.txt", "data.json", "image.png"] as unknown as import("node:fs").Dirent[];
         return [];
       });
 
@@ -208,7 +199,8 @@ describe("runEvidenceProcessor", () => {
       const raw2 = makeRawEvidence({ url: "https://example.com/2" });
 
       vi.mocked(readdirSync).mockImplementation((path) => {
-        if (path === RAW_DIR) return ["file1.json", "file2.json"] as unknown as import("node:fs").Dirent[];
+        if (path === RAW_DIR)
+          return ["file1.json", "file2.json"] as unknown as import("node:fs").Dirent[];
         return [];
       });
 
@@ -279,9 +271,7 @@ describe("runEvidenceProcessor", () => {
       const result = await runEvidenceProcessor();
       expect(result.evidenceSkipped).toBe(1);
       expect(result.evidenceProcessed).toBe(0);
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining("tampering detected"),
-      );
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("tampering detected"));
 
       warnSpy.mockRestore();
     });
@@ -298,9 +288,7 @@ describe("runEvidenceProcessor", () => {
 
       const result = await runEvidenceProcessor();
       expect(result.evidenceSkipped).toBe(1);
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining("tampering detected"),
-      );
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("tampering detected"));
 
       warnSpy.mockRestore();
     });
@@ -402,7 +390,8 @@ describe("runEvidenceProcessor", () => {
       });
       vi.mocked(readdirSync).mockImplementation((path) => {
         if (path === RAW_DIR) return ["file.json"] as unknown as import("node:fs").Dirent[];
-        if (path === RENDERED_DIR) return [`${urlHash}.json`] as unknown as import("node:fs").Dirent[];
+        if (path === RENDERED_DIR)
+          return [`${urlHash}.json`] as unknown as import("node:fs").Dirent[];
         return [];
       });
 
@@ -433,7 +422,8 @@ describe("runEvidenceProcessor", () => {
       });
       vi.mocked(readdirSync).mockImplementation((path) => {
         if (path === RAW_DIR) return ["file.json"] as unknown as import("node:fs").Dirent[];
-        if (path === RENDERED_DIR) return [`${urlHash}.json`] as unknown as import("node:fs").Dirent[];
+        if (path === RENDERED_DIR)
+          return [`${urlHash}.json`] as unknown as import("node:fs").Dirent[];
         return [];
       });
 
@@ -461,7 +451,8 @@ describe("runEvidenceProcessor", () => {
       const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
       vi.mocked(readdirSync).mockImplementation((path) => {
-        if (path === RAW_DIR) return ["bad.json", "good.json"] as unknown as import("node:fs").Dirent[];
+        if (path === RAW_DIR)
+          return ["bad.json", "good.json"] as unknown as import("node:fs").Dirent[];
         return [];
       });
 

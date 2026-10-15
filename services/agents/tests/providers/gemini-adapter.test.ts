@@ -26,7 +26,9 @@ describe("GeminiAdapter", () => {
   });
 
   it("calls Gemini API and returns completion response", async () => {
-    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    const { __mockGenerateContent } = (await import("@google/genai")) as {
+      __mockGenerateContent: ReturnType<typeof vi.fn>;
+    };
     __mockGenerateContent.mockResolvedValueOnce({
       text: "Hello, world!",
       usageMetadata: {
@@ -49,7 +51,9 @@ describe("GeminiAdapter", () => {
   });
 
   it("returns tool_calls when model requests tool use", async () => {
-    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    const { __mockGenerateContent } = (await import("@google/genai")) as {
+      __mockGenerateContent: ReturnType<typeof vi.fn>;
+    };
     __mockGenerateContent.mockResolvedValueOnce({
       text: "",
       functionCalls: [{ name: "get_evidence", args: { evidence_id: "ev-1" } }],
@@ -64,9 +68,7 @@ describe("GeminiAdapter", () => {
       model: "gemini-2.0-flash",
       systemPrompt: "You are an auditor.",
       userPrompt: "Analyze.",
-      toolDefinitions: [
-        { name: "get_evidence", description: "Get evidence", inputSchema: {} },
-      ],
+      toolDefinitions: [{ name: "get_evidence", description: "Get evidence", inputSchema: {} }],
     });
 
     expect(result.toolCalls).toHaveLength(1);
@@ -80,23 +82,29 @@ describe("GeminiAdapter", () => {
   });
 
   it("reports unavailable when circuit breaker is open", async () => {
-    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    const { __mockGenerateContent } = (await import("@google/genai")) as {
+      __mockGenerateContent: ReturnType<typeof vi.fn>;
+    };
     // Force 3 consecutive failures to open the breaker
     __mockGenerateContent.mockRejectedValue(new Error("API down"));
 
     for (let i = 0; i < 3; i++) {
-      await adapter.complete({
-        model: "gemini-2.0-flash",
-        systemPrompt: "test",
-        userPrompt: "test",
-      }).catch(() => {});
+      await adapter
+        .complete({
+          model: "gemini-2.0-flash",
+          systemPrompt: "test",
+          userPrompt: "test",
+        })
+        .catch(() => {});
     }
 
     expect(adapter.isAvailable()).toBe(false);
   });
 
   it("maps MAX_TOKENS finish reason to max_tokens", async () => {
-    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    const { __mockGenerateContent } = (await import("@google/genai")) as {
+      __mockGenerateContent: ReturnType<typeof vi.fn>;
+    };
     __mockGenerateContent.mockResolvedValueOnce({
       text: "Partial response",
       candidates: [{ finishReason: "MAX_TOKENS" }],
@@ -116,7 +124,9 @@ describe("GeminiAdapter", () => {
   });
 
   it("maps non-STOP finish reason to error", async () => {
-    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    const { __mockGenerateContent } = (await import("@google/genai")) as {
+      __mockGenerateContent: ReturnType<typeof vi.fn>;
+    };
     __mockGenerateContent.mockResolvedValueOnce({
       text: "",
       candidates: [{ finishReason: "SAFETY" }],
@@ -136,7 +146,9 @@ describe("GeminiAdapter", () => {
   });
 
   it("builds Part[] array when content field is present", async () => {
-    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    const { __mockGenerateContent } = (await import("@google/genai")) as {
+      __mockGenerateContent: ReturnType<typeof vi.fn>;
+    };
     __mockGenerateContent.mockResolvedValueOnce({
       text: "Evaluation complete",
       usageMetadata: {
@@ -163,12 +175,14 @@ describe("GeminiAdapter", () => {
           { text: "Evaluate the screenshots" },
           { inlineData: { mimeType: "image/png", data: "base64imagedata" } },
         ],
-      })
+      }),
     );
   });
 
   it("uses userPrompt string when content field is absent (backward compatible)", async () => {
-    const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+    const { __mockGenerateContent } = (await import("@google/genai")) as {
+      __mockGenerateContent: ReturnType<typeof vi.fn>;
+    };
     __mockGenerateContent.mockResolvedValueOnce({
       text: "Response",
       usageMetadata: {
@@ -187,7 +201,7 @@ describe("GeminiAdapter", () => {
     expect(__mockGenerateContent).toHaveBeenCalledWith(
       expect.objectContaining({
         contents: "Hello",
-      })
+      }),
     );
   });
 });

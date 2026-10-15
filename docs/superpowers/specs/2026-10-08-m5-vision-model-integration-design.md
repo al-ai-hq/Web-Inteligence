@@ -29,14 +29,13 @@ Add multimodal content support to `services/agents/src/providers/types.ts`:
 
 ```typescript
 export type ContentPart =
-  | { type: 'text'; text: string }
-  | { type: 'image'; mimeType: string; data: string }; // base64
+  { type: "text"; text: string } | { type: "image"; mimeType: string; data: string }; // base64
 
 export interface CompletionRequest {
   model: string;
   systemPrompt: string;
-  userPrompt: string;           // kept for backward compat
-  content?: ContentPart[];      // new: multimodal content (optional)
+  userPrompt: string; // kept for backward compat
+  content?: ContentPart[]; // new: multimodal content (optional)
   toolDefinitions?: ToolDefinition[];
   maxTokens?: number;
   temperature?: number;
@@ -54,8 +53,8 @@ import type { Part } from "@google/genai";
 
 // Inside complete():
 const contents: string | Part[] = request.content
-  ? request.content.map(part => {
-      if (part.type === 'text') {
+  ? request.content.map((part) => {
+      if (part.type === "text") {
         return { text: part.text };
       }
       return {
@@ -79,7 +78,7 @@ const MODEL_MAP: Record<string, string> = {
   fast: "gemini-2.0-flash",
   fast_plus_embedding: "gemini-2.5-flash",
   strong_reasoning: "gemini-2.5-pro",
-  vision_capable: "gemini-2.5-pro",  // new
+  vision_capable: "gemini-2.5-pro", // new
 };
 ```
 
@@ -98,7 +97,7 @@ Create `services/crawler/src/screenshot-capture.ts`.
 ```typescript
 export interface ScreenshotImage {
   buffer: Buffer;
-  mime_type: 'image/png';
+  mime_type: "image/png";
   width: number;
   height: number;
 }
@@ -115,7 +114,7 @@ Null for failed captures (timeout, page crash, etc.).
 ### 2.3 Implementation
 
 ```typescript
-import type { Page } from 'playwright';
+import type { Page } from "playwright";
 
 const ABOVE_FOLD_HEIGHT = 1080;
 
@@ -129,11 +128,11 @@ export async function captureScreenshots(page: Page): Promise<ScreenshotResult> 
 
 async function captureViewport(page: Page): Promise<ScreenshotImage | null> {
   try {
-    const buffer = await page.screenshot({ type: 'png' });
+    const buffer = await page.screenshot({ type: "png" });
     const viewport = page.viewportSize();
     return {
       buffer,
-      mime_type: 'image/png',
+      mime_type: "image/png",
       width: viewport?.width ?? 1280,
       height: viewport?.height ?? 720,
     };
@@ -144,14 +143,14 @@ async function captureViewport(page: Page): Promise<ScreenshotImage | null> {
 
 async function captureFullPage(page: Page): Promise<ScreenshotImage | null> {
   try {
-    const buffer = await page.screenshot({ type: 'png', fullPage: true });
+    const buffer = await page.screenshot({ type: "png", fullPage: true });
     const dimensions = await page.evaluate(() => ({
       width: document.documentElement.scrollWidth,
       height: document.documentElement.scrollHeight,
     }));
     return {
       buffer,
-      mime_type: 'image/png',
+      mime_type: "image/png",
       width: dimensions.width,
       height: dimensions.height,
     };
@@ -165,12 +164,12 @@ async function captureAboveFold(page: Page): Promise<ScreenshotImage | null> {
     const viewport = page.viewportSize();
     const width = viewport?.width ?? 1280;
     const buffer = await page.screenshot({
-      type: 'png',
+      type: "png",
       clip: { x: 0, y: 0, width, height: ABOVE_FOLD_HEIGHT },
     });
     return {
       buffer,
-      mime_type: 'image/png',
+      mime_type: "image/png",
       width,
       height: ABOVE_FOLD_HEIGHT,
     };
@@ -195,8 +194,8 @@ Change `packages/core/src/types/experience-evidence.ts`:
 ```typescript
 export interface ScreenshotRef {
   evidence_id: string;
-  path: string;              // filesystem path to PNG
-  mime_type: 'image/png';
+  path: string; // filesystem path to PNG
+  mime_type: "image/png";
   width: number;
   height: number;
 }
@@ -227,7 +226,7 @@ export interface ExperienceEvidencePackage {
   readiness_results: {
     score: number | null;
     categories: CategoryResult[];
-    confidence: 'high' | 'medium' | 'low';
+    confidence: "high" | "medium" | "low";
   };
 }
 ```
@@ -252,14 +251,14 @@ Create `services/agents/src/experience-reviewer/` with 4 modules:
 ### 4.2 Orchestrator Flow
 
 ```typescript
-import { GeminiAdapter } from '../providers/gemini-adapter.js';
-import { resolveModel } from '../providers/model-resolver.js';
-import { CostTracker } from '../providers/cost-tracker.js';
-import { buildDimensionPrompt } from './dimension-prompt.js';
-import { parseDimensionResponse } from './response-parser.js';
-import { loadImagesAsContent } from './image-loader.js';
-import type { ExperienceEvidencePackage } from '@wpi/core';
-import type { ExperienceScoreResult } from '@wpi/core';
+import { GeminiAdapter } from "../providers/gemini-adapter.js";
+import { resolveModel } from "../providers/model-resolver.js";
+import { CostTracker } from "../providers/cost-tracker.js";
+import { buildDimensionPrompt } from "./dimension-prompt.js";
+import { parseDimensionResponse } from "./response-parser.js";
+import { loadImagesAsContent } from "./image-loader.js";
+import type { ExperienceEvidencePackage } from "@wpi/core";
+import type { ExperienceScoreResult } from "@wpi/core";
 
 export interface OrchestratorDeps {
   adapter: GeminiAdapter;
@@ -269,10 +268,16 @@ export interface OrchestratorDeps {
 
 export async function reviewExperience(
   evidence: ExperienceEvidencePackage,
-  deps: OrchestratorDeps
+  deps: OrchestratorDeps,
 ): Promise<{ findings: any[]; score: ExperienceScoreResult }> {
-  const model = resolveModel('vision_capable');
-  const dimensions = ['design_hierarchy', 'copy_and_positioning_clarity', 'ux_and_navigation', 'trust_and_proof', 'conversion_path_and_measurement'];
+  const model = resolveModel("vision_capable");
+  const dimensions = [
+    "design_hierarchy",
+    "copy_and_positioning_clarity",
+    "ux_and_navigation",
+    "trust_and_proof",
+    "conversion_path_and_measurement",
+  ];
 
   const allFindings = [];
   const dimensionScores = {};
@@ -284,14 +289,14 @@ export async function reviewExperience(
     const response = await deps.adapter.complete({
       model,
       systemPrompt: prompt.systemPrompt,
-      userPrompt: '',  // not used when content is present
+      userPrompt: "", // not used when content is present
       content: prompt.content,
       temperature: 0.3,
     });
 
     deps.costTracker.record({
       audit_id: deps.auditId,
-      agent_name: 'experience-reviewer',
+      agent_name: "experience-reviewer",
       model,
       tokens_in: response.usage.tokens_in,
       tokens_out: response.usage.tokens_out,
@@ -302,7 +307,7 @@ export async function reviewExperience(
       dimension,
       response.content,
       evidence.language,
-      evidence.market
+      evidence.market,
     );
 
     allFindings.push(...findings);
@@ -313,7 +318,7 @@ export async function reviewExperience(
     dimensionScores,
     getDimensionWeights(),
     calculateCoverage(allFindings),
-    calculateConfidence(allFindings)
+    calculateConfidence(allFindings),
   );
 
   return { findings: allFindings, score: overallScore };
@@ -323,14 +328,14 @@ export async function reviewExperience(
 ### 4.3 Dimension Prompt Builder
 
 ```typescript
-import type { ContentPart } from '../providers/types.js';
-import type { ExperienceEvidencePackage } from '@wpi/core';
-import { loadRubricConfig } from '@wpi/core';
+import type { ContentPart } from "../providers/types.js";
+import type { ExperienceEvidencePackage } from "@wpi/core";
+import { loadRubricConfig } from "@wpi/core";
 
 export function buildDimensionPrompt(
   dimension: string,
   evidence: ExperienceEvidencePackage,
-  imageParts: ContentPart[]
+  imageParts: ContentPart[],
 ): { systemPrompt: string; content: ContentPart[] } {
   const config = loadRubricConfig();
   const dimensionConfig = config.dimensions[dimension];
@@ -339,7 +344,9 @@ export function buildDimensionPrompt(
   const systemPrompt = `You are evaluating a webpage's ${dimensionConfig.title}.
 
 Criteria:
-${Object.entries(criteria).map(([id, weight]) => `- ${id} (weight: ${weight}): ${getCriterionDescription(id)}`).join('\n')}
+${Object.entries(criteria)
+  .map(([id, weight]) => `- ${id} (weight: ${weight}): ${getCriterionDescription(id)}`)
+  .join("\n")}
 
 For each criterion, respond with:
 - result: 'pass', 'partial', 'fail', or 'not_applicable'
@@ -359,7 +366,7 @@ Respond in JSON format:
 }`;
 
   const textContent: ContentPart = {
-    type: 'text',
+    type: "text",
     text: `URL: ${evidence.page_url}
 Language: ${evidence.language}
 Market: ${evidence.market}
@@ -380,15 +387,15 @@ Evaluate the screenshots based on the criteria above.`,
 ### 4.4 Response Parser
 
 ```typescript
-import type { ReviewerTrace } from '@wpi/core';
-import { calculateDimensionScore } from '@wpi/core';
-import { loadRubricConfig } from '@wpi/core';
+import type { ReviewerTrace } from "@wpi/core";
+import { calculateDimensionScore } from "@wpi/core";
+import { loadRubricConfig } from "@wpi/core";
 
 interface DimensionResponse {
   criteria: Array<{
     criterion_id: string;
-    result: 'pass' | 'partial' | 'fail' | 'not_applicable';
-    confidence: 'high' | 'medium' | 'low';
+    result: "pass" | "partial" | "fail" | "not_applicable";
+    confidence: "high" | "medium" | "low";
     rationale: string;
   }>;
 }
@@ -397,7 +404,7 @@ export function parseDimensionResponse(
   dimension: string,
   responseText: string,
   language: string,
-  market: string
+  market: string,
 ): { findings: any[]; score: any } {
   let parsed: DimensionResponse;
   try {
@@ -410,11 +417,11 @@ export function parseDimensionResponse(
   const config = loadRubricConfig();
   const criteria = config.criteria[dimension];
 
-  const findings = parsed.criteria.map(c => ({
+  const findings = parsed.criteria.map((c) => ({
     id: `exp_${c.criterion_id}_${Date.now()}`,
     result_state: c.result,
     confidence: c.confidence,
-    evidence_ids: ['screenshot_viewport', 'screenshot_above_fold'],
+    evidence_ids: ["screenshot_viewport", "screenshot_above_fold"],
     data: {
       reviewer_trace: {
         rubric_version: config.methodology_version,
@@ -423,27 +430,27 @@ export function parseDimensionResponse(
         result: c.result,
         confidence: c.confidence,
         rationale: c.rationale,
-        evidence_ids: ['screenshot_viewport', 'screenshot_above_fold'],
-        reviewer_type: 'model',
-        model_id: 'gemini-pro-vision',
-        model_version: 'gemini-2.5-pro',
+        evidence_ids: ["screenshot_viewport", "screenshot_above_fold"],
+        reviewer_type: "model",
+        model_id: "gemini-pro-vision",
+        model_version: "gemini-2.5-pro",
         language,
-        language_direction: language === 'ar' ? 'rtl' : 'ltr',
+        language_direction: language === "ar" ? "rtl" : "ltr",
         market,
         evaluated_at: new Date().toISOString(),
-        prompt_version: '0.2.0',
+        prompt_version: "0.2.0",
         limitations: [],
       } as ReviewerTrace,
     },
   }));
 
   const score = calculateDimensionScore(
-    findings.map(f => ({
+    findings.map((f) => ({
       criterion_id: f.data.reviewer_trace.criterion_id,
       result: f.data.reviewer_trace.result,
       confidence: f.data.reviewer_trace.confidence,
     })),
-    criteria
+    criteria,
   );
 
   return { findings, score };
@@ -453,40 +460,40 @@ function createErrorFindings(dimension: string, language: string, market: string
   const config = loadRubricConfig();
   const criteria = config.criteria[dimension];
 
-  const findings = Object.keys(criteria).map(criterionId => ({
+  const findings = Object.keys(criteria).map((criterionId) => ({
     id: `exp_${criterionId}_${Date.now()}`,
-    result_state: 'error',
-    confidence: 'low',
+    result_state: "error",
+    confidence: "low",
     evidence_ids: [],
     data: {
       reviewer_trace: {
         rubric_version: config.methodology_version,
         criterion_id: criterionId,
         criterion_name: getCriterionName(criterionId),
-        result: 'error',
-        confidence: 'low',
-        rationale: 'Failed to parse model response',
+        result: "error",
+        confidence: "low",
+        rationale: "Failed to parse model response",
         evidence_ids: [],
-        reviewer_type: 'model',
-        model_id: 'gemini-pro-vision',
-        model_version: 'gemini-2.5-pro',
+        reviewer_type: "model",
+        model_id: "gemini-pro-vision",
+        model_version: "gemini-2.5-pro",
         language,
-        language_direction: language === 'ar' ? 'rtl' : 'ltr',
+        language_direction: language === "ar" ? "rtl" : "ltr",
         market,
         evaluated_at: new Date().toISOString(),
-        prompt_version: '0.2.0',
-        limitations: ['Model response parsing failed'],
+        prompt_version: "0.2.0",
+        limitations: ["Model response parsing failed"],
       } as ReviewerTrace,
     },
   }));
 
   const score = calculateDimensionScore(
-    findings.map(f => ({
+    findings.map((f) => ({
       criterion_id: f.data.reviewer_trace.criterion_id,
       result: f.data.reviewer_trace.result,
       confidence: f.data.reviewer_trace.confidence,
     })),
-    criteria
+    criteria,
   );
 
   return { findings, score };
@@ -496,36 +503,34 @@ function createErrorFindings(dimension: string, language: string, market: string
 ### 4.5 Image Loader
 
 ```typescript
-import { readFileSync } from 'node:fs';
-import type { ContentPart } from '../providers/types.js';
-import type { ScreenshotRef } from '@wpi/core';
+import { readFileSync } from "node:fs";
+import type { ContentPart } from "../providers/types.js";
+import type { ScreenshotRef } from "@wpi/core";
 
-export function loadImagesAsContent(
-  screenshots: {
-    viewport: ScreenshotRef | null;
-    full_page: ScreenshotRef | null;
-    above_fold: ScreenshotRef | null;
-  }
-): ContentPart[] {
+export function loadImagesAsContent(screenshots: {
+  viewport: ScreenshotRef | null;
+  full_page: ScreenshotRef | null;
+  above_fold: ScreenshotRef | null;
+}): ContentPart[] {
   const parts: ContentPart[] = [];
 
   // Prioritize viewport and above_fold for dimension evaluation
   if (screenshots.viewport) {
     const buffer = readFileSync(screenshots.viewport.path);
-    const base64 = buffer.toString('base64');
+    const base64 = buffer.toString("base64");
     parts.push({
-      type: 'image',
-      mimeType: 'image/png',
+      type: "image",
+      mimeType: "image/png",
       data: base64,
     });
   }
 
   if (screenshots.above_fold) {
     const buffer = readFileSync(screenshots.above_fold.path);
-    const base64 = buffer.toString('base64');
+    const base64 = buffer.toString("base64");
     parts.push({
-      type: 'image',
-      mimeType: 'image/png',
+      type: "image",
+      mimeType: "image/png",
       data: base64,
     });
   }
@@ -533,10 +538,10 @@ export function loadImagesAsContent(
   // Include full_page only if viewport/above_fold are missing
   if (parts.length === 0 && screenshots.full_page) {
     const buffer = readFileSync(screenshots.full_page.path);
-    const base64 = buffer.toString('base64');
+    const base64 = buffer.toString("base64");
     parts.push({
-      type: 'image',
-      mimeType: 'image/png',
+      type: "image",
+      mimeType: "image/png",
       data: base64,
     });
   }
@@ -565,7 +570,7 @@ Before each dimension call, check `costTracker.canProceed(auditId)`:
 ```typescript
 if (!deps.costTracker.canProceed(deps.auditId)) {
   // Stop evaluation, mark remaining dimensions as unavailable
-  throw new Error('Cost cap reached');
+  throw new Error("Cost cap reached");
 }
 ```
 

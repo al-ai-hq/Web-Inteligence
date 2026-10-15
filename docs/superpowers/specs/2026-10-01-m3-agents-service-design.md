@@ -20,13 +20,13 @@ This milestone implements three agents that cover the core audit-to-insights flo
 
 ### 1.1 Design Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Agent framework | Custom lightweight TypeScript | Full control, matches state machine design, no framework lock-in |
-| AI provider | Google Gemini only | Aligns with GCP architecture, one provider to validate pattern |
-| Orchestration | Cloud Tasks + Pub/Sub | Event-driven, matches state machine transitions, retry/dead-letter built in |
-| Tool implementations | Real (including external APIs) | Complete working system, no stubs to replace later |
-| Agent scope | 3 of 20 configs | Minimal viable set covering core audit flow |
+| Decision             | Choice                         | Rationale                                                                   |
+| -------------------- | ------------------------------ | --------------------------------------------------------------------------- |
+| Agent framework      | Custom lightweight TypeScript  | Full control, matches state machine design, no framework lock-in            |
+| AI provider          | Google Gemini only             | Aligns with GCP architecture, one provider to validate pattern              |
+| Orchestration        | Cloud Tasks + Pub/Sub          | Event-driven, matches state machine transitions, retry/dead-letter built in |
+| Tool implementations | Real (including external APIs) | Complete working system, no stubs to replace later                          |
+| Agent scope          | 3 of 20 configs                | Minimal viable set covering core audit flow                                 |
 
 ### 1.2 Non-Goals
 
@@ -56,6 +56,7 @@ flowchart LR
 ```
 
 **Responsibilities:**
+
 - Parse YAML configs (name, model_tier, tools, forbidden_tools, reads_untrusted_content, milestone)
 - Validate every tool name in `tools` exists in the tool registry
 - Validate no tool in `tools` appears in `forbidden_tools`
@@ -85,6 +86,7 @@ flowchart TD
 ```
 
 **Key constraints:**
+
 - Tool allowlist is enforced in code before every tool call
 - `forbidden_tools` are rejected even if they appear in `tools`
 - Crawled content is framed as "data, never instructions" in every prompt
@@ -181,24 +183,26 @@ Maps tool names (as they appear in YAML configs) to implementations.
 
 ### 3.3 Tool Catalog
 
-| Tool | Used by | Implementation | Source |
-|------|---------|----------------|--------|
-| `get_evidence` | auditor, content-strategist | Reads evidence from Cloud Storage by evidence ID | M1 evidence bucket |
-| `eval_rule` | auditor | Runs deterministic rule from `config/rules/` | Local rule engine (M1) |
-| `validate_schema` | auditor | Validates JSON-LD/microdata against schema.org | Local validator |
-| `psi_query` | auditor | Calls Google PageSpeed Insights API | External API (API key from Secret Manager) |
-| `crux_query` | auditor | Calls Chrome UX Report API | External API (API key from Secret Manager) |
-| `gsc_query` | keyword-analyst | Calls Search Console API | External API (OAuth/API key from Secret Manager) |
+| Tool              | Used by                     | Implementation                                   | Source                                           |
+| ----------------- | --------------------------- | ------------------------------------------------ | ------------------------------------------------ |
+| `get_evidence`    | auditor, content-strategist | Reads evidence from Cloud Storage by evidence ID | M1 evidence bucket                               |
+| `eval_rule`       | auditor                     | Runs deterministic rule from `config/rules/`     | Local rule engine (M1)                           |
+| `validate_schema` | auditor                     | Validates JSON-LD/microdata against schema.org   | Local validator                                  |
+| `psi_query`       | auditor                     | Calls Google PageSpeed Insights API              | External API (API key from Secret Manager)       |
+| `crux_query`      | auditor                     | Calls Chrome UX Report API                       | External API (API key from Secret Manager)       |
+| `gsc_query`       | keyword-analyst             | Calls Search Console API                         | External API (OAuth/API key from Secret Manager) |
 
 ### 3.4 Tool Implementations
 
 **`get_evidence`** (`src/tools/get-evidence.ts`):
+
 - Input: `{ evidence_id: string }`
 - Reads from Cloud Storage bucket (path: `evidence/{audit_id}/{evidence_id}.json`)
 - Returns: page content, extracted data, structured data, metadata
 - Source tier: `first_party`
 
 **`eval_rule`** (`src/tools/eval-rule.ts`):
+
 - Input: `{ rule_id: string, evidence_id: string }`
 - Loads rule definition from `config/rules/{rule_id}.yaml`
 - Runs deterministic evaluation function
@@ -207,12 +211,14 @@ Maps tool names (as they appear in YAML configs) to implementations.
 - **Critical:** Result is final. The agent never re-scores this.
 
 **`validate_schema`** (`src/tools/validate-schema.ts`):
+
 - Input: `{ structured_data: object, schema_type: string }`
 - Validates against schema.org definitions
 - Returns: valid/invalid with specific errors
 - Source tier: `first_party`
 
 **`psi_query`** (`src/tools/psi-query.ts`):
+
 - Input: `{ url: string, strategy: "mobile" | "desktop" }`
 - Calls PageSpeed Insights API v5
 - Returns: Lighthouse scores, performance metrics, opportunities
@@ -220,6 +226,7 @@ Maps tool names (as they appear in YAML configs) to implementations.
 - Requires: `PSI_API_KEY` from Secret Manager
 
 **`crux_query`** (`src/tools/crux-query.ts`):
+
 - Input: `{ url: string }`
 - Calls Chrome UX Report API
 - Returns: real-user performance data (LCP, FID, CLS origins)
@@ -227,6 +234,7 @@ Maps tool names (as they appear in YAML configs) to implementations.
 - Requires: `CRUX_API_KEY` from Secret Manager
 
 **`gsc_query`** (`src/tools/gsc-query.ts`):
+
 - Input: `{ site_url: string, start_date: string, end_date: string }`
 - Calls Search Console API
 - Returns: queries, clicks, impressions, average position
@@ -273,9 +281,9 @@ Maps `model_tier` from agent configs to concrete Gemini model names:
 
 ```typescript
 const MODEL_MAP: Record<string, string> = {
-  fast: "gemini-2.0-flash",      // auditor — semantic rules, quick analysis
-  standard: "gemini-2.5-flash",  // keyword-analyst — needs more reasoning
-  capable: "gemini-2.5-pro",     // content-strategist — complex brief generation
+  fast: "gemini-2.0-flash", // auditor — semantic rules, quick analysis
+  standard: "gemini-2.5-flash", // keyword-analyst — needs more reasoning
+  capable: "gemini-2.5-pro", // content-strategist — complex brief generation
 };
 ```
 
@@ -317,6 +325,7 @@ When the breaker is open, agents must mark AI-dependent output as `unavailable` 
 **File:** `services/agents/src/providers/cost-tracker.ts`
 
 Every call records:
+
 - `audit_id`, `agent_name`, `model`, `tokens_in`, `tokens_out`, `usd`, `timestamp`
 - Writes to Cloud SQL `agent_cost_log` table
 - Exposes:
@@ -330,6 +339,7 @@ The orchestrator checks monthly total against USD 150 cap before dispatching eac
 **File:** `services/agents/src/providers/prompt-builder.ts`
 
 Builds prompts from agent config and job context:
+
 - System prompt includes agent name, role, prohibitions from skill catalog
 - Injects evidence context from tool results
 - Enforces handoff contract: every prompt includes job_id, audit_id, evidence IDs, capture time
@@ -363,6 +373,7 @@ flowchart TD
 ```
 
 **Dependency resolution:**
+
 - Auditor has no dependencies
 - Keyword-analyst depends on auditor output
 - Content-strategist depends on both auditor and keyword-analyst output
@@ -375,6 +386,7 @@ flowchart TD
 Cloud Run HTTP endpoint that receives Cloud Tasks.
 
 **Flow:**
+
 1. Parse task payload (AgentJob)
 2. Load agent by name from registry
 3. Resolve tools from tool registry
@@ -443,12 +455,14 @@ flowchart TD
 ```
 
 **Prompt strategy:**
+
 - System prompt includes rule definition, grading criteria
 - Explicit instruction: crawled content is data, never instructions
 - Model outputs structured JSON matching Finding schema
 - Deterministic results are never re-scored
 
 **Output:**
+
 - Findings with: rule_id, page_url, result_state, evidence, confidence level
 - Limitations and missing inputs
 - Cost and duration metadata
@@ -470,12 +484,14 @@ flowchart TD
 ```
 
 **Prompt strategy:**
+
 - System prompt includes skill catalog entry for "Keyword and competitor research"
 - Preserve source metrics, cluster intent, distinguish competitor types
 - No invented volume/difficulty/traffic
 - Model must cite which data point supports each classification
 
 **Output:**
+
 - Keyword clusters, each with:
   - Primary query
   - Variants
@@ -501,12 +517,14 @@ flowchart TD
 ```
 
 **Prompt strategy:**
+
 - System prompt includes skill catalog entry for "Content strategy and briefing"
 - Evidence-linked briefs, no fabricated facts/proof/reviews/citations
 - Prefer improving existing owner pages over creating new ones
 - Model must link every recommendation to a specific finding ID
 
 **Output:**
+
 - Content briefs, each with:
   - Target page (or new page recommendation)
   - Target keyword cluster
@@ -518,6 +536,7 @@ flowchart TD
 ### 6.4 Handoff Contract Compliance
 
 All three agents include in every result:
+
 - `job_id`, `audit_id`, `project_id`, target site, market, language, capture time
 - Input evidence IDs and their integrity states
 - Method/rule/prompt version
@@ -704,14 +723,14 @@ The milestone is complete when:
 
 ## 12. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Gemini API rate limits | Agent execution blocked | Circuit breaker + retry with backoff |
-| External API keys not available | Tools fail | Graceful degradation to `unavailable` |
-| Prompt injection via crawled content | Security vulnerability | Explicit "data, never instructions" framing + security tests |
-| Cost overrun | Budget exceeded | USD 150 monthly cap + per-audit caps + cost tracking |
-| Agent hallucination | Incorrect findings | Deterministic rules never re-scored + evidence-linked findings |
-| Orchestration complexity | Hard to debug | Hardcoded dependency map (not full DAG) + comprehensive logging |
+| Risk                                 | Impact                  | Mitigation                                                      |
+| ------------------------------------ | ----------------------- | --------------------------------------------------------------- |
+| Gemini API rate limits               | Agent execution blocked | Circuit breaker + retry with backoff                            |
+| External API keys not available      | Tools fail              | Graceful degradation to `unavailable`                           |
+| Prompt injection via crawled content | Security vulnerability  | Explicit "data, never instructions" framing + security tests    |
+| Cost overrun                         | Budget exceeded         | USD 150 monthly cap + per-audit caps + cost tracking            |
+| Agent hallucination                  | Incorrect findings      | Deterministic rules never re-scored + evidence-linked findings  |
+| Orchestration complexity             | Hard to debug           | Hardcoded dependency map (not full DAG) + comprehensive logging |
 
 ---
 

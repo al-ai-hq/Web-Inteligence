@@ -31,9 +31,9 @@ describe("InMemoryAuthService", () => {
   it("rejects duplicate email", async () => {
     const auth = new InMemoryAuthService();
     await auth.createUser("user@example.com", "password123");
-    await expect(
-      auth.createUser("  USER@Example.COM  ", "other-password"),
-    ).rejects.toThrow(DuplicateEmailError);
+    await expect(auth.createUser("  USER@Example.COM  ", "other-password")).rejects.toThrow(
+      DuplicateEmailError,
+    );
   });
 
   it("verifies credentials with padded uppercase email", async () => {

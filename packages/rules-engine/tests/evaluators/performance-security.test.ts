@@ -237,10 +237,7 @@ describe("evalSEC001 - Mixed content", () => {
   it("returns pass for HTTPS page with no HTTP links", () => {
     const page = makePage({
       url: "https://example.com/",
-      links: [
-        { href: "https://example.com/about" },
-        { href: "https://cdn.example.com/style.css" },
-      ],
+      links: [{ href: "https://example.com/about" }, { href: "https://cdn.example.com/style.css" }],
     });
     const bundle = makeBundle();
     const result = evalSEC001(page, bundle);
@@ -264,10 +261,7 @@ describe("evalSEC001 - Mixed content", () => {
   it("returns fail when multiple HTTP resources are found", () => {
     const page = makePage({
       url: "https://example.com/",
-      links: [
-        { href: "http://example.com/img.png" },
-        { href: "http://example.com/script.js" },
-      ],
+      links: [{ href: "http://example.com/img.png" }, { href: "http://example.com/script.js" }],
     });
     const bundle = makeBundle();
     const result = evalSEC001(page, bundle);

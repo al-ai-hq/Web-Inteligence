@@ -403,11 +403,7 @@ describe("evalCRW008 - Crawlable internal links (per-page)", () => {
 
   it("returns fail when all links are non-crawlable", () => {
     const page = makePage({
-      links: [
-        { href: "javascript:void(0)" },
-        { href: "#" },
-        { href: "" },
-      ],
+      links: [{ href: "javascript:void(0)" }, { href: "#" }, { href: "" }],
     });
     const bundle = makeBundle();
     const result = evalCRW008(page, bundle);

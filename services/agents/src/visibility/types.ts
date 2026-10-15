@@ -11,12 +11,7 @@ export type PromptRunStatus =
   | "skipped_breaker";
 
 export type PanelRunState =
-  | "APPROVED"
-  | "BUILDING_PROMPTS"
-  | "RUNNING"
-  | "ANALYZING"
-  | "COMPLETE"
-  | "PARTIAL";
+  "APPROVED" | "BUILDING_PROMPTS" | "RUNNING" | "ANALYZING" | "COMPLETE" | "PARTIAL";
 
 export type OwnerClass = "owned" | "competitor" | "third_party" | "unknown";
 
@@ -44,12 +39,7 @@ export type AccuracyIssueStatus =
   | "dismissed";
 
 export type EscalationReason =
-  | "legal"
-  | "defamation"
-  | "trademark"
-  | "fraud"
-  | "disputed_claim"
-  | "wikipedia_wikidata";
+  "legal" | "defamation" | "trademark" | "fraud" | "disputed_claim" | "wikipedia_wikidata";
 
 export type CapCheckDecision =
   | "allowed"

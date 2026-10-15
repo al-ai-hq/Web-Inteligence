@@ -6,7 +6,10 @@ export async function register(): Promise<void> {
     } catch (error) {
       // In serverless environments like Vercel, the package root may not be accessible.
       // Services will be initialized on-demand instead.
-      console.warn("[instrumentation] Failed to pre-initialize services:", error instanceof Error ? error.message : String(error));
+      console.warn(
+        "[instrumentation] Failed to pre-initialize services:",
+        error instanceof Error ? error.message : String(error),
+      );
     }
   }
 }

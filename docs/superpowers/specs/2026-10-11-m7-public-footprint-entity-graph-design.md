@@ -12,6 +12,7 @@
 M7 delivers the core entity graph: brand fact sheets, fact register, public source discovery via web scraping, profile observation extraction, NAP consistency checking, entity conflict detection, and the entity-analyst agent. This is a launch gate — the first anonymous audit promises public footprint visibility.
 
 **In scope (core entity graph):**
+
 - Fact sheet management (CRUD + confirmation workflow)
 - Fact register seeded from fact sheets
 - Public source discovery (web scraping via existing crawler)
@@ -24,6 +25,7 @@ M7 delivers the core entity graph: brand fact sheets, fact register, public sour
 - Full UI views (fact sheet editor, entity graph visualization, conflict resolution)
 
 **Deferred to M8A:**
+
 - Reputation packs (review cases, rating tracking)
 - Brand truth monitor (hallucination/outdated-fact detection)
 - Cited-source correction workflow
@@ -110,6 +112,7 @@ graph TD
 ### 3.1 Schema Strategy
 
 Dual schema approach:
+
 - **JSON Schema** in `/schemas/` — canonical contracts (already exist as Draft 2020-12)
 - **Zod schemas** in TypeScript — runtime validation, derived from JSON Schema specs
 
@@ -118,12 +121,14 @@ All domain records carry a `lineage` object from `common.schema.json` with 18 re
 ### 3.2 Core Entities
 
 **FactSheet** — Brand fact sheet (client-supplied, `user_supplied` fidelity → `client_stated` evidence state)
+
 - Required: fact_sheet_id, project_id, version, legal_names[], brand_names[], aliases[], canonical_domain, official_profiles[], addresses[], contacts[], approved_claims[], status, fidelity_label
 - Status: draft | confirmed | superseded
 - When confirmed: requires confirmed_by_user_id, confirmed_at, fidelity_label=attested
 - Max 500 approved_claims, each with claim_id (referenced as fact_id by agents)
 
 **FactRegister** — Client-confirmed dated register of brand facts (seeded from FactSheet)
+
 - Required: register_id, project_id, version, facts[], updated_at
 - Max 2000 facts
 - 22 category enum values (legal_name, brand_name, alias, founder, location, contact, hours, service, product, price, availability, policy, licence, credential, award, claim, profile_url, other)
@@ -132,6 +137,7 @@ All domain records carry a `lineage` object from `common.schema.json` with 18 re
 - Status: confirmed | pending_confirmation | disputed | retired
 
 **EntityConflict** — Two or more sources disagree about an entity attribute
+
 - Required: conflict_id, project_id, attribute, values (min 2), status, detected_at, lineage
 - Attribute: name | address | phone | hours | category | price | availability | url | founder | service_area | other
 - Source: fact_register | owned_site | business_profile | merchant_center | directory | social_profile | ai_answer | third_party
@@ -139,26 +145,31 @@ All domain records carry a `lineage` object from `common.schema.json` with 18 re
 - **Never auto-resolved**: a named human resolves it (02-DETAILED-SPECIFICATION §15)
 
 **ProfileObservation** — Business profile observation
+
 - Platform: google_business_profile | apple_business_connect | bing_places | directory | social | other
 - Access: public | owner_supplied
 - Attributes: name | category | address | service_area | phone | hours | website | description | attributes
 - Observer location recorded (01-PRODUCT-REQUIREMENTS §16)
 
 **NAPObservation** — Name, address, phone as seen on one source
+
 - Source kind: owned_site | business_profile | directory | social_profile | structured_data | other
 - Match object: name/address/phone each: match | mismatch | missing | not_applicable
 
 **PublicSourceObservation** — Public footprint observation
+
 - Source kind: social_profile | directory | review_platform | marketplace | news | forum | wiki | knowledge_panel | other
 - Review display: rating_value (0-5), review_count, as_displayed=true (never estimated)
 - Confidence: high | medium | low
 
 **Location** — Business location or service area
+
 - Business model: storefront | service_area | hybrid
 - Includes seasonal hour exceptions (Ramadan, national day)
 - E.164 phone storage format
 
 **BrandTerms** — Owner-confirmed brand-term list (Arabic + English)
+
 - Kind: brand_name | product_name | misspelling | transliteration | abbreviation | domain
 - Splits query reports into brand vs non-brand
 
@@ -178,6 +189,7 @@ Six new tables (numbered migrations starting at 0003):
 6. **0008_create_entity_conflicts.sql** — entity_conflicts table
 
 All tables include:
+
 - `id` UUID PRIMARY KEY
 - `project_id` UUID NOT NULL (FK to projects, or standalone for anonymous audits)
 - `created_at` TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -190,6 +202,7 @@ All tables include:
 New package: `packages/footprint-store/`
 
 Responsibilities:
+
 - TypeScript types (Zod schemas) for all M7 domain entities
 - CRUD stores: FactSheetStore, FactRegisterStore, LocationStore, BrandTermsStore
 - Observation stores: ProfileObservationStore, PublicSourceObservationStore, NAPObservationStore
@@ -202,6 +215,7 @@ Responsibilities:
 New module: `packages/footprint-store/src/discovery/`
 
 **PublicSourceDiscovery** — Discovers public profiles via web scraping
+
 - Input: canonical_domain, official_profiles (from fact sheet)
 - Process:
   1. Load platform URL patterns from `config/platforms.yaml`
@@ -212,10 +226,12 @@ New module: `packages/footprint-store/src/discovery/`
 - Output: PublicSourceObservation[] with confidence levels
 
 **Platform URL Patterns** — `config/platforms.yaml`
+
 - Defines URL patterns for major platforms (Google Business Profile, Apple Business Connect, Bing Places, Facebook, Instagram, LinkedIn, YouTube, Twitter/X, Yelp, TripAdvisor, etc.)
 - Each pattern: platform name, URL template, extraction hints
 
 **ProfileExtractor** — HTML → ProfileObservation
+
 - Input: HTML content, source URL, platform
 - Process:
   1. Extract structured data (JSON-LD, Microdata, RDFa)
@@ -229,6 +245,7 @@ New module: `packages/footprint-store/src/discovery/`
 New module: `packages/footprint-store/src/nap/`
 
 **NAPConsistencyEngine** — Compares name/address/phone across sources
+
 - Input: FactSheet (or FactRegister), ProfileObservation[], NAPObservation[]
 - Process:
   1. For each observation, compare against fact sheet values
@@ -238,6 +255,7 @@ New module: `packages/footprint-store/src/nap/`
 - Output: NAPObservation[], EntityConflict[]
 
 **ConflictDetector** — Detects entity conflicts
+
 - Input: FactSheet, observations from multiple sources
 - Process:
   1. Compare fact sheet vs site vs business profile
@@ -250,11 +268,13 @@ New module: `packages/footprint-store/src/nap/`
 Two new tools for entity-analyst agent:
 
 **read_specialist_evidence** — Reads specialist evidence (observations, NAP consistency results)
+
 - Input: { observation_type: "profile" | "public_source" | "nap", project_id: string, filters?: Record<string, unknown> }
 - Output: ToolResult with observation data, source_tier, limitations
 - Implementation: queries observation stores, returns normalized evidence
 
 **read_confirmed_facts** — Reads confirmed facts from fact register
+
 - Input: { project_id: string, fact_ids?: string[], category?: string }
 - Output: ToolResult with fact register data, source_tier, limitations
 - Implementation: queries FactRegisterStore, returns confirmed facts only
@@ -268,6 +288,7 @@ Replace stub in `packages/rules-engine/src/evaluators/geo.ts`:
 **Current (M2):** Returns `not_applicable` with rationale "Requires business_profile_or_merchant_center data — not available in M2"
 
 **M7 implementation:**
+
 - Input: PageEvidence, EvidenceBundle (with connector data)
 - Process:
   1. Check if Business Profile or Merchant Center data available in bundle.connectors
@@ -283,11 +304,14 @@ Note: GEO-011's key constraint — "A fact-sheet, site or Business Profile disag
 ### 4.7 Pipeline Integration
 
 **FindingSection extension** — `packages/audit-pipeline/src/report-envelope.ts`:
+
 ```typescript
-export type FindingSection = "technical" | "keywords" | "content" | "performance" | "experience" | "entity";
+export type FindingSection =
+  "technical" | "keywords" | "content" | "performance" | "experience" | "entity";
 ```
 
 **SECTION_BY_AGENT extension** — Add entity-analyst mapping:
+
 ```typescript
 export const SECTION_BY_AGENT: Record<string, FindingSection> = {
   auditor: "technical",
@@ -298,24 +322,34 @@ export const SECTION_BY_AGENT: Record<string, FindingSection> = {
 ```
 
 **SECTION_ORDER extension** — `packages/audit-pipeline/src/composer.ts`:
+
 ```typescript
-const SECTION_ORDER = ["technical", "keywords", "content", "performance", "experience", "entity"] as const;
+const SECTION_ORDER = [
+  "technical",
+  "keywords",
+  "content",
+  "performance",
+  "experience",
+  "entity",
+] as const;
 ```
 
 **CATEGORY_TO_SECTION extension** — Map geo category to entity section:
+
 ```typescript
 const CATEGORY_TO_SECTION: Record<RuleCategory, FindingSection> = {
   crawlability: "technical",
   on_page: "technical",
   structured_data: "technical",
   aeo: "content",
-  geo: "entity",  // Changed from "content" to "entity"
+  geo: "entity", // Changed from "content" to "entity"
   i18n_accessibility: "content",
   performance_security: "performance",
 };
 ```
 
 **Pipeline stage** — Add footprint discovery stage after crawl, before agents:
+
 - New pipeline state: ENRICHING_OPTIONAL (already defined in audit_state enum)
 - Process:
   1. After EXTRACTING, before AUDITING
@@ -329,6 +363,7 @@ const CATEGORY_TO_SECTION: Record<RuleCategory, FindingSection> = {
 ### 4.8 Entity-Analyst Agent Config
 
 Finalize `config/agents/entity-analyst.yaml`:
+
 - Change status from `draft` to `active`
 - Set model_tier (DECIDE_AT_M0 resolution — use standard model tier for now)
 - Tools: read_specialist_evidence, read_confirmed_facts (both implemented in 4.5)
@@ -337,18 +372,21 @@ Finalize `config/agents/entity-analyst.yaml`:
 ### 4.9 Web Frontend
 
 **Fact Sheet Editor** — `/apps/web/src/app/[locale]/projects/[projectId]/fact-sheet/`
+
 - Form-based editor for all fact sheet fields
 - Validation against Zod schemas
 - Save as draft, confirm workflow (confirmation sets status=confirmed, fidelity_label=attested)
 - Display confirmation status and fidelity label
 
 **Entity Graph View** — `/apps/web/src/app/[locale]/projects/[projectId]/entity-graph/`
+
 - Visualize entity relationships (fact sheet → observations → conflicts)
 - Show NAP consistency status per source
 - Filter by attribute (name, address, phone, hours, category)
 - Color-coded by match status (green=match, red=mismatch, yellow=missing)
 
 **Conflict Resolution UI** — `/apps/web/src/app/[locale]/projects/[projectId]/conflicts/`
+
 - List all EntityConflict records (status=open first)
 - Show conflicting values with source attribution
 - Resolution actions: owner_confirmed_value, correction_requested, resolved, dismissed
@@ -356,6 +394,7 @@ Finalize `config/agents/entity-analyst.yaml`:
 - Never auto-resolve (enforced in UI + backend)
 
 **i18n keys** — Add to `apps/web/messages/en.json` and `apps/web/messages/ar.json`:
+
 - Fact sheet editor labels and validation messages
 - Entity graph labels (match, mismatch, missing, not_applicable)
 - Conflict resolution labels and actions
@@ -436,23 +475,28 @@ sequenceDiagram
 ## 6. Error Handling
 
 **Fact sheet validation failures:**
+
 - Zod validation errors → 400 Bad Request with field-level errors
 - Missing required fields → specific error messages per field
 
 **Public source discovery failures:**
+
 - Crawler failures → log and continue (discovery is best-effort)
 - Extraction failures → store observation with confidence=low, add limitation
 
 **NAP consistency check failures:**
+
 - Missing fact sheet → skip NAP check (not_applicable)
 - No observations → no conflicts detected (valid state)
 
 **Entity conflict resolution:**
+
 - Invalid status transition → 400 Bad Request
 - Missing resolved_by_user_id for resolved/dismissed → 400 Bad Request
 - Auto-resolve attempt → rejected (enforced in backend + UI)
 
 **Agent tool failures:**
+
 - Tool execution error → return ToolResult with limitations, source_tier="third_party_unverified"
 - Missing data → return empty result with limitation message
 
@@ -461,6 +505,7 @@ sequenceDiagram
 ## 7. Testing Strategy
 
 **Unit tests:**
+
 - Zod schema validation (all domain entities)
 - Store CRUD operations (in-memory + Postgres)
 - NAP consistency engine (match/mismatch/missing logic)
@@ -469,11 +514,13 @@ sequenceDiagram
 - GEO-011 evaluator (pass/fail/not_applicable cases)
 
 **Integration tests:**
+
 - Pipeline stage (ENRICHING_OPTIONAL) with mock crawler
 - Composer integration (entity section in report)
 - API routes (fact sheet CRUD, conflict resolution)
 
 **End-to-end tests:**
+
 - Fact sheet creation → audit → entity graph view → conflict resolution
 - NAP consistency check → conflict detection → resolution workflow
 
@@ -482,6 +529,7 @@ sequenceDiagram
 ## 8. Exit Criteria
 
 M7 is complete when:
+
 - Fact sheet CRUD works (create, read, update, confirm)
 - Public source discovery finds profiles via web scraping
 - NAP consistency engine detects mismatches
@@ -500,6 +548,7 @@ M7 is complete when:
 ## 9. Dependencies
 
 **Internal:**
+
 - M0A contracts (evidence and fidelity, lineage)
 - M1 secure crawler (HTML extraction)
 - M2 rules engine (GEO-011 rule definition)
@@ -509,6 +558,7 @@ M7 is complete when:
 - M6 AI visibility laboratory (pipeline integration patterns)
 
 **External:**
+
 - PostgreSQL (persistence)
 - Existing crawler service (web scraping)
 - Zod (runtime validation)
