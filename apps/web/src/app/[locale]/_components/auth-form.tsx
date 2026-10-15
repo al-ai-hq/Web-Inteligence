@@ -97,6 +97,16 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             className={inputClasses}
           />
         </div>
+        {mode === "login" ? (
+          <div className="text-right">
+            <Link
+              href={`/${locale}/forgot-password`}
+              className="text-sm font-medium text-brand-600 hover:text-brand-700"
+            >
+              {t("forgot_password_link")}
+            </Link>
+          </div>
+        ) : null}
         {mode === "signup" ? (
           <div>
             <label htmlFor="confirm_password" className={labelClasses}>

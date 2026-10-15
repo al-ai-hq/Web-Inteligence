@@ -7,6 +7,7 @@
     "build": "cp -r ../../config config 2>/dev/null || true && next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {

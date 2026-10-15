@@ -351,12 +351,22 @@
     "sign_in": "تسجيل الدخول",
     "have_account": "لديك حساب بالفعل؟ سجّل الدخول",
     "need_account": "ليس لديك حساب؟ أنشئ حساباً",
+    "forgot_password_title": "إعادة تعيين كلمة المرور",
+    "forgot_password_body": "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين.",
+    "send_reset_link": "إرسال رابط إعادة التعيين",
+    "reset_password_title": "اختر كلمة مرور جديدة",
+    "reset_password_button": "إعادة تعيين كلمة المرور",
+    "forgot_password_link": "نسيت كلمة المرور؟",
+    "back_to_login": "العودة إلى تسجيل الدخول",
+    "reset_success": "تم تحديث كلمة المرور. سجّل الدخول للمتابعة.",
     "error_invalid_input": "يرجى التحقق من بياناتك والمحاولة مرة أخرى.",
     "error_email_taken": "يوجد حساب بالفعل بهذا البريد الإلكتروني.",
     "error_invalid_credentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
     "error_rate_limited": "محاولات كثيرة جدًا. يرجى المحاولة لاحقًا.",
     "error_generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
-    "error_password_mismatch": "كلمتا المرور غير متطابقتين."
+    "error_password_mismatch": "كلمتا المرور غير متطابقتين.",
+    "error_invalid_token": "رابط إعادة التعيين غير صالح أو منتهي الصلاحية.",
+    "error_password_too_short": "يجب أن تكون كلمة المرور 8 أحرف على الأقل."
   },
   "dashboard": {
     "title": "تدقيقاتك",
