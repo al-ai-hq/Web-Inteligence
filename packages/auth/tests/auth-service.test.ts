@@ -157,3 +157,18 @@ describe("constants", () => {
     expect(SESSION_RENEWAL_THRESHOLD_MS).toBe(7 * DAY_MS);
   });
 });
+
+describe("InMemoryAuthService password reset", () => {
+  it("finds a user by id", async () => {
+    const auth = new InMemoryAuthService();
+    const user = await auth.createUser("find@example.com", "password123");
+    const found = await auth.findUserById(user.id);
+    expect(found).not.toBeNull();
+    expect(found!.email).toBe("find@example.com");
+  });
+
+  it("returns null for unknown user id", async () => {
+    const auth = new InMemoryAuthService();
+    expect(await auth.findUserById("no-such-id")).toBeNull();
+  });
+});
