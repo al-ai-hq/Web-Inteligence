@@ -25,15 +25,17 @@ const CONTEXT: AuditContext = {
 function makeServices(): AuditServices {
   return {
     store: new InMemoryAuditStore(),
-    dispatcher: { dispatch: async () => undefined },
+    dispatcher: { dispatch: () => Promise.resolve(undefined) },
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",
     auth: new InMemoryAuthService(),
     rateLimiter: new InMemoryRateLimiter(),
-    validateUrl: async (url: string) =>
-      url.startsWith("https://") || url.startsWith("http://")
-        ? { ok: true }
-        : { ok: false, reason_key: "failure.url_invalid" },
+    validateUrl: (url: string) =>
+      Promise.resolve(
+        url.startsWith("https://") || url.startsWith("http://")
+          ? { ok: true }
+          : { ok: false, reason_key: "failure.url_invalid" },
+      ),
     outputDir: "./output",
     geminiApiKey: undefined,
     emailService: new StubEmailService(),
@@ -44,34 +46,35 @@ function makePipelineDeps(services: AuditServices): PipelineDeps {
   return {
     store: services.store,
     validateUrl: services.validateUrl,
-    crawl: async () => undefined,
-    render: async () => undefined,
-    processEvidence: async () => ["ev-1"],
-    runAgents: async () => [
-      {
-        agent_name: "auditor",
-        ok: true,
-        findings: [
-          {
-            finding_id: "f-1",
-            result_state: "verified",
-            confidence: "high",
-            evidence_ids: ["ev-1"],
-            data: {
-              title: "Missing meta description",
-              recommendation: "Add one",
-              severity: "high",
+    crawl: () => Promise.resolve(undefined),
+    render: () => Promise.resolve(undefined),
+    processEvidence: () => Promise.resolve(["ev-1"]),
+    runAgents: () =>
+      Promise.resolve([
+        {
+          agent_name: "auditor",
+          ok: true,
+          findings: [
+            {
+              finding_id: "f-1",
+              result_state: "verified",
+              confidence: "high",
+              evidence_ids: ["ev-1"],
+              data: {
+                title: "Missing meta description",
+                recommendation: "Add one",
+                severity: "high",
+              },
+              limitations: [],
             },
-            limitations: [],
-          },
-        ],
-        limitations: [],
-        cost: { engine: "stub", tokens_in: 1, tokens_out: 1, usd: 0.001 },
-      },
-      { agent_name: "keyword-analyst", ok: true, findings: [], limitations: [] },
-      { agent_name: "content-strategist", ok: true, findings: [], limitations: [] },
-    ],
-    runConnectors: async () => [],
+          ],
+          limitations: [],
+          cost: { engine: "stub", tokens_in: 1, tokens_out: 1, usd: 0.001 },
+        },
+        { agent_name: "keyword-analyst", ok: true, findings: [], limitations: [] },
+        { agent_name: "content-strategist", ok: true, findings: [], limitations: [] },
+      ]),
+    runConnectors: () => Promise.resolve([]),
     tierScopes: services.tierScopes,
   };
 }
@@ -118,8 +121,10 @@ describe("audit completion email", () => {
 
     const sent = (services.emailService as StubEmailService).getSent();
     expect(sent).toHaveLength(1);
-    expect(sent[0]!.to).toBe("owner@example.com");
-    expect(sent[0]!.subject).toBe("Your WPI audit for example.com is ready");
-    expect(sent[0]!.html).toContain(`/en/audit/${record.id}`);
+    const first = sent[0];
+    if (!first) throw new Error("expected one email");
+    expect(first.to).toBe("owner@example.com");
+    expect(first.subject).toBe("Your WPI audit for example.com is ready");
+    expect(first.html).toContain(`/en/audit/${record.id}`);
   });
 });

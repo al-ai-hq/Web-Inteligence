@@ -101,7 +101,7 @@ describe("Experience Effectiveness - End-to-End", () => {
       ok: true,
       findings: toComposerFindings(agentResult.findings),
       limitations: [],
-      data: agentResult.data as Record<string, unknown>,
+      data: agentResult.data,
     };
 
     // Step 3: Run the composer
@@ -137,7 +137,7 @@ describe("Experience Effectiveness - End-to-End", () => {
       ok: true,
       findings: toComposerFindings(agentResult.findings),
       limitations: [],
-      data: agentResult.data as Record<string, unknown>,
+      data: agentResult.data,
     };
 
     const composeResult = composeSections([composerOutcome], [], TIER_SCOPES.rich);

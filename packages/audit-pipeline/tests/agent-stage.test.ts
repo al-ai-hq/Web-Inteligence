@@ -103,7 +103,7 @@ describe("runAgentStage", () => {
     const runner = vi.fn<(params: ExecuteAgentParams) => Promise<AgentResult>>();
     runner.mockResolvedValue(stubResult());
     await runAgentStage(makeDeps({ runner }));
-    const calls = runner.mock.calls.map((call) => call[0] as ExecuteAgentParams);
+    const calls = runner.mock.calls.map((call) => call[0]);
     const auditorCall = calls.find((params) => params.agentName === "auditor");
     expect(auditorCall?.allowedTools).toEqual(["get_evidence", "validate_schema"]);
     const contentCall = calls.find((params) => params.agentName === "content-strategist");

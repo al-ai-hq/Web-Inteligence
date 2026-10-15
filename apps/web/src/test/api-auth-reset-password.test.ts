@@ -10,12 +10,12 @@ import { setAuditServicesForTests, type AuditServices } from "../services/contai
 function makeServices(): AuditServices {
   return {
     store: new InMemoryAuditStore(),
-    dispatcher: { dispatch: async () => undefined },
+    dispatcher: { dispatch: () => Promise.resolve(undefined) },
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",
     auth: new InMemoryAuthService(),
     rateLimiter: new InMemoryRateLimiter(),
-    validateUrl: async () => ({ ok: true }),
+    validateUrl: () => Promise.resolve({ ok: true }),
     outputDir: "./output",
     geminiApiKey: undefined,
     emailService: new StubEmailService(),

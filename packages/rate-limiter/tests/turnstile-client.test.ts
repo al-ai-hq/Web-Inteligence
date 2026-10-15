@@ -12,7 +12,7 @@ describe("verifyTurnstileToken", () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    globalThis.fetch = fetchMock;
 
     const ok = await verifyTurnstileToken("token", "1.2.3.4");
     expect(ok).toBe(true);
@@ -31,7 +31,7 @@ describe("verifyTurnstileToken", () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValue(new Response(JSON.stringify({ success: false }), { status: 200 }));
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    globalThis.fetch = fetchMock;
 
     const ok = await verifyTurnstileToken("token");
     expect(ok).toBe(false);
@@ -39,7 +39,7 @@ describe("verifyTurnstileToken", () => {
 
   it("returns false when the request throws", async () => {
     process.env["TURNSTILE_SECRET_KEY"] = "secret";
-    globalThis.fetch = vi.fn().mockRejectedValue(new Error("network")) as unknown as typeof fetch;
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error("network"));
 
     const ok = await verifyTurnstileToken("token");
     expect(ok).toBe(false);

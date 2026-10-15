@@ -52,7 +52,7 @@ describe("ResendEmailService", () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValue(new Response(JSON.stringify({ id: "resend-msg-id" }), { status: 200 }));
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    globalThis.fetch = fetchMock as typeof globalThis.fetch;
 
     const service = new ResendEmailService({ apiKey: "re_test", from: "from@example.com" });
     const result = await service.send({
@@ -64,30 +64,30 @@ describe("ResendEmailService", () => {
     });
 
     expect(result.id).toBe("resend-msg-id");
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.resend.com/emails",
-      expect.objectContaining({
-        method: "POST",
-        headers: expect.objectContaining({
-          Authorization: "Bearer re_test",
-          "Content-Type": "application/json",
-        }),
-        body: JSON.stringify({
-          from: "from@example.com",
-          to: "to@example.com",
-          subject: "Hello",
-          html: "<p>Hello</p>",
-          text: "Hello",
-        }),
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://api.resend.com/emails");
+    expect(init.method).toBe("POST");
+    expect(init.body).toBe(
+      JSON.stringify({
+        from: "from@example.com",
+        to: "to@example.com",
+        subject: "Hello",
+        html: "<p>Hello</p>",
+        text: "Hello",
       }),
     );
+    expect(init.headers).toMatchObject({
+      Authorization: "Bearer re_test",
+      "Content-Type": "application/json",
+    });
   });
 
   it("throws EmailSendError on Resend failure", async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValue(new Response("Internal Server Error", { status: 500 }));
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    globalThis.fetch = fetchMock as typeof globalThis.fetch;
 
     const service = new ResendEmailService({ apiKey: "re_test", from: "from@example.com" });
 

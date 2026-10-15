@@ -44,7 +44,7 @@ describe("message catalog parity", () => {
       ["en", en],
       ["ar", ar],
     ] as const) {
-      const strings = nonEmptyStrings(catalog as JsonValue);
+      const strings = nonEmptyStrings(catalog);
       expect(strings.length).toBeGreaterThan(0);
       for (const text of strings) {
         expect(text.trim().length, `${name} catalog has an empty string`).toBeGreaterThan(0);

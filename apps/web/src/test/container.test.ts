@@ -15,7 +15,7 @@ const ENV_KEYS = [
 afterEach(() => {
   setAuditServicesForTests(null);
   for (const key of ENV_KEYS) {
-    delete process.env[key];
+    Reflect.deleteProperty(process.env, key);
   }
 });
 

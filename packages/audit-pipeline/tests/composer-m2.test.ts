@@ -194,7 +194,7 @@ describe("composeSections with rules engine unavailable categories", () => {
           coverage: 0.7,
           confidence: "medium",
           unavailable_categories: ["aeo", "geo"],
-        } as ScoreResult,
+        },
       }),
     );
 
@@ -218,7 +218,7 @@ describe("composeSections with rules engine unavailable categories", () => {
           coverage: 0.8,
           confidence: "medium",
           unavailable_categories: [],
-        } as ScoreResult,
+        },
       }),
     );
 

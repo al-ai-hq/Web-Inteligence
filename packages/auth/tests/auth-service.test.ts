@@ -41,7 +41,8 @@ describe("InMemoryAuthService", () => {
     await auth.createUser("user@example.com", "password123");
     const result = await auth.verifyCredentials("  USER@Example.COM  ", "password123");
     expect(result).not.toBeNull();
-    expect(result!.email).toBe("user@example.com");
+    if (!result) throw new Error("expected user");
+    expect(result.email).toBe("user@example.com");
   });
 
   it("returns null for unknown email", async () => {
@@ -73,7 +74,8 @@ describe("InMemoryAuthService", () => {
     const session = await auth.createSession(user.id);
     const found = await auth.getSessionUser(hashToken(session.token));
     expect(found).not.toBeNull();
-    expect(found!.id).toBe(user.id);
+    if (!found) throw new Error("expected user");
+    expect(found.id).toBe(user.id);
   });
 
   it("returns null for expired session", async () => {
@@ -164,7 +166,8 @@ describe("InMemoryAuthService password reset", () => {
     const user = await auth.createUser("find@example.com", "password123");
     const found = await auth.findUserById(user.id);
     expect(found).not.toBeNull();
-    expect(found!.email).toBe("find@example.com");
+    if (!found) throw new Error("expected user");
+    expect(found.email).toBe("find@example.com");
   });
 
   it("returns null for unknown user id", async () => {

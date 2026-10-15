@@ -10,12 +10,12 @@ import { setAuditServicesForTests, type AuditServices } from "../services/contai
 function makeServices(): AuditServices {
   return {
     store: new InMemoryAuditStore(),
-    dispatcher: { dispatch: async () => undefined },
+    dispatcher: { dispatch: () => Promise.resolve(undefined) },
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",
     auth: new InMemoryAuthService(),
     rateLimiter: new InMemoryRateLimiter(),
-    validateUrl: async () => ({ ok: true }),
+    validateUrl: () => Promise.resolve({ ok: true }),
     outputDir: "./output",
     geminiApiKey: undefined,
     emailService: new StubEmailService(),
@@ -48,9 +48,11 @@ describe("POST /api/auth/forgot-password", () => {
 
     const sent = (services.emailService as StubEmailService).getSent();
     expect(sent).toHaveLength(1);
-    expect(sent[0]!.to).toBe("reset@example.com");
-    expect(sent[0]!.subject).toBe("Reset your WPI password");
-    expect(sent[0]!.html).toContain("reset-password?token=");
+    const first = sent[0];
+    if (!first) throw new Error("expected one email");
+    expect(first.to).toBe("reset@example.com");
+    expect(first.subject).toBe("Reset your WPI password");
+    expect(first.html).toContain("reset-password?token=");
   });
 
   it("returns 200 for an unknown user and sends no email", async () => {

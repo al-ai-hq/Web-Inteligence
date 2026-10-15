@@ -186,22 +186,30 @@ describe("verifyEvidenceHashes", () => {
       makePageEvidence({ content_hash: "sha256:" + "a".repeat(64) }),
       makePageEvidence({ content_hash: "sha256:" + "0".repeat(64) }),
     ];
-    expect(() => verifyEvidenceHashes(pages)).not.toThrow();
+    expect(() => {
+      verifyEvidenceHashes(pages);
+    }).not.toThrow();
   });
 
   it("throws IntegrityError for hash without sha256: prefix", () => {
     const pages = [makePageEvidence({ content_hash: "a".repeat(64) })];
-    expect(() => verifyEvidenceHashes(pages)).toThrow(IntegrityError);
+    expect(() => {
+      verifyEvidenceHashes(pages);
+    }).toThrow(IntegrityError);
   });
 
   it("throws IntegrityError for hash with wrong length", () => {
     const pages = [makePageEvidence({ content_hash: "sha256:abcdef" })];
-    expect(() => verifyEvidenceHashes(pages)).toThrow(IntegrityError);
+    expect(() => {
+      verifyEvidenceHashes(pages);
+    }).toThrow(IntegrityError);
   });
 
   it("throws IntegrityError for hash with non-hex characters", () => {
     const pages = [makePageEvidence({ content_hash: "sha256:" + "g".repeat(64) })];
-    expect(() => verifyEvidenceHashes(pages)).toThrow(IntegrityError);
+    expect(() => {
+      verifyEvidenceHashes(pages);
+    }).toThrow(IntegrityError);
   });
 
   it("throws IntegrityError with name 'IntegrityError'", () => {
@@ -220,16 +228,22 @@ describe("verifyEvidenceHashes", () => {
       makePageEvidence({ evidence_id: "ev-ok", content_hash: "sha256:" + "a".repeat(64) }),
       makePageEvidence({ evidence_id: "ev-bad", content_hash: "sha256:tooshort" }),
     ];
-    expect(() => verifyEvidenceHashes(pages)).toThrow(IntegrityError);
+    expect(() => {
+      verifyEvidenceHashes(pages);
+    }).toThrow(IntegrityError);
   });
 
   it("does not throw for empty pages array", () => {
-    expect(() => verifyEvidenceHashes([])).not.toThrow();
+    expect(() => {
+      verifyEvidenceHashes([]);
+    }).not.toThrow();
   });
 
   it("throws IntegrityError for empty string hash", () => {
     const pages = [makePageEvidence({ content_hash: "" })];
-    expect(() => verifyEvidenceHashes(pages)).toThrow(IntegrityError);
+    expect(() => {
+      verifyEvidenceHashes(pages);
+    }).toThrow(IntegrityError);
   });
 });
 

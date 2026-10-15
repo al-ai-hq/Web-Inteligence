@@ -164,7 +164,7 @@ describe("pipeline + rules engine integration", () => {
     // Build deps WITHOUT runRulesEngine (simulating existing callers)
     const { runRulesEngine: _omit, ...depsWithoutRules } = makeDeps(store);
 
-    const result = await runAuditPipeline(depsWithoutRules as PipelineDeps, auditId);
+    const result = await runAuditPipeline(depsWithoutRules, auditId);
     expect(result).toBe("completed");
   });
 });

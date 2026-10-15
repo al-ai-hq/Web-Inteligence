@@ -23,13 +23,17 @@ const VALID_BODY = {
 function makeServices(): AuditServices {
   return {
     store: new InMemoryAuditStore(),
-    dispatcher: { dispatch: async () => undefined },
+    dispatcher: { dispatch: () => Promise.resolve(undefined) },
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",
     auth: new InMemoryAuthService(),
     rateLimiter: new InMemoryRateLimiter(),
-    validateUrl: async (url: string) =>
-      url.startsWith("https://") ? { ok: true } : { ok: false, reason_key: "failure.url_invalid" },
+    validateUrl: (url: string) =>
+      Promise.resolve(
+        url.startsWith("https://")
+          ? { ok: true }
+          : { ok: false, reason_key: "failure.url_invalid" },
+      ),
     outputDir: "./output",
     geminiApiKey: undefined,
     emailService: new StubEmailService(),
@@ -52,7 +56,7 @@ afterEach(() => {
   setAuditServicesForTests(null);
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
-  delete process.env["TURNSTILE_SECRET_KEY"];
+  Reflect.deleteProperty(process.env, "TURNSTILE_SECRET_KEY");
 });
 
 describe("POST /api/audits rate limiting integration", () => {

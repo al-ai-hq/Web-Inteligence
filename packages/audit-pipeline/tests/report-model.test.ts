@@ -26,7 +26,9 @@ function params() {
 describe("buildReportModel", () => {
   it("emits a report that validates against the real schema", () => {
     const report = buildReportModel(params());
-    expect(() => validateReportModel(report, SCHEMAS)).not.toThrow();
+    expect(() => {
+      validateReportModel(report, SCHEMAS);
+    }).not.toThrow();
   });
 
   it("uses real uuids for report_id/audit_id and a 32-char link_id", () => {
@@ -53,6 +55,8 @@ describe("validateReportModel", () => {
   it("throws with Ajv detail for a tampered report", () => {
     const report = buildReportModel(params()) as Record<string, unknown>;
     report["retention_days"] = 30;
-    expect(() => validateReportModel(report, SCHEMAS)).toThrow(/retention_days|must be/);
+    expect(() => {
+      validateReportModel(report, SCHEMAS);
+    }).toThrow(/retention_days|must be/);
   });
 });

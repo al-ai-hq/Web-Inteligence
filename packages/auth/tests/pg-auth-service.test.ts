@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { Pool } from "pg";
-import { DuplicateEmailError, hashToken, SESSION_TTL_MS } from "../src/auth-service.js";
+import { DuplicateEmailError, hashToken } from "../src/auth-service.js";
 import { PgAuthService } from "../src/pg-auth-service.js";
 
 const DATABASE_URL = process.env["WPI_TEST_DATABASE_URL"];
@@ -46,7 +46,8 @@ describe.skipIf(!DATABASE_URL)("PgAuthService", () => {
     expect(user.email).toBe(email);
     const verified = await auth.verifyCredentials(email, "password123");
     expect(verified).not.toBeNull();
-    expect(verified!.id).toBe(user.id);
+    if (!verified) throw new Error("expected user");
+    expect(verified.id).toBe(user.id);
   });
 
   it("rejects duplicate email", async () => {
@@ -70,7 +71,8 @@ describe.skipIf(!DATABASE_URL)("PgAuthService", () => {
 
     const found = await auth.getSessionUser(hashToken(session.token));
     expect(found).not.toBeNull();
-    expect(found!.id).toBe(user.id);
+    if (!found) throw new Error("expected user");
+    expect(found.id).toBe(user.id);
 
     await auth.destroySession(hashToken(session.token));
     expect(await auth.getSessionUser(hashToken(session.token))).toBeNull();
@@ -98,12 +100,14 @@ describe.skipIf(!DATABASE_URL)("PgAuthService", () => {
     const token = await auth.createPasswordResetToken(email);
     expect(token).toMatch(/^[0-9a-f]{64}$/);
 
-    const ok = await auth.consumePasswordResetToken(token!, "new-password-123");
+    if (!token) throw new Error("expected token");
+    const ok = await auth.consumePasswordResetToken(token, "new-password-123");
     expect(ok).toBe(true);
 
     const verified = await auth.verifyCredentials(email, "new-password-123");
     expect(verified).not.toBeNull();
-    expect(verified!.id).toBe(user.id);
+    if (!verified) throw new Error("expected user");
+    expect(verified.id).toBe(user.id);
   });
 
   it("returns null token for unknown email", async () => {
@@ -115,8 +119,9 @@ describe.skipIf(!DATABASE_URL)("PgAuthService", () => {
     const email = `pg-reset-reuse-${randomUUID()}@example.com`;
     await auth.createUser(email, "password123");
     const token = await auth.createPasswordResetToken(email);
-    await auth.consumePasswordResetToken(token!, "new-password-123");
-    const ok = await auth.consumePasswordResetToken(token!, "another-password");
+    if (!token) throw new Error("expected token");
+    await auth.consumePasswordResetToken(token, "new-password-123");
+    const ok = await auth.consumePasswordResetToken(token, "another-password");
     expect(ok).toBe(false);
   });
 });
