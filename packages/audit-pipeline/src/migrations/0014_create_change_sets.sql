@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS approval_records (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_change_sets_project ON change_sets(project_id);
-CREATE INDEX idx_change_sets_status ON change_sets(status);
-CREATE INDEX idx_change_set_items_change_set ON change_set_items(change_set_id);
-CREATE INDEX idx_approval_records_change_set ON approval_records(change_set_id);
-CREATE INDEX idx_approval_records_status ON approval_records(status);
+CREATE INDEX IF NOT EXISTS idx_change_sets_project ON change_sets(project_id);
+CREATE INDEX IF NOT EXISTS idx_change_sets_status ON change_sets(status);
+CREATE INDEX IF NOT EXISTS idx_change_set_items_change_set ON change_set_items(change_set_id);
+CREATE INDEX IF NOT EXISTS idx_approval_records_change_set ON approval_records(change_set_id);
+CREATE INDEX IF NOT EXISTS idx_approval_records_status ON approval_records(status);

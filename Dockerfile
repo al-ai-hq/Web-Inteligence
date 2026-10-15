@@ -13,8 +13,8 @@ COPY config ./apps/web/config
 # Install all workspace dependencies
 RUN pnpm install --frozen-lockfile
 
-# Build Next.js app
-RUN pnpm --filter @wpi/web build
+# Build all workspace packages (dependency order) so @wpi/web can resolve them
+RUN pnpm -r build
 
 # Production runner
 FROM node:22-alpine AS runner
@@ -29,12 +29,17 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 
+# Copy migration artifacts so the release command can run migrations
+COPY --from=builder /app/packages/audit-pipeline/package.json ./packages/audit-pipeline/package.json
+COPY --from=builder /app/packages/audit-pipeline/dist ./packages/audit-pipeline/dist
+COPY --from=builder /app/packages/audit-pipeline/src/migrations ./packages/audit-pipeline/src/migrations
+
 RUN chown -R nextjs:nodejs /app
 
 USER nextjs
 
 EXPOSE 3000
 
-ENV HOSTNAME "0.0.0.0"
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "apps/web/server.js"]

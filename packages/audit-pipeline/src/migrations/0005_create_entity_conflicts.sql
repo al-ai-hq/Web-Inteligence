@@ -16,6 +16,6 @@ CREATE TABLE IF NOT EXISTS entity_conflicts (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_entity_conflicts_fact_sheet ON entity_conflicts(fact_sheet_id);
-CREATE INDEX idx_entity_conflicts_status ON entity_conflicts(status);
-CREATE INDEX idx_entity_conflicts_severity ON entity_conflicts(severity);
+CREATE INDEX IF NOT EXISTS idx_entity_conflicts_fact_sheet ON entity_conflicts(fact_sheet_id);
+CREATE INDEX IF NOT EXISTS idx_entity_conflicts_status ON entity_conflicts(status);
+CREATE INDEX IF NOT EXISTS idx_entity_conflicts_severity ON entity_conflicts(severity);

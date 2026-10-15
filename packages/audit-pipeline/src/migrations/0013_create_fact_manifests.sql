@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS fact_manifest_citations (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_fact_manifests_project ON fact_manifests(project_id);
-CREATE INDEX idx_fact_manifest_facts_manifest ON fact_manifest_facts(fact_manifest_id);
-CREATE INDEX idx_fact_manifest_citations_fact ON fact_manifest_citations(fact_id);
-CREATE INDEX idx_fact_manifest_citations_draft ON fact_manifest_citations(draft_id);
+CREATE INDEX IF NOT EXISTS idx_fact_manifests_project ON fact_manifests(project_id);
+CREATE INDEX IF NOT EXISTS idx_fact_manifest_facts_manifest ON fact_manifest_facts(fact_manifest_id);
+CREATE INDEX IF NOT EXISTS idx_fact_manifest_citations_fact ON fact_manifest_citations(fact_id);
+CREATE INDEX IF NOT EXISTS idx_fact_manifest_citations_draft ON fact_manifest_citations(draft_id);

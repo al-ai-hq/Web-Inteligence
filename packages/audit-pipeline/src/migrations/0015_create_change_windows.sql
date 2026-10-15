@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS change_windows (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_change_windows_project ON change_windows(project_id);
+CREATE INDEX IF NOT EXISTS idx_change_windows_project ON change_windows(project_id);

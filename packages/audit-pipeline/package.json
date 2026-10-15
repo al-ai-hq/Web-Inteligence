@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "migrate:prod": "node ./dist/migrations/migrate-cli.js"
   },
   "bin": {
     "wpi-migrate": "./dist/migrations/migrate-cli.js"

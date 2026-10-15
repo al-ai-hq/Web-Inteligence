@@ -11,6 +11,6 @@ CREATE TABLE IF NOT EXISTS schema_objects (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_schema_objects_project ON schema_objects(project_id);
-CREATE INDEX idx_schema_objects_page ON schema_objects(page_url);
-CREATE INDEX idx_schema_objects_type ON schema_objects(schema_type);
+CREATE INDEX IF NOT EXISTS idx_schema_objects_project ON schema_objects(project_id);
+CREATE INDEX IF NOT EXISTS idx_schema_objects_page ON schema_objects(page_url);
+CREATE INDEX IF NOT EXISTS idx_schema_objects_type ON schema_objects(schema_type);
