@@ -1,4 +1,4 @@
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -16,7 +16,7 @@ describe.skipIf(!DATABASE_URL)("applyMigrations WPI_MIGRATIONS_DIR override", ()
     migrationsDir = await mkdtemp(join(tmpdir(), "wpi-migrations-"));
     await writeFile(
       join(migrationsDir, "0001_test.sql"),
-      "CREATE TABLE IF NOT EXISTS migration_dir_test (id serial PRIMARY KEY);\nINSERT INTO migration_dir_test DEFAULT VALUES;",
+      "CREATE TABLE IF NOT EXISTS migration_dir_test (id serial PRIMARY KEY);\n-- Insert a row so the test's rowCount > 0 assertion has data to verify.\nINSERT INTO migration_dir_test DEFAULT VALUES;",
     );
     await pool.query("DROP TABLE IF EXISTS migration_dir_test");
     await pool.query("DROP TABLE IF EXISTS schema_migrations");
@@ -27,6 +27,7 @@ describe.skipIf(!DATABASE_URL)("applyMigrations WPI_MIGRATIONS_DIR override", ()
     delete process.env["WPI_MIGRATIONS_DIR"];
     await pool.query("DROP TABLE IF EXISTS migration_dir_test");
     await pool.end();
+    await rm(migrationsDir, { recursive: true, force: true });
   });
 
   it("applies migrations from the directory in WPI_MIGRATIONS_DIR", async () => {
