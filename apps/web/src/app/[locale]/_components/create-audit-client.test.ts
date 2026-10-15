@@ -137,6 +137,37 @@ describe("submitAudit", () => {
 
     expect(result).toEqual({ ok: false, error: "generic" });
   });
+
+  it("includes turnstileToken in the request body when provided", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse(
+        { id: "a1", secret: "s1", status_url: "/en/audit/a1", redirect_url: null },
+        201,
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await submitAudit({ ...PAYLOAD, turnstileToken: "test-token" });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/audits",
+      expect.objectContaining({
+        method: "POST",
+        body: expect.stringContaining("\"turnstileToken\":\"test-token\""),
+      }),
+    );
+  });
+
+  it("maps a turnstile_required response", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse({ error: "turnstile_required" }, 429)),
+    );
+
+    const result = await submitAudit(PAYLOAD);
+
+    expect(result).toEqual({ ok: false, error: "turnstile_required" });
+  });
 });
 
 describe("mapCreateAuditError", () => {
@@ -146,6 +177,10 @@ describe("mapCreateAuditError", () => {
 
   it("maps 429 to rate_limited", () => {
     expect(mapCreateAuditError(429, {})).toBe("rate_limited");
+  });
+
+  it("maps turnstile_required body error", () => {
+    expect(mapCreateAuditError(429, { error: "turnstile_required" })).toBe("turnstile_required");
   });
 
   it("maps everything else to generic", () => {

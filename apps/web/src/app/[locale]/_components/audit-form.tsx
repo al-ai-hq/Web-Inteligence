@@ -1,5 +1,6 @@
 "use client";
 
+import { Turnstile } from "@marsidev/react-turnstile";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { submitAudit } from "./create-audit-client";
@@ -8,6 +9,8 @@ export function AuditForm() {
   const t = useTranslations("form");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileRequired, setTurnstileRequired] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,6 +33,7 @@ export function AuditForm() {
     const result = await submitAudit({
       url,
       locale,
+      turnstileToken: turnstileToken ?? undefined,
       context: {
         organization: String(form.get("organization") ?? ""),
         business_type: String(form.get("business_type") ?? ""),
@@ -48,6 +52,11 @@ export function AuditForm() {
           ? result.data.redirect_url
           : `${result.data.status_url}?s=${encodeURIComponent(result.data.secret)}`,
       );
+      return;
+    }
+    if (result.error === "turnstile_required") {
+      setTurnstileRequired(true);
+      setSubmitting(false);
       return;
     }
     setError(t(`error_${result.error}`));
@@ -216,9 +225,18 @@ export function AuditForm() {
           </div>
         ) : null}
 
+        {turnstileRequired ? (
+          <div className="flex justify-center">
+            <Turnstile
+              siteKey={process.env["NEXT_PUBLIC_TURNSTILE_SITE_KEY"] ?? ""}
+              onSuccess={(token) => setTurnstileToken(token)}
+            />
+          </div>
+        ) : null}
+
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || (turnstileRequired && turnstileToken === null)}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-600/30 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
         >
           {submitting ? (
