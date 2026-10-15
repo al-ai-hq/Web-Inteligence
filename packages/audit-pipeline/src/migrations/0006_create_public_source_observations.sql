@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS public_source_observations (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_public_source_obs_fact_sheet ON public_source_observations(fact_sheet_id);
-CREATE INDEX idx_public_source_obs_platform ON public_source_observations(source_platform);
+CREATE INDEX IF NOT EXISTS idx_public_source_obs_fact_sheet ON public_source_observations(fact_sheet_id);
+CREATE INDEX IF NOT EXISTS idx_public_source_obs_platform ON public_source_observations(source_platform);

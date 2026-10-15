@@ -1,7 +1,13 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
-import { PostgresAuditStore, applyMigrations, hashAuditSecret, generateAuditSecret, type AuditContext } from "../src/index.js";
+import {
+  PostgresAuditStore,
+  applyMigrations,
+  hashAuditSecret,
+  generateAuditSecret,
+  type AuditContext,
+} from "../src/index.js";
 
 const DATABASE_URL = process.env["WPI_TEST_DATABASE_URL"];
 

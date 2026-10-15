@@ -129,8 +129,7 @@ export class StubDispatcher implements JobDispatcher {
       ),
     ];
     const expiresAt =
-      record.expires_at ??
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      record.expires_at ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const report = buildReportModel({
       auditId: jobId,
       locale: record.locale,

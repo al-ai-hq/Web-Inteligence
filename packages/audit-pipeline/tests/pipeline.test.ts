@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { InMemoryAuditStore } from "../src/audit-store.js";
+import { InMemoryAuditStore, type AuditRecord } from "../src/audit-store.js";
 import type { AuditContext } from "../src/audit-context.js";
 import { TIER_SCOPES, type TierName } from "../src/eligibility.js";
 import { runAuditPipeline, type PipelineDeps } from "../src/pipeline.js";
@@ -39,10 +39,7 @@ function verifiedFinding(): ComposerAgentOutcome["findings"][number] {
   };
 }
 
-function makeDeps(
-  store: InMemoryAuditStore,
-  overrides: Partial<PipelineDeps> = {},
-): PipelineDeps {
+function makeDeps(store: InMemoryAuditStore, overrides: Partial<PipelineDeps> = {}): PipelineDeps {
   return {
     store,
     validateUrl: async () => ({ ok: true }),
@@ -226,9 +223,7 @@ describe("ENRICHING_OPTIONAL stage", () => {
   it("continues pipeline even if enrichFootprint fails", async () => {
     const store = new InMemoryAuditStore();
     const auditId = await seedAudit(store);
-    const enrichFootprint = vi
-      .fn()
-      .mockRejectedValue(new Error("enrichment failed"));
+    const enrichFootprint = vi.fn().mockRejectedValue(new Error("enrichment failed"));
     const deps = makeDeps(store, { enrichFootprint });
 
     const result = await runAuditPipeline(deps, auditId);
@@ -237,5 +232,33 @@ describe("ENRICHING_OPTIONAL stage", () => {
     expect(result).not.toBe("failed");
     const raw = await store.getRaw(auditId);
     expect(raw?.status).not.toBe("FAILED");
+  });
+});
+
+describe("onComplete callback", () => {
+  it("calls onComplete with the completed record", async () => {
+    const store = new InMemoryAuditStore();
+    const auditId = await seedAudit(store);
+    const onComplete = vi.fn().mockResolvedValue(undefined);
+
+    const result = await runAuditPipeline(makeDeps(store, { onComplete }), auditId);
+
+    expect(result).toBe("completed");
+    expect(onComplete).toHaveBeenCalledTimes(1);
+    const record = onComplete.mock.calls[0]![0] as AuditRecord;
+    expect(record.id).toBe(auditId);
+    expect(record.status).toBe("READY_COMPLETE");
+  });
+
+  it("does not fail the audit when onComplete throws", async () => {
+    const store = new InMemoryAuditStore();
+    const auditId = await seedAudit(store);
+    const onComplete = vi.fn().mockRejectedValue(new Error("email boom"));
+
+    const result = await runAuditPipeline(makeDeps(store, { onComplete }), auditId);
+
+    expect(result).toBe("completed");
+    const raw = await store.getRaw(auditId);
+    expect(raw?.status).toBe("READY_COMPLETE");
   });
 });

@@ -7,7 +7,11 @@ app = 'wpi-web-delicate-dawn-7818'
 primary_region = 'fra'
 
 [env]
-  WPI_DISPATCH_MODE = 'memory'
+  WPI_DISPATCH_MODE = 'in_process'
+  WPI_MIGRATIONS_DIR = '/app/packages/audit-pipeline/src/migrations'
+
+[deploy]
+  release_command = "node packages/audit-pipeline/dist/migrations/migrate-cli.js"
 
 [build]
 [http_service]
@@ -31,6 +35,14 @@ primary_region = 'fra'
   [[services.ports]]
     port = 443
     handlers = ['tls', 'http']
+
+  [[services.http_checks]]
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "get"
+    path = "/api/health"
+    protocol = "http"
 
   [services.concurrency]
     type = 'requests'

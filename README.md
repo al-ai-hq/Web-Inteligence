@@ -63,19 +63,26 @@ Listed with owners in `docs/open-items.md`. The most important:
 pnpm install
 createdb wpi_dev
 createdb wpi_test
-WPI_DATABASE_URL="postgres://localhost:5432/wpi_dev" pnpm --filter @wpi/audit-pipeline exec wpi-migrate
+cp apps/web/.env.local.example apps/web/.env.local
+# Edit apps/web/.env.local and fill in the real values.
+DATABASE_URL="postgres://localhost:5432/wpi_dev" pnpm --filter @wpi/audit-pipeline exec wpi-migrate
 ```
+
+> **Security note:** `apps/web/.env.local` must never be committed. If this repository ever contained a tracked `.env.local` with real credentials (Google OAuth client secret, cookie secret, or database password), those credentials must be rotated in the relevant provider consoles before launch.
 
 ### Environment variables (apps/web)
 
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `WPI_DISPATCH_MODE` | no (default `stub`) | `stub` runs a deterministic no-network pipeline for local dev and E2E; `in_process` runs the real pipeline |
-| `WPI_DATABASE_URL` | yes unless `WPI_DISPATCH_MODE=stub` | Postgres connection string for the audit store |
-| `AUDIT_COOKIE_SECRET` | yes unless `WPI_DISPATCH_MODE=stub` | HMAC secret for the signed eligibility cookie |
-| `WPI_GEMINI_API_KEY` | no | Enables the agent stage; without it agent sections render as `unavailable` with a reason |
-| `WPI_OUTPUT_DIR` | no (default `./output`) | Crawler/evidence output directory |
-| `WPI_TEST_DATABASE_URL` | no | Enables the `PostgresAuditStore` test suite |
+| Variable                | Required                            | Purpose                                                                                               |
+| ----------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `WPI_DISPATCH_MODE`     | no (default `stub`)                 | `stub` runs a deterministic no-network pipeline; `in_process` runs the real pipeline against Postgres |
+| `DATABASE_URL`          | yes unless `WPI_DISPATCH_MODE=stub` | Postgres connection string for the audit store (legacy `WPI_DATABASE_URL` still works)                |
+| `COOKIE_SECRET`         | yes unless `WPI_DISPATCH_MODE=stub` | HMAC secret for the signed eligibility cookie (legacy `AUDIT_COOKIE_SECRET` still works)              |
+| `ENCRYPTION_KEY`        | yes for OAuth token storage         | 32-byte hex AES-256-GCM key for OAuth tokens (legacy `WPI_OAUTH_ENCRYPTION_KEY` base64 still works)   |
+| `WPI_GEMINI_API_KEY`    | no                                  | Enables the agent stage                                                                               |
+| `WPI_OUTPUT_DIR`        | no (default `./output`)             | Crawler/evidence output directory                                                                     |
+| `WPI_TEST_DATABASE_URL` | no                                  | Enables the Postgres-backed test suites                                                               |
+| `RESEND_API_KEY`        | no                                  | Resend API key; leave blank to use the stub email adapter in local development                        |
+| `EMAIL_FROM_ADDRESS`    | no                                  | From address for outgoing emails (default: `noreply@example.com`)                                     |
 
 Note: `apps/web` caches its service container for the process lifetime. Restart `pnpm dev` after changing environment variables for them to take effect.
 

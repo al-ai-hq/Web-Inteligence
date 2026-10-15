@@ -11,10 +11,7 @@ export { IntegrityError };
  * Compute a SHA-256 content hash over sorted evidence IDs + methodology version.
  * Format: "sha256:<hex>"
  */
-export function computeContentHash(
-  evidenceIds: string[],
-  methodologyVersion: string,
-): string {
+export function computeContentHash(evidenceIds: string[], methodologyVersion: string): string {
   const sorted = [...evidenceIds].sort();
   const payload = sorted.join(",") + "|" + methodologyVersion;
   const hex = createHash("sha256").update(payload).digest("hex");
@@ -46,11 +43,7 @@ export function attachLineage(
  * Check whether a single evidence item is fresh (not stale).
  * @returns true if the evidence is within the max age, false if stale.
  */
-export function checkFreshness(
-  fetchedAt: string,
-  maxAgeDays: number,
-  now?: Date,
-): boolean {
+export function checkFreshness(fetchedAt: string, maxAgeDays: number, now?: Date): boolean {
   const reference = now ?? new Date();
   const fetched = new Date(fetchedAt);
   const maxAgeMs = maxAgeDays * 24 * 60 * 60 * 1000;
@@ -61,11 +54,7 @@ export function checkFreshness(
 /**
  * Find all evidence IDs that are stale (fetched_at older than maxAgeDays).
  */
-export function findStaleEvidence(
-  pages: PageEvidence[],
-  maxAgeDays: number,
-  now?: Date,
-): string[] {
+export function findStaleEvidence(pages: PageEvidence[], maxAgeDays: number, now?: Date): string[] {
   const stale: string[] = [];
   for (const page of pages) {
     if (!checkFreshness(page.fetched_at, maxAgeDays, now)) {

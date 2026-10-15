@@ -44,13 +44,29 @@ export async function ScoreCard({
         </div>
         <div className="flex flex-wrap gap-3 text-sm">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-100 px-3 py-1 text-surface-700">
-            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              className="h-3.5 w-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
             {t("score_confidence")}: {t(`confidence_${score.confidence}`)}
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-100 px-3 py-1 text-surface-700">
-            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              className="h-3.5 w-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
@@ -65,8 +81,12 @@ export async function ScoreCard({
           {score.categories.map((cat) => (
             <li key={cat.category} className="space-y-1.5">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-surface-800">{t(categoryLabelKey(cat.category))}</span>
-                <span className={`font-semibold ${scoreTone(cat.value)}`}>{formatScorePercentage(cat.value)}</span>
+                <span className="font-medium text-surface-800">
+                  {t(categoryLabelKey(cat.category))}
+                </span>
+                <span className={`font-semibold ${scoreTone(cat.value)}`}>
+                  {formatScorePercentage(cat.value)}
+                </span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-100">
                 <div
@@ -85,7 +105,15 @@ export async function ScoreCard({
           <ul className="space-y-1 text-sm text-amber-700">
             {score.applied_caps.map((cap) => (
               <li key={cap.cap_id} className="flex items-start gap-2">
-                <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />

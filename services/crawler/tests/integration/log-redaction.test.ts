@@ -57,9 +57,7 @@ afterEach(() => {
 describe("TS-LOGREDACT-1: URL redaction in warnings", () => {
   it("redacts query parameters from URL in warning log", async () => {
     mockValidateUrl.mockResolvedValue({ valid: false, reason: "private IP blocked" });
-    await interceptRequest(
-      mockRequest("http://10.0.0.1/admin?token=secret123&user=admin"),
-    );
+    await interceptRequest(mockRequest("http://10.0.0.1/admin?token=secret123&user=admin"));
     expect(warnMessages.length).toBeGreaterThan(0);
     const logOutput = warnMessages.join("\n");
     // The full URL with query params should NOT appear
@@ -107,9 +105,7 @@ describe("TS-LOGREDACT-2: Credentials redaction in logs", () => {
 
   it("does not leak API keys from URL path in logs", async () => {
     mockValidateUrl.mockResolvedValue({ valid: false, reason: "private IP blocked" });
-    await interceptRequest(
-      mockRequest("http://10.0.0.1/api/v1?key=sk-live-abc123xyz"),
-    );
+    await interceptRequest(mockRequest("http://10.0.0.1/api/v1?key=sk-live-abc123xyz"));
     const logOutput = warnMessages.join("\n");
     expect(logOutput).not.toContain("sk-live-abc123xyz");
     expect(logOutput).not.toContain("key=");

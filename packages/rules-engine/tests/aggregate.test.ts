@@ -177,10 +177,7 @@ describe("aggregateToSite", () => {
       { rule_id: "SEO-011", page_id: "p1", result: "not_applicable", evidence_ids: [] },
       { rule_id: "SEO-011", page_id: "p2", result: "not_applicable", evidence_ids: [] },
     ];
-    const bundle = makeBundle([
-      makePage({ evidence_id: "p1" }),
-      makePage({ evidence_id: "p2" }),
-    ]);
+    const bundle = makeBundle([makePage({ evidence_id: "p1" }), makePage({ evidence_id: "p2" })]);
     const siteResults = aggregateToSite(results, bundle);
 
     expect(siteResults[0].result).toBe("not_applicable");

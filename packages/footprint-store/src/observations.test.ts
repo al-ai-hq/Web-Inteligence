@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { ProfileObservationSchema, PublicSourceObservationSchema, NapObservationSchema } from "./observations.js";
+import {
+  ProfileObservationSchema,
+  PublicSourceObservationSchema,
+  NapObservationSchema,
+} from "./observations.js";
 
 const baseLineage = {
   record_id: "550e8400-e29b-41d4-a716-446655440000",
@@ -30,7 +34,13 @@ describe("ProfileObservationSchema", () => {
       extracted_name: "Example Business",
       extracted_phone: "+1-555-0100",
       extracted_email: null,
-      extracted_address: { street: "123 Main St", city: "Anytown", region: "CA", postal_code: "90210", country: "US" },
+      extracted_address: {
+        street: "123 Main St",
+        city: "Anytown",
+        region: "CA",
+        postal_code: "90210",
+        country: "US",
+      },
       extracted_hours: { monday: "9:00-17:00" },
       extracted_social: { facebook: "https://fb.com/example" },
       extraction_confidence: 0.85,
@@ -83,7 +93,13 @@ describe("NapObservationSchema", () => {
       source_url: "https://yelp.com/biz/example",
       name_value: "Example Business",
       phone_value: "+1-555-0100",
-      address_value: { street: "123 Main St", city: "Anytown", region: "CA", postal_code: "90210", country: "US" },
+      address_value: {
+        street: "123 Main St",
+        city: "Anytown",
+        region: "CA",
+        postal_code: "90210",
+        country: "US",
+      },
       consistency_score: 0.92,
       inconsistencies: [{ field: "phone", expected: "+1-555-0200", actual: "+1-555-0100" }],
       lineage: baseLineage,

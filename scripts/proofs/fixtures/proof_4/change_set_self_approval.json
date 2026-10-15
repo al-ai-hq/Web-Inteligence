@@ -17,9 +17,7 @@
       "before_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "risk_tier": 1,
       "rationale": "Updating product title to match vendor branding guidelines",
-      "evidence_ids": [
-        "d4d4d4d4-5555-4aaa-bbbb-000000000010"
-      ],
+      "evidence_ids": ["d4d4d4d4-5555-4aaa-bbbb-000000000010"],
       "idempotency_key": "op-self-approval-test-001",
       "status": "pending"
     }

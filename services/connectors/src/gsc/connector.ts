@@ -19,8 +19,8 @@ export class GscConnector implements Connector {
       const client = new GscClient(context.auth.google.accessToken);
       const siteUrl = new URL(url).origin;
       const dateRange = {
-        start: (new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString().split("T")[0] ?? ""),
-        end: (new Date().toISOString().split("T")[0] ?? ""),
+        start: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString().split("T")[0] ?? "",
+        end: new Date().toISOString().split("T")[0] ?? "",
       };
 
       const [analytics, indexCoverage] = await Promise.all([
@@ -92,8 +92,7 @@ export class GscConnector implements Connector {
     totals.ctr = totals.impressions > 0 ? totals.clicks / totals.impressions : 0;
     totals.average_position =
       rows.length > 0
-        ? rows.reduce((sum, row) => sum + row.position * row.impressions, 0) /
-          totals.impressions
+        ? rows.reduce((sum, row) => sum + row.position * row.impressions, 0) / totals.impressions
         : 0;
 
     const byPage = new Map<string, GscData["search_analytics"]["by_page"][number]>();

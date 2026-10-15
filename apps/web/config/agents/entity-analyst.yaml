@@ -2,8 +2,8 @@
 id: entity-analyst
 name: Entity Analyst
 description: Analyzes public footprint data, entity consistency, and NAP accuracy across sources
-status: active  # Changed from draft
-model_tier: "standard"  # Changed from placeholder
+status: active # Changed from draft
+model_tier: "standard" # Changed from placeholder
 reads_untrusted_content: true
 milestone: M7
 

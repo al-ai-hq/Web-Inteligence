@@ -5,8 +5,7 @@ export interface ProviderAdapter {
 }
 
 export type ContentPart =
-  | { type: 'text'; text: string }
-  | { type: 'image'; mimeType: string; data: string };
+  { type: "text"; text: string } | { type: "image"; mimeType: string; data: string };
 
 export interface CompletionRequest {
   model: string;

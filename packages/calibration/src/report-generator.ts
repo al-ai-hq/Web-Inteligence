@@ -1,4 +1,4 @@
-import { calculateAgreementMetrics } from './agreement-metrics.js';
+import { calculateAgreementMetrics } from "./agreement-metrics.js";
 
 interface CaseResult {
   case_id: string;
@@ -23,7 +23,7 @@ export function generateCalibrationReport(
   caseResults: CaseResult[],
   modelId: string,
   modelVersion: string,
-  rubricVersion: string
+  rubricVersion: string,
 ): CalibrationReport {
   let totalExact = 0;
   let totalAdjacent = 0;
@@ -33,7 +33,7 @@ export function generateCalibrationReport(
   for (const caseResult of caseResults) {
     const metrics = calculateAgreementMetrics(
       caseResult.model_results as any,
-      caseResult.human_results as any
+      caseResult.human_results as any,
     );
 
     totalExact += metrics.exact_match_rate * caseResult.model_results.length;

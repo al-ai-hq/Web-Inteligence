@@ -48,10 +48,7 @@ function verifiedFinding(): ComposerAgentOutcome["findings"][number] {
  * Build PipelineDeps including the runRulesEngine port.
  * The base runRulesEngine returns an empty array; tests override as needed.
  */
-function makeDeps(
-  store: InMemoryAuditStore,
-  overrides: Partial<PipelineDeps> = {},
-): PipelineDeps {
+function makeDeps(store: InMemoryAuditStore, overrides: Partial<PipelineDeps> = {}): PipelineDeps {
   return {
     store,
     validateUrl: async () => ({ ok: true }),
@@ -167,7 +164,7 @@ describe("pipeline + rules engine integration", () => {
     // Build deps WITHOUT runRulesEngine (simulating existing callers)
     const { runRulesEngine: _omit, ...depsWithoutRules } = makeDeps(store);
 
-    const result = await runAuditPipeline(depsWithoutRules as PipelineDeps, auditId);
+    const result = await runAuditPipeline(depsWithoutRules, auditId);
     expect(result).toBe("completed");
   });
 });

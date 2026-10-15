@@ -1,9 +1,9 @@
-import type { DimensionScore, ExperienceScoreResult } from '../types/experience-score.js';
+import type { DimensionScore, ExperienceScoreResult } from "../types/experience-score.js";
 
 interface Finding {
   criterion_id: string;
-  result: 'pass' | 'partial' | 'fail' | 'not_applicable' | 'unavailable' | 'error';
-  confidence: 'high' | 'medium' | 'low';
+  result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error";
+  confidence: "high" | "medium" | "low";
 }
 
 const RESULT_VALUES: Record<string, number> = {
@@ -14,7 +14,7 @@ const RESULT_VALUES: Record<string, number> = {
 
 export function calculateDimensionScore(
   findings: Finding[],
-  weights: Record<string, number>
+  weights: Record<string, number>,
 ): DimensionScore {
   let totalWeight = 0;
   let applicableWeight = 0;
@@ -26,12 +26,12 @@ export function calculateDimensionScore(
     const weight = weights[finding.criterion_id] ?? 0;
     totalWeight += weight;
 
-    if (finding.result === 'not_applicable') {
+    if (finding.result === "not_applicable") {
       notApplicableCount++;
       continue;
     }
 
-    if (finding.result === 'unavailable' || finding.result === 'error') {
+    if (finding.result === "unavailable" || finding.result === "error") {
       continue;
     }
 
@@ -43,7 +43,7 @@ export function calculateDimensionScore(
   }
 
   const coverage = totalWeight > 0 ? applicableWeight / totalWeight : 0;
-  const score = applicableWeight > 0 ? 100 * weightedSum / applicableWeight : 0;
+  const score = applicableWeight > 0 ? (100 * weightedSum) / applicableWeight : 0;
 
   return {
     score,
@@ -58,7 +58,7 @@ export function calculateOverallScore(
   dimensionScores: Record<string, DimensionScore>,
   dimensionWeights: Record<string, number>,
   coverage: number,
-  confidence: 'high' | 'medium' | 'low'
+  confidence: "high" | "medium" | "low",
 ): ExperienceScoreResult {
   let weightedSum = 0;
   let totalWeight = 0;
@@ -73,10 +73,10 @@ export function calculateOverallScore(
 
   return {
     experience_effectiveness: overallScore,
-    dimensions: dimensionScores as ExperienceScoreResult['dimensions'],
+    dimensions: dimensionScores as ExperienceScoreResult["dimensions"],
     coverage,
     confidence,
-    fidelity_label: 'assessed',
-    methodology_version: '0.1.0-draft',
+    fidelity_label: "assessed",
+    methodology_version: "0.1.0-draft",
   };
 }

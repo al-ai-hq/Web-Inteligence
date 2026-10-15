@@ -1,13 +1,18 @@
 "use client";
 
+import { Turnstile } from "@marsidev/react-turnstile";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { submitAudit } from "./create-audit-client";
 
 export function AuditForm() {
   const t = useTranslations("form");
+  const rateLimitT = useTranslations("rateLimit");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileRequired, setTurnstileRequired] = useState(false);
+  const [turnstileSubmitted, setTurnstileSubmitted] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -16,6 +21,11 @@ export function AuditForm() {
     }
     setError(null);
     setSubmitting(true);
+
+    const token = turnstileToken ?? undefined;
+    if (token) {
+      setTurnstileSubmitted(true);
+    }
 
     const form = new FormData(event.currentTarget);
     const url = String(form.get("url") ?? "").trim();
@@ -30,6 +40,7 @@ export function AuditForm() {
     const result = await submitAudit({
       url,
       locale,
+      turnstileToken: token,
       context: {
         organization: String(form.get("organization") ?? ""),
         business_type: String(form.get("business_type") ?? ""),
@@ -48,6 +59,14 @@ export function AuditForm() {
           ? result.data.redirect_url
           : `${result.data.status_url}?s=${encodeURIComponent(result.data.secret)}`,
       );
+      return;
+    }
+    if (result.error === "turnstile_required") {
+      setTurnstileRequired(true);
+      if (token) {
+        setError(rateLimitT("turnstileFailed"));
+      }
+      setSubmitting(false);
       return;
     }
     setError(t(`error_${result.error}`));
@@ -91,7 +110,9 @@ export function AuditForm() {
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <div className="h-px flex-1 bg-surface-200" />
-            <span className="text-xs font-medium uppercase tracking-wider text-surface-700">Business Details</span>
+            <span className="text-xs font-medium uppercase tracking-wider text-surface-700">
+              Business Details
+            </span>
             <div className="h-px flex-1 bg-surface-200" />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -123,25 +144,13 @@ export function AuditForm() {
               <label htmlFor="offering" className={labelClasses}>
                 {t("offering")}
               </label>
-              <input
-                id="offering"
-                name="offering"
-                type="text"
-                required
-                className={inputClasses}
-              />
+              <input id="offering" name="offering" type="text" required className={inputClasses} />
             </div>
             <div>
               <label htmlFor="market" className={labelClasses}>
                 {t("market")}
               </label>
-              <input
-                id="market"
-                name="market"
-                type="text"
-                required
-                className={inputClasses}
-              />
+              <input id="market" name="market" type="text" required className={inputClasses} />
             </div>
             <div>
               <label htmlFor="customer_language" className={labelClasses}>
@@ -159,13 +168,7 @@ export function AuditForm() {
               <label htmlFor="audience" className={labelClasses}>
                 {t("audience")}
               </label>
-              <input
-                id="audience"
-                name="audience"
-                type="text"
-                required
-                className={inputClasses}
-              />
+              <input id="audience" name="audience" type="text" required className={inputClasses} />
             </div>
           </div>
         </div>
@@ -173,19 +176,16 @@ export function AuditForm() {
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <div className="h-px flex-1 bg-surface-200" />
-            <span className="text-xs font-medium uppercase tracking-wider text-surface-700">Optional</span>
+            <span className="text-xs font-medium uppercase tracking-wider text-surface-700">
+              Optional
+            </span>
             <div className="h-px flex-1 bg-surface-200" />
           </div>
           <div>
             <label htmlFor="competitors" className={labelClasses}>
               {t("competitors")}
             </label>
-            <input
-              id="competitors"
-              name="competitors"
-              type="text"
-              className={inputClasses}
-            />
+            <input id="competitors" name="competitors" type="text" className={inputClasses} />
           </div>
 
           <div>
@@ -206,8 +206,19 @@ export function AuditForm() {
         </div>
 
         {error !== null ? (
-          <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
-            <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div
+            className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            role="alert"
+          >
+            <svg
+              className="mt-0.5 h-4 w-4 shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -216,23 +227,51 @@ export function AuditForm() {
           </div>
         ) : null}
 
+        {turnstileRequired ? (
+          <div className="flex justify-center">
+            <Turnstile
+              siteKey={process.env["NEXT_PUBLIC_TURNSTILE_SITE_KEY"] ?? ""}
+              onSuccess={(token) => setTurnstileToken(token)}
+            />
+          </div>
+        ) : null}
+
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || (turnstileRequired && turnstileToken === null)}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-600/30 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-200 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
         >
           {submitting ? (
             <>
               <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
               </svg>
               {t("submitting")}
             </>
           ) : (
             <>
               {t("submit")}
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M5 12h14" />
                 <path d="m12 5 7 7-7 7" />
               </svg>

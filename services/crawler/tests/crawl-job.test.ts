@@ -29,12 +29,7 @@ import { runCrawlJob } from "../src/index.js";
 import { fetchUrl } from "../src/fetcher.js";
 import { extractContent } from "../src/extractor.js";
 import { planUrls } from "../src/url-planner.js";
-import {
-  writeFileSync,
-  mkdirSync,
-  existsSync,
-  readFileSync,
-} from "node:fs";
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -59,13 +54,7 @@ function setEnv(vars: Record<string, string | undefined>) {
 }
 
 function clearCrawlEnv() {
-  for (const key of [
-    "AUDIT_ID",
-    "ROOT_URL",
-    "SAMPLING_MODE",
-    "SITEMAP_URL",
-    "OUTPUT_DIR",
-  ]) {
+  for (const key of ["AUDIT_ID", "ROOT_URL", "SAMPLING_MODE", "SITEMAP_URL", "OUTPUT_DIR"]) {
     delete process.env[key];
   }
 }
@@ -239,9 +228,7 @@ describe("runCrawlJob", () => {
 
     const evidencePath = evidenceCalls[0]![0] as string;
     const urlHash = createHash("sha256").update(url).digest("hex").slice(0, 16);
-    expect(evidencePath).toBe(
-      `/tmp/test-output/audit-1/raw/${urlHash}.json`,
-    );
+    expect(evidencePath).toBe(`/tmp/test-output/audit-1/raw/${urlHash}.json`);
 
     // Verify evidence content
     const evidenceContent = JSON.parse(evidenceCalls[0]![1] as string);
@@ -289,9 +276,7 @@ describe("runCrawlJob", () => {
     expect(manifestCalls.length).toBe(1);
 
     const manifestPath = manifestCalls[0]![0] as string;
-    expect(manifestPath).toBe(
-      "/tmp/test-output/audit-1/render-manifest.json",
-    );
+    expect(manifestPath).toBe("/tmp/test-output/audit-1/render-manifest.json");
 
     const manifestContent = JSON.parse(manifestCalls[0]![1] as string);
     expect(manifestContent.entries).toHaveLength(1);
@@ -343,10 +328,7 @@ describe("runCrawlJob", () => {
       ROOT_URL: "https://example.com",
       SAMPLING_MODE: "single_page",
     });
-    mockPlanUrls.mockResolvedValue([
-      "https://example.com/good",
-      "https://example.com/bad",
-    ]);
+    mockPlanUrls.mockResolvedValue(["https://example.com/good", "https://example.com/bad"]);
 
     // First call succeeds, second throws
     mockFetchUrl

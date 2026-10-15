@@ -31,9 +31,9 @@ describe("InMemoryAuthService", () => {
   it("rejects duplicate email", async () => {
     const auth = new InMemoryAuthService();
     await auth.createUser("user@example.com", "password123");
-    await expect(
-      auth.createUser("  USER@Example.COM  ", "other-password"),
-    ).rejects.toThrow(DuplicateEmailError);
+    await expect(auth.createUser("  USER@Example.COM  ", "other-password")).rejects.toThrow(
+      DuplicateEmailError,
+    );
   });
 
   it("verifies credentials with padded uppercase email", async () => {
@@ -41,7 +41,8 @@ describe("InMemoryAuthService", () => {
     await auth.createUser("user@example.com", "password123");
     const result = await auth.verifyCredentials("  USER@Example.COM  ", "password123");
     expect(result).not.toBeNull();
-    expect(result!.email).toBe("user@example.com");
+    if (!result) throw new Error("expected user");
+    expect(result.email).toBe("user@example.com");
   });
 
   it("returns null for unknown email", async () => {
@@ -73,7 +74,8 @@ describe("InMemoryAuthService", () => {
     const session = await auth.createSession(user.id);
     const found = await auth.getSessionUser(hashToken(session.token));
     expect(found).not.toBeNull();
-    expect(found!.id).toBe(user.id);
+    if (!found) throw new Error("expected user");
+    expect(found.id).toBe(user.id);
   });
 
   it("returns null for expired session", async () => {
@@ -155,5 +157,21 @@ describe("constants", () => {
   it("exports TTL and renewal threshold", () => {
     expect(SESSION_TTL_MS).toBe(30 * DAY_MS);
     expect(SESSION_RENEWAL_THRESHOLD_MS).toBe(7 * DAY_MS);
+  });
+});
+
+describe("InMemoryAuthService password reset", () => {
+  it("finds a user by id", async () => {
+    const auth = new InMemoryAuthService();
+    const user = await auth.createUser("find@example.com", "password123");
+    const found = await auth.findUserById(user.id);
+    expect(found).not.toBeNull();
+    if (!found) throw new Error("expected user");
+    expect(found.email).toBe("find@example.com");
+  });
+
+  it("returns null for unknown user id", async () => {
+    const auth = new InMemoryAuthService();
+    expect(await auth.findUserById("no-such-id")).toBeNull();
   });
 });

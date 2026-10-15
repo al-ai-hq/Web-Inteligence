@@ -8,9 +8,7 @@ describe("detectConflicts", () => {
       {
         source_url: "https://yelp.com/biz/example",
         consistency_score: 0.75,
-        inconsistencies: [
-          { field: "phone", expected: "+1-555-0100", actual: "+1-555-0200" },
-        ],
+        inconsistencies: [{ field: "phone", expected: "+1-555-0100", actual: "+1-555-0200" }],
       },
     ];
 
@@ -75,9 +73,7 @@ describe("detectConflicts", () => {
       {
         source_url: "https://facebook.com/example",
         consistency_score: 0.75,
-        inconsistencies: [
-          { field: "phone", expected: "+1-555-0100", actual: "+1-555-0300" },
-        ],
+        inconsistencies: [{ field: "phone", expected: "+1-555-0100", actual: "+1-555-0300" }],
       },
     ];
 

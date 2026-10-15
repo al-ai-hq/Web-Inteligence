@@ -22,14 +22,14 @@ Landing page (AR/EN) → URL + context questions → private status view → pro
 
 ## 1. Locked decisions
 
-| # | Decision | Notes |
-|---|----------|-------|
-| 1 | Free-audit vertical slice | Defers registration/auth, comparison, monitoring, connections, agency surfaces |
-| 2 | JobDispatcher port + InProcessDispatcher | CloudTasksDispatcher slots into the same port later; spec 5.6 dispatch-idempotency lands there |
-| 3 | Postgres via `pg`, plain .sql migrations + tiny runner, no ORM | Cloud SQL production path; local Postgres for dev; temp DB per test run |
-| 4 | Anonymous-only, signed secret links | Identity Platform deferred — D-011 (auth provider) is an open decision the repo forbids guessing |
-| 5 | Tailwind CSS v4 | To be recorded as **D-022** in docs/decisions.md during implementation |
-| 6 | Shape: new `packages/audit-pipeline` + thin apps/web ("Approach A") | Pipeline logic is testable without Next.js; web app stays a rendering + HTTP shell |
+| #   | Decision                                                            | Notes                                                                                            |
+| --- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 1   | Free-audit vertical slice                                           | Defers registration/auth, comparison, monitoring, connections, agency surfaces                   |
+| 2   | JobDispatcher port + InProcessDispatcher                            | CloudTasksDispatcher slots into the same port later; spec 5.6 dispatch-idempotency lands there   |
+| 3   | Postgres via `pg`, plain .sql migrations + tiny runner, no ORM      | Cloud SQL production path; local Postgres for dev; temp DB per test run                          |
+| 4   | Anonymous-only, signed secret links                                 | Identity Platform deferred — D-011 (auth provider) is an open decision the repo forbids guessing |
+| 5   | Tailwind CSS v4                                                     | To be recorded as **D-022** in docs/decisions.md during implementation                           |
+| 6   | Shape: new `packages/audit-pipeline` + thin apps/web ("Approach A") | Pipeline logic is testable without Next.js; web app stays a rendering + HTTP shell               |
 
 ## 2. Architecture and package layout
 

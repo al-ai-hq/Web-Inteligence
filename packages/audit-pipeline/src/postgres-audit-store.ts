@@ -1,7 +1,5 @@
 import type { Pool, QueryResultRow } from "pg";
-import type {
-  AuditContext,
-} from "./audit-context.js";
+import type { AuditContext } from "./audit-context.js";
 import { isAuditStatus } from "./audit-store.js";
 import type {
   AuditRecord,
@@ -126,11 +124,7 @@ export class PostgresAuditStore implements AuditStore {
     return rowToRecord(result.rows[0]);
   }
 
-  async setFailure(
-    id: string,
-    reasonKey: string,
-    costs?: StoredCosts,
-  ): Promise<TransitionResult> {
+  async setFailure(id: string, reasonKey: string, costs?: StoredCosts): Promise<TransitionResult> {
     const raw = await this.getRaw(id);
     if (!raw) {
       throw new Error(`Audit ${id} not found`);

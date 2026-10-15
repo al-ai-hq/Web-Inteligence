@@ -38,15 +38,18 @@ describe.skipIf(!DATABASE_URL)("EntityConflictStore", () => {
   };
 
   it("creates and retrieves an entity conflict", async () => {
-    const created = await store.create({
-      fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
-      fact_key: "phone",
-      confirmed_value: { value: "+1-555-0100" },
-      conflicting_value: { value: "+1-555-0200" },
-      source_type: "nap_inconsistency",
-      source_id: "google-profile",
-      severity: "high",
-    }, validLineage);
+    const created = await store.create(
+      {
+        fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
+        fact_key: "phone",
+        confirmed_value: { value: "+1-555-0100" },
+        conflicting_value: { value: "+1-555-0200" },
+        source_type: "nap_inconsistency",
+        source_id: "google-profile",
+        severity: "high",
+      },
+      validLineage,
+    );
 
     expect(created.id).toBeDefined();
     expect(created.status).toBe("open");
@@ -58,36 +61,45 @@ describe.skipIf(!DATABASE_URL)("EntityConflictStore", () => {
 
   it("lists conflicts by fact_sheet_id", async () => {
     const factSheetId = "550e8400-e29b-41d4-a716-446655440099";
-    await store.create({
-      fact_sheet_id: factSheetId,
-      fact_key: "phone",
-      confirmed_value: null,
-      conflicting_value: { value: "+1-555-0100" },
-      source_type: "nap_inconsistency",
-      severity: "medium",
-    }, validLineage);
-    await store.create({
-      fact_sheet_id: factSheetId,
-      fact_key: "address",
-      confirmed_value: null,
-      conflicting_value: { value: "456 Oak Ave" },
-      source_type: "extractor_disagreement",
-      severity: "low",
-    }, validLineage);
+    await store.create(
+      {
+        fact_sheet_id: factSheetId,
+        fact_key: "phone",
+        confirmed_value: null,
+        conflicting_value: { value: "+1-555-0100" },
+        source_type: "nap_inconsistency",
+        severity: "medium",
+      },
+      validLineage,
+    );
+    await store.create(
+      {
+        fact_sheet_id: factSheetId,
+        fact_key: "address",
+        confirmed_value: null,
+        conflicting_value: { value: "456 Oak Ave" },
+        source_type: "extractor_disagreement",
+        severity: "low",
+      },
+      validLineage,
+    );
 
     const list = await store.listByFactSheet(factSheetId);
     expect(list.length).toBe(2);
   });
 
   it("resolves a conflict", async () => {
-    const created = await store.create({
-      fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
-      fact_key: "phone",
-      confirmed_value: null,
-      conflicting_value: { value: "+1-555-0200" },
-      source_type: "nap_inconsistency",
-      severity: "high",
-    }, validLineage);
+    const created = await store.create(
+      {
+        fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
+        fact_key: "phone",
+        confirmed_value: null,
+        conflicting_value: { value: "+1-555-0200" },
+        source_type: "nap_inconsistency",
+        severity: "high",
+      },
+      validLineage,
+    );
 
     const resolved = await store.resolve(
       created.id,
@@ -103,14 +115,17 @@ describe.skipIf(!DATABASE_URL)("EntityConflictStore", () => {
   });
 
   it("dismisses a conflict", async () => {
-    const created = await store.create({
-      fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
-      fact_key: "email",
-      confirmed_value: null,
-      conflicting_value: { value: "old@example.com" },
-      source_type: "connector_conflict",
-      severity: "low",
-    }, validLineage);
+    const created = await store.create(
+      {
+        fact_sheet_id: "550e8400-e29b-41d4-a716-446655440001",
+        fact_key: "email",
+        confirmed_value: null,
+        conflicting_value: { value: "old@example.com" },
+        source_type: "connector_conflict",
+        severity: "low",
+      },
+      validLineage,
+    );
 
     const dismissed = await store.dismiss(created.id, "user@example.com", "False positive");
     expect(dismissed.status).toBe("dismissed");

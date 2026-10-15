@@ -25,6 +25,7 @@ export interface BuildReportModelParams {
   locale: "en" | "ar";
   secretHash: string;
   expiresAt: string | null;
+  userId?: string | null;
   summaryBullets: string[];
   findingIds: string[];
   limitationsKeys: string[];
@@ -39,7 +40,7 @@ export function buildReportModel(params: BuildReportModelParams): ReportModel {
     report_id: randomUUID(),
     audit_id: params.auditId,
     version: 1,
-    access_class: "anonymous",
+    access_class: params.userId ? "registered" : "anonymous",
     languages: [params.locale],
     allowed_projections: ["web_interactive"],
     access: {

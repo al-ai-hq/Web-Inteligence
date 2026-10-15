@@ -3,18 +3,18 @@ export interface ReviewerTrace {
   criterion_id: string;
   criterion_name: string;
 
-  result: 'pass' | 'partial' | 'fail' | 'not_applicable' | 'unavailable' | 'error';
-  confidence: 'high' | 'medium' | 'low';
+  result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error";
+  confidence: "high" | "medium" | "low";
   rationale: string;
 
   evidence_ids: string[];
 
-  reviewer_type: 'model' | 'human' | 'hybrid';
+  reviewer_type: "model" | "human" | "hybrid";
   model_id?: string;
   model_version?: string;
 
   language: string;
-  language_direction: 'ltr' | 'rtl';
+  language_direction: "ltr" | "rtl";
   market: string;
 
   evaluated_at: string;

@@ -21,19 +21,89 @@ import type { RuleEvaluation, PageEvaluator } from "../types.js";
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const VALID_BCP47_PREFIXES = [
-  "en", "ar", "fr", "de", "es", "pt", "it", "nl", "ru", "zh", "ja", "ko",
-  "hi", "bn", "ur", "fa", "he", "tr", "pl", "sv", "no", "da", "fi", "cs",
-  "sk", "hu", "ro", "bg", "hr", "sr", "uk", "el", "th", "vi", "id", "ms",
-  "tl", "sw", "am", "my", "km", "lo", "ka", "hy", "az", "kk", "uz", "mn",
-  "ne", "si", "ta", "te", "ml", "kn", "gu", "mr", "pa", "or", "as", "ps",
+  "en",
+  "ar",
+  "fr",
+  "de",
+  "es",
+  "pt",
+  "it",
+  "nl",
+  "ru",
+  "zh",
+  "ja",
+  "ko",
+  "hi",
+  "bn",
+  "ur",
+  "fa",
+  "he",
+  "tr",
+  "pl",
+  "sv",
+  "no",
+  "da",
+  "fi",
+  "cs",
+  "sk",
+  "hu",
+  "ro",
+  "bg",
+  "hr",
+  "sr",
+  "uk",
+  "el",
+  "th",
+  "vi",
+  "id",
+  "ms",
+  "tl",
+  "sw",
+  "am",
+  "my",
+  "km",
+  "lo",
+  "ka",
+  "hy",
+  "az",
+  "kk",
+  "uz",
+  "mn",
+  "ne",
+  "si",
+  "ta",
+  "te",
+  "ml",
+  "kn",
+  "gu",
+  "mr",
+  "pa",
+  "or",
+  "as",
+  "ps",
 ];
 
 const RTL_LANGS = ["ar", "he", "fa", "ur", "ps", "sd", "yi", "dv"];
 
 const FORM_ACTION_KEYWORDS = [
-  "booking", "order", "quote", "enquiry", "inquiry", "contact", "form",
-  "submit", "register", "sign up", "login", "cart", "checkout", "apply",
-  "request", "schedule", "appointment", "reservation",
+  "booking",
+  "order",
+  "quote",
+  "enquiry",
+  "inquiry",
+  "contact",
+  "form",
+  "submit",
+  "register",
+  "sign up",
+  "login",
+  "cart",
+  "checkout",
+  "apply",
+  "request",
+  "schedule",
+  "appointment",
+  "reservation",
 ];
 
 const FORM_URL_PATTERNS = [
@@ -102,7 +172,9 @@ function hasFormIndicators(page: PageEvidence): boolean {
     page.title || "",
     page.meta_description || "",
     ...page.headings.map((h) => h.text),
-  ].join(" ").toLowerCase();
+  ]
+    .join(" ")
+    .toLowerCase();
 
   return FORM_ACTION_KEYWORDS.some((kw) => allText.includes(kw));
 }
@@ -117,7 +189,9 @@ function detectContentLocale(text: string): "en" | "ar" | "unknown" {
 
   // Check for common English words
   const englishWords = ["the", "and", "is", "in", "to", "of", "a", "for", "on", "with"];
-  const englishCount = englishWords.filter((w) => lower.includes(` ${w} `) || lower.startsWith(`${w} `)).length;
+  const englishCount = englishWords.filter(
+    (w) => lower.includes(` ${w} `) || lower.startsWith(`${w} `),
+  ).length;
   if (englishCount >= 3) {
     return "en";
   }
@@ -362,6 +436,7 @@ export const evalAGT002: PageEvaluator = (page, _bundle) => {
   return {
     result: "not_applicable",
     evidence_ids: [page.evidence_id],
-    rationale: "Requires experimental WebMCP and Lighthouse agentic browsing features not available in M2",
+    rationale:
+      "Requires experimental WebMCP and Lighthouse agentic browsing features not available in M2",
   };
 };

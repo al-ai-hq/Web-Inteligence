@@ -26,6 +26,7 @@
 ## File Structure
 
 **Create:**
+
 - `services/connectors/src/types.ts` — Connector, ConnectorResult, ConnectorData interfaces
 - `services/connectors/src/runner.ts` — runConnectors() orchestrator
 - `services/connectors/src/registry.ts` — Connector registry
@@ -40,6 +41,7 @@
 - `services/connectors/tests/crux.test.ts` — CrUX connector tests
 
 **Modify:**
+
 - `packages/audit-pipeline/src/pipeline.ts:24-36` — Add runConnectors to PipelineDeps
 - `packages/audit-pipeline/src/pipeline.ts:78-82` — Parallel execution with Promise.all
 - `packages/audit-pipeline/src/composer.ts:98-156` — Accept connectorResults parameter, merge into findings/unavailable
@@ -52,10 +54,12 @@
 ### Task 1: Connector Framework Types
 
 **Files:**
+
 - Create: `services/connectors/src/types.ts`
 - Test: `services/connectors/tests/types.test.ts`
 
 **Interfaces:**
+
 - Produces: `Connector`, `ConnectorResult`, `ConnectorData`, `PsiData`, `CruxData`, `AuditContext`
 
 - [ ] **Step 1: Write failing test for Connector interface**
@@ -169,10 +173,12 @@ git commit -m "feat(connectors): add Connector, ConnectorResult, and data types"
 ### Task 2: Connector Registry
 
 **Files:**
+
 - Create: `services/connectors/src/registry.ts`
 - Test: `services/connectors/tests/registry.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Connector` from types.ts
 - Produces: `getRegistry()`, `setRegistry()`
 
@@ -249,10 +255,12 @@ git commit -m "feat(connectors): add connector registry with get/set"
 ### Task 3: Connector Runner
 
 **Files:**
+
 - Create: `services/connectors/src/runner.ts`
 - Test: `services/connectors/tests/runner.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Connector`, `ConnectorResult`, `AuditContext` from types.ts, `getRegistry()` from registry.ts
 - Produces: `runConnectors(url, context)`
 
@@ -379,9 +387,11 @@ git commit -m "feat(connectors): add runConnectors orchestrator with graceful fa
 ### Task 4: PSI Connector Types
 
 **Files:**
+
 - Create: `services/connectors/src/psi/types.ts`
 
 **Interfaces:**
+
 - Produces: `PsiApiResponse`, `PsiAudit`
 
 - [ ] **Step 1: Define PSI API response types**
@@ -420,10 +430,12 @@ git commit -m "feat(connectors): add PSI API response types"
 ### Task 5: PSI Client
 
 **Files:**
+
 - Create: `services/connectors/src/psi/client.ts`
 - Test: `services/connectors/tests/psi-client.test.ts`
 
 **Interfaces:**
+
 - Consumes: `PsiApiResponse` from psi/types.ts, `PsiData` from types.ts
 - Produces: `fetchPsiData(url, apiKey)`
 
@@ -475,9 +487,9 @@ describe("fetchPsiData", () => {
       status: 500,
     } as Response);
 
-    await expect(
-      fetchPsiData("https://example.com", "test-key"),
-    ).rejects.toThrow("PSI API returned 500");
+    await expect(fetchPsiData("https://example.com", "test-key")).rejects.toThrow(
+      "PSI API returned 500",
+    );
   });
 });
 ```
@@ -494,10 +506,7 @@ Expected: FAIL — fetchPsiData not defined
 import type { PsiData } from "../types.js";
 import type { PsiApiResponse, PsiAudit } from "./types.js";
 
-export async function fetchPsiData(
-  url: string,
-  apiKey: string,
-): Promise<PsiData> {
+export async function fetchPsiData(url: string, apiKey: string): Promise<PsiData> {
   const params = new URLSearchParams({
     url,
     key: apiKey,
@@ -540,11 +549,7 @@ function extractTopOpportunities(
   for (const [key, audit] of Object.entries(audits)) {
     if (audit.numericValue !== undefined && audit.numericValue > 0) {
       const severity =
-        audit.numericValue > 500
-          ? "high"
-          : audit.numericValue > 200
-            ? "medium"
-            : "low";
+        audit.numericValue > 500 ? "high" : audit.numericValue > 200 ? "medium" : "low";
       opportunities.push({
         id: key,
         title: audit.title,
@@ -576,10 +581,12 @@ git commit -m "feat(connectors): add PSI API client with Core Web Vitals extract
 ### Task 6: PSI Connector
 
 **Files:**
+
 - Create: `services/connectors/src/psi/index.ts`
 - Test: `services/connectors/tests/psi.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Connector` from types.ts, `fetchPsiData` from psi/client.ts
 - Produces: `PsiConnector` class
 
@@ -610,9 +617,7 @@ describe("PsiConnector", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.unavailable_reason_key).toBe(
-        "unavailable.connector.psi.missing_api_key",
-      );
+      expect(result.unavailable_reason_key).toBe("unavailable.connector.psi.missing_api_key");
     }
   });
 
@@ -655,9 +660,7 @@ describe("PsiConnector", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.unavailable_reason_key).toBe(
-        "unavailable.connector.psi.api_error",
-      );
+      expect(result.unavailable_reason_key).toBe("unavailable.connector.psi.api_error");
     }
   });
 });
@@ -719,9 +722,11 @@ git commit -m "feat(connectors): add PsiConnector with API key validation"
 ### Task 7: CrUX Connector Types
 
 **Files:**
+
 - Create: `services/connectors/src/crux/types.ts`
 
 **Interfaces:**
+
 - Produces: `CruxApiResponse`, `CruxMetric`
 
 - [ ] **Step 1: Define CrUX API response types**
@@ -770,10 +775,12 @@ git commit -m "feat(connectors): add CrUX API response types"
 ### Task 8: CrUX Client
 
 **Files:**
+
 - Create: `services/connectors/src/crux/client.ts`
 - Test: `services/connectors/tests/crux-client.test.ts`
 
 **Interfaces:**
+
 - Consumes: `CruxApiResponse` from crux/types.ts, `CruxData` from types.ts
 - Produces: `fetchCruxData(origin)`
 
@@ -837,9 +844,7 @@ describe("fetchCruxData", () => {
       status: 404,
     } as Response);
 
-    await expect(fetchCruxData("https://example.com")).rejects.toThrow(
-      "CrUX API returned 404",
-    );
+    await expect(fetchCruxData("https://example.com")).rejects.toThrow("CrUX API returned 404");
   });
 });
 ```
@@ -857,15 +862,12 @@ import type { CruxData } from "../types.js";
 import type { CruxApiResponse, CruxMetric } from "./types.js";
 
 export async function fetchCruxData(origin: string): Promise<CruxData> {
-  const response = await fetch(
-    "https://chromeuxmetrics.googleapis.com/v1/records:queryRecord",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: origin }),
-      signal: AbortSignal.timeout(10_000),
-    },
-  );
+  const response = await fetch("https://chromeuxmetrics.googleapis.com/v1/records:queryRecord", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: origin }),
+    signal: AbortSignal.timeout(10_000),
+  });
 
   if (!response.ok) {
     throw new Error(`CrUX API returned ${response.status}`);
@@ -875,10 +877,7 @@ export async function fetchCruxData(origin: string): Promise<CruxData> {
   return extractCruxData(json, origin);
 }
 
-function extractCruxData(
-  apiResponse: CruxApiResponse,
-  origin: string,
-): CruxData {
+function extractCruxData(apiResponse: CruxApiResponse, origin: string): CruxData {
   const record = apiResponse.record;
 
   return {
@@ -888,8 +887,7 @@ function extractCruxData(
       cls: extractMetricDistribution(record.metrics.cumulative_layout_shift),
     },
     origin,
-    effective_connection_type:
-      record.metrics.effective_connection_type?.category ?? "unknown",
+    effective_connection_type: record.metrics.effective_connection_type?.category ?? "unknown",
   };
 }
 
@@ -923,10 +921,12 @@ git commit -m "feat(connectors): add CrUX API client with metric distribution ex
 ### Task 9: CrUX Connector
 
 **Files:**
+
 - Create: `services/connectors/src/crux/index.ts`
 - Test: `services/connectors/tests/crux.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Connector` from types.ts, `fetchCruxData` from crux/client.ts
 - Produces: `CruxConnector` class
 
@@ -1001,9 +1001,7 @@ describe("CruxConnector", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.unavailable_reason_key).toBe(
-        "unavailable.connector.crux.api_error",
-      );
+      expect(result.unavailable_reason_key).toBe("unavailable.connector.crux.api_error");
     }
   });
 });
@@ -1057,10 +1055,12 @@ git commit -m "feat(connectors): add CruxConnector with origin extraction"
 ### Task 10: Register Connectors
 
 **Files:**
+
 - Modify: `services/connectors/src/registry.ts`
 - Modify: `services/connectors/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: `PsiConnector` from psi/index.ts, `CruxConnector` from crux/index.ts
 - Produces: Updated registry with default connectors
 
@@ -1119,11 +1119,13 @@ git commit -m "feat(connectors): register PSI and CrUX connectors by default"
 ### Task 11: Pipeline Integration
 
 **Files:**
+
 - Modify: `packages/audit-pipeline/src/pipeline.ts:24-36` (PipelineDeps interface)
 - Modify: `packages/audit-pipeline/src/pipeline.ts:78-82` (parallel execution)
 - Test: `packages/audit-pipeline/tests/pipeline-connectors.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ConnectorResult` from @wpi/connectors
 - Produces: Updated `PipelineDeps` with `runConnectors`
 
@@ -1305,15 +1307,13 @@ export interface PipelineDeps {
     evidenceIds: string[],
     scope: TierScope,
   ) => Promise<ComposerAgentOutcome[]>;
-  runConnectors: (
-    url: string,
-    context: AuditContext,
-  ) => Promise<ConnectorResult[]>;
+  runConnectors: (url: string, context: AuditContext) => Promise<ConnectorResult[]>;
   tierScopes: Record<Exclude<TierName, "refused">, TierScope>;
 }
 ```
 
 Add import at top:
+
 ```typescript
 import type { ConnectorResult, AuditContext } from "@wpi/connectors";
 ```
@@ -1352,10 +1352,12 @@ git commit -m "feat(pipeline): add runConnectors to PipelineDeps and parallel ex
 ### Task 12: Composer Integration
 
 **Files:**
+
 - Modify: `packages/audit-pipeline/src/composer.ts:98-156`
 - Test: `packages/audit-pipeline/tests/composer-connectors.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ConnectorResult` from @wpi/connectors
 - Produces: Updated `composeSections` signature
 
@@ -1501,6 +1503,7 @@ export function composeSections(
 ```
 
 Update SECTION_ORDER:
+
 ```typescript
 const SECTION_ORDER = ["technical", "keywords", "content", "performance"] as const;
 ```
@@ -1527,9 +1530,11 @@ git commit -m "feat(composer): accept connectorResults and merge into unavailabl
 ### Task 13: Container Wiring
 
 **Files:**
+
 - Modify: `apps/web/src/services/container.ts:75-136`
 
 **Interfaces:**
+
 - Consumes: `runConnectors` from @wpi/connectors
 - Produces: Updated `buildPipeline` with `runConnectors`
 
@@ -1565,10 +1570,7 @@ function buildPipeline(fields: PipelineFields) {
       );
     },
     render: async (record: AuditRecord) => {
-      await scopedEnv(
-        { AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir },
-        () => runRenderJob(),
-      );
+      await scopedEnv({ AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir }, () => runRenderJob());
     },
     processEvidence: async (record: AuditRecord): Promise<string[]> => {
       await runEvidenceProcessor();
@@ -1629,6 +1631,7 @@ git commit -m "feat(web): wire runConnectors in buildPipeline"
 ### Task 14: i18n Keys
 
 **Files:**
+
 - Modify: `apps/web/public/locales/en.json`
 - Modify: `apps/web/public/locales/ar.json`
 
@@ -1711,6 +1714,7 @@ Expected: PASS — dist/ created with index.js, runner.js, registry.js, psi/, cr
 ## Self-Review
 
 **Spec coverage:**
+
 - ✅ PSI connector with API key validation
 - ✅ CrUX connector (public API, no key)
 - ✅ Parallel execution during AUDITING
@@ -1721,11 +1725,13 @@ Expected: PASS — dist/ created with index.js, runner.js, registry.js, psi/, cr
 - ✅ i18n keys for unavailability
 
 **Placeholder scan:**
+
 - ✅ No "TBD", "TODO", "implement later"
 - ✅ All code blocks complete
 - ✅ All test code complete
 
 **Type consistency:**
+
 - ✅ `Connector` interface used consistently
 - ✅ `ConnectorResult` discriminated union used consistently
 - ✅ `AuditContext` shape matches across all files

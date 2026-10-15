@@ -16,18 +16,14 @@ function redactUrl(url: string): string {
   }
 }
 
-export async function interceptRequest(
-  request: InterceptableRequest,
-): Promise<boolean> {
+export async function interceptRequest(request: InterceptableRequest): Promise<boolean> {
   const url = request.url();
 
   let parsed: URL;
   try {
     parsed = new URL(url);
   } catch {
-    console.warn(
-      `SSRF attempt blocked — host=${redactUrl(url)} reason=invalid-url`,
-    );
+    console.warn(`SSRF attempt blocked — host=${redactUrl(url)} reason=invalid-url`);
     return false;
   }
 

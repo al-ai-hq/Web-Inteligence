@@ -1,6 +1,7 @@
 import type { ScoreResult } from "@wpi/rules-engine";
 
-export type FindingSection = "technical" | "keywords" | "content" | "performance" | "experience" | "entity";
+export type FindingSection =
+  "technical" | "keywords" | "content" | "performance" | "experience" | "entity";
 export type FindingSeverity = "critical" | "high" | "medium" | "low" | "info";
 export type FindingState = "verified" | "inferred" | "not_verified";
 
@@ -77,7 +78,7 @@ export interface ReportModel {
   report_id: string;
   audit_id: string;
   version: number;
-  access_class: "anonymous";
+  access_class: "anonymous" | "registered";
   languages: string[];
   allowed_projections: string[];
   access: {

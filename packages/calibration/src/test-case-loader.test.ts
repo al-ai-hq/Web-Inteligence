@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { loadTestCases } from './test-case-loader.js';
+import { describe, it, expect } from "vitest";
+import { loadTestCases } from "./test-case-loader.js";
 
-describe('loadTestCases', () => {
-  it('should load calibration test cases from directory', () => {
-    const cases = loadTestCases('config/calibration-cases/');
+describe("loadTestCases", () => {
+  it("should load calibration test cases from directory", () => {
+    const cases = loadTestCases("config/calibration-cases/");
 
     expect(Array.isArray(cases)).toBe(true);
     expect(cases.length).toBeGreaterThan(0);

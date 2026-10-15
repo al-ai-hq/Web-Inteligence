@@ -38,12 +38,15 @@ describe.skipIf(!DATABASE_URL)("FactSheetStore", () => {
   };
 
   it("creates and retrieves a fact sheet", async () => {
-    const created = await store.create({
-      project_id: "550e8400-e29b-41d4-a716-446655440001",
-      site_url: "https://example.com",
-      business_name: "Example Business",
-      phone: "+1-555-0100",
-    }, validLineage);
+    const created = await store.create(
+      {
+        project_id: "550e8400-e29b-41d4-a716-446655440001",
+        site_url: "https://example.com",
+        business_name: "Example Business",
+        phone: "+1-555-0100",
+      },
+      validLineage,
+    );
 
     expect(created.id).toBeDefined();
     expect(created.business_name).toBe("Example Business");
@@ -56,43 +59,59 @@ describe.skipIf(!DATABASE_URL)("FactSheetStore", () => {
 
   it("lists fact sheets by project_id", async () => {
     const projectId = "550e8400-e29b-41d4-a716-446655440099";
-    await store.create({
-      project_id: projectId,
-      site_url: "https://example1.com",
-      business_name: "Business 1",
-    }, validLineage);
-    await store.create({
-      project_id: projectId,
-      site_url: "https://example2.com",
-      business_name: "Business 2",
-    }, validLineage);
+    await store.create(
+      {
+        project_id: projectId,
+        site_url: "https://example1.com",
+        business_name: "Business 1",
+      },
+      validLineage,
+    );
+    await store.create(
+      {
+        project_id: projectId,
+        site_url: "https://example2.com",
+        business_name: "Business 2",
+      },
+      validLineage,
+    );
 
     const list = await store.listByProject(projectId);
     expect(list.length).toBe(2);
   });
 
   it("updates a fact sheet", async () => {
-    const created = await store.create({
-      project_id: "550e8400-e29b-41d4-a716-446655440001",
-      site_url: "https://example.com",
-      business_name: "Old Name",
-    }, validLineage);
+    const created = await store.create(
+      {
+        project_id: "550e8400-e29b-41d4-a716-446655440001",
+        site_url: "https://example.com",
+        business_name: "Old Name",
+      },
+      validLineage,
+    );
 
-    const updated = await store.update(created.id, {
-      business_name: "New Name",
-      phone: "+1-555-9999",
-    }, validLineage);
+    const updated = await store.update(
+      created.id,
+      {
+        business_name: "New Name",
+        phone: "+1-555-9999",
+      },
+      validLineage,
+    );
 
     expect(updated.business_name).toBe("New Name");
     expect(updated.phone).toBe("+1-555-9999");
   });
 
   it("confirms a fact sheet", async () => {
-    const created = await store.create({
-      project_id: "550e8400-e29b-41d4-a716-446655440001",
-      site_url: "https://example.com",
-      business_name: "Example",
-    }, validLineage);
+    const created = await store.create(
+      {
+        project_id: "550e8400-e29b-41d4-a716-446655440001",
+        site_url: "https://example.com",
+        business_name: "Example",
+      },
+      validLineage,
+    );
 
     const confirmed = await store.confirm(created.id, "user@example.com");
     expect(confirmed.status).toBe("confirmed");

@@ -11,20 +11,14 @@ export const dynamic = "force-dynamic";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-export default async function DashboardPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
   const services = await getAuditServices();
   const cookieStore = await cookies();
   const cookieValue = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-  const user = cookieValue
-    ? await services.auth.getSessionUser(hashToken(cookieValue))
-    : null;
+  const user = cookieValue ? await services.auth.getSessionUser(hashToken(cookieValue)) : null;
 
   if (!user) {
     return redirect({ href: "/login", locale });
@@ -38,7 +32,15 @@ export default async function DashboardPage({
       <div className="flex min-h-[60vh] items-center justify-center py-16">
         <div className="mx-auto max-w-md space-y-6 rounded-2xl border border-surface-200 bg-white p-8 text-center shadow-lg">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100">
-            <svg className="h-7 w-7 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              className="h-7 w-7 text-brand-600"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="17 8 12 3 7 8" />
               <line x1="12" y1="3" x2="12" y2="15" />
@@ -51,7 +53,15 @@ export default async function DashboardPage({
             className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:bg-brand-700 hover:shadow-xl"
           >
             {t("empty_cta")}
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              className="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M5 12h14" />
               <path d="m12 5 7 7-7 7" />
             </svg>
@@ -61,17 +71,11 @@ export default async function DashboardPage({
     );
   }
 
-  const latestCompleted = records.find(
-    (r) => r.report?.score?.presence_readiness != null,
-  );
+  const latestCompleted = records.find((r) => r.report?.score?.presence_readiness != null);
   const latestScore = latestCompleted?.report?.score?.presence_readiness ?? null;
 
   const daysSinceLastAudit = Math.floor(
-    (Date.now() -
-      new Date(
-        (latestCompleted ?? records[0])!.created_at,
-      ).getTime()) /
-      DAY_MS,
+    (Date.now() - new Date((latestCompleted ?? records[0])!.created_at).getTime()) / DAY_MS,
   );
 
   return (
@@ -82,7 +86,15 @@ export default async function DashboardPage({
           href="/#audit-form"
           className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow-md"
         >
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>

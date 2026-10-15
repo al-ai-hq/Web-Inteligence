@@ -12,8 +12,13 @@ const inputSchema = z.object({
 export function createGetEvidenceTool(storage: StorageReader): Tool {
   return {
     name: "get_evidence",
-    description: "Reads crawled evidence from Cloud Storage by evidence ID. Returns page content, extracted data, structured data, and metadata.",
-    inputSchema: { type: "object", properties: { evidence_id: { type: "string" } }, required: ["evidence_id"] },
+    description:
+      "Reads crawled evidence from Cloud Storage by evidence ID. Returns page content, extracted data, structured data, and metadata.",
+    inputSchema: {
+      type: "object",
+      properties: { evidence_id: { type: "string" } },
+      required: ["evidence_id"],
+    },
     async execute(input: unknown, context: ToolContext): Promise<ToolResult> {
       const { evidence_id } = inputSchema.parse(input);
       try {

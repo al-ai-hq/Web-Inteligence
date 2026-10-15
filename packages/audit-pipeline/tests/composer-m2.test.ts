@@ -1,23 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { composeSections } from "../src/composer.js";
-import type {
-  ComposerAgentOutcome,
-} from "../src/report-envelope.js";
+import type { ComposerAgentOutcome } from "../src/report-envelope.js";
 import type { RulesEngineOutput } from "../src/composer.js";
-import type {
-  Finding,
-  PriorityItem,
-  ScoreResult,
-} from "@wpi/rules-engine";
+import type { Finding, PriorityItem, ScoreResult } from "@wpi/rules-engine";
 import { TIER_SCOPES } from "../src/eligibility.js";
 
 /* ---------------------------------------------------------------------------
  * Helpers
  * ------------------------------------------------------------------------- */
 
-function outcome(
-  overrides: Partial<ComposerAgentOutcome> = {},
-): ComposerAgentOutcome {
+function outcome(overrides: Partial<ComposerAgentOutcome> = {}): ComposerAgentOutcome {
   return {
     agent_name: "auditor",
     ok: true,
@@ -27,9 +19,7 @@ function outcome(
   };
 }
 
-function rulesEngineOutput(
-  overrides: Partial<RulesEngineOutput> = {},
-): RulesEngineOutput {
+function rulesEngineOutput(overrides: Partial<RulesEngineOutput> = {}): RulesEngineOutput {
   return {
     findings: [],
     priority_items: [],
@@ -204,7 +194,7 @@ describe("composeSections with rules engine unavailable categories", () => {
           coverage: 0.7,
           confidence: "medium",
           unavailable_categories: ["aeo", "geo"],
-        } as ScoreResult,
+        },
       }),
     );
 
@@ -228,7 +218,7 @@ describe("composeSections with rules engine unavailable categories", () => {
           coverage: 0.8,
           confidence: "medium",
           unavailable_categories: [],
-        } as ScoreResult,
+        },
       }),
     );
 
@@ -287,9 +277,7 @@ describe("composeSections with rules engine priority items", () => {
     );
 
     expect(composed.action_board.length).toBeGreaterThanOrEqual(1);
-    const actionItem = composed.action_board.find(
-      (a) => a.title === "CRW-001",
-    );
+    const actionItem = composed.action_board.find((a) => a.title === "CRW-001");
     expect(actionItem).toBeDefined();
     expect(actionItem!.severity).toBe("critical");
     expect(actionItem!.detail).toBe("Fix robots.txt");
@@ -382,12 +370,7 @@ describe("score field on StoredReportEnvelope", () => {
       unavailable_categories: ["aeo"],
     };
 
-    const composed = cs(
-      [],
-      [],
-      TIER_SCOPES.rich,
-      rulesEngineOutput({ score: scoreResult }),
-    );
+    const composed = cs([], [], TIER_SCOPES.rich, rulesEngineOutput({ score: scoreResult }));
 
     expect(composed.score).toEqual(scoreResult);
     expect(composed.score!.presence_readiness).toBe(72.5);

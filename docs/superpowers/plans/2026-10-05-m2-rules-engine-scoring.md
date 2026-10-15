@@ -28,6 +28,7 @@
 ### Task 1: Package scaffolding and config loader
 
 **Files:**
+
 - Create: `packages/rules-engine/package.json`
 - Create: `packages/rules-engine/tsconfig.json`
 - Create: `packages/rules-engine/src/index.ts`
@@ -36,6 +37,7 @@
 - Test: `packages/rules-engine/tests/config-loader.test.ts`
 
 **Interfaces:**
+
 - Consumes: `config/rules/*.yaml` (7 files), `config/scoring.yaml`
 - Produces: `loadConfig(): { rules: LoadedRule[], scoring: ScoringConfig }` throwing `ConfigError` on validation failure
 
@@ -205,7 +207,7 @@ const scoringSchema = z.object({
       cap_id: z.string(),
       max_score: z.number(),
       trigger_rule: z.string(),
-    })
+    }),
   ),
   confidence: z.object({
     high_min_coverage: z.number(),
@@ -290,11 +292,13 @@ git commit -m "feat(rules-engine): add package scaffolding and config loader"
 ### Task 2: Evidence types and rule catalog
 
 **Files:**
+
 - Create: `packages/rules-engine/src/evidence.ts`
 - Create: `packages/rules-engine/src/rule-catalog.ts`
 - Test: `packages/rules-engine/tests/rule-catalog.test.ts`
 
 **Interfaces:**
+
 - Consumes: `LoadedRule[]` from config loader
 - Produces: `RuleCatalog` class with `getApplicableRules(tier, locale)` method filtering by tier and data requirements
 
@@ -532,10 +536,12 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 3: Crawlability evaluators (CRW-001..012)
 
 **Files:**
+
 - Create: `packages/rules-engine/src/evaluators/crawl.ts`
 - Test: `packages/rules-engine/tests/evaluators/crawl.test.ts`
 
 **Interfaces:**
+
 - Consumes: `EvidenceBundle`, `LoadedRule`
 - Produces: `RuleEvaluation` per rule
 
@@ -551,6 +557,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 4: On-page SEO evaluators (SEO-001..012, SPAM-001)
 
 **Files:**
+
 - Create: `packages/rules-engine/src/evaluators/seo.ts`
 - Test: `packages/rules-engine/tests/evaluators/seo.test.ts`
 
@@ -566,6 +573,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 5: Structured data evaluators (STR-001..008)
 
 **Files:**
+
 - Create: `packages/rules-engine/src/evaluators/structured-data.ts`
 - Test: `packages/rules-engine/tests/evaluators/structured-data.test.ts`
 
@@ -579,6 +587,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 6: AEO evaluators (deterministic subset)
 
 **Files:**
+
 - Create: `packages/rules-engine/src/evaluators/aeo.ts`
 - Test: `packages/rules-engine/tests/evaluators/aeo.test.ts`
 
@@ -593,6 +602,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 7: GEO evaluators (deterministic subset)
 
 **Files:**
+
 - Create: `packages/rules-engine/src/evaluators/geo.ts`
 - Test: `packages/rules-engine/tests/evaluators/geo.test.ts`
 
@@ -607,6 +617,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 8: i18n and accessibility evaluators
 
 **Files:**
+
 - Create: `packages/rules-engine/src/evaluators/i18n-accessibility.ts`
 - Test: `packages/rules-engine/tests/evaluators/i18n-accessibility.test.ts`
 
@@ -620,6 +631,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 9: Performance and security evaluators
 
 **Files:**
+
 - Create: `packages/rules-engine/src/evaluators/performance-security.ts`
 - Test: `packages/rules-engine/tests/evaluators/performance-security.test.ts`
 
@@ -633,6 +645,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 10: Engine runner and aggregation
 
 **Files:**
+
 - Create: `packages/rules-engine/src/engine.ts`
 - Create: `packages/rules-engine/src/aggregate.ts`
 - Test: `packages/rules-engine/tests/engine.test.ts`
@@ -652,6 +665,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 11: Scoring engine
 
 **Files:**
+
 - Create: `packages/rules-engine/src/scoring.ts`
 - Test: `packages/rules-engine/tests/scoring.test.ts`
 
@@ -671,6 +685,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 12: Findings and priority
 
 **Files:**
+
 - Create: `packages/rules-engine/src/findings.ts`
 - Create: `packages/rules-engine/src/priority.ts`
 - Test: `packages/rules-engine/tests/findings.test.ts`
@@ -688,6 +703,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 13: Integrity module
 
 **Files:**
+
 - Create: `packages/rules-engine/src/integrity.ts`
 - Test: `packages/rules-engine/tests/integrity.test.ts`
 
@@ -705,6 +721,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 14: Pipeline integration
 
 **Files:**
+
 - Modify: `packages/audit-pipeline/src/pipeline.ts`
 - Modify: `packages/audit-pipeline/package.json`
 - Test: `packages/audit-pipeline/tests/pipeline-integration.test.ts`
@@ -721,6 +738,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 15: Composer changes
 
 **Files:**
+
 - Modify: `packages/audit-pipeline/src/composer.ts`
 - Modify: `packages/audit-pipeline/src/report-envelope.ts`
 - Modify: `packages/audit-pipeline/src/report-model.ts`
@@ -742,6 +760,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 16: Web integration - score card and findings
 
 **Files:**
+
 - Modify: `apps/web/src/routes/audit/[id]/report/+page.svelte`
 - Create: `apps/web/src/lib/components/ScoreCard.svelte`
 - Create: `apps/web/src/lib/components/FindingCard.svelte`
@@ -762,6 +781,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 17: Web integration - evidence viewer and methodology
 
 **Files:**
+
 - Create: `apps/web/src/routes/audit/[id]/evidence/+page.svelte`
 - Create: `apps/web/src/lib/components/MethodologyDisclosure.svelte`
 - Modify: `apps/web/src/lib/i18n/en.json`
@@ -781,6 +801,7 @@ Due to length constraints, I'll provide the remaining task structure. Each task 
 ### Task 18: Golden fixtures and exit criteria validation
 
 **Files:**
+
 - Create: `packages/rules-engine/tests/golden/synthetic-evidence.json`
 - Create: `packages/rules-engine/tests/golden/expected-results.json`
 - Create: `packages/rules-engine/tests/golden.test.ts`

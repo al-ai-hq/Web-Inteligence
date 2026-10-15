@@ -1,4 +1,4 @@
-export type ApprovalState = 'draft' | 'validated' | 'previewed' | 'approved' | 'rejected';
+export type ApprovalState = "draft" | "validated" | "previewed" | "approved" | "rejected";
 
 export interface TransitionContext {
   checksPassed?: boolean;
@@ -7,12 +7,12 @@ export interface TransitionContext {
 export function transitionState(
   current: ApprovalState,
   target: ApprovalState,
-  context: TransitionContext
+  context: TransitionContext,
 ): { ok: boolean; newState?: ApprovalState; error?: string } {
   const validTransitions: Record<ApprovalState, ApprovalState[]> = {
-    draft: ['validated', 'rejected'],
-    validated: ['previewed', 'rejected'],
-    previewed: ['approved', 'rejected'],
+    draft: ["validated", "rejected"],
+    validated: ["previewed", "rejected"],
+    previewed: ["approved", "rejected"],
     approved: [],
     rejected: [],
   };
@@ -21,8 +21,8 @@ export function transitionState(
     return { ok: false, error: `Invalid transition from ${current} to ${target}` };
   }
 
-  if (target === 'validated' && !context.checksPassed) {
-    return { ok: false, error: 'Cannot validate: deterministic checks failed' };
+  if (target === "validated" && !context.checksPassed) {
+    return { ok: false, error: "Cannot validate: deterministic checks failed" };
   }
 
   return { ok: true, newState: target };

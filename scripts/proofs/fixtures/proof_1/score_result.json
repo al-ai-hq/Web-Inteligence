@@ -10,7 +10,7 @@
     "total_expected_applicable_weight": 100,
     "ratio": 0.6
   },
-  "checked": {"checked": 7, "of": 7},
+  "checked": { "checked": 7, "of": 7 },
   "pages_inspected": 1,
   "confidence": "high",
   "rule_result_ids": [

@@ -17,12 +17,14 @@ The repo's project plan (docs/spec/05-PROJECT-PLAN.md) numbers this milestone **
 - Framework pattern: generic connector interface + registry + runner + concrete implementations
 
 **Deferred (out of scope):**
+
 - GSC (Google Search Console) — requires OAuth (D-011 auth provider decision pending)
 - GA4 (Google Analytics 4) — requires OAuth (D-011 auth provider decision pending)
 - Connected/registered audit flows (ENRICHING_OPTIONAL state) — reserved for OAuth-dependent connectors
 - Write paths (M9 "First safe connector and impact ledger")
 
 **Constraints:**
+
 - D-011: auth provider is an open decision — no OAuth integration in this milestone
 - D-020: no public anonymous traffic before repo-M7 — everything runs locally/behind invitation
 - API keys via environment variables only (`WPI_PSI_API_KEY`), never hardcoded or client-side
@@ -50,9 +52,11 @@ const composed = composeSections(outcomes, scope);
 ```
 
 From M4 spec (2026-10-02-m4-web-frontend-design.md:119):
+
 > **ENRICHING_OPTIONAL** stays in the enum (contract) but is never entered in this milestone.
 
 From state-machines.md:31:
+
 > Registered audits with connected sources insert the connected-analysis states (section 2) between ENRICHING_OPTIONAL and COMPOSING.
 
 **Key insight:** ENRICHING_OPTIONAL is the entry point for **connected/registered audits** (GSC, GA4 with OAuth), not for anonymous free audits. PSI/CrUX are read-only public APIs that don't need OAuth — they shouldn't trigger the ENRICHING_OPTIONAL state.
@@ -112,7 +116,7 @@ export interface PipelineDeps {
 ```typescript
 export function composeSections(
   outcomes: ComposerAgentOutcome[],
-  connectorResults: ConnectorResult[],  // NEW
+  connectorResults: ConnectorResult[], // NEW
   scope: TierScope,
 ): ComposeResult {
   // Merge agent findings + connector data
@@ -174,9 +178,9 @@ export interface ConnectorData {
 
 export interface PsiData {
   core_web_vitals: {
-    lcp: number;       // Largest Contentful Paint (ms)
-    fid: number;       // First Input Delay (ms) — or INP
-    cls: number;       // Cumulative Layout Shift
+    lcp: number; // Largest Contentful Paint (ms)
+    fid: number; // First Input Delay (ms) — or INP
+    cls: number; // Cumulative Layout Shift
   };
   opportunities: Array<{
     id: string;
@@ -206,9 +210,9 @@ export async function runConnectors(
 ): Promise<ConnectorResult[]> {
   const connectors = getRegistry();
   const results = await Promise.allSettled(
-    connectors.map((connector) => connector.run(url, context))
+    connectors.map((connector) => connector.run(url, context)),
   );
-  
+
   return results.map((result, index) => {
     if (result.status === "fulfilled") {
       return result.value;
@@ -234,10 +238,7 @@ let registry: Connector[] | null = null;
 
 export function getRegistry(): Connector[] {
   if (registry === null) {
-    registry = [
-      new PsiConnector(),
-      new CruxConnector(),
-    ];
+    registry = [new PsiConnector(), new CruxConnector()];
   }
   return registry;
 }
@@ -298,7 +299,7 @@ export async function fetchPsiData(url: string, apiKey: string): Promise<PsiData
 
   const response = await fetch(
     `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?${params}`,
-    { signal: AbortSignal.timeout(30_000) }
+    { signal: AbortSignal.timeout(30_000) },
   );
 
   if (!response.ok) {
@@ -312,7 +313,7 @@ export async function fetchPsiData(url: string, apiKey: string): Promise<PsiData
 function extractPsiData(apiResponse: PsiApiResponse): PsiData {
   // Extract Core Web Vitals from lighthouseResult.audits
   const audits = apiResponse.lighthouseResult.audits;
-  
+
   return {
     core_web_vitals: {
       lcp: audits["largest-contentful-paint"]?.numericValue ?? 0,
@@ -325,7 +326,7 @@ function extractPsiData(apiResponse: PsiApiResponse): PsiData {
 
 function extractTopOpportunities(
   audits: Record<string, PsiAudit>,
-  limit: number
+  limit: number,
 ): PsiData["opportunities"] {
   // Filter to opportunity audits with savings, sort by impact, take top N
   // ...
@@ -366,15 +367,12 @@ import type { CruxData } from "./types.js";
 
 export async function fetchCruxData(origin: string): Promise<CruxData> {
   // CrUX API is public, no API key needed
-  const response = await fetch(
-    `https://chromeuxmetrics.googleapis.com/v1/records:queryRecord`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: origin }),
-      signal: AbortSignal.timeout(10_000),
-    }
-  );
+  const response = await fetch(`https://chromeuxmetrics.googleapis.com/v1/records:queryRecord`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: origin }),
+    signal: AbortSignal.timeout(10_000),
+  });
 
   if (!response.ok) {
     throw new Error(`CrUX API returned ${response.status}`);
@@ -386,7 +384,7 @@ export async function fetchCruxData(origin: string): Promise<CruxData> {
 
 function extractCruxData(apiResponse: CruxApiResponse, origin: string): CruxData {
   const record = apiResponse.record;
-  
+
   return {
     metrics: {
       lcp: extractMetricDistribution(record.metrics.largest_contentful_paint),
@@ -398,7 +396,11 @@ function extractCruxData(apiResponse: CruxApiResponse, origin: string): CruxData
   };
 }
 
-function extractMetricDistribution(metric: CruxMetric): { good: number; needs_improvement: number; poor: number } {
+function extractMetricDistribution(metric: CruxMetric): {
+  good: number;
+  needs_improvement: number;
+  poor: number;
+} {
   return {
     good: metric.good?.percent ?? 0,
     needs_improvement: metric.needs_improvement?.percent ?? 0,
@@ -414,7 +416,7 @@ function extractMetricDistribution(metric: CruxMetric): { good: number; needs_im
 ```typescript
 export function composeSections(
   outcomes: ComposerAgentOutcome[],
-  connectorResults: ConnectorResult[],  // NEW
+  connectorResults: ConnectorResult[], // NEW
   scope: TierScope,
 ): ComposeResult {
   const findings: StoredFinding[] = [];
@@ -431,7 +433,7 @@ export function composeSections(
   for (const result of connectorResults) {
     if (!result.ok) {
       unavailable.push({
-        section: "performance",  // or "technical" — depends on report model
+        section: "performance", // or "technical" — depends on report model
         reason_key: result.unavailable_reason_key,
       });
       continue;
@@ -460,6 +462,7 @@ export function composeSections(
 ```
 
 **Note:** M5 connectors provide data availability. The actual use of PSI/CrUX data in findings/recommendations can be enhanced in later milestones (e.g., agents referencing connector data via evidence). For M5, the goal is:
+
 1. Fetch the data
 2. Make it available (even if not fully utilized by agents yet)
 3. Report unavailability gracefully
@@ -522,7 +525,12 @@ describe("runConnectors", () => {
   it("handles connector failure gracefully", async () => {
     const mockConnectors: Connector[] = [
       { name: "test-1", run: async () => ({ ok: true, connector: "test-1", data: {} }) },
-      { name: "test-2", run: async () => { throw new Error("API down"); } },
+      {
+        name: "test-2",
+        run: async () => {
+          throw new Error("API down");
+        },
+      },
     ];
     setRegistry(mockConnectors);
 
@@ -552,13 +560,15 @@ describe("PsiConnector", () => {
     const connector = new PsiConnector();
     const result = await connector.run("https://example.com", {} as any);
     expect(result.ok).toBe(false);
-    expect((result as any).unavailable_reason_key).toBe("unavailable.connector.psi.missing_api_key");
+    expect((result as any).unavailable_reason_key).toBe(
+      "unavailable.connector.psi.missing_api_key",
+    );
   });
 
   it("fetches PSI data successfully", async () => {
     vi.mocked(global.fetch).mockResolvedValue({
       ok: true,
-      json: async () => ({ lighthouseResult: { audits: { /* ... */ } } }),
+      json: async () => ({ lighthouseResult: { audits: {/* ... */} } }),
     } as any);
 
     const connector = new PsiConnector();
@@ -589,21 +599,24 @@ import { InMemoryAuditStore } from "../src/audit-store.js";
 describe("pipeline with connectors", () => {
   it("runs connectors in parallel with agents", async () => {
     const store = new InMemoryAuditStore();
-    const auditId = await store.create({ /* ... */ });
+    const auditId = await store.create({/* ... */});
 
-    const outcome = await runAuditPipeline({
-      store,
-      validateUrl: async () => ({ ok: true }),
-      crawl: async () => {},
-      render: async () => {},
-      processEvidence: async () => [],
-      runAgents: async () => [/* mock agents */],
-      runConnectors: async () => [
-        { ok: true, connector: "psi", data: { psi: { /* ... */ } } },
-        { ok: true, connector: "crux", data: { crux: { /* ... */ } } },
-      ],
-      tierScopes: { /* ... */ },
-    }, auditId);
+    const outcome = await runAuditPipeline(
+      {
+        store,
+        validateUrl: async () => ({ ok: true }),
+        crawl: async () => {},
+        render: async () => {},
+        processEvidence: async () => [],
+        runAgents: async () => [/* mock agents */],
+        runConnectors: async () => [
+          { ok: true, connector: "psi", data: { psi: {/* ... */} } },
+          { ok: true, connector: "crux", data: { crux: {/* ... */} } },
+        ],
+        tierScopes: {/* ... */},
+      },
+      auditId,
+    );
 
     expect(outcome).toBe("completed");
     const record = await store.getRaw(auditId);
@@ -612,21 +625,24 @@ describe("pipeline with connectors", () => {
 
   it("continues when connectors fail", async () => {
     const store = new InMemoryAuditStore();
-    const auditId = await store.create({ /* ... */ });
+    const auditId = await store.create({/* ... */});
 
-    const outcome = await runAuditPipeline({
-      store,
-      // ...
-      runConnectors: async () => [
-        { ok: false, connector: "psi", unavailable_reason_key: "unavailable.connector.psi" },
-      ],
-      // ...
-    }, auditId);
+    const outcome = await runAuditPipeline(
+      {
+        store,
+        // ...
+        runConnectors: async () => [
+          { ok: false, connector: "psi", unavailable_reason_key: "unavailable.connector.psi" },
+        ],
+        // ...
+      },
+      auditId,
+    );
 
-    expect(outcome).toBe("completed");  // Audit succeeds despite connector failure
+    expect(outcome).toBe("completed"); // Audit succeeds despite connector failure
     const record = await store.getRaw(auditId);
     expect(record?.report.unavailable).toContainEqual(
-      expect.objectContaining({ reason_key: "unavailable.connector.psi" })
+      expect.objectContaining({ reason_key: "unavailable.connector.psi" }),
     );
   });
 });
@@ -637,11 +653,13 @@ describe("pipeline with connectors", () => {
 ### What M5 connectors provide
 
 **PSI data:**
+
 - Core Web Vitals: LCP, FID (or INP), CLS
 - Top 3 performance opportunities (from Lighthouse audits)
 - Mobile strategy (matches mobile-first indexing)
 
 **CrUX data:**
+
 - Real-user metrics (RUM) for LCP, FID, CLS
 - Distribution: good / needs improvement / poor percentages
 - Origin-level data (not page-specific)
@@ -685,6 +703,7 @@ describe("pipeline with connectors", () => {
 ## 9. Open questions
 
 **None for M5 scope.** All decisions are made:
+
 - Integration point: parallel with agents during AUDITING
 - Scope: PSI + CrUX only (GSC/GA4 deferred)
 - Graceful degradation: continue without data, note unavailability
@@ -704,6 +723,7 @@ describe("pipeline with connectors", () => {
 ## 11. What remains after M5
 
 **M6+:**
+
 - Agent integration: agents reference connector data via evidence
 - Report UI: display performance data in report view
 - GSC/GA4 connectors (after D-011 auth provider decision)
@@ -713,7 +733,9 @@ describe("pipeline with connectors", () => {
 - Agency surfaces
 
 **M9:**
+
 - First safe connector and impact ledger (write paths)
 
 **repo-M7:**
+
 - Public anonymous traffic (after D-020 constraint lifts)

@@ -9,6 +9,7 @@
 M5 Experience Effectiveness adds a model-assisted subjective review layer to the audit pipeline, evaluating website experience quality across 23 rubric criteria in 5 dimensions. This is a **separate output** from Presence Readiness (D-012 separation rule) and appears in its own "Experience" section of the report.
 
 **Key architectural decisions:**
+
 - New agent type in existing M3 agent service (reuses orchestrator, provider adapters, cost tracking)
 - Vision-capable model analyzes screenshots directly (not OCR'd)
 - One prompt per dimension (5 calls per page) for context coherence and calibratability
@@ -48,13 +49,14 @@ flowchart TD
     Q --> R[Return AgentResult with findings array]
     R --> S[Composer maps to Experience section]
     S --> T[Report displays separate Experience score]
-    
+
     style I fill:#e1f5ff
     style J fill:#fff4e1
     style S fill:#e8f5e9
 ```
 
 **Key architectural choices:**
+
 - **Reuse M3 infrastructure**: No new orchestration layer; experience-reviewer is just another agent type
 - **Vision-first**: Screenshots analyzed directly by Gemini Pro Vision (or equivalent), not OCR'd first
 - **Dimension-per-prompt**: Balances context coherence (model sees all evidence for one dimension at a time) with calibratability (each dimension's judgment is isolated)
@@ -71,11 +73,11 @@ The experience-reviewer agent is configured as a new agent type in the existing 
 name: experience-reviewer
 milestone: M5
 reads_untrusted_content: true
-model_tier: vision-capable  # Gemini Pro Vision or equivalent
+model_tier: vision-capable # Gemini Pro Vision or equivalent
 tools:
-  - read_screenshot        # Loads screenshot evidence
-  - read_extractor_output  # Loads deterministic extractor results
-  - parse_structured_json  # Parses model output
+  - read_screenshot # Loads screenshot evidence
+  - read_extractor_output # Loads deterministic extractor results
+  - parse_structured_json # Parses model output
 forbidden_tools: []
 ```
 
@@ -105,13 +107,14 @@ flowchart TD
     R --> S[Return AgentResult with findings]
     S --> T[Mark agent complete in orchestrator]
     T --> U[Orchestrator checks if all agents complete]
-    
+
     style Q fill:#e1f5ff
     style R fill:#fff4e1
     style S fill:#e8f5e9
 ```
 
 **Key details:**
+
 - Experience-reviewer runs **after** deterministic extractors (dependency enforced by orchestrator)
 - Input evidence IDs reference extractor outputs (heading, form, contact, policy, language, analytics, viewport, wayfinding)
 - Context includes site URL, market, language, and optional business_goal from the audit job
@@ -130,14 +133,14 @@ interface ExperienceEvidencePackage {
   language: string;
   market: string;
   business_goal?: string;
-  
+
   // Screenshots (analyzed by vision model)
   screenshots: {
-    viewport: string;        // evidence_id for viewport screenshot
-    full_page: string;       // evidence_id for full-page screenshot
-    above_fold: string;      // evidence_id for above-fold screenshot
+    viewport: string; // evidence_id for viewport screenshot
+    full_page: string; // evidence_id for full-page screenshot
+    above_fold: string; // evidence_id for above-fold screenshot
   };
-  
+
   // Deterministic extractor outputs (structured JSON)
   extractor_results: {
     heading: HeadingExtractorOutput;
@@ -149,7 +152,7 @@ interface ExperienceEvidencePackage {
     viewport: ViewportExtractorOutput;
     wayfinding: WayfindingExtractorOutput;
   };
-  
+
   // Presence Readiness results (for context)
   readiness_results: {
     score: number | null;
@@ -177,7 +180,7 @@ flowchart TD
     L --> M[Dimension 5: Conversion Path & Measurement]
     M --> N[Aggregate all dimension findings]
     N --> O[Return findings array]
-    
+
     style D fill:#e1f5ff
     style E fill:#fff4e1
     style F fill:#e8f5e9
@@ -222,6 +225,7 @@ Return results as a JSON array.
 ```
 
 **Key details:**
+
 - Each dimension prompt includes only the extractors relevant to that dimension (e.g., Design Hierarchy gets heading + viewport extractors)
 - Screenshots are attached as images (vision model analyzes directly)
 - Model must return structured JSON matching the finding schema
@@ -258,7 +262,7 @@ flowchart TD
     P --> T[Return ExperienceScoreResult]
     R --> T
     S --> T
-    
+
     style E fill:#e1f5ff
     style L fill:#fff4e1
     style N fill:#e8f5e9
@@ -268,7 +272,7 @@ flowchart TD
 
 ```typescript
 interface ExperienceScoreResult {
-  experience_effectiveness: number;  // 0-100
+  experience_effectiveness: number; // 0-100
   dimensions: {
     design_hierarchy: DimensionScore;
     copy_and_positioning_clarity: DimensionScore;
@@ -276,15 +280,15 @@ interface ExperienceScoreResult {
     trust_and_proof: DimensionScore;
     conversion_path_and_measurement: DimensionScore;
   };
-  coverage: number;  // 0-1
+  coverage: number; // 0-1
   confidence: "high" | "medium" | "low";
-  fidelity_label: "assessed";  // Always "assessed" for model-evaluated
+  fidelity_label: "assessed"; // Always "assessed" for model-evaluated
   methodology_version: string;
 }
 
 interface DimensionScore {
-  score: number;  // 0-100
-  coverage: number;  // 0-1
+  score: number; // 0-100
+  coverage: number; // 0-1
   criteria_count: number;
   applicable_count: number;
   not_applicable_count: number;
@@ -292,6 +296,7 @@ interface DimensionScore {
 ```
 
 **Result value mapping:**
+
 - `pass` → 1.00
 - `partial` → 0.50
 - `fail` → 0.00
@@ -300,11 +305,13 @@ interface DimensionScore {
 - `error` → excluded, reduces confidence
 
 **Confidence levels:**
+
 - **High**: Coverage ≥ 0.90, all dimensions high confidence, minimum 10 pages inspected
 - **Medium**: Coverage ≥ 0.70, homepage high confidence, minimum 5 pages inspected
 - **Low**: Coverage < 0.70, fewer than 5 pages, or any critical dimension unavailable
 
 **Key details:**
+
 - No critical caps (unlike Presence Readiness)
 - Rounding only at presentation boundary (calculate with full precision)
 - Show pre-cap score and all dimension scores
@@ -333,7 +340,7 @@ flowchart TD
     D --> K
     K --> L[Calculate scores]
     L --> M[Include weight metadata in result]
-    
+
     style E fill:#e1f5ff
     style I fill:#fff4e1
     style K fill:#e8f5e9
@@ -370,38 +377,38 @@ dimensions:
 # Criterion weights within each dimension (must sum to 100 per dimension)
 criteria:
   design_hierarchy:
-    EXP-DH-01: 25  # Visual hierarchy clarity
-    EXP-DH-02: 20  # Focal point effectiveness
-    EXP-DH-03: 20  # Whitespace and breathing room
-    EXP-DH-04: 15  # Consistency of design language
-    EXP-DH-05: 20  # Mobile-first responsiveness
-  
+    EXP-DH-01: 25 # Visual hierarchy clarity
+    EXP-DH-02: 20 # Focal point effectiveness
+    EXP-DH-03: 20 # Whitespace and breathing room
+    EXP-DH-04: 15 # Consistency of design language
+    EXP-DH-05: 20 # Mobile-first responsiveness
+
   copy_and_positioning_clarity:
-    EXP-CP-01: 30  # Value proposition clarity
-    EXP-CP-02: 25  # Headline effectiveness
-    EXP-CP-03: 25  # Supporting copy quality
-    EXP-CP-04: 20  # Call-to-action clarity
-  
+    EXP-CP-01: 30 # Value proposition clarity
+    EXP-CP-02: 25 # Headline effectiveness
+    EXP-CP-03: 25 # Supporting copy quality
+    EXP-CP-04: 20 # Call-to-action clarity
+
   ux_and_navigation:
-    EXP-UX-01: 25  # Navigation clarity
-    EXP-UX-02: 20  # Wayfinding effectiveness
-    EXP-UX-03: 20  # Information architecture
-    EXP-UX-04: 15  # Interaction design quality
-    EXP-UX-05: 20  # Accessibility baseline
-  
+    EXP-UX-01: 25 # Navigation clarity
+    EXP-UX-02: 20 # Wayfinding effectiveness
+    EXP-UX-03: 20 # Information architecture
+    EXP-UX-04: 15 # Interaction design quality
+    EXP-UX-05: 20 # Accessibility baseline
+
   trust_and_proof:
-    EXP-TP-01: 25  # Trust signals presence
-    EXP-TP-02: 20  # Social proof effectiveness
-    EXP-TP-03: 20  # Authority indicators
-    EXP-TP-04: 15  # Transparency and honesty
-    EXP-TP-05: 20  # Security and privacy signals
-  
+    EXP-TP-01: 25 # Trust signals presence
+    EXP-TP-02: 20 # Social proof effectiveness
+    EXP-TP-03: 20 # Authority indicators
+    EXP-TP-04: 15 # Transparency and honesty
+    EXP-TP-05: 20 # Security and privacy signals
+
   conversion_path_and_measurement:
-    EXP-CV-01: 25  # CTA prominence and clarity
-    EXP-CV-02: 20  # Form usability
-    EXP-CV-03: 20  # Conversion funnel coherence
-    EXP-CV-04: 15  # Measurement and analytics
-    EXP-CV-05: 20  # Friction reduction
+    EXP-CV-01: 25 # CTA prominence and clarity
+    EXP-CV-02: 20 # Form usability
+    EXP-CV-03: 20 # Conversion funnel coherence
+    EXP-CV-04: 15 # Measurement and analytics
+    EXP-CV-05: 20 # Friction reduction
 ```
 
 **Project-level override structure:**
@@ -431,6 +438,7 @@ criteria:
 ```
 
 **Key details:**
+
 - Default weights are fixed and versioned (bump methodology_version on changes)
 - Project overrides require justification and approval tracking
 - Overrides are validated (dimension weights must still sum to 100, criterion weights must still sum to 100 per dimension)
@@ -447,44 +455,44 @@ Every finding includes a complete reviewer trace for auditability and calibratio
 ```typescript
 interface ReviewerTrace {
   // Rubric identification
-  rubric_version: string;           // e.g., "0.1.0-draft"
-  criterion_id: string;             // e.g., "EXP-DH-01"
-  criterion_name: string;           // e.g., "Visual hierarchy clarity"
-  
+  rubric_version: string; // e.g., "0.1.0-draft"
+  criterion_id: string; // e.g., "EXP-DH-01"
+  criterion_name: string; // e.g., "Visual hierarchy clarity"
+
   // Evaluation result
   result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error";
   confidence: "high" | "medium" | "low";
-  rationale: string;                // Brief explanation citing specific evidence
-  
+  rationale: string; // Brief explanation citing specific evidence
+
   // Evidence references
-  evidence_ids: string[];           // IDs of screenshots, extractor outputs used
-  
+  evidence_ids: string[]; // IDs of screenshots, extractor outputs used
+
   // Reviewer identification
   reviewer_type: "model" | "human" | "hybrid";
-  model_id?: string;                // e.g., "gemini-pro-vision"
-  model_version?: string;           // e.g., "gemini-1.5-pro-002"
-  
+  model_id?: string; // e.g., "gemini-pro-vision"
+  model_version?: string; // e.g., "gemini-1.5-pro-002"
+
   // Language and context
-  language: string;                 // e.g., "en", "ar"
+  language: string; // e.g., "en", "ar"
   language_direction: "ltr" | "rtl";
-  market: string;                   // e.g., "US", "SA"
-  
+  market: string; // e.g., "US", "SA"
+
   // Timestamps
-  evaluated_at: string;             // ISO 8601 timestamp
-  prompt_version: string;           // Version of the prompt template used
-  
+  evaluated_at: string; // ISO 8601 timestamp
+  prompt_version: string; // Version of the prompt template used
+
   // Override trace (if human overrode model judgment)
   override?: {
     original_result: string;
     original_confidence: string;
     original_rationale: string;
-    overridden_by: string;          // User ID or "calibration_reviewer"
-    overridden_at: string;          // ISO 8601 timestamp
+    overridden_by: string; // User ID or "calibration_reviewer"
+    overridden_at: string; // ISO 8601 timestamp
     override_reason: string;
   };
-  
+
   // Limitations
-  limitations: string[];            // e.g., ["Low confidence due to non-English content"]
+  limitations: string[]; // e.g., ["Low confidence due to non-English content"]
 }
 ```
 
@@ -510,13 +518,14 @@ flowchart TD
     P --> Q[Store finding with override trace]
     L --> R[Return findings array]
     Q --> R
-    
+
     style C fill:#e1f5ff
     style M fill:#fff4e1
     style R fill:#e8f5e9
 ```
 
 **Key details:**
+
 - Reviewer trace stored in finding's `data` field (follows existing agent pattern)
 - Every finding must have complete trace (no partial traces)
 - Override trace captures full audit trail (original → overridden)
@@ -546,7 +555,7 @@ flowchart TD
     J --> K[Generate calibration report]
     K --> L[Output report to output/calibration-report.json]
     L --> M[Display summary to console]
-    
+
     style E fill:#e1f5ff
     style H fill:#fff4e1
     style K fill:#e8f5e9
@@ -556,12 +565,12 @@ flowchart TD
 
 ```typescript
 interface CalibrationTestCase {
-  case_id: string;                  // e.g., "case-001"
-  description: string;              // Brief description of the test site/page
-  
+  case_id: string; // e.g., "case-001"
+  description: string; // Brief description of the test site/page
+
   // Evidence package (same as production)
   evidence_package: ExperienceEvidencePackage;
-  
+
   // Human-labelled ground truth
   human_results: {
     [criterion_id: string]: {
@@ -570,13 +579,13 @@ interface CalibrationTestCase {
       rationale: string;
     };
   };
-  
+
   // Metadata
-  labelled_by: string;              // Reviewer name or ID
-  labelled_at: string;              // ISO 8601 timestamp
+  labelled_by: string; // Reviewer name or ID
+  labelled_at: string; // ISO 8601 timestamp
   language: string;
   market: string;
-  site_type: string;                // e.g., "ecommerce", "saas", "local-business"
+  site_type: string; // e.g., "ecommerce", "saas", "local-business"
 }
 ```
 
@@ -588,19 +597,19 @@ interface CalibrationReport {
   model_id: string;
   model_version: string;
   rubric_version: string;
-  
+
   // Overall metrics
   overall: {
     total_cases: number;
-    weighted_cohen_kappa: number;   // Agreement metric (0-1, higher is better)
-    exact_match_rate: number;       // % of criteria with exact match
-    adjacent_match_rate: number;    // % within 1 level (pass↔partial, partial↔fail)
+    weighted_cohen_kappa: number; // Agreement metric (0-1, higher is better)
+    exact_match_rate: number; // % of criteria with exact match
+    adjacent_match_rate: number; // % within 1 level (pass↔partial, partial↔fail)
     confidence_distribution: {
       model: { high: number; medium: number; low: number };
       human: { high: number; medium: number; low: number };
     };
   };
-  
+
   // Per-dimension metrics
   dimensions: {
     [dimension_name: string]: {
@@ -617,7 +626,7 @@ interface CalibrationReport {
       }>;
     };
   };
-  
+
   // Per-criterion metrics
   criteria: {
     [criterion_id: string]: {
@@ -627,9 +636,9 @@ interface CalibrationReport {
       disagreement_count: number;
     };
   };
-  
+
   // Recommendations
-  recommendations: string[];        // e.g., ["EXP-DH-03 needs prompt refinement"]
+  recommendations: string[]; // e.g., ["EXP-DH-03 needs prompt refinement"]
 }
 ```
 
@@ -650,6 +659,7 @@ pnpm calibration:run --output reports/calibration-2026-10-07.json
 ```
 
 **Key details:**
+
 - Calibration tool is separate from production code (clear separation)
 - Test cases stored in `config/calibration-cases/` (organized by site type)
 - Weighted Cohen's kappa measures agreement (accounts for chance agreement)
@@ -682,7 +692,7 @@ flowchart TD
     M --> N[Experience section never blended with Presence Readiness]
     C --> O[Report displays sections]
     N --> O
-    
+
     style D fill:#e1f5ff
     style E fill:#fff4e1
     style M fill:#e8f5e9
@@ -705,12 +715,12 @@ export function composeSections(
   const unavailable: UnavailableBlock[] = [];
   const costLines: StoredCostLine[] = [];
   const availableSections = new Set<string>();
-  
+
   // ... existing code for rules engine and other agents ...
-  
+
   // Process experience-reviewer outcome separately
-  const experienceOutcome = outcomes.find(o => o.agent_name === "experience-reviewer");
-  
+  const experienceOutcome = outcomes.find((o) => o.agent_name === "experience-reviewer");
+
   if (!experienceOutcome) {
     unavailable.push({
       section: EXPERIENCE_SECTION,
@@ -719,15 +729,16 @@ export function composeSections(
   } else if (!experienceOutcome.ok) {
     unavailable.push({
       section: EXPERIENCE_SECTION,
-      reason_key: experienceOutcome.unavailable_reason_key ?? "unavailable.experience_effectiveness",
+      reason_key:
+        experienceOutcome.unavailable_reason_key ?? "unavailable.experience_effectiveness",
     });
   } else {
     availableSections.add(EXPERIENCE_SECTION);
-    
+
     // Map findings to Experience section
     for (const finding of experienceOutcome.findings) {
       if (finding.result_state === "unavailable") continue;
-      
+
       findings.push({
         id: randomUUID(),
         agent: "experience-reviewer",
@@ -742,14 +753,15 @@ export function composeSections(
         },
       });
     }
-    
+
     // Extract experience score from agent result
-    const experienceScore = experienceOutcome.data?.experience_score as ExperienceScoreResult | undefined;
-    
+    const experienceScore = experienceOutcome.data?.experience_score as
+      ExperienceScoreResult | undefined;
+
     // Add to ComposeResult
     // ... (see ComposeResult changes below)
   }
-  
+
   // ... rest of composer logic ...
 }
 ```
@@ -763,8 +775,8 @@ export interface ComposeResult {
   action_board: StoredActionItem[];
   summary_bullets: string[];
   costs: StoredCosts;
-  score: ScoreResult | null;                    // Presence Readiness score
-  experience_score: ExperienceScoreResult | null;  // NEW: Experience Effectiveness score
+  score: ScoreResult | null; // Presence Readiness score
+  experience_score: ExperienceScoreResult | null; // NEW: Experience Effectiveness score
 }
 ```
 
@@ -773,18 +785,18 @@ export interface ComposeResult {
 ```typescript
 interface Report {
   // ... existing sections ...
-  
+
   sections: {
     technical: TechnicalSection;
     keywords: KeywordsSection;
     content: ContentSection;
     performance: PerformanceSection;
-    experience: ExperienceSection;  // NEW: Separate Experience section
+    experience: ExperienceSection; // NEW: Separate Experience section
   };
-  
+
   scores: {
     presence_readiness: ScoreResult | null;
-    experience_effectiveness: ExperienceScoreResult | null;  // NEW
+    experience_effectiveness: ExperienceScoreResult | null; // NEW
   };
 }
 
@@ -798,11 +810,12 @@ interface ExperienceSection {
     trust_and_proof: DimensionResult;
     conversion_path_and_measurement: DimensionResult;
   };
-  findings: StoredFinding[];  // With full reviewer trace
+  findings: StoredFinding[]; // With full reviewer trace
 }
 ```
 
 **Key details:**
+
 - Experience section is completely separate from Presence Readiness (D-012 compliance)
 - Never blended, averaged, or used to cap Presence Readiness
 - Fidelity label is always "assessed" (model-evaluated)
@@ -832,7 +845,7 @@ flowchart TD
     K --> L[Add limitation: Low confidence due to non-English content]
     J --> M[Return findings]
     L --> M
-    
+
     style E fill:#e1f5ff
     style K fill:#fff4e1
     style M fill:#e8f5e9
@@ -855,6 +868,7 @@ INSTRUCTIONS:
 ```
 
 **Key details:**
+
 - Single model handles all languages (no separate models per language)
 - Prompts include language context (language code, direction, market)
 - Model instructed to evaluate in original language, respond in English
@@ -869,6 +883,7 @@ INSTRUCTIONS:
 Experience Effectiveness is a **separate output** from Presence Readiness. The two scores are never blended, averaged, or used to cap each other.
 
 **Separation rules:**
+
 - Experience Effectiveness appears in its own "Experience" section
 - Presence Readiness appears in its own "Technical" section (and related sections)
 - Each score has its own confidence, coverage, and denominators
@@ -883,6 +898,7 @@ Experience Effectiveness is a **separate output** from Presence Readiness. The t
 The rubric defines 23 criteria across 5 dimensions. Full criteria definitions with pass/partial/fail standards are in `docs/rubrics/experience-effectiveness.md`.
 
 **Dimensions:**
+
 1. **Design hierarchy** (5 criteria): EXP-DH-01 through EXP-DH-05
 2. **Copy and positioning clarity** (4 criteria): EXP-CP-01 through EXP-CP-04
 3. **UX and navigation** (5 criteria): EXP-UX-01 through EXP-UX-05
@@ -892,20 +908,24 @@ The rubric defines 23 criteria across 5 dimensions. Full criteria definitions wi
 ## Testing Strategy
 
 **Unit tests:**
+
 - Scoring engine: dimension score calculation, overall score calculation, confidence levels
 - Weight configuration: default loading, override validation, merge logic
 - Reviewer trace: trace structure validation, override tracking
 
 **Integration tests:**
+
 - Agent orchestration: dependency graph, evidence package construction
 - Composer integration: Experience section mapping, D-012 separation
 
 **Calibration tests:**
+
 - Run calibration tool with labelled test cases
 - Verify weighted Cohen's kappa ≥ 0.70
 - Verify exact match rate and adjacent match rate
 
 **End-to-end tests:**
+
 - Full audit pipeline with experience-reviewer agent
 - Verify Experience section appears in report
 - Verify separation from Presence Readiness

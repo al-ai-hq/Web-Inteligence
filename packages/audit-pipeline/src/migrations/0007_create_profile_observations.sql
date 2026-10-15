@@ -13,5 +13,5 @@ CREATE TABLE IF NOT EXISTS profile_observations (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_profile_obs_fact_sheet ON profile_observations(fact_sheet_id);
-CREATE INDEX idx_profile_obs_source_url ON profile_observations(source_url);
+CREATE INDEX IF NOT EXISTS idx_profile_obs_fact_sheet ON profile_observations(fact_sheet_id);
+CREATE INDEX IF NOT EXISTS idx_profile_obs_source_url ON profile_observations(source_url);

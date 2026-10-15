@@ -19,13 +19,32 @@ import type { RuleEvaluation, PageEvaluator } from "../types.js";
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const ABOUT_KEYWORDS = [
-  "about us", "about", "our story", "our history", "our mission", "our vision",
-  "who we are", "our team", "founded", "established", "company", "organization",
+  "about us",
+  "about",
+  "our story",
+  "our history",
+  "our mission",
+  "our vision",
+  "who we are",
+  "our team",
+  "founded",
+  "established",
+  "company",
+  "organization",
 ];
 
 const CONTACT_KEYWORDS = [
-  "contact", "get in touch", "reach us", "our office", "location", "address",
-  "phone", "email", "support", "help desk", "customer service",
+  "contact",
+  "get in touch",
+  "reach us",
+  "our office",
+  "location",
+  "address",
+  "phone",
+  "email",
+  "support",
+  "help desk",
+  "customer service",
 ];
 
 const AUTHOR_PATTERNS = [
@@ -49,8 +68,18 @@ const EDITORIAL_URL_PATTERNS = [
 ];
 
 const EDITORIAL_HEADING_KEYWORDS = [
-  "guide", "tips", "how to", "tutorial", "review", "analysis", "advice",
-  "expert", "best practices", "strategy", "introduction to", "complete guide",
+  "guide",
+  "tips",
+  "how to",
+  "tutorial",
+  "review",
+  "analysis",
+  "advice",
+  "expert",
+  "best practices",
+  "strategy",
+  "introduction to",
+  "complete guide",
 ];
 
 const SOCIAL_PROFILE_PATTERNS = [
@@ -85,14 +114,32 @@ const AUTHORITATIVE_DOMAIN_PATTERNS = [
 ];
 
 const CREDENTIAL_KEYWORDS = [
-  "certif", "accredit", "award", "honor", "recognition", "ISO", "badge",
-  "licensed", "certified", "partner", "case study", "case studies",
-  "testimonial", "portfolio", "client", "success stor",
+  "certif",
+  "accredit",
+  "award",
+  "honor",
+  "recognition",
+  "ISO",
+  "badge",
+  "licensed",
+  "certified",
+  "partner",
+  "case study",
+  "case studies",
+  "testimonial",
+  "portfolio",
+  "client",
+  "success stor",
 ];
 
 const REPUTATION_SD_FIELDS = [
-  "award", "aggregateRating", "review", "ratingValue", "reviewCount",
-  "credentials", "certification",
+  "award",
+  "aggregateRating",
+  "review",
+  "ratingValue",
+  "reviewCount",
+  "credentials",
+  "certification",
 ];
 
 function textContains(text: string, keywords: string[]): boolean {
@@ -120,7 +167,10 @@ function hasContactLink(links: { href: string; rel?: string }[]): boolean {
   });
 }
 
-function hasExternalLinks(links: { href: string; rel?: string }[], pageUrl: string): { href: string; rel?: string }[] {
+function hasExternalLinks(
+  links: { href: string; rel?: string }[],
+  pageUrl: string,
+): { href: string; rel?: string }[] {
   let domain: string;
   try {
     domain = new URL(pageUrl).hostname;
@@ -201,11 +251,14 @@ export const evalGEO001: PageEvaluator = (page, bundle) => {
   // Extract potential entity name from title (first significant capitalized phrase)
   if (page.title && page.meta_description) {
     // Look for shared words between title and description (heuristic for entity name)
-    const titleWords = new Set(page.title.toLowerCase().split(/\s+/).filter((w) => w.length > 2));
-    const descWords = page.meta_description.toLowerCase().split(/\s+/);
-    const sharedSignificant = descWords.filter(
-      (w) => titleWords.has(w) && w.length > 3,
+    const titleWords = new Set(
+      page.title
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((w) => w.length > 2),
     );
+    const descWords = page.meta_description.toLowerCase().split(/\s+/);
+    const sharedSignificant = descWords.filter((w) => titleWords.has(w) && w.length > 3);
     if (sharedSignificant.length >= 2) {
       return { result: "pass", evidence_ids: [page.evidence_id] };
     }
@@ -232,7 +285,9 @@ export const evalGEO002: PageEvaluator = (page, _bundle) => {
   // Check for entity-focused structured data with description/history
   const hasEntitySD = page.structured_data.some((block) => {
     const entityType = ["Organization", "LocalBusiness", "Person", "Company"].includes(block.type);
-    const hasDescription = typeof block.data["description"] === "string" && (block.data["description"] as string).trim().length > 0;
+    const hasDescription =
+      typeof block.data["description"] === "string" &&
+      (block.data["description"] as string).trim().length > 0;
     const hasFounding = typeof block.data["foundingDate"] === "string";
     return entityType && (hasDescription || hasFounding);
   });
@@ -423,7 +478,8 @@ export const evalGEO009: PageEvaluator = (page, _bundle) => {
   return {
     result: "not_applicable",
     evidence_ids: [page.evidence_id],
-    rationale: "No reputation signal indicators found; site may not display credentials or case evidence",
+    rationale:
+      "No reputation signal indicators found; site may not display credentials or case evidence",
   };
 };
 
@@ -476,7 +532,9 @@ export const evalGEO011: PageEvaluator = (page, bundle) => {
   if (factSheet?.business_name && profile.name) {
     const normalize = (s: string) => s.trim().toLowerCase();
     if (normalize(profile.name) !== normalize(factSheet.business_name)) {
-      inconsistencies.push(`name: profile="${profile.name}" vs fact_sheet="${factSheet.business_name}"`);
+      inconsistencies.push(
+        `name: profile="${profile.name}" vs fact_sheet="${factSheet.business_name}"`,
+      );
     }
   }
 

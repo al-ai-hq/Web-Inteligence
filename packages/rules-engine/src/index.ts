@@ -24,7 +24,12 @@ export type {
   JsonLdBlock,
 } from "./evidence.js";
 export { runRulesEngine } from "./engine.js";
-export { aggregateToSite, clusterPagesByTemplate, computeTemplateKey, findTemplateFailures } from "./aggregate.js";
+export {
+  aggregateToSite,
+  clusterPagesByTemplate,
+  computeTemplateKey,
+  findTemplateFailures,
+} from "./aggregate.js";
 export {
   calculateCategoryScores,
   calculatePreCapReadiness,

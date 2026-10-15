@@ -84,10 +84,7 @@ describe("renderPage", () => {
     expect(mockLaunch).toHaveBeenCalledWith(
       expect.objectContaining({
         headless: true,
-        args: expect.arrayContaining([
-          "--disable-gpu",
-          "--no-sandbox",
-        ]),
+        args: expect.arrayContaining(["--disable-gpu", "--no-sandbox"]),
       }),
     );
   });
@@ -107,10 +104,7 @@ describe("renderPage", () => {
     const { mockPage } = setupMockChain();
     await renderPage({ url: "https://example.com", config: defaultConfig });
 
-    expect(mockPage.route).toHaveBeenCalledWith(
-      "**/*",
-      expect.any(Function),
-    );
+    expect(mockPage.route).toHaveBeenCalledWith("**/*", expect.any(Function));
   });
 
   it("navigates to URL and captures DOM snapshot", async () => {
@@ -168,9 +162,9 @@ describe("renderPage", () => {
   it("closes browser even on error", async () => {
     mockGoto.mockRejectedValue(new Error("Navigation failed"));
 
-    await expect(
-      renderPage({ url: "https://example.com", config: defaultConfig }),
-    ).rejects.toThrow("Navigation failed");
+    await expect(renderPage({ url: "https://example.com", config: defaultConfig })).rejects.toThrow(
+      "Navigation failed",
+    );
 
     expect(mockClose).toHaveBeenCalled();
   });
@@ -227,7 +221,10 @@ describe("renderPage", () => {
     await renderPage({ url: "https://example.com", config: defaultConfig });
 
     expect(capturedHandler).toBeDefined();
-    const mockRequest = { url: () => "https://cdn.example.com/script.js", resourceType: () => "script" };
+    const mockRequest = {
+      url: () => "https://cdn.example.com/script.js",
+      resourceType: () => "script",
+    };
     const mockRouteObj = {
       request: () => mockRequest,
       continue: mockContinue,

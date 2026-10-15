@@ -69,7 +69,9 @@ function makeScoringConfig(overrides: Partial<ScoringConfig> = {}): ScoringConfi
   };
 }
 
-function makeCatalogRules(rules: Array<Partial<LoadedRule> & { id: string; category: RuleCategory }>): LoadedRule[] {
+function makeCatalogRules(
+  rules: Array<Partial<LoadedRule> & { id: string; category: RuleCategory }>,
+): LoadedRule[] {
   return rules.map((r) => makeRule(r));
 }
 
@@ -103,9 +105,9 @@ describe("calculateCategoryScores", () => {
       { id: "CRW-003", category: "crawlability", importance_weight: 3 },
     ]);
     const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "pass" }),    // 1 * 5 = 5
+      makeRuleResult({ rule_id: "CRW-001", result: "pass" }), // 1 * 5 = 5
       makeRuleResult({ rule_id: "CRW-002", result: "partial" }), // 0.5 * 4 = 2
-      makeRuleResult({ rule_id: "CRW-003", result: "fail" }),    // 0 * 3 = 0
+      makeRuleResult({ rule_id: "CRW-003", result: "fail" }), // 0 * 3 = 0
     ];
     const config = makeScoringConfig();
     const scores = calculateCategoryScores(results, rules, config);
@@ -142,9 +144,7 @@ describe("calculateCategoryScores", () => {
     const rules = makeCatalogRules([
       { id: "CRW-001", category: "crawlability", importance_weight: 5 },
     ]);
-    const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "unavailable" }),
-    ];
+    const results: RuleResult[] = [makeRuleResult({ rule_id: "CRW-001", result: "unavailable" })];
     const config = makeScoringConfig();
     const scores = calculateCategoryScores(results, rules, config);
 
@@ -199,9 +199,7 @@ describe("calculateCategoryScores", () => {
     const rules = makeCatalogRules([
       { id: "CRW-001", category: "crawlability", importance_weight: 5 },
     ]);
-    const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "pass" }),
-    ];
+    const results: RuleResult[] = [makeRuleResult({ rule_id: "CRW-001", result: "pass" })];
     const config = makeScoringConfig();
     const scores = calculateCategoryScores(results, rules, config);
 
@@ -221,8 +219,8 @@ describe("calculatePreCapReadiness", () => {
       { id: "SEO-001", category: "on_page", importance_weight: 3 },
     ]);
     const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "pass" }),    // crawlability = 100
-      makeRuleResult({ rule_id: "SEO-001", result: "fail" }),    // on_page = 0
+      makeRuleResult({ rule_id: "CRW-001", result: "pass" }), // crawlability = 100
+      makeRuleResult({ rule_id: "SEO-001", result: "fail" }), // on_page = 0
     ];
     const config = makeScoringConfig();
     const scores = calculateCategoryScores(results, rules, config);
@@ -246,9 +244,7 @@ describe("calculatePreCapReadiness", () => {
     const rules = makeCatalogRules([
       { id: "CRW-001", category: "crawlability", importance_weight: 5 },
     ]);
-    const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "unavailable" }),
-    ];
+    const results: RuleResult[] = [makeRuleResult({ rule_id: "CRW-001", result: "unavailable" })];
     const config = makeScoringConfig();
     const scores = calculateCategoryScores(results, rules, config);
     const readiness = calculatePreCapReadiness(scores, config);
@@ -260,9 +256,7 @@ describe("calculatePreCapReadiness", () => {
     const rules = makeCatalogRules([
       { id: "CRW-001", category: "crawlability", importance_weight: 5 },
     ]);
-    const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "partial" }),
-    ];
+    const results: RuleResult[] = [makeRuleResult({ rule_id: "CRW-001", result: "partial" })];
     const config = makeScoringConfig();
     const scores = calculateCategoryScores(results, rules, config);
     const readiness = calculatePreCapReadiness(scores, config);
@@ -289,9 +283,7 @@ describe("applyCriticalCaps", () => {
   });
 
   it("caps score to 20 when CRW-001 (homepage) fails", () => {
-    const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "fail" }),
-    ];
+    const results: RuleResult[] = [makeRuleResult({ rule_id: "CRW-001", result: "fail" })];
     const config = makeScoringConfig();
     const caps = applyCriticalCaps(results, 75.5, config);
 
@@ -303,9 +295,7 @@ describe("applyCriticalCaps", () => {
   });
 
   it("caps score to 25 when CRW-003 (sitewide noindex) fails", () => {
-    const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-003", result: "fail" }),
-    ];
+    const results: RuleResult[] = [makeRuleResult({ rule_id: "CRW-003", result: "fail" })];
     const config = makeScoringConfig();
     const caps = applyCriticalCaps(results, 80, config);
 
@@ -314,9 +304,7 @@ describe("applyCriticalCaps", () => {
   });
 
   it("caps score to 30 when CRW-004 (robots blocks) fails", () => {
-    const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-004", result: "fail" }),
-    ];
+    const results: RuleResult[] = [makeRuleResult({ rule_id: "CRW-004", result: "fail" })];
     const config = makeScoringConfig();
     const caps = applyCriticalCaps(results, 80, config);
 
@@ -325,9 +313,7 @@ describe("applyCriticalCaps", () => {
   });
 
   it("caps score to 45 when DEL-001 (empty main content) fails", () => {
-    const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "DEL-001", result: "fail" }),
-    ];
+    const results: RuleResult[] = [makeRuleResult({ rule_id: "DEL-001", result: "fail" })];
     const config = makeScoringConfig();
     const caps = applyCriticalCaps(results, 80, config);
 
@@ -336,9 +322,7 @@ describe("applyCriticalCaps", () => {
   });
 
   it("caps score to 60 when PRF-001 (HTTPS unavailable) fails", () => {
-    const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "PRF-001", result: "fail" }),
-    ];
+    const results: RuleResult[] = [makeRuleResult({ rule_id: "PRF-001", result: "fail" })];
     const config = makeScoringConfig();
     const caps = applyCriticalCaps(results, 80, config);
 
@@ -381,8 +365,8 @@ describe("applyCriticalCaps", () => {
 
   it("applies lowest cap when multiple caps trigger", () => {
     const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "fail" }),  // cap 20
-      makeRuleResult({ rule_id: "PRF-001", result: "fail" }),  // cap 60
+      makeRuleResult({ rule_id: "CRW-001", result: "fail" }), // cap 20
+      makeRuleResult({ rule_id: "PRF-001", result: "fail" }), // cap 60
     ];
     const config = makeScoringConfig();
     const caps = applyCriticalCaps(results, 80, config);
@@ -393,7 +377,7 @@ describe("applyCriticalCaps", () => {
 
   it("does not raise score when pre-cap is already below cap", () => {
     const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "fail" }),  // cap 20
+      makeRuleResult({ rule_id: "CRW-001", result: "fail" }), // cap 20
     ];
     const config = makeScoringConfig();
     const caps = applyCriticalCaps(results, 15, config);
@@ -406,9 +390,7 @@ describe("applyCriticalCaps", () => {
   });
 
   it("handles null pre-cap value", () => {
-    const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "fail" }),
-    ];
+    const results: RuleResult[] = [makeRuleResult({ rule_id: "CRW-001", result: "fail" })];
     const config = makeScoringConfig();
     const caps = applyCriticalCaps(results, null, config);
 
@@ -466,7 +448,7 @@ describe("calculateConfidence", () => {
       pages_inspected: 8,
       homepage_inspected: false,
     };
-    const confidence = calculateConfidence(0.80, ctx);
+    const confidence = calculateConfidence(0.8, ctx);
     expect(confidence).toBe("low");
   });
 
@@ -514,7 +496,7 @@ describe("calculateScore", () => {
       { id: "SEO-001", category: "on_page", importance_weight: 3 },
     ]);
     const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "fail" }),  // triggers cap at 20
+      makeRuleResult({ rule_id: "CRW-001", result: "fail" }), // triggers cap at 20
       makeRuleResult({ rule_id: "SEO-001", result: "pass" }),
     ];
     const config = makeScoringConfig();
@@ -530,9 +512,7 @@ describe("calculateScore", () => {
     const rules = makeCatalogRules([
       { id: "CRW-001", category: "crawlability", importance_weight: 5 },
     ]);
-    const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "unavailable" }),
-    ];
+    const results: RuleResult[] = [makeRuleResult({ rule_id: "CRW-001", result: "unavailable" })];
     const config = makeScoringConfig();
     const score = calculateScore(results, rules, config, {});
 
@@ -547,7 +527,7 @@ describe("calculateScore", () => {
       { id: "CRW-002", category: "crawlability", importance_weight: 4, scored: true },
     ]);
     const results: RuleResult[] = [
-      makeRuleResult({ rule_id: "CRW-001", result: "pass" }),     // measurable
+      makeRuleResult({ rule_id: "CRW-001", result: "pass" }), // measurable
       makeRuleResult({ rule_id: "CRW-002", result: "unavailable" }), // not measurable
     ];
     const config = makeScoringConfig();
@@ -563,7 +543,12 @@ describe("calculateScore", () => {
     ]);
     const results: RuleResult[] = [
       makeRuleResult({ rule_id: "CRW-001", result: "pass", scope: "site" }),
-      makeRuleResult({ rule_id: "CRW-001", result: "fail", scope: "template", template_cluster_key: "blog:d2" }),
+      makeRuleResult({
+        rule_id: "CRW-001",
+        result: "fail",
+        scope: "template",
+        template_cluster_key: "blog:d2",
+      }),
     ];
     const config = makeScoringConfig();
     const score = calculateScore(results, rules, config, {});

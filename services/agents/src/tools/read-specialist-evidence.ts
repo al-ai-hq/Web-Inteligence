@@ -2,7 +2,8 @@ import type { Tool, ToolContext, ToolResult } from "./types.js";
 
 export class ReadSpecialistEvidenceTool implements Tool {
   name = "read_specialist_evidence";
-  description = "Read specialist evidence extracted from public profiles and third-party sources for the current audit.";
+  description =
+    "Read specialist evidence extracted from public profiles and third-party sources for the current audit.";
   inputSchema = {
     type: "object",
     properties: {

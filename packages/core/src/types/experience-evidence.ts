@@ -1,17 +1,17 @@
-import type { HeadingExtractorOutput } from '../extractors/heading.js';
-import type { FormExtractorOutput } from '../extractors/form.js';
-import type { ContactExtractorOutput } from '../extractors/contact.js';
-import type { PolicyExtractorOutput } from '../extractors/policy.js';
-import type { LanguageExtractorOutput } from '../extractors/language.js';
-import type { AnalyticsExtractorOutput } from '../extractors/analytics.js';
-import type { ViewportExtractorOutput } from '../extractors/viewport.js';
-import type { WayfindingExtractorOutput } from '../extractors/wayfinding.js';
-import type { CategoryResult } from './readiness.js';
+import type { HeadingExtractorOutput } from "../extractors/heading.js";
+import type { FormExtractorOutput } from "../extractors/form.js";
+import type { ContactExtractorOutput } from "../extractors/contact.js";
+import type { PolicyExtractorOutput } from "../extractors/policy.js";
+import type { LanguageExtractorOutput } from "../extractors/language.js";
+import type { AnalyticsExtractorOutput } from "../extractors/analytics.js";
+import type { ViewportExtractorOutput } from "../extractors/viewport.js";
+import type { WayfindingExtractorOutput } from "../extractors/wayfinding.js";
+import type { CategoryResult } from "./readiness.js";
 
 export interface ScreenshotRef {
   evidence_id: string;
   path: string;
-  mime_type: 'image/png';
+  mime_type: "image/png";
   width: number;
   height: number;
 }
@@ -42,6 +42,6 @@ export interface ExperienceEvidencePackage {
   readiness_results: {
     score: number | null;
     categories: CategoryResult[];
-    confidence: 'high' | 'medium' | 'low';
+    confidence: "high" | "medium" | "low";
   };
 }

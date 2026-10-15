@@ -46,13 +46,13 @@ describe("loadTierScopes", () => {
     writeFileSync(
       configPath,
       [
-        "version: \"0.1.0-draft\"",
+        'version: "0.1.0-draft"',
         "tiers:",
         "  rich:",
         "    scope:",
         "      max_representative_pages: 20",
         "      comparisons: 1",
-        "      ai_visibility_panel: \"config/prompt-panels/free-panel.yaml\"",
+        '      ai_visibility_panel: "config/prompt-panels/free-panel.yaml"',
         "      action_board: { min: 8, max: 12 }",
         "      preliminary_roadmap: true",
         "  reduced:",
@@ -93,7 +93,11 @@ describe("loadTierScopes", () => {
   it("throws when a tier scope is missing", () => {
     const dir = mkdtempSync(join(tmpdir(), "wpi-elig-"));
     const configPath = join(dir, "broken.yaml");
-    writeFileSync(configPath, "tiers:\n  rich:\n    scope:\n      max_representative_pages: 20\n", "utf8");
+    writeFileSync(
+      configPath,
+      "tiers:\n  rich:\n    scope:\n      max_representative_pages: 20\n",
+      "utf8",
+    );
     expect(() => loadTierScopes(configPath)).toThrow(/reduced/);
   });
 });

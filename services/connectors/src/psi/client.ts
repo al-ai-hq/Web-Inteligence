@@ -2,10 +2,7 @@
 import type { PsiData } from "../types.js";
 import type { PsiApiResponse, PsiAudit } from "./types.js";
 
-export async function fetchPsiData(
-  url: string,
-  apiKey: string,
-): Promise<PsiData> {
+export async function fetchPsiData(url: string, apiKey: string): Promise<PsiData> {
   const params = new URLSearchParams({
     url,
     key: apiKey,
@@ -46,17 +43,9 @@ function extractTopOpportunities(
   const opportunities: PsiData["opportunities"] = [];
 
   for (const [key, audit] of Object.entries(audits)) {
-    if (
-      audit.title &&
-      audit.numericValue !== undefined &&
-      audit.numericValue > 0
-    ) {
+    if (audit.title && audit.numericValue !== undefined && audit.numericValue > 0) {
       const severity =
-        audit.numericValue > 500
-          ? "high"
-          : audit.numericValue > 200
-            ? "medium"
-            : "low";
+        audit.numericValue > 500 ? "high" : audit.numericValue > 200 ? "medium" : "low";
       opportunities.push({
         id: key,
         title: audit.title,

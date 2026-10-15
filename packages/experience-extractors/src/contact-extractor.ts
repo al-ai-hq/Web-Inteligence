@@ -18,9 +18,7 @@ export function extractContactLinks(evidence: EvidencePackage): ContactLinks {
 
   const hasPhone = links.some((l) => l.type === "phone");
   const hasEmail = links.some((l) => l.type === "email");
-  const hasMessaging = links.some((l) =>
-    ["whatsapp", "telegram", "messenger"].includes(l.type)
-  );
+  const hasMessaging = links.some((l) => ["whatsapp", "telegram", "messenger"].includes(l.type));
 
   return {
     links,
@@ -31,9 +29,7 @@ export function extractContactLinks(evidence: EvidencePackage): ContactLinks {
   };
 }
 
-function classifyContactLink(
-  href: string
-): ContactLink["type"] | null {
+function classifyContactLink(href: string): ContactLink["type"] | null {
   const lowerHref = href.toLowerCase();
 
   if (lowerHref.startsWith("tel:")) {
@@ -44,24 +40,15 @@ function classifyContactLink(
     return "email";
   }
 
-  if (
-    lowerHref.startsWith("whatsapp://") ||
-    lowerHref.includes("wa.me/")
-  ) {
+  if (lowerHref.startsWith("whatsapp://") || lowerHref.includes("wa.me/")) {
     return "whatsapp";
   }
 
-  if (
-    lowerHref.startsWith("tg://") ||
-    lowerHref.includes("t.me/")
-  ) {
+  if (lowerHref.startsWith("tg://") || lowerHref.includes("t.me/")) {
     return "telegram";
   }
 
-  if (
-    lowerHref.startsWith("fb-messenger://") ||
-    lowerHref.includes("m.me/")
-  ) {
+  if (lowerHref.startsWith("fb-messenger://") || lowerHref.includes("m.me/")) {
     return "messenger";
   }
 

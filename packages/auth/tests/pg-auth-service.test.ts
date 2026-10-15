@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { Pool } from "pg";
-import { DuplicateEmailError, hashToken, SESSION_TTL_MS } from "../src/auth-service.js";
+import { DuplicateEmailError, hashToken } from "../src/auth-service.js";
 import { PgAuthService } from "../src/pg-auth-service.js";
 
 const DATABASE_URL = process.env["WPI_TEST_DATABASE_URL"];
@@ -13,14 +13,26 @@ describe.skipIf(!DATABASE_URL)("PgAuthService", () => {
 
   beforeAll(async () => {
     pool = new Pool({ connectionString: DATABASE_URL });
+    await pool.query("DROP TABLE IF EXISTS password_reset_tokens CASCADE");
     await pool.query("DROP TABLE IF EXISTS sessions CASCADE");
     await pool.query("DROP TABLE IF EXISTS users CASCADE");
     await pool.query("DROP TABLE IF EXISTS schema_migrations");
-    const sql = await readFile(
-      new URL("../../audit-pipeline/src/migrations/0016_create_users_sessions.sql", import.meta.url),
+    const usersSql = await readFile(
+      new URL(
+        "../../audit-pipeline/src/migrations/0016_create_users_sessions.sql",
+        import.meta.url,
+      ),
       "utf8",
     );
-    await pool.query(sql);
+    const tokensSql = await readFile(
+      new URL(
+        "../../audit-pipeline/src/migrations/0018_password_reset_tokens.sql",
+        import.meta.url,
+      ),
+      "utf8",
+    );
+    await pool.query(usersSql);
+    await pool.query(tokensSql);
     auth = new PgAuthService(pool);
   });
 
@@ -34,7 +46,8 @@ describe.skipIf(!DATABASE_URL)("PgAuthService", () => {
     expect(user.email).toBe(email);
     const verified = await auth.verifyCredentials(email, "password123");
     expect(verified).not.toBeNull();
-    expect(verified!.id).toBe(user.id);
+    if (!verified) throw new Error("expected user");
+    expect(verified.id).toBe(user.id);
   });
 
   it("rejects duplicate email", async () => {
@@ -58,7 +71,8 @@ describe.skipIf(!DATABASE_URL)("PgAuthService", () => {
 
     const found = await auth.getSessionUser(hashToken(session.token));
     expect(found).not.toBeNull();
-    expect(found!.id).toBe(user.id);
+    if (!found) throw new Error("expected user");
+    expect(found.id).toBe(user.id);
 
     await auth.destroySession(hashToken(session.token));
     expect(await auth.getSessionUser(hashToken(session.token))).toBeNull();
@@ -78,5 +92,36 @@ describe.skipIf(!DATABASE_URL)("PgAuthService", () => {
     expect(await auth.getSessionUser(tokenHash)).toBeNull();
     const check = await pool.query("SELECT 1 FROM sessions WHERE token_hash = $1", [tokenHash]);
     expect(check.rowCount).toBe(0);
+  });
+
+  it("creates and consumes a password reset token", async () => {
+    const email = `pg-reset-${randomUUID()}@example.com`;
+    const user = await auth.createUser(email, "password123");
+    const token = await auth.createPasswordResetToken(email);
+    expect(token).toMatch(/^[0-9a-f]{64}$/);
+
+    if (!token) throw new Error("expected token");
+    const ok = await auth.consumePasswordResetToken(token, "new-password-123");
+    expect(ok).toBe(true);
+
+    const verified = await auth.verifyCredentials(email, "new-password-123");
+    expect(verified).not.toBeNull();
+    if (!verified) throw new Error("expected user");
+    expect(verified.id).toBe(user.id);
+  });
+
+  it("returns null token for unknown email", async () => {
+    const token = await auth.createPasswordResetToken(`missing-${randomUUID()}@example.com`);
+    expect(token).toBeNull();
+  });
+
+  it("rejects a reused token", async () => {
+    const email = `pg-reset-reuse-${randomUUID()}@example.com`;
+    await auth.createUser(email, "password123");
+    const token = await auth.createPasswordResetToken(email);
+    if (!token) throw new Error("expected token");
+    await auth.consumePasswordResetToken(token, "new-password-123");
+    const ok = await auth.consumePasswordResetToken(token, "another-password");
+    expect(ok).toBe(false);
   });
 });

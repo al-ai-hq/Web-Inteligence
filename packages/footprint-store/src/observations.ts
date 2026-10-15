@@ -35,11 +35,13 @@ export const NapObservationSchema = z.object({
   phone_value: z.string().nullable(),
   address_value: z.record(z.string(), z.string()).nullable(),
   consistency_score: z.number().min(0).max(1),
-  inconsistencies: z.array(z.object({
-    field: z.string(),
-    expected: z.string(),
-    actual: z.string(),
-  })),
+  inconsistencies: z.array(
+    z.object({
+      field: z.string(),
+      expected: z.string(),
+      actual: z.string(),
+    }),
+  ),
   lineage: LineageSchema,
   created_at: z.string().datetime(),
 });

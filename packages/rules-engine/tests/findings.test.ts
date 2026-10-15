@@ -82,7 +82,11 @@ describe("generateFindings", () => {
 
     it("maps partial + weight>=4 to high severity", () => {
       const rule = makeRule({ id: "AEO-001", importance_weight: 5, category: "aeo" });
-      const result = makeRuleResult({ rule_id: "AEO-001", result: "partial", evidence_ids: ["ev1"] });
+      const result = makeRuleResult({
+        rule_id: "AEO-001",
+        result: "partial",
+        evidence_ids: ["ev1"],
+      });
       const findings = generateFindings([result], [rule]);
       expect(findings).toHaveLength(1);
       expect(findings[0].severity).toBe("high");
@@ -90,15 +94,27 @@ describe("generateFindings", () => {
 
     it("maps partial + weight=3 to medium severity", () => {
       const rule = makeRule({ id: "GEO-001", importance_weight: 3, category: "geo" });
-      const result = makeRuleResult({ rule_id: "GEO-001", result: "partial", evidence_ids: ["ev1"] });
+      const result = makeRuleResult({
+        rule_id: "GEO-001",
+        result: "partial",
+        evidence_ids: ["ev1"],
+      });
       const findings = generateFindings([result], [rule]);
       expect(findings).toHaveLength(1);
       expect(findings[0].severity).toBe("medium");
     });
 
     it("maps partial + weight<=2 to low severity", () => {
-      const rule = makeRule({ id: "I18N-001", importance_weight: 1, category: "i18n_accessibility" });
-      const result = makeRuleResult({ rule_id: "I18N-001", result: "partial", evidence_ids: ["ev1"] });
+      const rule = makeRule({
+        id: "I18N-001",
+        importance_weight: 1,
+        category: "i18n_accessibility",
+      });
+      const result = makeRuleResult({
+        rule_id: "I18N-001",
+        result: "partial",
+        evidence_ids: ["ev1"],
+      });
       const findings = generateFindings([result], [rule]);
       expect(findings).toHaveLength(1);
       expect(findings[0].severity).toBe("low");
@@ -164,7 +180,13 @@ describe("generateFindings", () => {
     });
 
     it("maps attested evaluation to client_stated", () => {
-      const rule = makeRule({ id: "GSC-003", evaluation: "attested", importance_weight: 0, scored: false, critical_cap: "test_cap" });
+      const rule = makeRule({
+        id: "GSC-003",
+        evaluation: "attested",
+        importance_weight: 0,
+        scored: false,
+        critical_cap: "test_cap",
+      });
       const result = makeRuleResult({ rule_id: "GSC-003", result: "fail" });
       const findings = generateFindings([result], [rule]);
       expect(findings[0].evidence_state).toBe("client_stated");

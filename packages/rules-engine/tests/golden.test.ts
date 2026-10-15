@@ -18,11 +18,7 @@ import type { EvidenceBundle, PageEvidence } from "../src/evidence.js";
 import { loadConfig } from "../src/config-loader.js";
 import { RuleCatalog } from "../src/rule-catalog.js";
 import { runRulesEngine } from "../src/engine.js";
-import {
-  aggregateToSite,
-  clusterPagesByTemplate,
-  findTemplateFailures,
-} from "../src/aggregate.js";
+import { aggregateToSite, clusterPagesByTemplate, findTemplateFailures } from "../src/aggregate.js";
 import { calculateScore } from "../src/scoring.js";
 import { generateFindings } from "../src/findings.js";
 import { computeContentHash } from "../src/integrity.js";
@@ -83,9 +79,7 @@ describe("golden fixture — score reproduction", () => {
   const result = runFullPipeline(pages);
 
   it("reproduces the exact Presence Readiness score", () => {
-    expect(result.score.presence_readiness).toBe(
-      expectedResults.score.presence_readiness,
-    );
+    expect(result.score.presence_readiness).toBe(expectedResults.score.presence_readiness);
   });
 
   it("reproduces the exact pre-cap value", () => {
@@ -118,9 +112,7 @@ describe("golden fixture — score reproduction", () => {
   });
 
   it("reproduces methodology version", () => {
-    expect(result.score.methodology_version).toBe(
-      expectedResults.score.methodology_version,
-    );
+    expect(result.score.methodology_version).toBe(expectedResults.score.methodology_version);
   });
 
   it("reproduces unavailable categories", () => {

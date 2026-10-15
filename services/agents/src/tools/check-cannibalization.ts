@@ -13,7 +13,8 @@ const inputSchema = z.object({
 export function createCheckCannibalizationTool(): Tool {
   return {
     name: "check_cannibalization",
-    description: "Detects when multiple URLs are mapped to the same keyword cluster (cannibalization).",
+    description:
+      "Detects when multiple URLs are mapped to the same keyword cluster (cannibalization).",
     inputSchema: {
       type: "object",
       properties: {

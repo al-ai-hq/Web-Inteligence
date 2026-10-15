@@ -94,10 +94,7 @@ describe("planUrls — full_bounded", () => {
   it("stays within same origin", async () => {
     const fetchWithExternal = async (url: string): Promise<string[]> => {
       const links: Record<string, string[]> = {
-        "https://example.com/": [
-          "https://example.com/page1",
-          "https://evil.com/steal",
-        ],
+        "https://example.com/": ["https://example.com/page1", "https://evil.com/steal"],
         "https://example.com/page1": [],
       };
       return links[url] ?? [];
@@ -121,7 +118,7 @@ describe("planUrls — full_bounded", () => {
         samplingMode: "full_bounded",
         maxPages: 10,
         maxDepth: 2,
-      })
+      }),
     ).rejects.toThrow();
   });
 });
@@ -197,7 +194,7 @@ describe("planUrls — representative_sample", () => {
         maxPages: 10,
         maxDepth: 1,
         sitemapXml,
-      })
+      }),
     ).rejects.toThrow();
   });
 });
@@ -217,22 +214,12 @@ describe("bfsCrawl", () => {
   };
 
   it("with depth 0 returns only root", async () => {
-    const result = await bfsCrawl(
-      "https://example.com/",
-      10,
-      0,
-      mockFetchAndParse
-    );
+    const result = await bfsCrawl("https://example.com/", 10, 0, mockFetchAndParse);
     expect(result).toEqual(["https://example.com/"]);
   });
 
   it("discovers links breadth-first", async () => {
-    const result = await bfsCrawl(
-      "https://example.com/",
-      10,
-      2,
-      mockFetchAndParse
-    );
+    const result = await bfsCrawl("https://example.com/", 10, 2, mockFetchAndParse);
     expect(result).toContain("https://example.com/");
     expect(result).toContain("https://example.com/page1");
     expect(result).toContain("https://example.com/page2");
@@ -242,12 +229,7 @@ describe("bfsCrawl", () => {
   });
 
   it("respects maxPages limit", async () => {
-    const result = await bfsCrawl(
-      "https://example.com/",
-      2,
-      3,
-      mockFetchAndParse
-    );
+    const result = await bfsCrawl("https://example.com/", 2, 3, mockFetchAndParse);
     expect(result.length).toBeLessThanOrEqual(2);
   });
 
@@ -263,12 +245,7 @@ describe("bfsCrawl", () => {
       };
       return links[url] ?? [];
     };
-    const result = await bfsCrawl(
-      "https://example.com/",
-      10,
-      1,
-      fetchWithExternal
-    );
+    const result = await bfsCrawl("https://example.com/", 10, 1, fetchWithExternal);
     expect(result).not.toContain("https://evil.com/steal");
     expect(result).not.toContain("http://example.com/page1");
   });
@@ -282,7 +259,7 @@ describe("mergeSitemapAndBfs", () => {
     const result = mergeSitemapAndBfs(
       ["https://example.com/a", "https://example.com/b"],
       ["https://example.com/c", "https://example.com/d"],
-      10
+      10,
     );
     expect(result).toEqual([
       "https://example.com/a",
@@ -296,7 +273,7 @@ describe("mergeSitemapAndBfs", () => {
     const result = mergeSitemapAndBfs(
       ["https://Example.com/Page"],
       ["https://example.com/page"],
-      10
+      10,
     );
     expect(result).toEqual(["https://Example.com/Page"]);
   });
@@ -305,7 +282,7 @@ describe("mergeSitemapAndBfs", () => {
     const result = mergeSitemapAndBfs(
       ["https://example.com/a", "https://example.com/b", "https://example.com/c"],
       ["https://example.com/d"],
-      2
+      2,
     );
     expect(result).toHaveLength(2);
     expect(result[0]).toBe("https://example.com/a");

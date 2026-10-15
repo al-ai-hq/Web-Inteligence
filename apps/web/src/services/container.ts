@@ -5,7 +5,6 @@ import {
   InMemoryAuditStore,
   InProcessDispatcher,
   M4_AGENT_NAMES,
-  MIGRATIONS_DIR,
   PostgresAuditStore,
   REPO_ROOT,
   runAgentStage,
@@ -27,8 +26,16 @@ import { runCrawlJob } from "@wpi/crawler";
 import { runEvidenceProcessor } from "@wpi/evidence-processor";
 import { validateUrl } from "@wpi/security";
 import { TokenStore } from "@wpi/oauth";
-import { InMemoryAuthService, PgAuthService, RateLimiter } from "@wpi/auth";
+import { InMemoryAuthService, PgAuthService } from "@wpi/auth";
 import type { AuthService } from "@wpi/auth";
+import {
+  StubEmailService,
+  ResendEmailService,
+  auditCompletionTemplate,
+  type EmailService,
+} from "@wpi/email";
+import { InMemoryRateLimiter } from "@wpi/rate-limiter";
+import type { RateLimiter } from "@wpi/rate-limiter";
 import { Pool } from "pg";
 
 export interface AuditServices {
@@ -42,6 +49,7 @@ export interface AuditServices {
   outputDir: string;
   geminiApiKey: string | undefined;
   pool?: Pool;
+  emailService: EmailService;
 }
 
 // Next.js dev re-evaluates module state when a route compiles for the first
@@ -116,7 +124,10 @@ function buildPipeline(fields: PipelineFields) {
             businessName: factSheet.business_name,
             siteUrl: factSheet.site_url,
             location: factSheet.address_locality
-              ? { locality: factSheet.address_locality, region: factSheet.address_region ?? undefined }
+              ? {
+                  locality: factSheet.address_locality,
+                  region: factSheet.address_region ?? undefined,
+                }
               : undefined,
           });
 
@@ -141,22 +152,25 @@ function buildPipeline(fields: PipelineFields) {
           };
 
           for (const profile of profiles) {
-            await publicSourceStore.create({
-              fact_sheet_id: factSheet.id,
-              source_platform: profile.platform,
-              source_url: profile.url,
-              discovered_at: new Date().toISOString(),
-              profile_data: {},
-            }, lineage);
+            await publicSourceStore.create(
+              {
+                fact_sheet_id: factSheet.id,
+                source_platform: profile.platform,
+                source_url: profile.url,
+                discovered_at: new Date().toISOString(),
+                profile_data: {},
+              },
+              lineage,
+            );
           }
 
           const napResults = [];
           for (const profile of profiles) {
             const extracted = extractProfileData("", profile.url);
             const cleanAddress = extracted.extracted_address
-              ? Object.fromEntries(
+              ? (Object.fromEntries(
                   Object.entries(extracted.extracted_address).filter(([, v]) => v !== null),
-                ) as Record<string, string>
+                ) as Record<string, string>)
               : null;
             const napResult = computeNapConsistency(
               {
@@ -180,15 +194,18 @@ function buildPipeline(fields: PipelineFields) {
               },
             );
 
-            await napStore.create({
-              fact_sheet_id: factSheet.id,
-              source_url: profile.url,
-              name_value: extracted.extracted_name,
-              phone_value: extracted.extracted_phone,
-              address_value: cleanAddress,
-              consistency_score: napResult.consistency_score,
-              inconsistencies: napResult.inconsistencies,
-            }, lineage);
+            await napStore.create(
+              {
+                fact_sheet_id: factSheet.id,
+                source_url: profile.url,
+                name_value: extracted.extracted_name,
+                phone_value: extracted.extracted_phone,
+                address_value: cleanAddress,
+                consistency_score: napResult.consistency_score,
+                inconsistencies: napResult.inconsistencies,
+              },
+              lineage,
+            );
 
             napResults.push(napResult);
           }
@@ -216,15 +233,11 @@ function buildPipeline(fields: PipelineFields) {
     },
     render: async (record: AuditRecord) => {
       const { runRenderJob } = await import("@wpi/render-job");
-      await scopedEnv(
-        { AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir },
-        () => runRenderJob(),
-      );
+      await scopedEnv({ AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir }, () => runRenderJob());
     },
     processEvidence: async (record: AuditRecord): Promise<string[]> => {
-      await scopedEnv(
-        { AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir },
-        () => runEvidenceProcessor(),
+      await scopedEnv({ AUDIT_ID: record.id, OUTPUT_DIR: fields.outputDir }, () =>
+        runEvidenceProcessor(),
       );
       const files = await readdir(join(fields.outputDir, record.id, "evidence"));
       return files
@@ -264,9 +277,7 @@ function buildPipeline(fields: PipelineFields) {
   };
 }
 
-function localValidateUrl(
-  url: string,
-): { ok: boolean; reason_key?: string } {
+function localValidateUrl(url: string): { ok: boolean; reason_key?: string } {
   try {
     const parsed = new URL(url);
     if (parsed.protocol === "http:" || parsed.protocol === "https:") {
@@ -278,10 +289,33 @@ function localValidateUrl(
   }
 }
 
+function buildReportUrl(record: AuditRecord, appUrl: string): string {
+  return `${appUrl}/${record.locale}/audit/${record.id}`;
+}
+
+function buildEmailService(): EmailService {
+  const apiKey = process.env["RESEND_API_KEY"];
+  const from = process.env["EMAIL_FROM_ADDRESS"];
+  if (apiKey && from) {
+    return new ResendEmailService({ apiKey, from });
+  }
+  if (process.env["NODE_ENV"] === "production") {
+    throw new Error(
+      "RESEND_API_KEY and EMAIL_FROM_ADDRESS are required in production. Set them as fly secrets or environment variables.",
+    );
+  }
+  return new StubEmailService();
+}
+
+function readDatabaseUrl(): string | undefined {
+  return process.env["DATABASE_URL"] ?? process.env["WPI_DATABASE_URL"];
+}
+
+function readCookieSecret(): string | undefined {
+  return process.env["COOKIE_SECRET"] ?? process.env["AUDIT_COOKIE_SECRET"];
+}
+
 async function buildServices(): Promise<AuditServices> {
-  // Stub is the safe default: buildServices must not require Postgres/cookie
-  // env until real dispatch is explicitly requested (matches the brief's
-  // tests, which build stub-mode services with no env set).
   const dispatchMode = process.env["WPI_DISPATCH_MODE"] ?? "stub";
 
   if (process.env["NODE_ENV"] === "production" && dispatchMode === "stub") {
@@ -304,16 +338,16 @@ async function buildServices(): Promise<AuditServices> {
     return {
       ...fields,
       dispatcher: new StubDispatcher(store),
-      cookieSecret: process.env["AUDIT_COOKIE_SECRET"] ?? "stub-cookie-secret",
+      cookieSecret: readCookieSecret() ?? "stub-cookie-secret",
       auth: new InMemoryAuthService(),
-      rateLimiter: new RateLimiter(),
+      rateLimiter: new InMemoryRateLimiter(),
+      emailService: buildEmailService(),
     };
   }
 
-  const databaseUrl = process.env["WPI_DATABASE_URL"];
-  const cookieSecret = process.env["AUDIT_COOKIE_SECRET"];
-  
-  // Support in-memory mode for demos without database
+  const databaseUrl = readDatabaseUrl();
+  const cookieSecret = readCookieSecret();
+
   if (dispatchMode === "memory") {
     const store = new InMemoryAuditStore();
     const fields: PipelineFields = {
@@ -328,18 +362,19 @@ async function buildServices(): Promise<AuditServices> {
       cookieSecret: cookieSecret ?? "demo-cookie-secret",
       dispatcher: new StubDispatcher(store),
       auth: new InMemoryAuthService(),
-      rateLimiter: new RateLimiter(),
+      rateLimiter: new InMemoryRateLimiter(),
+      emailService: buildEmailService(),
     };
   }
-  
+
   if (databaseUrl === undefined || cookieSecret === undefined) {
     throw new Error(
-      "WPI_DATABASE_URL and AUDIT_COOKIE_SECRET are required when WPI_DISPATCH_MODE is not 'stub' or 'memory'",
+      "WPI_DATABASE_URL and AUDIT_COOKIE_SECRET are required when WPI_DISPATCH_MODE=in_process",
     );
   }
 
   const pool = new Pool({ connectionString: databaseUrl });
-  await applyMigrations(pool, MIGRATIONS_DIR);
+  await applyMigrations(pool);
   const store = new PostgresAuditStore(pool);
   await store.sweepExpired();
   const tokenStore = new TokenStore(pool);
@@ -350,9 +385,7 @@ async function buildServices(): Promise<AuditServices> {
     validateUrl: async (url) => {
       try {
         const result = await validateUrl(url);
-        return result.valid
-          ? { ok: true }
-          : { ok: false, reason_key: "failure.url_invalid" };
+        return result.valid ? { ok: true } : { ok: false, reason_key: "failure.url_invalid" };
       } catch {
         return { ok: false, reason_key: "failure.url_invalid" };
       }
@@ -363,15 +396,44 @@ async function buildServices(): Promise<AuditServices> {
     pool,
   };
 
-  return {
+  const services: AuditServices = {
     ...fields,
-    // InProcessDispatcher expects (jobId) => Promise<void>; runAuditPipeline
-    // resolves to PipelineOutcome, which the dispatcher contract discards.
     dispatcher: new InProcessDispatcher(async (jobId) => {
-      await runAuditPipeline(buildPipeline(fields), jobId);
+      await runAuditPipeline(
+        {
+          ...buildPipeline(fields),
+          onComplete: async (record: AuditRecord) => {
+            if (!record.user_id) return;
+            const user = await services.auth.findUserById(record.user_id);
+            if (!user) return;
+            const appUrl = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
+            const { subject, html, text } = auditCompletionTemplate({
+              locale: record.locale,
+              siteUrl: record.target_url,
+              score: record.report?.score?.presence_readiness ?? 0,
+              reportUrl: buildReportUrl(record, appUrl),
+            });
+            void services.emailService
+              .send({
+                to: user.email,
+                subject,
+                html,
+                text,
+                locale: record.locale,
+              })
+              .catch((error: unknown) => {
+                console.error("Failed to send audit completion email:", error);
+              });
+          },
+        },
+        jobId,
+      );
     }),
     cookieSecret,
     auth: new PgAuthService(pool),
-    rateLimiter: new RateLimiter(),
+    rateLimiter: new InMemoryRateLimiter(),
+    emailService: buildEmailService(),
   };
+
+  return services;
 }

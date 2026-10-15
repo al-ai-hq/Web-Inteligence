@@ -12,5 +12,5 @@ CREATE TABLE IF NOT EXISTS fact_register (
   UNIQUE(fact_sheet_id, fact_key)
 );
 
-CREATE INDEX idx_fact_register_fact_sheet ON fact_register(fact_sheet_id);
-CREATE INDEX idx_fact_register_key ON fact_register(fact_key);
+CREATE INDEX IF NOT EXISTS idx_fact_register_fact_sheet ON fact_register(fact_sheet_id);
+CREATE INDEX IF NOT EXISTS idx_fact_register_key ON fact_register(fact_key);

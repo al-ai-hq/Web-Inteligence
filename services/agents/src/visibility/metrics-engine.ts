@@ -8,18 +8,21 @@ export function computeMetrics(
   const validCount = validRuns.length;
   const smallCell = validCount < 10;
 
-  const mentionRate = validCount === 0
-    ? null
-    : validRuns.filter((r) => r.brand_mentioned === true).length / validCount;
+  const mentionRate =
+    validCount === 0
+      ? null
+      : validRuns.filter((r) => r.brand_mentioned === true).length / validCount;
 
   const brandMentionedRuns = validRuns.filter((r) => r.brand_mentioned === true);
-  const recommendationRate = brandMentionedRuns.length === 0
-    ? null
-    : brandMentionedRuns.filter((r) => r.recommended === true).length / brandMentionedRuns.length;
+  const recommendationRate =
+    brandMentionedRuns.length === 0
+      ? null
+      : brandMentionedRuns.filter((r) => r.recommended === true).length / brandMentionedRuns.length;
 
-  const domainCitationRate = validCount === 0
-    ? null
-    : validRuns.filter((r) => r.brand_url_cited === true).length / validCount;
+  const domainCitationRate =
+    validCount === 0
+      ? null
+      : validRuns.filter((r) => r.brand_url_cited === true).length / validCount;
 
   const brandMentionCount = brandMentionedRuns.length;
   const totalMentionCount = validRuns.reduce(
@@ -34,9 +37,8 @@ export function computeMetrics(
   );
 
   const enginesWithValid = new Set(validRuns.map((r) => r.engine));
-  const providerCoverage = totalConfiguredProviders === 0
-    ? 0
-    : enginesWithValid.size / totalConfiguredProviders;
+  const providerCoverage =
+    totalConfiguredProviders === 0 ? 0 : enginesWithValid.size / totalConfiguredProviders;
 
   return {
     mention_rate: mentionRate,

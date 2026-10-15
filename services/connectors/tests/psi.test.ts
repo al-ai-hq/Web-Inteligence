@@ -22,9 +22,7 @@ describe("PsiConnector", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.unavailable_reason_key).toBe(
-        "unavailable.connector.psi.missing_api_key",
-      );
+      expect(result.unavailable_reason_key).toBe("unavailable.connector.psi.missing_api_key");
     }
   });
 
@@ -67,9 +65,7 @@ describe("PsiConnector", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.unavailable_reason_key).toBe(
-        "unavailable.connector.psi.api_error",
-      );
+      expect(result.unavailable_reason_key).toBe("unavailable.connector.psi.api_error");
     }
   });
 });

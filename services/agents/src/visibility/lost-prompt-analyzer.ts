@@ -1,9 +1,6 @@
 import type { PromptRun, Citation, LostPrompt } from "./types.js";
 
-export function findLostPrompts(
-  runs: PromptRun[],
-  _citations: Citation[],
-): LostPrompt[] {
+export function findLostPrompts(runs: PromptRun[], _citations: Citation[]): LostPrompt[] {
   const lostByPrompt = new Map<string, { run: PromptRun; urls: string[] }>();
 
   for (const run of runs) {

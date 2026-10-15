@@ -1,11 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import type { Part } from "@google/genai";
-import type {
-  ProviderAdapter,
-  CompletionRequest,
-  CompletionResponse,
-  ToolCall,
-} from "./types.js";
+import type { ProviderAdapter, CompletionRequest, CompletionResponse, ToolCall } from "./types.js";
 import { CircuitBreaker } from "./circuit-breaker.js";
 
 export class GeminiAdapter implements ProviderAdapter {
@@ -29,8 +24,8 @@ export class GeminiAdapter implements ProviderAdapter {
 
     try {
       const contents: string | Part[] = request.content
-        ? request.content.map(part => {
-            if (part.type === 'text') {
+        ? request.content.map((part) => {
+            if (part.type === "text") {
               return { text: part.text };
             }
             return {

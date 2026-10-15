@@ -1,4 +1,4 @@
-CREATE TABLE oauth_tokens (
+CREATE TABLE IF NOT EXISTS oauth_tokens (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id TEXT NOT NULL,
   provider TEXT NOT NULL,
@@ -11,5 +11,5 @@ CREATE TABLE oauth_tokens (
   UNIQUE (user_id, provider, site_url)
 );
 
-CREATE INDEX idx_oauth_tokens_user_provider_site
+CREATE INDEX IF NOT EXISTS idx_oauth_tokens_user_provider_site
   ON oauth_tokens (user_id, provider, site_url);

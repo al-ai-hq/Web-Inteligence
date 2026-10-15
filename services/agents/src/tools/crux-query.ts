@@ -27,9 +27,17 @@ export function createCruxQueryTool(fetchFn: typeof fetch, apiKey: string): Tool
 
         if (!response.ok) {
           if (response.status === 404) {
-            return { data: null, source_tier: "third_party_verified", limitations: ["Origin not found in CrUX dataset"] };
+            return {
+              data: null,
+              source_tier: "third_party_verified",
+              limitations: ["Origin not found in CrUX dataset"],
+            };
           }
-          return { data: null, source_tier: "third_party_verified", limitations: [`CrUX API returned ${String(response.status)}`] };
+          return {
+            data: null,
+            source_tier: "third_party_verified",
+            limitations: [`CrUX API returned ${String(response.status)}`],
+          };
         }
 
         const json = (await response.json()) as Record<string, unknown>;
@@ -38,8 +46,16 @@ export function createCruxQueryTool(fetchFn: typeof fetch, apiKey: string): Tool
 
         return {
           data: {
-            lcp_p75: (metrics?.["largest_contentful_paint"]?.["percentiles"] as Record<string, number> | undefined)?.["p75"] ?? null,
-            cls_p75: (metrics?.["cumulative_layout_shift"]?.["percentiles"] as Record<string, number> | undefined)?.["p75"] ?? null,
+            lcp_p75:
+              (
+                metrics?.["largest_contentful_paint"]?.["percentiles"] as
+                  Record<string, number> | undefined
+              )?.["p75"] ?? null,
+            cls_p75:
+              (
+                metrics?.["cumulative_layout_shift"]?.["percentiles"] as
+                  Record<string, number> | undefined
+              )?.["p75"] ?? null,
             url,
           },
           source_tier: "third_party_verified",

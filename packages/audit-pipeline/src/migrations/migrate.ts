@@ -28,16 +28,14 @@ export interface MigrationResult {
 
 export async function applyMigrations(
   pool: Pool,
-  migrationsDir: string = MIGRATIONS_DIR,
+  migrationsDir: string = process.env["WPI_MIGRATIONS_DIR"] ?? MIGRATIONS_DIR,
 ): Promise<MigrationResult> {
   const client = await pool.connect();
   try {
     await client.query(
       "CREATE TABLE IF NOT EXISTS schema_migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())",
     );
-    const files = (await readdir(migrationsDir))
-      .filter((name) => name.endsWith(".sql"))
-      .sort();
+    const files = (await readdir(migrationsDir)).filter((name) => name.endsWith(".sql")).sort();
     const applied: string[] = [];
     for (const name of files) {
       const seen = await client.query("SELECT 1 FROM schema_migrations WHERE name = $1", [name]);

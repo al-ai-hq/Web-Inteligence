@@ -27,8 +27,8 @@ export class Ga4Connector implements Connector {
     try {
       const client = new Ga4Client(context.auth.google.accessToken, propertyId);
       const dateRange = {
-        start: (new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString().split("T")[0] ?? ""),
-        end: (new Date().toISOString().split("T")[0] ?? ""),
+        start: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString().split("T")[0] ?? "",
+        end: new Date().toISOString().split("T")[0] ?? "",
       };
 
       const response = await client.getPageMetrics(dateRange, [url]);

@@ -14,9 +14,27 @@ export interface TierScope {
 }
 
 export const TIER_SCOPES: Record<Exclude<TierName, "refused">, TierScope> = {
-  rich: { maxPages: 20, actionBoardCap: 12, comparisons: 1, roadmap: true, aiVisibilityPanel: true },
-  reduced: { maxPages: 10, actionBoardCap: 12, comparisons: 0, roadmap: false, aiVisibilityPanel: false },
-  preview: { maxPages: 1, actionBoardCap: 3, comparisons: 0, roadmap: false, aiVisibilityPanel: false },
+  rich: {
+    maxPages: 20,
+    actionBoardCap: 12,
+    comparisons: 1,
+    roadmap: true,
+    aiVisibilityPanel: true,
+  },
+  reduced: {
+    maxPages: 10,
+    actionBoardCap: 12,
+    comparisons: 0,
+    roadmap: false,
+    aiVisibilityPanel: false,
+  },
+  preview: {
+    maxPages: 1,
+    actionBoardCap: 3,
+    comparisons: 0,
+    roadmap: false,
+    aiVisibilityPanel: false,
+  },
 };
 
 export function decideTier(counts: EligibilityCounts): Exclude<TierName, "refused"> {

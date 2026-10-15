@@ -1,9 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type {
-  ProviderAdapter,
-  CompletionRequest,
-  CompletionResponse,
-} from "./types.js";
+import type { ProviderAdapter, CompletionRequest, CompletionResponse } from "./types.js";
 import { CircuitBreaker } from "./circuit-breaker.js";
 
 export class ClaudeAdapter implements ProviderAdapter {

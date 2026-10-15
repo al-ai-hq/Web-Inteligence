@@ -2,16 +2,8 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import {
-  CostTracker,
-  type AgentResult,
-  type ExecuteAgentParams,
-} from "@wpi/agents";
-import {
-  M4_AGENT_NAMES,
-  runAgentStage,
-  type AgentStageDeps,
-} from "../src/agent-stage.js";
+import { CostTracker, type AgentResult, type ExecuteAgentParams } from "@wpi/agents";
+import { M4_AGENT_NAMES, runAgentStage, type AgentStageDeps } from "../src/agent-stage.js";
 import { FsEvidenceStorage } from "../src/evidence-storage.js";
 import { agentConfigSchema, loadAgentConfig } from "../src/agent-config.js";
 import { REPO_ROOT } from "../src/paths.js";
@@ -111,7 +103,7 @@ describe("runAgentStage", () => {
     const runner = vi.fn<(params: ExecuteAgentParams) => Promise<AgentResult>>();
     runner.mockResolvedValue(stubResult());
     await runAgentStage(makeDeps({ runner }));
-    const calls = runner.mock.calls.map((call) => call[0] as ExecuteAgentParams);
+    const calls = runner.mock.calls.map((call) => call[0]);
     const auditorCall = calls.find((params) => params.agentName === "auditor");
     expect(auditorCall?.allowedTools).toEqual(["get_evidence", "validate_schema"]);
     const contentCall = calls.find((params) => params.agentName === "content-strategist");

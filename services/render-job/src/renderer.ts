@@ -21,12 +21,7 @@ export async function renderPage(options: RenderPageOptions): Promise<RenderResu
 
   const browser = await chromium.launch({
     headless: true,
-    args: [
-      "--disable-gpu",
-      "--disable-dev-shm-usage",
-      "--disable-extensions",
-      "--no-sandbox",
-    ],
+    args: ["--disable-gpu", "--disable-dev-shm-usage", "--disable-extensions", "--no-sandbox"],
   });
 
   try {

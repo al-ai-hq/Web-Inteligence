@@ -66,9 +66,7 @@ describe("CruxConnector", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.unavailable_reason_key).toBe(
-        "unavailable.connector.crux.api_error",
-      );
+      expect(result.unavailable_reason_key).toBe("unavailable.connector.crux.api_error");
     }
   });
 });

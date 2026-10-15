@@ -197,7 +197,11 @@ describe("calculatePriority", () => {
     });
 
     it("uses effort=3 for i18n_accessibility", () => {
-      const rule = makeRule({ id: "I18N-001", importance_weight: 3, category: "i18n_accessibility" });
+      const rule = makeRule({
+        id: "I18N-001",
+        importance_weight: 3,
+        category: "i18n_accessibility",
+      });
       const finding = makeFinding({ rule_id: "I18N-001", category: "i18n_accessibility" });
       const items = calculatePriority([finding], [rule], {
         confidence_level: "high",
@@ -207,7 +211,11 @@ describe("calculatePriority", () => {
     });
 
     it("uses effort=3 for performance_security", () => {
-      const rule = makeRule({ id: "PRF-001", importance_weight: 3, category: "performance_security" });
+      const rule = makeRule({
+        id: "PRF-001",
+        importance_weight: 3,
+        category: "performance_security",
+      });
       const finding = makeFinding({ rule_id: "PRF-001", category: "performance_security" });
       const items = calculatePriority([finding], [rule], {
         confidence_level: "high",
@@ -447,9 +455,7 @@ describe("calculatePriority", () => {
       const findings = [
         makeFinding({ rule_id: "CRW-001", severity: "critical", category: "crawlability" }),
       ];
-      const unavailable = [
-        makeRuleResult({ rule_id: "GSC-001", result: "unavailable" }),
-      ];
+      const unavailable = [makeRuleResult({ rule_id: "GSC-001", result: "unavailable" })];
       const items = calculatePriority(findings, rules, {
         confidence_level: "high",
         pages_checked: 5,

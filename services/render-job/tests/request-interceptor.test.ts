@@ -75,9 +75,7 @@ describe("interceptRequest", () => {
     mockValidateUrl.mockResolvedValue({ valid: false, reason: "private IP" });
     const req = makeRequest("https://secret.internal.corps/metadata");
     await interceptRequest(req);
-    expect(console.warn).toHaveBeenCalledWith(
-      expect.stringContaining("secret.internal.corps"),
-    );
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("secret.internal.corps"));
     expect(console.warn).toHaveBeenCalledWith(
       expect.not.stringContaining("https://secret.internal.corps/metadata"),
     );

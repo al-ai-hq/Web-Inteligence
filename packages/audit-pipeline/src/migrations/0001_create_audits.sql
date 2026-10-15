@@ -1,4 +1,4 @@
-CREATE TABLE audits (
+CREATE TABLE IF NOT EXISTS audits (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   target_url text NOT NULL,
   locale text NOT NULL CHECK (locale IN ('en','ar')),
@@ -14,4 +14,4 @@ CREATE TABLE audits (
   expires_at timestamptz NOT NULL,
   deleted_at timestamptz
 );
-CREATE INDEX audits_expires_at_idx ON audits (expires_at);
+CREATE INDEX IF NOT EXISTS audits_expires_at_idx ON audits (expires_at);

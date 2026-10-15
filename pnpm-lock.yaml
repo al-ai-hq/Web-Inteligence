@@ -32,6 +32,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@marsidev/react-turnstile':
+        specifier: ^1.6.2
+        version: 1.6.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tailwindcss/postcss':
         specifier: ^4.3.3
         version: 4.3.3
@@ -59,6 +62,9 @@ importers:
       '@wpi/crawler':
         specifier: workspace:*
         version: link:../../services/crawler
+      '@wpi/email':
+        specifier: workspace:*
+        version: link:../../packages/email
       '@wpi/evidence-processor':
         specifier: workspace:*
         version: link:../../services/evidence-processor
@@ -80,6 +86,9 @@ importers:
       '@wpi/public-source-discovery':
         specifier: workspace:*
         version: link:../../packages/public-source-discovery
+      '@wpi/rate-limiter':
+        specifier: workspace:*
+        version: link:../../packages/rate-limiter
       '@wpi/render-job':
         specifier: workspace:*
         version: link:../../services/render-job
@@ -314,6 +323,18 @@ importers:
         specifier: ^2.1.1
         version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
 
+  packages/email:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.4
+      typescript:
+        specifier: ^5.6.0
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
+
   packages/experience-extractors:
     dependencies:
       cheerio:
@@ -439,6 +460,18 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^2.1.1
+        version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
+
+  packages/rate-limiter:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.4
+      typescript:
+        specifier: ^5.6.0
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.0
         version: 2.1.9(@types/node@22.20.4)(lightningcss@1.32.0)
 
   packages/rules-engine:
@@ -1063,6 +1096,12 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@marsidev/react-turnstile@1.6.2':
+    resolution: {integrity: sha512-0CL9hNI/t39C8JfBCHQWj+A7llq2xdf9cjg0bYVbiywQlVS0bi1LTTTnF3S59OaBYgc+tMrxMedSDICJfaAkdg==}
+    peerDependencies:
+      react: ^17.0.2 || ^18.0.0 || ^19.0
+      react-dom: ^17.0.2 || ^18.0.0 || ^19.0
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     resolution: {integrity: sha512-oTXEIha4SsuXdTA4Iyskj0kpdx2yVXdhd75c2v3xGrHFfVMsbhTPZU/nMPL4sWKo4pBHm3aucLaqGlF696dTyQ==}
@@ -3295,6 +3334,11 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
+  '@marsidev/react-turnstile@1.6.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+    dependencies:
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
+
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
 
@@ -3762,6 +3806,22 @@ snapshots:
       '@vitest/utils': 2.1.9
       chai: 5.3.3
       tinyrainbow: 1.2.0
+
+  '@vitest/mocker@2.1.9(vite@5.4.21(@types/node@22.20.4)(lightningcss@1.32.0))':
+    dependencies:
+      '@vitest/spy': 2.1.9
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 5.4.21(@types/node@22.20.4)(lightningcss@1.32.0)
+
+  '@vitest/mocker@2.1.9(vite@5.4.21(@types/node@26.6.3)(lightningcss@1.32.0))':
+    dependencies:
+      '@vitest/spy': 2.1.9
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 5.4.21(@types/node@26.6.3)(lightningcss@1.32.0)
 
   '@vitest/mocker@2.1.9(vite@5.4.21(@types/node@26.6.4)(lightningcss@1.32.0))':
     dependencies:
@@ -5067,7 +5127,7 @@ snapshots:
   vitest@2.1.9(@types/node@22.20.4)(lightningcss@1.32.0):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@26.6.4)(lightningcss@1.32.0))
+      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@22.20.4)(lightningcss@1.32.0))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9
@@ -5102,7 +5162,7 @@ snapshots:
   vitest@2.1.9(@types/node@26.6.3)(lightningcss@1.32.0):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@26.6.4)(lightningcss@1.32.0))
+      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@26.6.3)(lightningcss@1.32.0))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9

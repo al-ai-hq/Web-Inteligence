@@ -79,11 +79,14 @@ describe("handleAgentTask budget gate and cost record", () => {
   it("does not record cost on invalid payload (400)", async () => {
     const recordCost = vi.fn();
 
-    const result = await handleAgentTask({}, {
-      executeAgent: vi.fn(),
-      publishResult: vi.fn(),
-      recordCost,
-    });
+    const result = await handleAgentTask(
+      {},
+      {
+        executeAgent: vi.fn(),
+        publishResult: vi.fn(),
+        recordCost,
+      },
+    );
 
     expect(result.status).toBe(400);
     expect(recordCost).not.toHaveBeenCalled();
@@ -207,7 +210,10 @@ describe("handleAgentTask", () => {
       context: { site: "https://example.com", market: "US", language: "en" },
       capture_time: "2026-10-01T00:00:00Z",
     };
-    const result = await handleAgentTask(job, { executeAgent: mockExecute, publishResult: mockPublish });
+    const result = await handleAgentTask(job, {
+      executeAgent: mockExecute,
+      publishResult: mockPublish,
+    });
     expect(result.status).toBe(500);
     expect(mockPublish).not.toHaveBeenCalled();
   });

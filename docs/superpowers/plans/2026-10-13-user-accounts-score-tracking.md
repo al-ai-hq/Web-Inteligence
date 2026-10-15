@@ -33,6 +33,7 @@
 ### Task 1: `@wpi/auth` scaffold — password hashing and session cookie constants
 
 **Files:**
+
 - Create: `packages/auth/package.json`
 - Create: `packages/auth/tsconfig.json`
 - Create: `packages/auth/src/password.ts`
@@ -43,6 +44,7 @@
 - Modify: `pnpm-workspace.yaml` (add `packages/auth` if not already covered by glob)
 
 **Interfaces:**
+
 - Produces: `hashPassword(password: string): Promise<string>`, `verifyPassword(password: string, stored: string): Promise<boolean>`, `SCRYPT_N`, `SCRYPT_R`, `SCRYPT_P`, `SALT_BYTES`, `KEY_BYTES`
 - Produces: `SESSION_COOKIE_NAME`, `SESSION_MAX_AGE_SECONDS`, `sessionCookieOptions(): ResponseCookie`
 - Consumed by: Task 3 (auth service), Task 6 (container), Task 8 (routes), Task 9 (auth API), Task 11 (dashboard/layout)
@@ -206,10 +208,7 @@ export async function hashPassword(password: string): Promise<string> {
   return `${salt.toString("hex")}$${key.toString("hex")}`;
 }
 
-export async function verifyPassword(
-  password: string,
-  stored: string,
-): Promise<boolean> {
+export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const separator = stored.indexOf("$");
   if (separator === -1) {
     return false;
@@ -346,6 +345,7 @@ git commit -m "feat(auth): scaffold @wpi/auth with password hashing and session 
 ### Task 2: Zod schemas and rate limiter
 
 **Files:**
+
 - Create: `packages/auth/src/schemas.ts`
 - Create: `packages/auth/src/rate-limit.ts`
 - Modify: `packages/auth/src/index.ts`
@@ -353,6 +353,7 @@ git commit -m "feat(auth): scaffold @wpi/auth with password hashing and session 
 - Create: `packages/auth/tests/rate-limit.test.ts`
 
 **Interfaces:**
+
 - Produces: `signupSchema`, `loginSchema`, `emailSchema`, `passwordSchema`
 - Produces: `class RateLimiter` with `isBlocked(key, now?)`, `recordFailure(key, now?)`, `reset(key)`
 - Consumed by: Task 9 (auth API routes)
@@ -603,11 +604,13 @@ git commit -m "feat(auth): add zod schemas and rate limiter"
 ### Task 3: AuthService interface and InMemoryAuthService
 
 **Files:**
+
 - Create: `packages/auth/src/auth-service.ts`
 - Modify: `packages/auth/src/index.ts`
 - Create: `packages/auth/tests/auth-service.test.ts`
 
 **Interfaces:**
+
 - Produces: `AuthService` interface, `InMemoryAuthService`, `SessionUser`, `CreatedSession`, `DuplicateEmailError`, `generateSessionToken()`, `hashToken(token)`, `SESSION_TTL_MS`, `SESSION_RENEWAL_THRESHOLD_MS`
 - Consumed by: Task 5 (PgAuthService), Task 6 (container), Task 8 (routes), Task 9 (auth API)
 
@@ -649,9 +652,9 @@ describe("InMemoryAuthService", () => {
   it("rejects duplicate email", async () => {
     const auth = new InMemoryAuthService();
     await auth.createUser("user@example.com", "password123");
-    await expect(
-      auth.createUser("  USER@Example.COM  ", "other-password"),
-    ).rejects.toThrow(DuplicateEmailError);
+    await expect(auth.createUser("  USER@Example.COM  ", "other-password")).rejects.toThrow(
+      DuplicateEmailError,
+    );
   });
 
   it("verifies credentials with padded uppercase email", async () => {
@@ -864,10 +867,7 @@ export class InMemoryAuthService implements AuthService {
     return { id: user.id, email: user.email };
   }
 
-  async verifyCredentials(
-    email: string,
-    password: string,
-  ): Promise<SessionUser | null> {
+  async verifyCredentials(email: string, password: string): Promise<SessionUser | null> {
     const user = this.usersByEmail.get(normalizeEmail(email));
     if (!user) {
       await hashPassword(password);
@@ -880,9 +880,7 @@ export class InMemoryAuthService implements AuthService {
   }
 
   async createSession(userId: string): Promise<CreatedSession> {
-    const user = [...this.usersByEmail.values()].find(
-      (candidate) => candidate.id === userId,
-    );
+    const user = [...this.usersByEmail.values()].find((candidate) => candidate.id === userId);
     if (!user) {
       throw new Error(`Unknown user ${userId}`);
     }
@@ -951,6 +949,7 @@ git commit -m "feat(auth): add AuthService interface and InMemoryAuthService"
 ### Task 4: Migrations 0016/0017 and audit store ownership
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/migrations/0016_create_users_sessions.sql`
 - Create: `packages/audit-pipeline/src/migrations/0017_audits_user_ownership.sql`
 - Modify: `packages/audit-pipeline/src/audit-store.ts`
@@ -962,6 +961,7 @@ git commit -m "feat(auth): add AuthService interface and InMemoryAuthService"
 - Modify: `apps/web/src/services/access.ts`
 
 **Interfaces:**
+
 - Consumes: `AuditStore` interface from Task 4's own file (same package)
 - Produces: `AuditRecord.user_id: string | null`, `AuditRecord.expires_at: string | null`, `CreateAuditInput.userId?: string | null`, `AuditStore.listByUser(userId): Promise<AuditRecord[]>`
 - Consumed by: Task 6 (POST route), Task 8 (access guard), Task 10 (dashboard)
@@ -1202,6 +1202,7 @@ In `packages/audit-pipeline/src/audit-store.ts`:
 6. In `InMemoryAuditStore.sweepExpired()` (line 174–188), add `row.expires_at !== null &&` to the filter condition.
 
 7. Add new method to `InMemoryAuditStore`:
+
 ```typescript
 async listByUser(userId: string): Promise<AuditRecord[]> {
   const records = [...this.rows.values()]
@@ -1238,6 +1239,7 @@ In `packages/audit-pipeline/src/postgres-audit-store.ts`:
    - New: `if (raw.expires_at !== null && new Date(raw.expires_at).getTime() <= Date.now()) {`
 
 5. Add new method:
+
 ```typescript
 async listByUser(userId: string): Promise<AuditRecord[]> {
   const result = await this.pool.query<AuditRow>(
@@ -1261,7 +1263,13 @@ Create `packages/audit-pipeline/tests/postgres-ownership.test.ts`:
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
-import { PostgresAuditStore, applyMigrations, hashAuditSecret, generateAuditSecret, type AuditContext } from "../src/index.js";
+import {
+  PostgresAuditStore,
+  applyMigrations,
+  hashAuditSecret,
+  generateAuditSecret,
+  type AuditContext,
+} from "../src/index.js";
 
 const DATABASE_URL = process.env["WPI_TEST_DATABASE_URL"];
 
@@ -1376,6 +1384,7 @@ export default defineConfig({
 - [ ] **Step 10: Update access.ts null-guard for expires_at**
 
 In `apps/web/src/services/access.ts`, change line 38:
+
 - Old: `if (new Date(raw.expires_at).getTime() <= Date.now()) {`
 - New: `if (raw.expires_at !== null && new Date(raw.expires_at).getTime() <= Date.now()) {`
 
@@ -1396,11 +1405,13 @@ git commit -m "feat(audit-pipeline): add user ownership migrations and store sup
 ### Task 5: PgAuthService
 
 **Files:**
+
 - Create: `packages/auth/src/pg-auth-service.ts`
 - Modify: `packages/auth/src/index.ts`
 - Create: `packages/auth/tests/pg-auth-service.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AuthService`, `hashPassword`, `verifyPassword`, `generateSessionToken`, `hashToken`, `SESSION_TTL_MS`, `DuplicateEmailError`
 - Produces: `PgAuthService implements AuthService`
 - Consumed by: Task 6 (container wiring)
@@ -1433,7 +1444,10 @@ describe.skipIf(!DATABASE_URL)("PgAuthService", () => {
     await pool.query("DROP TABLE IF EXISTS users CASCADE");
     await pool.query("DROP TABLE IF EXISTS schema_migrations");
     const sql = await readFile(
-      new URL("../../audit-pipeline/src/migrations/0016_create_users_sessions.sql", import.meta.url),
+      new URL(
+        "../../audit-pipeline/src/migrations/0016_create_users_sessions.sql",
+        import.meta.url,
+      ),
       "utf8",
     );
     await pool.query(sql);
@@ -1545,10 +1559,7 @@ export class PgAuthService implements AuthService {
     }
   }
 
-  async verifyCredentials(
-    email: string,
-    password: string,
-  ): Promise<SessionUser | null> {
+  async verifyCredentials(email: string, password: string): Promise<SessionUser | null> {
     const normalized = email.trim().toLowerCase();
     const result = await this.pool.query<{ id: string; email: string; password_hash: string }>(
       "SELECT id, email, password_hash FROM users WHERE email = $1",
@@ -1644,6 +1655,7 @@ git commit -m "feat(auth): add PgAuthService with sliding renewal"
 ### Task 6: Container wiring and POST route session branch
 
 **Files:**
+
 - Modify: `apps/web/package.json`
 - Modify: `apps/web/src/services/container.ts`
 - Modify: `apps/web/src/app/api/audits/route.ts`
@@ -1651,6 +1663,7 @@ git commit -m "feat(auth): add PgAuthService with sliding renewal"
 - Modify: `apps/web/src/test/api-routes.test.ts`
 
 **Interfaces:**
+
 - Consumes: `InMemoryAuthService`, `PgAuthService`, `RateLimiter`, `AuthService` from `@wpi/auth`
 - Produces: `AuditServices.auth`, `AuditServices.rateLimiter`, POST route reads session and passes `userId`
 - Consumed by: Task 8 (access guard), Task 9 (auth API)
@@ -1664,17 +1677,20 @@ In `apps/web/package.json`, insert `"@wpi/auth": "workspace:*",` after `"@wpi/au
 In `apps/web/src/test/api-audits-post.test.ts`:
 
 1. Add imports at the top:
+
 ```typescript
 import { InMemoryAuthService, RateLimiter } from "@wpi/auth";
 ```
 
 2. In `makeServices()`, add after `cookieSecret`:
+
 ```typescript
 auth: new InMemoryAuthService(),
 rateLimiter: new RateLimiter(),
 ```
 
 3. Add a `cookie` parameter to `makeRequest`:
+
 ```typescript
 function makeRequest(body: unknown, cookie?: string): NextRequest {
   return new NextRequest("http://localhost:3000/api/audits", {
@@ -1702,9 +1718,7 @@ it("creates an owned audit when signed in", async () => {
   const user = await auth.createUser("owner@example.com", "password123");
   const session = await auth.createSession(user.id);
 
-  const response = await POST(
-    makeRequest(VALID_BODY, `wpi_session=${session.token}`),
-  );
+  const response = await POST(makeRequest(VALID_BODY, `wpi_session=${session.token}`));
 
   expect(response.status).toBe(201);
   const body = (await response.json()) as { id: string; redirect_url: string | null };
@@ -1736,24 +1750,28 @@ Expected: FAIL — `auth` and `rateLimiter` not in `AuditServices`
 In `apps/web/src/services/container.ts`:
 
 1. Add imports:
+
 ```typescript
 import { InMemoryAuthService, PgAuthService, RateLimiter } from "@wpi/auth";
 import type { AuthService } from "@wpi/auth";
 ```
 
 2. Add to `AuditServices` interface (after `cookieSecret: string;`):
+
 ```typescript
 auth: AuthService;
 rateLimiter: RateLimiter;
 ```
 
 3. In the stub return (around line 300–304), add after `cookieSecret`:
+
 ```typescript
 auth: new InMemoryAuthService(),
 rateLimiter: new RateLimiter(),
 ```
 
 4. In the non-stub return (around line 340–348), add after `cookieSecret,`:
+
 ```typescript
 auth: new PgAuthService(pool),
 rateLimiter: new RateLimiter(),
@@ -1764,21 +1782,22 @@ rateLimiter: new RateLimiter(),
 In `apps/web/src/app/api/audits/route.ts`:
 
 1. Add import:
+
 ```typescript
 import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
 ```
 
 2. After `const services = await getAuditServices();` (line 30), add:
+
 ```typescript
-const sessionTokenHash = hashToken(
-  request.cookies.get(SESSION_COOKIE_NAME)?.value ?? "",
-);
+const sessionTokenHash = hashToken(request.cookies.get(SESSION_COOKIE_NAME)?.value ?? "");
 const user = await services.auth.getSessionUser(sessionTokenHash);
 ```
 
 3. In the `store.create()` call, add `userId: user?.id ?? null,`
 
 4. In the response body, add `redirect_url`:
+
 ```typescript
 { id: record.id, secret, status_url: `/${parsed.data.locale}/audit/${record.id}`, redirect_url: user ? `/${parsed.data.locale}/dashboard` : null }
 ```
@@ -1822,10 +1841,12 @@ git commit -m "feat(web): wire auth services into container and add session-awar
 ### Task 7: i18n keys for auth, dashboard, account, and new status stages
 
 **Files:**
+
 - Modify: `apps/web/src/messages/en.json`
 - Modify: `apps/web/src/messages/ar.json`
 
 **Interfaces:**
+
 - Consumes: existing `nav`, `status` namespaces
 - Produces: new keys in `nav`, `status`, plus new `auth`, `dashboard`, `account` namespaces
 
@@ -1834,6 +1855,7 @@ git commit -m "feat(web): wire auth services into container and add session-awar
 In `apps/web/src/messages/en.json`:
 
 1. In `nav`, add:
+
 ```json
 "sign_in": "Sign in",
 "sign_up": "Sign up",
@@ -1842,6 +1864,7 @@ In `apps/web/src/messages/en.json`:
 ```
 
 2. In `status`, add:
+
 ```json
 "stage_ENRICHING_OPTIONAL": "Enriching",
 "stage_FAILED": "Failed",
@@ -1850,6 +1873,7 @@ In `apps/web/src/messages/en.json`:
 ```
 
 3. Add new top-level namespace `auth`:
+
 ```json
 "auth": {
   "signup_title": "Create your account",
@@ -1871,6 +1895,7 @@ In `apps/web/src/messages/en.json`:
 ```
 
 4. Add new top-level namespace `dashboard`:
+
 ```json
 "dashboard": {
   "title": "Your audits",
@@ -1888,6 +1913,7 @@ In `apps/web/src/messages/en.json`:
 ```
 
 5. Add new top-level namespace `account`:
+
 ```json
 "account": {
   "report_signup_cta": "Sign up to keep reports forever →"
@@ -1899,6 +1925,7 @@ In `apps/web/src/messages/en.json`:
 Same structure with Arabic translations:
 
 1. In `nav`:
+
 ```json
 "sign_in": "تسجيل الدخول",
 "sign_up": "إنشاء حساب",
@@ -1907,6 +1934,7 @@ Same structure with Arabic translations:
 ```
 
 2. In `status`:
+
 ```json
 "stage_ENRICHING_OPTIONAL": "إثراء",
 "stage_FAILED": "فشل",
@@ -1915,6 +1943,7 @@ Same structure with Arabic translations:
 ```
 
 3. New `auth` namespace:
+
 ```json
 "auth": {
   "signup_title": "أنشئ حسابك",
@@ -1936,6 +1965,7 @@ Same structure with Arabic translations:
 ```
 
 4. New `dashboard` namespace:
+
 ```json
 "dashboard": {
   "title": "تدقيقاتك",
@@ -1953,6 +1983,7 @@ Same structure with Arabic translations:
 ```
 
 5. New `account` namespace:
+
 ```json
 "account": {
   "report_signup_cta": "أنشئ حسابًا للاحتفاظ بتقاريرك للأبد ←"
@@ -1976,6 +2007,7 @@ git commit -m "feat(web): add i18n keys for auth, dashboard, account, and new st
 ### Task 8: Owned-access guard and caller updates
 
 **Files:**
+
 - Modify: `apps/web/src/services/access.ts`
 - Modify: `apps/web/src/app/[locale]/audit/[id]/page.tsx`
 - Modify: `apps/web/src/app/api/audits/[id]/status/route.ts`
@@ -1983,6 +2015,7 @@ git commit -m "feat(web): add i18n keys for auth, dashboard, account, and new st
 - Modify: `apps/web/src/test/api-routes.test.ts`
 
 **Interfaces:**
+
 - Consumes: `authorizeRecord` gains 4th param `userId?: string | null`
 - Consumes: `services.auth.getSessionUser(tokenHash)` from container
 - Produces: owned audits accessible without `?s=` for the owner
@@ -1992,7 +2025,11 @@ git commit -m "feat(web): add i18n keys for auth, dashboard, account, and new st
 In `apps/web/src/test/api-routes.test.ts`, add a helper and 3 tests:
 
 ```typescript
-async function seedOwnedStore(): Promise<{ store: InMemoryAuditStore; id: string; secret: string }> {
+async function seedOwnedStore(): Promise<{
+  store: InMemoryAuditStore;
+  id: string;
+  secret: string;
+}> {
   const store = new InMemoryAuditStore();
   const secret = generateAuditSecret();
   const record = await store.create({
@@ -2048,8 +2085,7 @@ export async function authorizeRecord(
   if (raw === null) {
     return { kind: "not_found" };
   }
-  const ownedByCaller =
-    userId !== undefined && userId !== null && raw.user_id === userId;
+  const ownedByCaller = userId !== undefined && userId !== null && raw.user_id === userId;
   if (!ownedByCaller && !hashesMatch(hashAuditSecret(secret ?? ""), raw.secret_hash)) {
     return { kind: "not_found" };
   }
@@ -2069,12 +2105,14 @@ export async function authorizeRecord(
 In `apps/web/src/app/[locale]/audit/[id]/page.tsx`:
 
 1. Add imports:
+
 ```typescript
 import { cookies } from "next/headers";
 import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
 ```
 
 2. After `const services = await getAuditServices();` (line 37), add:
+
 ```typescript
 const cookieStore = await cookies();
 const user = await services.auth.getSessionUser(
@@ -2083,31 +2121,35 @@ const user = await services.auth.getSessionUser(
 ```
 
 3. Change line 38 from:
+
 ```typescript
 const outcome = await authorizeRecord(services.store, id, s);
 ```
+
 to:
+
 ```typescript
 const outcome = await authorizeRecord(services.store, id, s, user?.id ?? null);
 ```
 
 4. After the `ReportView` return (around line 81–86), add a signup CTA for anonymous users. Add import:
+
 ```typescript
 import { getTranslations } from "next-intl/server";
 ```
+
 And before the return, add:
+
 ```typescript
 const tAccount = await getTranslations({ locale, namespace: "account" });
 ```
+
 Then wrap the ReportView return to include the CTA:
+
 ```tsx
 return (
   <>
-    <ReportView
-      record={{ ...safeRecord, report }}
-      locale={locale}
-      secret={s ?? ""}
-    />
+    <ReportView record={{ ...safeRecord, report }} locale={locale} secret={s ?? ""} />
     {user === null ? (
       <p className="mt-6 text-center">
         <Link href="/signup" className="underline">
@@ -2124,11 +2166,13 @@ return (
 In `apps/web/src/app/api/audits/[id]/status/route.ts`:
 
 1. Add import:
+
 ```typescript
 import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
 ```
 
 2. After `const services = await getAuditServices();` (line 23), add:
+
 ```typescript
 const user = await services.auth.getSessionUser(
   hashToken(request.cookies.get(SESSION_COOKIE_NAME)?.value ?? ""),
@@ -2136,6 +2180,7 @@ const user = await services.auth.getSessionUser(
 ```
 
 3. Change the authorizeRecord call:
+
 ```typescript
 const outcome = await authorizeRecord(services.store, id, secret, user?.id ?? null);
 ```
@@ -2145,11 +2190,13 @@ const outcome = await authorizeRecord(services.store, id, secret, user?.id ?? nu
 In `apps/web/src/app/api/audits/[id]/route.ts`:
 
 1. Add import:
+
 ```typescript
 import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
 ```
 
 2. After `const services = await getAuditServices();` (line 18), add:
+
 ```typescript
 const user = await services.auth.getSessionUser(
   hashToken(request.cookies.get(SESSION_COOKIE_NAME)?.value ?? ""),
@@ -2157,6 +2204,7 @@ const user = await services.auth.getSessionUser(
 ```
 
 3. Change the authorizeRecord call:
+
 ```typescript
 const outcome = await authorizeRecord(services.store, id, secret, user?.id ?? null);
 ```
@@ -2178,6 +2226,7 @@ git commit -m "feat(web): add owned-access branch to authorizeRecord and update 
 ### Task 9: Auth API routes (signup, login, logout)
 
 **Files:**
+
 - Create: `apps/web/src/services/client-ip.ts`
 - Create: `apps/web/src/app/api/auth/signup/route.ts`
 - Create: `apps/web/src/app/api/auth/login/route.ts`
@@ -2185,6 +2234,7 @@ git commit -m "feat(web): add owned-access branch to authorizeRecord and update 
 - Create: `apps/web/src/test/auth-routes.test.ts`
 
 **Interfaces:**
+
 - Consumes: `signupSchema`, `loginSchema`, `DuplicateEmailError`, `SESSION_COOKIE_NAME`, `sessionCookieOptions`, `hashToken` from `@wpi/auth`
 - Consumes: `getAuditServices()` for `auth` and `rateLimiter`
 - Produces: POST /api/auth/signup, POST /api/auth/login, POST /api/auth/logout
@@ -2218,11 +2268,7 @@ function makeServices(): AuditServices {
   };
 }
 
-function authRequest(
-  url: string,
-  body: unknown,
-  headers?: Record<string, string>,
-): NextRequest {
+function authRequest(url: string, body: unknown, headers?: Record<string, string>): NextRequest {
   return new NextRequest(url, {
     method: "POST",
     headers: {
@@ -2260,9 +2306,7 @@ describe("POST /api/auth/signup", () => {
       confirm_password: "password123",
     };
     await signupPOST(authRequest("http://localhost:3000/api/auth/signup", body));
-    const response = await signupPOST(
-      authRequest("http://localhost:3000/api/auth/signup", body),
-    );
+    const response = await signupPOST(authRequest("http://localhost:3000/api/auth/signup", body));
     expect(response.status).toBe(409);
   });
 
@@ -2442,11 +2486,7 @@ Create `apps/web/src/app/api/auth/login/route.ts`:
 
 ```typescript
 import { NextResponse, type NextRequest } from "next/server";
-import {
-  loginSchema,
-  SESSION_COOKIE_NAME,
-  sessionCookieOptions,
-} from "@wpi/auth";
+import { loginSchema, SESSION_COOKIE_NAME, sessionCookieOptions } from "@wpi/auth";
 import { getAuditServices } from "../../../../services/container";
 import { getClientIp } from "../../../../services/client-ip";
 
@@ -2540,6 +2580,7 @@ git commit -m "feat(web): add auth API routes for signup, login, and logout"
 ### Task 10: Dashboard page with trend chart and audit list
 
 **Files:**
+
 - Create: `apps/web/src/app/[locale]/_components/trend-series.ts`
 - Create: `apps/web/src/app/[locale]/_components/trend-chart.tsx`
 - Create: `apps/web/src/app/[locale]/_components/audit-list.tsx`
@@ -2548,6 +2589,7 @@ git commit -m "feat(web): add auth API routes for signup, login, and logout"
 - Create: `apps/web/src/test/trend-series.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AuditStore.listByUser()`, `services.auth.getSessionUser()`
 - Produces: Dashboard page at `/[locale]/dashboard`
 
@@ -2631,9 +2673,7 @@ interface TrendRecord {
 
 export function buildTrendSeries(records: TrendRecord[]): TrendPoint[] {
   return [...records]
-    .filter(
-      (record) => typeof record.report?.score?.presence_readiness === "number",
-    )
+    .filter((record) => typeof record.report?.score?.presence_readiness === "number")
     .sort((a, b) => a.created_at.localeCompare(b.created_at))
     .map((record) => ({
       date: record.created_at,
@@ -2666,13 +2706,7 @@ interface TrendRecord {
   report: { score: { presence_readiness: number | null } | null } | null;
 }
 
-export function TrendChart({
-  records,
-  locale,
-}: {
-  records: TrendRecord[];
-  locale: string;
-}) {
+export function TrendChart({ records, locale }: { records: TrendRecord[]; locale: string }) {
   const t = useTranslations("dashboard");
   const points = buildTrendSeries(records);
 
@@ -2680,8 +2714,7 @@ export function TrendChart({
     return null;
   }
 
-  const stepX =
-    points.length > 1 ? (WIDTH - PAD_X * 2) / (points.length - 1) : 0;
+  const stepX = points.length > 1 ? (WIDTH - PAD_X * 2) / (points.length - 1) : 0;
 
   const pathD = points
     .map((point, i) => {
@@ -2708,14 +2741,7 @@ export function TrendChart({
         const y = HEIGHT - PAD_Y - (value / 100) * (HEIGHT - PAD_Y * 2);
         return (
           <g key={value}>
-            <line
-              x1={PAD_X}
-              y1={y}
-              x2={WIDTH - PAD_X}
-              y2={y}
-              stroke="#e5e5e5"
-              strokeWidth={1}
-            />
+            <line x1={PAD_X} y1={y} x2={WIDTH - PAD_X} y2={y} stroke="#e5e5e5" strokeWidth={1} />
             <text x={4} y={y + 4} className="fill-neutral-400" fontSize={10}>
               {value}
             </text>
@@ -2725,8 +2751,7 @@ export function TrendChart({
       <path d={pathD} fill="none" stroke={SCORE_LINE_COLOR} strokeWidth={2} />
       {points.map((point, i) => {
         const x = PAD_X + i * stepX;
-        const y =
-          HEIGHT - PAD_Y - (point.score / 100) * (HEIGHT - PAD_Y * 2);
+        const y = HEIGHT - PAD_Y - (point.score / 100) * (HEIGHT - PAD_Y * 2);
         return (
           <circle key={point.date} cx={x} cy={y} r={3} fill={SCORE_LINE_COLOR}>
             <title>
@@ -2749,13 +2774,7 @@ import { getTranslations } from "next-intl/server";
 import type { AuditRecord } from "@wpi/audit-pipeline";
 import { Link } from "../../../i18n/navigation";
 
-export async function AuditList({
-  records,
-  locale,
-}: {
-  records: AuditRecord[];
-  locale: string;
-}) {
+export async function AuditList({ records, locale }: { records: AuditRecord[]; locale: string }) {
   const t = await getTranslations({ locale, namespace: "dashboard" });
   const tStatus = await getTranslations({ locale, namespace: "status" });
   const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
@@ -2773,14 +2792,11 @@ export async function AuditList({
       <tbody>
         {records.map((record) => {
           const hostname = new URL(record.target_url).hostname;
-          const score =
-            record.report?.score?.presence_readiness ?? null;
+          const score = record.report?.score?.presence_readiness ?? null;
           return (
             <tr key={record.id} className="border-b border-neutral-100">
               <td className="py-2">{hostname}</td>
-              <td className="py-2">
-                {dateFormatter.format(new Date(record.created_at))}
-              </td>
+              <td className="py-2">{dateFormatter.format(new Date(record.created_at))}</td>
               <td className="py-2">
                 {tStatus(`stage_${record.status}`)}
                 {score !== null ? (
@@ -2854,11 +2870,7 @@ export const dynamic = "force-dynamic";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-export default async function DashboardPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -2890,8 +2902,7 @@ export default async function DashboardPage({
     );
   }
 
-  const latestScore =
-    records[0]?.report?.score?.presence_readiness ?? null;
+  const latestScore = records[0]?.report?.score?.presence_readiness ?? null;
 
   const daysSinceLastAudit = Math.floor(
     (Date.now() - new Date(records[0]!.created_at).getTime()) / DAY_MS,
@@ -2901,9 +2912,7 @@ export default async function DashboardPage({
     <div className="space-y-8 py-8">
       <h1 className="text-2xl font-semibold">{t("title")}</h1>
       {latestScore !== null ? (
-        <p className="text-lg">
-          {t("score", { score: latestScore })}
-        </p>
+        <p className="text-lg">{t("score", { score: latestScore })}</p>
       ) : null}
       <TrendChart records={records} locale={locale} />
       <AuditList records={records} locale={locale} />
@@ -2930,6 +2939,7 @@ git commit -m "feat(web): add dashboard page with trend chart, audit list, and r
 ### Task 11: Login/signup pages, header, and form redirect
 
 **Files:**
+
 - Create: `apps/web/src/app/[locale]/_components/auth-form.tsx`
 - Create: `apps/web/src/app/[locale]/_components/sign-out-button.tsx`
 - Create: `apps/web/src/app/[locale]/login/page.tsx`
@@ -2939,6 +2949,7 @@ git commit -m "feat(web): add dashboard page with trend chart, audit list, and r
 - Modify: `apps/web/src/app/[locale]/_components/create-audit-client.ts`
 
 **Interfaces:**
+
 - Consumes: auth API routes from Task 9, i18n keys from Task 7
 - Produces: `/[locale]/login`, `/[locale]/signup` pages, header auth links, form redirect for signed-in users
 
@@ -2995,9 +3006,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     }
 
     if (!response.ok) {
-      const responseBody = (await response.json().catch(() => null)) as
-        | { error?: string }
-        | null;
+      const responseBody = (await response.json().catch(() => null)) as { error?: string } | null;
       setError(t(`error_${responseBody?.error ?? "generic"}`));
       setSubmitting(false);
       return;
@@ -3125,11 +3134,7 @@ Create `apps/web/src/app/[locale]/login/page.tsx`:
 import { setRequestLocale } from "next-intl/server";
 import { AuthForm } from "../_components/auth-form";
 
-export default async function LoginPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   return <AuthForm mode="login" />;
@@ -3144,11 +3149,7 @@ Create `apps/web/src/app/[locale]/signup/page.tsx`:
 import { setRequestLocale } from "next-intl/server";
 import { AuthForm } from "../_components/auth-form";
 
-export default async function SignupPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function SignupPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   return <AuthForm mode="signup" />;
@@ -3160,6 +3161,7 @@ export default async function SignupPage({
 In `apps/web/src/app/[locale]/layout.tsx`:
 
 1. Add imports:
+
 ```typescript
 import { cookies } from "next/headers";
 import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
@@ -3168,6 +3170,7 @@ import { SignOutButton } from "./_components/sign-out-button";
 ```
 
 2. After `setRequestLocale(locale);` (line 46), add:
+
 ```typescript
 const services = await getAuditServices();
 const cookieStore = await cookies();
@@ -3177,6 +3180,7 @@ const user = await services.auth.getSessionUser(
 ```
 
 3. Replace the header nav `<div>` (lines 60–64) with:
+
 ```tsx
 <div className="flex gap-4 text-sm">
   <Link href="/methodology">{t("methodology")}</Link>
@@ -3206,16 +3210,16 @@ const user = await services.auth.getSessionUser(
 In `apps/web/src/app/[locale]/_components/audit-form.tsx`, change the success branch (lines 45–49):
 
 Old:
+
 ```typescript
 if (result.ok) {
-  window.location.assign(
-    `${result.data.status_url}?s=${encodeURIComponent(result.data.secret)}`,
-  );
+  window.location.assign(`${result.data.status_url}?s=${encodeURIComponent(result.data.secret)}`);
   return;
 }
 ```
 
 New:
+
 ```typescript
 if (result.ok) {
   window.location.assign(
@@ -3232,6 +3236,7 @@ if (result.ok) {
 In `apps/web/src/app/[locale]/_components/create-audit-client.ts`:
 
 1. Add `redirect_url` to `CreateAuditSuccess`:
+
 ```typescript
 export interface CreateAuditSuccess {
   id: string;
@@ -3242,6 +3247,7 @@ export interface CreateAuditSuccess {
 ```
 
 2. Add validation guard in the 201 branch:
+
 ```typescript
 if (
   typeof candidate.id === "string" &&
@@ -3268,11 +3274,13 @@ git commit -m "feat(web): add login/signup pages, header auth links, and form re
 ### Task 12: Stub score and e2e account journey
 
 **Files:**
+
 - Modify: `packages/audit-pipeline/src/dispatcher.ts`
 - Modify: `packages/audit-pipeline/tests/dispatcher.test.ts`
 - Create: `apps/web/e2e/account-journey.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `ScoreResult` from `@wpi/rules-engine`
 - Produces: StubDispatcher emits `score: { presence_readiness: 72, ... }` instead of `score: null`
 
@@ -3316,11 +3324,13 @@ Expected: FAIL — `expected undefined to be 72`
 In `packages/audit-pipeline/src/dispatcher.ts`:
 
 1. Add import at the top:
+
 ```typescript
 import type { ScoreResult } from "@wpi/rules-engine";
 ```
 
 2. Before the envelope construction (before line 143), add:
+
 ```typescript
 const score: ScoreResult = {
   methodology_version: "stub",
@@ -3436,11 +3446,13 @@ git commit -m "feat: emit stub score and add e2e account journey test"
 ### Task 13: Spec fix and full verification
 
 **Files:**
+
 - Modify: `docs/superpowers/specs/2026-10-13-user-accounts-score-tracking-design.md`
 
 - [ ] **Step 1: Fix spec line 150**
 
 The spec says:
+
 > The export-authorization path gains the same owned-access branch.
 
 This is inaccurate — exports stay denied for everyone per D-022. Change line 150 to:

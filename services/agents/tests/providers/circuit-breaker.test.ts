@@ -90,7 +90,8 @@ describe("CircuitBreaker", () => {
   });
 
   it("default constructor uses default config (backward compatible)", async () => {
-    const { DEFAULT_CIRCUIT_BREAKER_CONFIG } = await import("../../src/providers/circuit-breaker.js");
+    const { DEFAULT_CIRCUIT_BREAKER_CONFIG } =
+      await import("../../src/providers/circuit-breaker.js");
     expect(DEFAULT_CIRCUIT_BREAKER_CONFIG.failureThreshold).toBe(3);
     expect(DEFAULT_CIRCUIT_BREAKER_CONFIG.cooldownMs).toBe(15 * 60 * 1000);
     const cb = new CircuitBreaker();

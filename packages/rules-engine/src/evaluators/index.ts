@@ -7,13 +7,94 @@
 
 import type { Evaluator, PageEvaluator } from "../types.js";
 
-import { evalCRW001, evalCRW002, evalCRW003, evalCRW004, evalCRW005, evalCRW006, evalCRW007, evalCRW008, evalCRW009, evalCRW010, evalCRW011, evalCRW012 } from "./crawl.js";
-import { evalSEO001, evalSEO002, evalSEO003, evalSEO004, evalSEO005, evalSEO006, evalSEO007, evalSEO008, evalSEO009, evalSEO010, evalSEO011, evalSEO012, evalSPAM001 } from "./seo.js";
-import { evalSTR001, evalSTR002, evalSTR003, evalSTR004, evalSTR005, evalSTR006, evalSTR007, evalSTR008 } from "./structured-data.js";
-import { evalAEO001, evalAEO002, evalAEO003, evalAEO004, evalAEO005, evalAEO006, evalAEO007, evalAEO008, evalAEO009, evalAEO010, evalAEO011 } from "./aeo.js";
-import { evalGEO001, evalGEO002, evalGEO003, evalGEO004, evalGEO005, evalGEO006, evalGEO007, evalGEO008, evalGEO009, evalGEO010, evalGEO011 } from "./geo.js";
-import { evalI18N001, evalI18N002, evalI18N003, evalI18N004, evalA11Y001, evalA11Y002, evalA11Y003, evalA11Y004, evalMOB001, evalAGT001, evalAGT002 } from "./i18n-accessibility.js";
-import { evalPRF001, evalPRF002, evalPRF003, evalPRF004, evalSEC001, evalSEC002, evalSEC003, evalDEL001 } from "./performance-security.js";
+import {
+  evalCRW001,
+  evalCRW002,
+  evalCRW003,
+  evalCRW004,
+  evalCRW005,
+  evalCRW006,
+  evalCRW007,
+  evalCRW008,
+  evalCRW009,
+  evalCRW010,
+  evalCRW011,
+  evalCRW012,
+} from "./crawl.js";
+import {
+  evalSEO001,
+  evalSEO002,
+  evalSEO003,
+  evalSEO004,
+  evalSEO005,
+  evalSEO006,
+  evalSEO007,
+  evalSEO008,
+  evalSEO009,
+  evalSEO010,
+  evalSEO011,
+  evalSEO012,
+  evalSPAM001,
+} from "./seo.js";
+import {
+  evalSTR001,
+  evalSTR002,
+  evalSTR003,
+  evalSTR004,
+  evalSTR005,
+  evalSTR006,
+  evalSTR007,
+  evalSTR008,
+} from "./structured-data.js";
+import {
+  evalAEO001,
+  evalAEO002,
+  evalAEO003,
+  evalAEO004,
+  evalAEO005,
+  evalAEO006,
+  evalAEO007,
+  evalAEO008,
+  evalAEO009,
+  evalAEO010,
+  evalAEO011,
+} from "./aeo.js";
+import {
+  evalGEO001,
+  evalGEO002,
+  evalGEO003,
+  evalGEO004,
+  evalGEO005,
+  evalGEO006,
+  evalGEO007,
+  evalGEO008,
+  evalGEO009,
+  evalGEO010,
+  evalGEO011,
+} from "./geo.js";
+import {
+  evalI18N001,
+  evalI18N002,
+  evalI18N003,
+  evalI18N004,
+  evalA11Y001,
+  evalA11Y002,
+  evalA11Y003,
+  evalA11Y004,
+  evalMOB001,
+  evalAGT001,
+  evalAGT002,
+} from "./i18n-accessibility.js";
+import {
+  evalPRF001,
+  evalPRF002,
+  evalPRF003,
+  evalPRF004,
+  evalSEC001,
+  evalSEC002,
+  evalSEC003,
+  evalDEL001,
+} from "./performance-security.js";
 
 export interface EvaluatorEntry {
   rule_id: string;

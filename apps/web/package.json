@@ -7,9 +7,11 @@
     "build": "cp -r ../../config config 2>/dev/null || true && next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
+    "@marsidev/react-turnstile": "^1.6.2",
     "@tailwindcss/postcss": "^4.3.3",
     "@wpi/agents": "workspace:*",
     "@wpi/audit-pipeline": "workspace:*",
@@ -19,6 +21,7 @@
     "@wpi/content-drafts": "workspace:*",
     "@wpi/content-approvals": "workspace:*",
     "@wpi/crawler": "workspace:*",
+    "@wpi/email": "workspace:*",
     "@wpi/evidence-processor": "workspace:*",
     "@wpi/fact-manifests": "workspace:*",
     "@wpi/footprint-store": "workspace:*",
@@ -26,6 +29,7 @@
     "@wpi/oauth": "workspace:*",
     "@wpi/profile-extractor": "workspace:*",
     "@wpi/public-source-discovery": "workspace:*",
+    "@wpi/rate-limiter": "workspace:*",
     "@wpi/render-job": "workspace:*",
     "@wpi/rules-engine": "workspace:*",
     "@wpi/schema-builder": "workspace:*",

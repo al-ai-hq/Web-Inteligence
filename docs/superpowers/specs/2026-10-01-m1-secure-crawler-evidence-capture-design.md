@@ -101,6 +101,7 @@ flowchart TD
 ### IAM Permissions
 
 Workflow service account (`workflow-sa`) needs:
+
 - `roles/run.invoker` on crawl-job and render-job (crawl project)
 - `roles/run.invoker` on evidence-processor (app project)
 - `roles/storage.objectViewer` on landing bucket (read render manifest)
@@ -214,6 +215,7 @@ Every URL validated before fetch:
 ### IAM Permissions
 
 Crawl job service account (`crawl-job-sa`) needs:
+
 - `roles/storage.objectCreator` on landing bucket (write raw evidence)
 - `roles/logging.logWriter` in crawl project (write logs)
 - `roles/cloudsql.client` on app project (read audit_scope)
@@ -305,6 +307,7 @@ Rendered evidence written to landing bucket with key `{audit_id}/rendered/{url_h
 ### IAM Permissions
 
 Render job service account (`render-job-sa`) needs:
+
 - `roles/storage.objectCreator` on landing bucket (write rendered evidence)
 - `roles/storage.objectViewer` on landing bucket (read render manifest)
 - `roles/logging.logWriter` in crawl project (write logs)
@@ -401,6 +404,7 @@ If both raw and rendered evidence exist for a URL:
 ### IAM Permissions
 
 Evidence processor service account (`evidence-processor-sa`) needs:
+
 - `roles/storage.objectViewer` on landing bucket (read raw + rendered evidence, cross-project)
 - `roles/storage.objectCreator` on evidence bucket (write normalized evidence)
 - `roles/cloudsql.client` on app project (read/write audit records)
@@ -424,17 +428,17 @@ flowchart TD
     A5 --> A6[Validate resolved addresses]
     A6 --> A7[Pin validated IP]
     A7 --> A8[Return: valid URL + pinned IP]
-    
+
     B[Controlled DNS Resolver] --> B1[Query explicit DNS server: 8.8.8.8, 8.8.4.4]
     B1 --> B2[No caching: fresh resolution each time]
     B2 --> B3[Reject non-public addresses]
     B3 --> B4[Return: resolved IP addresses]
-    
+
     C[Robots Parser] --> C1[Fetch robots.txt]
     C1 --> C2[Parse according to RFC 9309]
     C2 --> C3[Check if URL allowed for user-agent]
     C3 --> C4[Return: allowed/disallowed]
-    
+
     D[Sitemap Parser] --> D1[Fetch sitemap.xml]
     D1 --> D2[Parse XML]
     D2 --> D3{Sitemap index?}
@@ -520,22 +524,22 @@ flowchart TD
     A --> F[Cloaking]
     A --> G[Robots-Blocked Pages]
     A --> H[Oversized Content]
-    
+
     B --> B1[XSS: script>alert/xss/script]
     B --> B2[Prompt injection: AI: ignore...]
     B --> B3[CSV injection: CMD|/C calc]
-    
+
     C --> C1[gzip bomb: 1 MB → 1 GB]
-    
+
     D --> D1[Slow response: 1 byte/sec for 60s]
-    
+
     E --> E1[Infinite loop: A → B → A → B]
     E --> E2[Long chain: A → B → C → ... → K]
-    
+
     F --> F1[Different content for different user-agents]
-    
+
     G --> G1[Page disallowed in robots.txt]
-    
+
     H --> H1[HTML page > 10 MB]
 ```
 
@@ -554,21 +558,21 @@ flowchart TD
 Express server in `services/crawler/tests/fixtures/server.ts` that serves malicious content on localhost:
 
 ```typescript
-app.get('/xss', (req, res) => {
+app.get("/xss", (req, res) => {
   res.send('<html><body><script>alert("xss")</script></body></html>');
 });
 
-app.get('/gzip-bomb', (req, res) => {
+app.get("/gzip-bomb", (req, res) => {
   const bomb = createGzipBomb(); // 1 MB compressed → 1 GB decompressed
-  res.setHeader('Content-Encoding', 'gzip');
+  res.setHeader("Content-Encoding", "gzip");
   res.send(bomb);
 });
 
-app.get('/tarpit', (req, res) => {
-  res.setHeader('Content-Type', 'text/html');
+app.get("/tarpit", (req, res) => {
+  res.setHeader("Content-Type", "text/html");
   let i = 0;
   const interval = setInterval(() => {
-    res.write('a');
+    res.write("a");
     i++;
     if (i >= 60) {
       clearInterval(interval);
@@ -583,16 +587,16 @@ app.get('/tarpit', (req, res) => {
 Integration tests verify crawler safety:
 
 ```typescript
-test('TS-MALSITE: XSS payload does not execute', async () => {
-  const result = await crawlJob('http://localhost:3000/xss');
-  expect(result.evidence.body).toContain('<script>');
+test("TS-MALSITE: XSS payload does not execute", async () => {
+  const result = await crawlJob("http://localhost:3000/xss");
+  expect(result.evidence.body).toContain("<script>");
   expect(result.executed).toBe(false);
 });
 
-test('TS-MALSITE: gzip bomb detected', async () => {
-  const result = await crawlJob('http://localhost:3000/gzip-bomb');
+test("TS-MALSITE: gzip bomb detected", async () => {
+  const result = await crawlJob("http://localhost:3000/gzip-bomb");
   expect(result.aborted).toBe(true);
-  expect(result.reason).toContain('decompression bomb');
+  expect(result.reason).toContain("decompression bomb");
 });
 ```
 
@@ -611,18 +615,18 @@ flowchart TD
     A --> D[Cloud Storage]
     A --> E[VPC + Egress Firewall]
     A --> F[Cloud NAT + Static IP]
-    
+
     B --> B1[crawl-job]
     B --> B2[render-job]
-    
+
     C --> C1[crawl-job-sa]
     C --> C2[render-job-sa]
-    
+
     D --> D1[landing bucket]
-    
+
     E --> E1[deny egress: private, metadata]
     E --> E2[allow egress: public 80, 443]
-    
+
     G[App Project] --> H[Cloud Run Jobs]
     G --> I[Cloud Run Services]
     G --> J[Cloud SQL]
@@ -630,24 +634,24 @@ flowchart TD
     G --> L[Service Accounts]
     G --> M[Cloud Workflows]
     G --> N[Secret Manager]
-    
+
     H --> H1[evidence-processor]
-    
+
     I --> I1[Next.js app]
     I --> I2[API]
-    
+
     J --> J1[PostgreSQL]
-    
+
     K --> K1[evidence bucket]
-    
+
     L --> L1[evidence-processor-sa]
     L --> L2[workflow-sa]
-    
+
     M --> M1[audit-pipeline]
-    
+
     N --> N1[API keys]
     N --> N2[OAuth tokens]
-    
+
     O[Cross-Project IAM] --> P[evidence-processor-sa reads landing bucket]
     O --> Q[workflow-sa invokes crawl-job, render-job]
 ```
@@ -655,17 +659,21 @@ flowchart TD
 ### Crawl Project Resources
 
 **Cloud Run Jobs:**
+
 - `crawl-job`: 2 CPU, 4 GB memory, 15 min timeout
 - `render-job`: 2 CPU, 2 GB memory, 5 min timeout
 
 **Service Accounts:**
+
 - `crawl-job-sa`: write to landing bucket, write logs, read audit_scope from Cloud SQL
 - `render-job-sa`: write to landing bucket, read render manifest, write logs
 
 **Cloud Storage:**
+
 - Landing bucket: 1-day retention, uniform bucket-level access
 
 **VPC and Egress Firewall:**
+
 - Deny egress to private ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
 - Deny egress to link-local (169.254.0.0/16, includes metadata)
 - Deny egress to loopback (127.0.0.0/8)
@@ -679,32 +687,40 @@ flowchart TD
 - Allow egress to public internet on ports 80, 443
 
 **Cloud NAT and Static Egress IP:**
+
 - Static IP for allowlisting by target sites
 - Cloud NAT for outbound internet access
 
 ### App Project Resources
 
 **Cloud Run Jobs:**
+
 - `evidence-processor`: 1 CPU, 2 GB memory, 10 min timeout
 
 **Cloud Run Services:**
+
 - Next.js app
 - API
 
 **Cloud SQL:**
+
 - PostgreSQL: audit records, audit scope
 
 **Cloud Storage:**
+
 - Evidence bucket: versioning enabled, 30-day retention
 
 **Service Accounts:**
+
 - `evidence-processor-sa`: read landing bucket (cross-project), write evidence bucket, read/write audit records, write logs
 - `workflow-sa`: invoke crawl-job, render-job, evidence-processor, read landing bucket
 
 **Cloud Workflows:**
+
 - `audit-pipeline`: orchestrates crawl → render → evidence processor
 
 **Secret Manager:**
+
 - API keys, OAuth tokens (not accessible from crawl project)
 
 ### Cross-Project IAM
@@ -743,16 +759,16 @@ flowchart TD
 
 ```yaml
 # Crawl job limits
-max_pages: 20                    # representative sample capacity
-max_depth: 3                     # BFS depth limit
-timeout_seconds: 900             # 15 min total job timeout (state machine A5)
-request_timeout_seconds: 30      # per-request timeout
-concurrency: 5                   # parallel fetch workers
+max_pages: 20 # representative sample capacity
+max_depth: 3 # BFS depth limit
+timeout_seconds: 900 # 15 min total job timeout (state machine A5)
+request_timeout_seconds: 30 # per-request timeout
+concurrency: 5 # parallel fetch workers
 render_text_threshold_bytes: 500 # trigger render when raw HTML body < 500 bytes text
-allowed_ports:                   # AC-09 port allowlist
+allowed_ports: # AC-09 port allowlist
   - 80
   - 443
-max_response_size_bytes: 10485760      # 10 MB per response
+max_response_size_bytes: 10485760 # 10 MB per response
 max_decompressed_size_bytes: 104857600 # 100 MB decompressed
 ```
 
@@ -760,12 +776,12 @@ max_decompressed_size_bytes: 104857600 # 100 MB decompressed
 
 ```yaml
 # Render job limits (Playwright/Chromium)
-per_page_timeout_seconds: 30     # AC-11 per-page timeout
-total_job_timeout_seconds: 300   # 5 min total job timeout
-max_response_size_bytes: 10485760      # 10 MB per resource
+per_page_timeout_seconds: 30 # AC-11 per-page timeout
+total_job_timeout_seconds: 300 # 5 min total job timeout
+max_response_size_bytes: 10485760 # 10 MB per resource
 max_decompressed_size_bytes: 104857600 # 100 MB decompressed
-memory_limit_mb: 512             # AC-11 memory cap
-network_idle_timeout_ms: 500     # wait for network idle before snapshot
+memory_limit_mb: 512 # AC-11 memory cap
+network_idle_timeout_ms: 500 # wait for network idle before snapshot
 ```
 
 ### Configuration Loading
@@ -805,33 +821,33 @@ flowchart TD
     A --> F[workflows/]
     A --> G[config/]
     A --> H[tests/]
-    
+
     B --> B1[URL validator]
     B --> B2[DNS resolver]
     B --> B3[Robots parser]
     B --> B4[Sitemap parser]
-    
+
     C --> C1[URL planner]
     C --> C2[Fetcher]
     C --> C3[Extractor]
     C --> C4[Render manifest]
     C --> C5[Evidence writer]
-    
+
     D --> D1[Renderer]
     D --> D2[Request interceptor]
     D --> D3[Evidence writer]
-    
+
     E --> E1[Hash verifier]
     E --> E2[Normalizer]
     E --> E3[Injection detector]
     E --> E4[Merger]
     E --> E5[Evidence writer]
-    
+
     F --> F1[audit-workflow.yaml]
-    
+
     G --> G1[crawl-limits.yaml]
     G --> G2[render-limits.yaml]
-    
+
     H --> H1[fixtures/]
     H --> H2[integration/]
     H --> H3[e2e/]
@@ -958,15 +974,15 @@ Detailed test cases mapped to M1 exit criteria. All tests run in CI/CD pipeline;
 flowchart TD
     A[Unit Tests] --> A1[packages/security unit tests]
     A --> A2[jobs unit tests]
-    
+
     B[Integration Tests] --> B1[TS-SSRF]
     B --> B2[TS-RENDER]
     B --> B3[TS-MALSITE]
     B --> B4[TS-LOGREDACT]
-    
+
     C[E2E Tests] --> C1[TS-IAC]
     C --> C2[Full pipeline]
-    
+
     D[CI/CD Pipeline] --> D1[On every PR: unit + integration]
     D --> D2[On staging deploy: E2E]
 ```
@@ -1059,12 +1075,12 @@ M1 implements the following audit workflow state transitions:
 
 ## Appendix B: IAM Matrix
 
-| Identity | Project | Permissions |
-|----------|---------|-------------|
-| crawl-job-sa | crawl | Write landing bucket, write logs, read audit_scope (app project) |
-| render-job-sa | crawl | Write landing bucket, read render manifest, write logs |
-| evidence-processor-sa | app | Read landing bucket (cross-project), write evidence bucket, read/write audit records, write logs |
-| workflow-sa | app | Invoke crawl-job, render-job (crawl project), invoke evidence-processor (app project), read landing bucket |
+| Identity              | Project | Permissions                                                                                                |
+| --------------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
+| crawl-job-sa          | crawl   | Write landing bucket, write logs, read audit_scope (app project)                                           |
+| render-job-sa         | crawl   | Write landing bucket, read render manifest, write logs                                                     |
+| evidence-processor-sa | app     | Read landing bucket (cross-project), write evidence bucket, read/write audit records, write logs           |
+| workflow-sa           | app     | Invoke crawl-job, render-job (crawl project), invoke evidence-processor (app project), read landing bucket |
 
 ## Appendix C: Cost Model
 

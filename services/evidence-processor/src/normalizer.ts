@@ -45,10 +45,7 @@ export interface NormalizeOptions {
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
-export function normalizeEvidence(
-  raw: RawEvidence,
-  options: NormalizeOptions,
-): EvidenceObject {
+export function normalizeEvidence(raw: RawEvidence, options: NormalizeOptions): EvidenceObject {
   const contentHash = raw.contentHash.startsWith("sha256:")
     ? raw.contentHash
     : `sha256:${raw.contentHash}`;

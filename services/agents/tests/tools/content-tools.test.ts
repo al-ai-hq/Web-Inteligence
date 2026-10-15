@@ -4,7 +4,11 @@ import { createWriteBriefTool } from "../../src/tools/write-brief.js";
 import { createDraftArticleTool } from "../../src/tools/draft-article.js";
 import type { ToolContext } from "../../src/tools/types.js";
 
-const ctx: ToolContext = { audit_id: "a-1", project_id: "p-1", evidence_bucket: "b" } as ToolContext;
+const ctx: ToolContext = {
+  audit_id: "a-1",
+  project_id: "p-1",
+  evidence_bucket: "b",
+} as ToolContext;
 
 describe("find_opportunities", () => {
   it("identifies content opportunities from findings and keywords", async () => {
@@ -12,7 +16,12 @@ describe("find_opportunities", () => {
     const result = await tool.execute(
       {
         findings: [
-          { finding_id: "f-1", rule_id: "AEO-001", result_state: "not_verified", page_url: "https://example.com/page-a" },
+          {
+            finding_id: "f-1",
+            rule_id: "AEO-001",
+            result_state: "not_verified",
+            page_url: "https://example.com/page-a",
+          },
         ],
         keyword_clusters: [
           { id: "c1", primary: "faq examples", keywords: ["faq examples", "faq templates"] },

@@ -28,7 +28,14 @@ const CONFIDENCE_ORDER: Record<"high" | "medium" | "low", number> = {
   low: 1,
 };
 
-export const SECTION_ORDER = ["technical", "keywords", "content", "performance", "experience", "entity"] as const;
+export const SECTION_ORDER = [
+  "technical",
+  "keywords",
+  "content",
+  "performance",
+  "experience",
+  "entity",
+] as const;
 
 const CONNECTOR_SECTION: Record<string, "keywords" | "performance"> = {
   psi: "performance",
@@ -73,9 +80,7 @@ function mapEvidenceState(
   }
 }
 
-function mapEvidenceConfidence(
-  state: Finding["evidence_state"],
-): "high" | "medium" | "low" {
+function mapEvidenceConfidence(state: Finding["evidence_state"]): "high" | "medium" | "low" {
   switch (state) {
     case "verified":
       return "high";
@@ -105,10 +110,7 @@ function mapRulesFinding(f: Finding): StoredFinding {
   };
 }
 
-function mapPriorityItem(
-  item: PriorityItem,
-  findingIdMap: Map<string, string>,
-): StoredActionItem {
+function mapPriorityItem(item: PriorityItem, findingIdMap: Map<string, string>): StoredActionItem {
   return {
     title: item.rule_id,
     detail: item.rationale ?? item.rule_id,
@@ -122,12 +124,7 @@ function mapPriorityItem(
 
 export function deriveSeverity(data: Record<string, unknown>): FindingSeverity {
   const value = data["severity"];
-  if (
-    value === "critical" ||
-    value === "high" ||
-    value === "medium" ||
-    value === "low"
-  ) {
+  if (value === "critical" || value === "high" || value === "medium" || value === "low") {
     return value;
   }
   return "info";
@@ -147,10 +144,7 @@ export function deriveUnavailable(scope: TierScope): UnavailableBlock[] {
   return blocks;
 }
 
-export function deriveActionItems(
-  findings: StoredFinding[],
-  cap: number,
-): StoredActionItem[] {
+export function deriveActionItems(findings: StoredFinding[], cap: number): StoredActionItem[] {
   const items: StoredActionItem[] = [];
   for (const finding of findings) {
     const recommendation = finding.data["recommendation"];
@@ -219,7 +213,7 @@ export function composeSections(
   let experienceScore: ExperienceScoreResult | null = null;
 
   // Process experience-reviewer outcome separately (D-012 separation)
-  const experienceOutcome = outcomes.find(o => o.agent_name === "experience-reviewer");
+  const experienceOutcome = outcomes.find((o) => o.agent_name === "experience-reviewer");
 
   if (!experienceOutcome) {
     unavailable.push({
@@ -229,7 +223,8 @@ export function composeSections(
   } else if (!experienceOutcome.ok) {
     unavailable.push({
       section: EXPERIENCE_SECTION,
-      reason_key: experienceOutcome.unavailable_reason_key ?? "unavailable.experience_effectiveness",
+      reason_key:
+        experienceOutcome.unavailable_reason_key ?? "unavailable.experience_effectiveness",
     });
   } else {
     availableSections.add(EXPERIENCE_SECTION);
@@ -251,7 +246,8 @@ export function composeSections(
       });
     }
 
-    experienceScore = (experienceOutcome.data?.["experience_score"] as ExperienceScoreResult | undefined) ?? null;
+    experienceScore =
+      (experienceOutcome.data?.["experience_score"] as ExperienceScoreResult | undefined) ?? null;
   }
 
   // If rules engine produced a score, use its unavailable categories instead
@@ -266,9 +262,7 @@ export function composeSections(
     }
   } else {
     // No score yet — fall back to the M1 hardcoded unavailable blocks.
-    unavailable.push(
-      { section: "technical", reason_key: "unavailable.score" },
-    );
+    unavailable.push({ section: "technical", reason_key: "unavailable.score" });
   }
 
   // Track rules engine findings by rule_id for priority item source lookup

@@ -2,13 +2,7 @@ import { describe, expect, it } from "vitest";
 import ar from "../messages/ar.json";
 import en from "../messages/en.json";
 
-type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 function keyPaths(value: JsonValue, prefix = ""): string[] {
   if (typeof value === "string") {
@@ -50,7 +44,7 @@ describe("message catalog parity", () => {
       ["en", en],
       ["ar", ar],
     ] as const) {
-      const strings = nonEmptyStrings(catalog as JsonValue);
+      const strings = nonEmptyStrings(catalog);
       expect(strings.length).toBeGreaterThan(0);
       for (const text of strings) {
         expect(text.trim().length, `${name} catalog has an empty string`).toBeGreaterThan(0);

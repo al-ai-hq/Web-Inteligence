@@ -10,7 +10,8 @@ const inputSchema = z.object({
 export function createGscQueryTool(fetchFn: typeof fetch, accessToken: string): Tool {
   return {
     name: "gsc_query",
-    description: "Queries Google Search Console API for search performance data (queries, clicks, impressions, position).",
+    description:
+      "Queries Google Search Console API for search performance data (queries, clicks, impressions, position).",
     inputSchema: {
       type: "object",
       properties: {
@@ -39,7 +40,11 @@ export function createGscQueryTool(fetchFn: typeof fetch, accessToken: string): 
         });
 
         if (!response.ok) {
-          return { data: null, source_tier: "first_party", limitations: [`GSC API returned ${String(response.status)}`] };
+          return {
+            data: null,
+            source_tier: "first_party",
+            limitations: [`GSC API returned ${String(response.status)}`],
+          };
         }
 
         const json = (await response.json()) as Record<string, unknown>;

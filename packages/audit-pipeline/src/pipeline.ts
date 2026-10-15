@@ -7,12 +7,7 @@ import { buildReportModel, validateReportModel } from "./report-model.js";
 import type { ComposerAgentOutcome } from "./report-envelope.js";
 import type { ConnectorResult, AuditContext } from "@wpi/connectors";
 import type { TokenStore } from "@wpi/oauth";
-import type {
-  EvidenceBundle,
-  LoadedRule,
-  PageRuleResult,
-  ScoringConfig,
-} from "@wpi/rules-engine";
+import type { EvidenceBundle, LoadedRule, PageRuleResult, ScoringConfig } from "@wpi/rules-engine";
 import {
   aggregateToSite,
   calculatePriority,
@@ -22,9 +17,7 @@ import {
 } from "@wpi/rules-engine";
 import type { RulesEngineOutput } from "./composer.js";
 
-export const BASE_LIMITATION_KEYS = [
-  "limitation.external_api_tools_unavailable",
-] as const;
+export const BASE_LIMITATION_KEYS = ["limitation.external_api_tools_unavailable"] as const;
 
 export type PipelineOutcome = "completed" | "partial" | "failed" | "stopped";
 
@@ -49,14 +42,12 @@ export interface PipelineDeps {
     evidenceIds: string[],
     scope: TierScope,
   ) => Promise<ComposerAgentOutcome[]>;
-  runConnectors: (
-    url: string,
-    context: AuditContext,
-  ) => Promise<ConnectorResult[]>;
+  runConnectors: (url: string, context: AuditContext) => Promise<ConnectorResult[]>;
   tierScopes: Record<Exclude<TierName, "refused">, TierScope>;
   tokenStore?: TokenStore;
   userId?: string;
   projectId?: string;
+  onComplete?: (record: AuditRecord) => Promise<void> | void;
 }
 
 async function requireTransition(store: AuditStore, auditId: string, to: string): Promise<void> {
@@ -193,7 +184,6 @@ export async function runAuditPipeline(
       };
     }
 
-
     const [outcomes, connectorResults] = await Promise.all([
       deps.runAgents(raw, evidenceIds, scope),
       deps.runConnectors(raw.target_url, {
@@ -216,6 +206,7 @@ export async function runAuditPipeline(
       locale: raw.locale,
       secretHash: raw.secret_hash,
       expiresAt: raw.expires_at,
+      userId: raw.user_id,
       summaryBullets: composed.summary_bullets,
       findingIds: composed.findings.map((finding) => finding.id),
       limitationsKeys,
@@ -232,8 +223,16 @@ export async function runAuditPipeline(
       costs: composed.costs,
       score: composed.score,
     };
-    const to = composed.findings.length > 0 ? ("READY_COMPLETE" as const) : ("READY_PARTIAL" as const);
-    await deps.store.setOutcome(auditId, to, envelope, envelope.costs);
+    const to =
+      composed.findings.length > 0 ? ("READY_COMPLETE" as const) : ("READY_PARTIAL" as const);
+    const record = await deps.store.setOutcome(auditId, to, envelope, envelope.costs);
+    if (deps.onComplete) {
+      try {
+        await deps.onComplete(record);
+      } catch (error) {
+        console.warn(`onComplete failed for audit ${auditId}:`, error);
+      }
+    }
     return to === "READY_COMPLETE" ? "completed" : "partial";
   } catch (error) {
     if (error instanceof PipelineStoppedError) {

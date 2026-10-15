@@ -228,10 +228,7 @@ export function applyCriticalCaps(
  *
  * Without full context, confidence is limited to medium at most.
  */
-export function calculateConfidence(
-  coverage: number,
-  context: ScoringContext,
-): ConfidenceLevel {
+export function calculateConfidence(coverage: number, context: ScoringContext): ConfidenceLevel {
   const highMinCoverage = 0.9;
   const mediumMinCoverage = 0.7;
 
@@ -239,9 +236,7 @@ export function calculateConfidence(
   if (coverage >= highMinCoverage) {
     const pagesInspected = context.pages_inspected ?? 0;
     const stagesCompleted = context.critical_stages_completed ?? [];
-    const allStagesCompleted = CRITICAL_STAGES.every((stage) =>
-      stagesCompleted.includes(stage),
-    );
+    const allStagesCompleted = CRITICAL_STAGES.every((stage) => stagesCompleted.includes(stage));
 
     if (pagesInspected >= 10 && allStagesCompleted) {
       return "high";
@@ -274,10 +269,7 @@ export function calculateConfidence(
  *
  * Only site-scope results are considered.
  */
-function calculateCoverage(
-  results: RuleResult[],
-  rules: LoadedRule[],
-): number {
+function calculateCoverage(results: RuleResult[], rules: LoadedRule[]): number {
   const scoredRules = rules.filter((r) => r.scored);
   if (scoredRules.length === 0) return 0;
 

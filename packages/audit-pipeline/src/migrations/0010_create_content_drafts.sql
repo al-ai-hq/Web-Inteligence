@@ -33,6 +33,6 @@ CREATE TABLE IF NOT EXISTS content_drafts (
   last_updated_content_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_content_drafts_brief ON content_drafts(brief_id);
-CREATE INDEX idx_content_drafts_project ON content_drafts(project_id);
-CREATE INDEX idx_content_drafts_status ON content_drafts(status);
+CREATE INDEX IF NOT EXISTS idx_content_drafts_brief ON content_drafts(brief_id);
+CREATE INDEX IF NOT EXISTS idx_content_drafts_project ON content_drafts(project_id);
+CREATE INDEX IF NOT EXISTS idx_content_drafts_status ON content_drafts(status);

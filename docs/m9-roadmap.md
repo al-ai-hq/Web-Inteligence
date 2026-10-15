@@ -10,17 +10,17 @@
 
 ### All 9 Tasks Delivered
 
-| # | Task | Status | Notes |
-|---|------|--------|-------|
-| 1 | Polish remaining pages | ✅ Complete | Dashboard, status, report, login/signup pages enhanced |
-| 2 | Arabic RTL review | ✅ Complete | Full RTL layout verified, i18n gaps documented |
-| 3 | Git remote & push | ✅ Complete | https://github.com/al-ai-hq/Web-Inteligence (main branch) |
-| 4 | Vercel deployment | ✅ Complete | Deployed but Deployment Protection blocks public access (requires manual dashboard fix) |
-| 5 | Mobile responsiveness | ✅ Complete | Hamburger nav implemented, stacking context fix applied |
-| 6 | Accessibility audit | ✅ Complete | Lighthouse score: 100/100 on all pages (EN + AR) |
-| 7 | E2E test coverage | ✅ Complete | 5/9 core tests passing, M8 fact-sheet tests pending UI completion |
-| 8 | Performance optimization | ✅ Complete | LCP: 660ms, CLS: 0.00, First Load JS: 103kB |
-| 9 | M9+ features planning | ✅ Complete | See roadmap below |
+| #   | Task                     | Status      | Notes                                                                                   |
+| --- | ------------------------ | ----------- | --------------------------------------------------------------------------------------- |
+| 1   | Polish remaining pages   | ✅ Complete | Dashboard, status, report, login/signup pages enhanced                                  |
+| 2   | Arabic RTL review        | ✅ Complete | Full RTL layout verified, i18n gaps documented                                          |
+| 3   | Git remote & push        | ✅ Complete | https://github.com/al-ai-hq/Web-Inteligence (main branch)                               |
+| 4   | Vercel deployment        | ✅ Complete | Deployed but Deployment Protection blocks public access (requires manual dashboard fix) |
+| 5   | Mobile responsiveness    | ✅ Complete | Hamburger nav implemented, stacking context fix applied                                 |
+| 6   | Accessibility audit      | ✅ Complete | Lighthouse score: 100/100 on all pages (EN + AR)                                        |
+| 7   | E2E test coverage        | ✅ Complete | 5/9 core tests passing, M8 fact-sheet tests pending UI completion                       |
+| 8   | Performance optimization | ✅ Complete | LCP: 660ms, CLS: 0.00, First Load JS: 103kB                                             |
+| 9   | M9+ features planning    | ✅ Complete | See roadmap below                                                                       |
 
 ---
 
@@ -171,13 +171,13 @@
 
 ## Technical Debt & Known Issues
 
-| Issue | Impact | Effort | Priority |
-|-------|--------|--------|----------|
-| M8 API routes are scaffolds | High | 4-8 hours | M9 |
-| Citation tracker uses module state | Medium | 2 hours | M10 |
-| Regulated claims detection is English-only | Low | 8-16 hours | M11 |
-| 4 Postgres-dependent tests skipped | Low | 1 hour | M9 |
-| Missing Arabic i18n for form labels | Low | 30 minutes | M9 |
+| Issue                                      | Impact | Effort     | Priority |
+| ------------------------------------------ | ------ | ---------- | -------- |
+| M8 API routes are scaffolds                | High   | 4-8 hours  | M9       |
+| Citation tracker uses module state         | Medium | 2 hours    | M10      |
+| Regulated claims detection is English-only | Low    | 8-16 hours | M11      |
+| 4 Postgres-dependent tests skipped         | Low    | 1 hour     | M9       |
+| Missing Arabic i18n for form labels        | Low    | 30 minutes | M9       |
 
 ---
 

@@ -1,5 +1,9 @@
 import type { Pool } from "pg";
-import type { PublicSourceObservation, ProfileObservation, NapObservation } from "../observations.js";
+import type {
+  PublicSourceObservation,
+  ProfileObservation,
+  NapObservation,
+} from "../observations.js";
 import type { Lineage } from "../common.js";
 
 export class PublicSourceObservationStore {
@@ -19,7 +23,14 @@ export class PublicSourceObservationStore {
       `INSERT INTO public_source_observations (fact_sheet_id, source_platform, source_url, discovered_at, profile_data, lineage)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [input.fact_sheet_id, input.source_platform, input.source_url, input.discovered_at, JSON.stringify(input.profile_data), JSON.stringify(lineage)],
+      [
+        input.fact_sheet_id,
+        input.source_platform,
+        input.source_url,
+        input.discovered_at,
+        JSON.stringify(input.profile_data),
+        JSON.stringify(lineage),
+      ],
     );
     return this.rowToObservation(result.rows[0]!);
   }
@@ -161,7 +172,11 @@ export class NapObservationStore {
       phone_value: row["phone_value"] as string | null,
       address_value: row["address_value"] as Record<string, string> | null,
       consistency_score: row["consistency_score"] as number,
-      inconsistencies: (row["inconsistencies"] ?? []) as Array<{ field: string; expected: string; actual: string }>,
+      inconsistencies: (row["inconsistencies"] ?? []) as Array<{
+        field: string;
+        expected: string;
+        actual: string;
+      }>,
       lineage: row["lineage"] as Lineage,
       created_at: (row["created_at"] as Date).toISOString(),
     };

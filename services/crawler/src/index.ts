@@ -116,7 +116,9 @@ export async function runCrawlJob(): Promise<CrawlResult> {
         sitemapXml = await response.text();
       }
     } catch {
-      console.warn(`Warning: Failed to fetch sitemap from ${sitemapUrl}, continuing without sitemap`);
+      console.warn(
+        `Warning: Failed to fetch sitemap from ${sitemapUrl}, continuing without sitemap`,
+      );
     }
   }
 

@@ -68,9 +68,7 @@ describe("TS-RENDER-1: Request interception blocks private IPs", () => {
 
   it("blocks request to 169.254.169.254 (metadata)", async () => {
     mockValidateUrl.mockResolvedValue({ valid: false, reason: "metadata IP blocked" });
-    const allowed = await interceptRequest(
-      mockRequest("http://169.254.169.254/latest/meta-data/"),
-    );
+    const allowed = await interceptRequest(mockRequest("http://169.254.169.254/latest/meta-data/"));
     expect(allowed).toBe(false);
   });
 });
@@ -145,7 +143,10 @@ describe("TS-RENDER-3: SSRF defense for metadata hosts", () => {
 // ---------------------------------------------------------------------------
 describe("TS-RENDER-4: Localhost blocking", () => {
   it("blocks localhost hostname", async () => {
-    mockValidateUrl.mockResolvedValue({ valid: false, reason: "DNS resolution returned only non-public addresses" });
+    mockValidateUrl.mockResolvedValue({
+      valid: false,
+      reason: "DNS resolution returned only non-public addresses",
+    });
     const allowed = await interceptRequest(mockRequest("http://localhost/"));
     expect(allowed).toBe(false);
   });

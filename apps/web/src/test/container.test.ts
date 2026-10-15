@@ -1,16 +1,21 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { InMemoryAuditStore } from "@wpi/audit-pipeline";
-import {
-  getAuditServices,
-  setAuditServicesForTests,
-} from "../services/container";
+import { StubEmailService } from "@wpi/email";
+import { getAuditServices, setAuditServicesForTests } from "../services/container";
 
-const ENV_KEYS = ["WPI_DISPATCH_MODE", "AUDIT_COOKIE_SECRET", "WPI_DATABASE_URL"] as const;
+const ENV_KEYS = [
+  "WPI_DISPATCH_MODE",
+  "AUDIT_COOKIE_SECRET",
+  "WPI_DATABASE_URL",
+  "DATABASE_URL",
+  "COOKIE_SECRET",
+  "ENCRYPTION_KEY",
+] as const;
 
 afterEach(() => {
   setAuditServicesForTests(null);
   for (const key of ENV_KEYS) {
-    delete process.env[key];
+    Reflect.deleteProperty(process.env, key);
   }
 });
 
@@ -18,6 +23,7 @@ describe("getAuditServices", () => {
   it("builds stub-mode services by default", async () => {
     const services = await getAuditServices();
     expect(services.store).toBeInstanceOf(InMemoryAuditStore);
+    expect(services.emailService).toBeInstanceOf(StubEmailService);
     expect(services.geminiApiKey).toBeUndefined();
     expect((await services.validateUrl("https://example.com")).ok).toBe(true);
     expect((await services.validateUrl("not-a-url")).ok).toBe(false);

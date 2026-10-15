@@ -77,10 +77,7 @@ describe("evalSTR001 - Parseable structured data", () => {
 
   it("returns pass when page has valid JSON-LD blocks", () => {
     const page = makePage({
-      structured_data: [
-        sd("Organization", { name: "Acme" }),
-        sd("WebSite", { name: "Acme Home" }),
-      ],
+      structured_data: [sd("Organization", { name: "Acme" }), sd("WebSite", { name: "Acme Home" })],
     });
     const bundle = makeBundle();
     const result = evalSTR001(page, bundle);
@@ -328,9 +325,7 @@ describe("evalSTR006 - Stable entity identifiers", () => {
     });
     const page2 = makePage({
       evidence_id: "page-2",
-      structured_data: [
-        sd("Organization", { ...orgData, name: "Different Name" }),
-      ],
+      structured_data: [sd("Organization", { ...orgData, name: "Different Name" })],
     });
     const bundle = makeBundle({ pages: [page1, page2] });
     const result = evalSTR006(page1, bundle);
@@ -420,10 +415,7 @@ describe("evalSTR008 - Unsupported/spam markup", () => {
 
   it("returns pass when page has only supported, non-spam types", () => {
     const page = makePage({
-      structured_data: [
-        sd("Organization", { name: "Acme" }),
-        sd("WebSite", { name: "Acme Home" }),
-      ],
+      structured_data: [sd("Organization", { name: "Acme" }), sd("WebSite", { name: "Acme Home" })],
     });
     const bundle = makeBundle();
     const result = evalSTR008(page, bundle);
@@ -456,9 +448,7 @@ describe("evalSTR008 - Unsupported/spam markup", () => {
 
   it("returns pass when page has no spam types", () => {
     const page = makePage({
-      structured_data: [
-        sd("Article", { headline: "Test Article", author: { name: "John" } }),
-      ],
+      structured_data: [sd("Article", { headline: "Test Article", author: { name: "John" } })],
     });
     const bundle = makeBundle();
     const result = evalSTR008(page, bundle);

@@ -26,6 +26,7 @@
 ### Task 1: Proof Infrastructure
 
 **Files:**
+
 - Create: `scripts/proofs/__init__.py`
 - Create: `scripts/proofs/helpers.py`
 - Create: `scripts/proofs/run_all.py`
@@ -33,6 +34,7 @@
 - Create: `scripts/proofs/fixtures/.gitkeep`
 
 **Interfaces:**
+
 - Consumes: `schemas/*.schema.json`, `config/scoring.yaml`, `config/budgets.yaml`
 - Produces: `helpers.load_schema(name)`, `helpers.load_fixture(proof, name)`, `helpers.load_config(name)`, `helpers.validate(instance, schema_name)`, `helpers.run_all()`
 
@@ -227,6 +229,7 @@ git commit -m "feat(M0B): add proof infrastructure — helpers, runner, requirem
 ### Task 2: Proof 1 — Reproduce Score
 
 **Files:**
+
 - Create: `scripts/proofs/fixtures/proof_1/audit.json`
 - Create: `scripts/proofs/fixtures/proof_1/evidence_1.json`
 - Create: `scripts/proofs/fixtures/proof_1/evidence_2.json`
@@ -237,16 +240,19 @@ git commit -m "feat(M0B): add proof infrastructure — helpers, runner, requirem
 - Create: `scripts/proofs/proof_1_reproduce_score.py`
 
 **Interfaces:**
+
 - Consumes: helpers module, schemas (audit, evidence-object, rule-result, score-result, common), config/scoring.yaml
 - Produces: `run() -> bool` — validates all fixtures, recomputes score, compares to stored
 
 **Scoring formula (from config/scoring.yaml):**
+
 - `category_score_c = 100 * SUM(result_value * importance_weight) / SUM(importance_weight)` for scored rules in category c
 - `readiness_pre_cap = SUM(category_score_c * category_weight / 100)` over 7 categories
 - `readiness = MIN(readiness_pre_cap, applicable_critical_caps)`
 - Rule values: pass=1.00, partial=0.50, fail=0.00
 
 **Test data design:**
+
 - 7 rules, one per category, all with importance_weight=1
 - Results: CRW-001 pass, SEO-001 partial, STR-001 fail, AEO-001 pass, GEO-001 pass, I18N-001 partial, PRF-001 pass
 - Expected category scores: crawlability=100, on_page=50, structured_data=0, aeo=100, geo=100, i18n_accessibility=50, performance_security=100
@@ -258,13 +264,13 @@ git commit -m "feat(M0B): add proof infrastructure — helpers, runner, requirem
 ```json
 // scripts/proofs/fixtures/proof_1/rule_catalog.json
 {
-  "CRW-001": {"category": "crawlability", "importance_weight": 1},
-  "SEO-001": {"category": "on_page", "importance_weight": 1},
-  "STR-001": {"category": "structured_data", "importance_weight": 1},
-  "AEO-001": {"category": "aeo", "importance_weight": 1},
-  "GEO-001": {"category": "geo", "importance_weight": 1},
-  "I18N-001": {"category": "i18n_accessibility", "importance_weight": 1},
-  "PRF-001": {"category": "performance_security", "importance_weight": 1}
+  "CRW-001": { "category": "crawlability", "importance_weight": 1 },
+  "SEO-001": { "category": "on_page", "importance_weight": 1 },
+  "STR-001": { "category": "structured_data", "importance_weight": 1 },
+  "AEO-001": { "category": "aeo", "importance_weight": 1 },
+  "GEO-001": { "category": "geo", "importance_weight": 1 },
+  "I18N-001": { "category": "i18n_accessibility", "importance_weight": 1 },
+  "PRF-001": { "category": "performance_security", "importance_weight": 1 }
 }
 ```
 
@@ -588,7 +594,7 @@ The stored score we expect to reproduce. `value` = 72.5, `pre_cap_value` = 72.5.
     "total_expected_applicable_weight": 100,
     "ratio": 0.6
   },
-  "checked": {"checked": 7, "of": 7},
+  "checked": { "checked": 7, "of": 7 },
   "pages_inspected": 1,
   "confidence": "high",
   "rule_result_ids": [
@@ -740,17 +746,19 @@ git commit -m "feat(M0B): add Proof 1 — reproduce Presence Readiness score"
 ### Task 3: Proof 2 — Reject Invalid Record
 
 **Files:**
+
 - Create: `scripts/proofs/fixtures/proof_2/audit_ssrf.json`
 - Create: `scripts/proofs/fixtures/proof_2/rule_result_bad_fidelity.json`
 - Create: `scripts/proofs/proof_2_reject_invalid.py`
 
 **Interfaces:**
+
 - Consumes: helpers module, schemas (audit, rule-result, common)
 - Produces: `run() -> bool` — asserts both fixtures fail validation
 
 - [ ] **Step 1: Create the SSRF audit fixture**
 
-This fixture has a valid URL format (`^https?://`) but targets a metadata service IP. The schema accepts it (URL pattern allows it), so the proof checks that our *logic* would reject it. We validate the URL against a blocklist in the proof script.
+This fixture has a valid URL format (`^https?://`) but targets a metadata service IP. The schema accepts it (URL pattern allows it), so the proof checks that our _logic_ would reject it. We validate the URL against a blocklist in the proof script.
 
 ```json
 // scripts/proofs/fixtures/proof_2/audit_ssrf.json
@@ -895,12 +903,14 @@ git commit -m "feat(M0B): add Proof 2 — reject SSRF URL and invalid fidelity l
 ### Task 4: Proof 3 — Trace Report Number to Evidence
 
 **Files:**
+
 - Create: `scripts/proofs/fixtures/proof_3/report.json`
 - Create: `scripts/proofs/fixtures/proof_3/lineage_records.json`
 - Create: `scripts/proofs/fixtures/proof_3/evidence_objects.json`
 - Create: `scripts/proofs/proof_3_trace_lineage.py`
 
 **Interfaces:**
+
 - Consumes: helpers module, schemas (report-model, lineage-record, evidence-object, common)
 - Produces: `run() -> bool` — traces every report number through lineage to evidence
 
@@ -1057,7 +1067,7 @@ Array of 2 lineage records. Each points to a score_result or finding value, and 
     "prompt_run_ids": [],
     "data_gaps": [],
     "limitations_keys": [],
-    "sample_disclosure": {"pages_checked": 5, "sampled": false}
+    "sample_disclosure": { "pages_checked": 5, "sampled": false }
   },
   "lineage_coverage": {
     "numbers_total": 2,
@@ -1169,11 +1179,13 @@ git commit -m "feat(M0B): add Proof 3 — trace report numbers to evidence via l
 ### Task 5: Proof 4 — Deny Unauthorized Export/Write
 
 **Files:**
+
 - Create: `scripts/proofs/fixtures/proof_4/export_anonymous.json`
 - Create: `scripts/proofs/fixtures/proof_4/change_set_self_approval.json`
 - Create: `scripts/proofs/proof_4_deny_unauthorized.py`
 
 **Interfaces:**
+
 - Consumes: helpers module, schemas (export-authorization, change-set, approval, common)
 - Produces: `run() -> bool` — asserts both unauthorized actions are denied
 
@@ -1311,14 +1323,17 @@ git commit -m "feat(M0B): add Proof 4 — deny anonymous export and self-approva
 ### Task 6: Proof 5 — Simulate USD 150 Hard Stop
 
 **Files:**
+
 - Create: `scripts/proofs/fixtures/proof_5/ledger_entries.json`
 - Create: `scripts/proofs/proof_5_cost_hard_stop.py`
 
 **Interfaces:**
+
 - Consumes: helpers module, schemas (cost-ledger-entry, common), config/budgets.yaml
 - Produces: `run() -> bool` — simulates the cost guard blocking a call
 
 **Scenario:**
+
 - Existing paid_call ledger entries total USD 142.00
 - New call estimated at USD 9.00
 - Monthly cap = USD 150.00, reserve = USD 10.00
@@ -1341,12 +1356,12 @@ Array of cost ledger entries totaling USD 142.00. Each entry needs: entry_id, oc
     "model_id": "gemini-2.5-pro",
     "audit_id": "e5e5e5e5-5555-4aaa-bbbb-000000000001",
     "workflow": "registered_audit",
-    "tokens": {"input": 50000, "output": 10000},
-    "amount": {"amount": "72.00", "currency": "USD"},
+    "tokens": { "input": 50000, "output": 10000 },
+    "amount": { "amount": "72.00", "currency": "USD" },
     "source": "post_call_actual",
     "cap_check": {
       "decision": "allowed",
-      "month_to_date": {"amount": "72.00", "currency": "USD"},
+      "month_to_date": { "amount": "72.00", "currency": "USD" },
       "checked_at": "2026-10-01T08:00:00Z"
     },
     "reconciled": false
@@ -1360,12 +1375,12 @@ Array of cost ledger entries totaling USD 142.00. Each entry needs: entry_id, oc
     "model_id": "gpt-4o",
     "audit_id": "e5e5e5e5-5555-4aaa-bbbb-000000000002",
     "workflow": "registered_audit",
-    "tokens": {"input": 30000, "output": 8000},
-    "amount": {"amount": "45.00", "currency": "USD"},
+    "tokens": { "input": 30000, "output": 8000 },
+    "amount": { "amount": "45.00", "currency": "USD" },
     "source": "post_call_actual",
     "cap_check": {
       "decision": "allowed",
-      "month_to_date": {"amount": "117.00", "currency": "USD"},
+      "month_to_date": { "amount": "117.00", "currency": "USD" },
       "checked_at": "2026-10-01T09:00:00Z"
     },
     "reconciled": false
@@ -1379,12 +1394,12 @@ Array of cost ledger entries totaling USD 142.00. Each entry needs: entry_id, oc
     "model_id": "gemini-2.5-pro",
     "audit_id": "e5e5e5e5-5555-4aaa-bbbb-000000000003",
     "workflow": "registered_audit",
-    "tokens": {"input": 20000, "output": 5000},
-    "amount": {"amount": "25.00", "currency": "USD"},
+    "tokens": { "input": 20000, "output": 5000 },
+    "amount": { "amount": "25.00", "currency": "USD" },
     "source": "post_call_actual",
     "cap_check": {
       "decision": "allowed",
-      "month_to_date": {"amount": "142.00", "currency": "USD"},
+      "month_to_date": { "amount": "142.00", "currency": "USD" },
       "checked_at": "2026-10-01T09:30:00Z"
     },
     "reconciled": false
@@ -1486,10 +1501,12 @@ git commit -m "feat(M0B): add Proof 5 — USD 150 hard stop simulation"
 ### Task 7: Runner Integration and pnpm Script
 
 **Files:**
+
 - Modify: `package.json` (add `proofs` script)
 - Create: `intent/INT-01-m0b-contracts-threat-model-cost-proof/release.md`
 
 **Interfaces:**
+
 - Consumes: all 5 proof modules
 - Produces: `pnpm proofs` command, release documentation
 
@@ -1505,6 +1522,7 @@ Add to the `"scripts"` section of `package.json`:
 
 Run: `cd /Users/ibrahimabedrabboh/Qoder/Qoder && python3 scripts/proofs/run_all.py`
 Expected:
+
 ```
   Reproduce score .................... PASS (0.3s)
   Reject invalid record .............. PASS (0.1s)
@@ -1538,13 +1556,13 @@ Status: [PASS/FAIL]
 
 ## Exit Gate
 
-| Proof | Command | Fixture | Status |
-|-------|---------|---------|--------|
-| 1. Reproduce score | `python3 -m scripts.proofs.proof_1_reproduce_score` | `scripts/proofs/fixtures/proof_1/` | [PASS/FAIL] |
-| 2. Reject invalid record | `python3 -m scripts.proofs.proof_2_reject_invalid` | `scripts/proofs/fixtures/proof_2/` | [PASS/FAIL] |
-| 3. Trace lineage | `python3 -m scripts.proofs.proof_3_trace_lineage` | `scripts/proofs/fixtures/proof_3/` | [PASS/FAIL] |
-| 4. Deny unauthorized | `python3 -m scripts.proofs.proof_4_deny_unauthorized` | `scripts/proofs/fixtures/proof_4/` | [PASS/FAIL] |
-| 5. Cost hard stop | `python3 -m scripts.proofs.proof_5_cost_hard_stop` | `scripts/proofs/fixtures/proof_5/` | [PASS/FAIL] |
+| Proof                    | Command                                               | Fixture                            | Status      |
+| ------------------------ | ----------------------------------------------------- | ---------------------------------- | ----------- |
+| 1. Reproduce score       | `python3 -m scripts.proofs.proof_1_reproduce_score`   | `scripts/proofs/fixtures/proof_1/` | [PASS/FAIL] |
+| 2. Reject invalid record | `python3 -m scripts.proofs.proof_2_reject_invalid`    | `scripts/proofs/fixtures/proof_2/` | [PASS/FAIL] |
+| 3. Trace lineage         | `python3 -m scripts.proofs.proof_3_trace_lineage`     | `scripts/proofs/fixtures/proof_3/` | [PASS/FAIL] |
+| 4. Deny unauthorized     | `python3 -m scripts.proofs.proof_4_deny_unauthorized` | `scripts/proofs/fixtures/proof_4/` | [PASS/FAIL] |
+| 5. Cost hard stop        | `python3 -m scripts.proofs.proof_5_cost_hard_stop`    | `scripts/proofs/fixtures/proof_5/` | [PASS/FAIL] |
 
 Runner: `pnpm proofs` — [5/5 passed / N/5 passed]
 
@@ -1562,14 +1580,14 @@ None required.
 
 ## Open Assumptions
 
-| Placeholder | Assumption | Review by |
-|-------------|-----------|-----------|
-| Google Cloud region | us-central1 | M4 |
-| Identity provider | Google Identity Platform | M4 |
-| Retention for change snapshots | 12 months | M4 legal |
-| Hosting overrun | alert_only | M0 |
-| Anonymous sub-budget | USD 30 | M1 |
-| Reduced/preview per-audit caps | 1.50/0.50 | M1 |
+| Placeholder                    | Assumption               | Review by |
+| ------------------------------ | ------------------------ | --------- |
+| Google Cloud region            | us-central1              | M4        |
+| Identity provider              | Google Identity Platform | M4        |
+| Retention for change snapshots | 12 months                | M4 legal  |
+| Hosting overrun                | alert_only               | M0        |
+| Anonymous sub-budget           | USD 30                   | M1        |
+| Reduced/preview per-audit caps | 1.50/0.50                | M1        |
 
 ## Verification
 

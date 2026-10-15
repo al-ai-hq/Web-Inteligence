@@ -125,19 +125,36 @@ async function handleGetBriefs(_req: NextRequest, _services: any): Promise<NextR
   return NextResponse.json({ briefs: [] });
 }
 
-async function handleGetBrief(_req: NextRequest, _services: any, _id: string): Promise<NextResponse> {
+async function handleGetBrief(
+  _req: NextRequest,
+  _services: any,
+  _id: string,
+): Promise<NextResponse> {
   return NextResponse.json({ brief: null }, { status: 404 });
 }
 
-async function handleCreateBrief(_req: NextRequest, _services: any, _body: any): Promise<NextResponse> {
+async function handleCreateBrief(
+  _req: NextRequest,
+  _services: any,
+  _body: any,
+): Promise<NextResponse> {
   return NextResponse.json({ brief: { id: "mock-id" } }, { status: 201 });
 }
 
-async function handleUpdateBrief(_req: NextRequest, _services: any, _id: string, _body: any): Promise<NextResponse> {
+async function handleUpdateBrief(
+  _req: NextRequest,
+  _services: any,
+  _id: string,
+  _body: any,
+): Promise<NextResponse> {
   return NextResponse.json({ brief: { id: _id } });
 }
 
-async function handleDeleteBrief(_req: NextRequest, _services: any, _id: string): Promise<NextResponse> {
+async function handleDeleteBrief(
+  _req: NextRequest,
+  _services: any,
+  _id: string,
+): Promise<NextResponse> {
   return NextResponse.json({ ok: true });
 }
 
@@ -145,19 +162,36 @@ async function handleGetDrafts(_req: NextRequest, _services: any): Promise<NextR
   return NextResponse.json({ drafts: [] });
 }
 
-async function handleGetDraft(_req: NextRequest, _services: any, _id: string): Promise<NextResponse> {
+async function handleGetDraft(
+  _req: NextRequest,
+  _services: any,
+  _id: string,
+): Promise<NextResponse> {
   return NextResponse.json({ draft: null }, { status: 404 });
 }
 
-async function handleCreateDraft(_req: NextRequest, _services: any, _body: any): Promise<NextResponse> {
+async function handleCreateDraft(
+  _req: NextRequest,
+  _services: any,
+  _body: any,
+): Promise<NextResponse> {
   return NextResponse.json({ draft: { id: "mock-id" } }, { status: 201 });
 }
 
-async function handleUpdateDraft(_req: NextRequest, _services: any, _id: string, _body: any): Promise<NextResponse> {
+async function handleUpdateDraft(
+  _req: NextRequest,
+  _services: any,
+  _id: string,
+  _body: any,
+): Promise<NextResponse> {
   return NextResponse.json({ draft: { id: _id } });
 }
 
-async function handleDeleteDraft(_req: NextRequest, _services: any, _id: string): Promise<NextResponse> {
+async function handleDeleteDraft(
+  _req: NextRequest,
+  _services: any,
+  _id: string,
+): Promise<NextResponse> {
   return NextResponse.json({ ok: true });
 }
 
@@ -165,23 +199,44 @@ async function handleGetFactSheets(_req: NextRequest, _services: any): Promise<N
   return NextResponse.json({ factSheets: [] });
 }
 
-async function handleGetFactSheet(_req: NextRequest, _services: any, _id: string): Promise<NextResponse> {
+async function handleGetFactSheet(
+  _req: NextRequest,
+  _services: any,
+  _id: string,
+): Promise<NextResponse> {
   return NextResponse.json({ factSheet: null }, { status: 404 });
 }
 
-async function handleCreateFactSheet(_req: NextRequest, _services: any, _body: any): Promise<NextResponse> {
+async function handleCreateFactSheet(
+  _req: NextRequest,
+  _services: any,
+  _body: any,
+): Promise<NextResponse> {
   return NextResponse.json({ factSheet: { id: "mock-id" } }, { status: 201 });
 }
 
-async function handleUpdateFactSheet(_req: NextRequest, _services: any, _id: string, _body: any): Promise<NextResponse> {
+async function handleUpdateFactSheet(
+  _req: NextRequest,
+  _services: any,
+  _id: string,
+  _body: any,
+): Promise<NextResponse> {
   return NextResponse.json({ factSheet: { id: _id } });
 }
 
-async function handleGetFactSheetConflicts(_req: NextRequest, _services: any, _id: string): Promise<NextResponse> {
+async function handleGetFactSheetConflicts(
+  _req: NextRequest,
+  _services: any,
+  _id: string,
+): Promise<NextResponse> {
   return NextResponse.json({ conflicts: [] });
 }
 
-async function handleGetFactSheetEntityGraph(_req: NextRequest, _services: any, _id: string): Promise<NextResponse> {
+async function handleGetFactSheetEntityGraph(
+  _req: NextRequest,
+  _services: any,
+  _id: string,
+): Promise<NextResponse> {
   return NextResponse.json({ entities: [], relations: [] });
 }
 
@@ -189,11 +244,19 @@ async function handleGetFactManifests(_req: NextRequest, _services: any): Promis
   return NextResponse.json({ manifests: [] });
 }
 
-async function handleGetFactManifest(_req: NextRequest, _services: any, _id: string): Promise<NextResponse> {
+async function handleGetFactManifest(
+  _req: NextRequest,
+  _services: any,
+  _id: string,
+): Promise<NextResponse> {
   return NextResponse.json({ manifest: null }, { status: 404 });
 }
 
-async function handleCreateFactManifest(_req: NextRequest, _services: any, _body: any): Promise<NextResponse> {
+async function handleCreateFactManifest(
+  _req: NextRequest,
+  _services: any,
+  _body: any,
+): Promise<NextResponse> {
   return NextResponse.json({ manifest: { id: "mock-id" } }, { status: 201 });
 }
 
@@ -201,7 +264,11 @@ async function handleGetSchema(_req: NextRequest, _services: any): Promise<NextR
   return NextResponse.json({ schema: {} });
 }
 
-async function handleValidateSchema(_req: NextRequest, _services: any, _body: any): Promise<NextResponse> {
+async function handleValidateSchema(
+  _req: NextRequest,
+  _services: any,
+  _body: any,
+): Promise<NextResponse> {
   return NextResponse.json({ valid: true, errors: [] });
 }
 
@@ -209,7 +276,11 @@ async function handleGetChangeSets(_req: NextRequest, _services: any): Promise<N
   return NextResponse.json({ changeSets: [] });
 }
 
-async function handleCreateChangeSet(_req: NextRequest, _services: any, _body: any): Promise<NextResponse> {
+async function handleCreateChangeSet(
+  _req: NextRequest,
+  _services: any,
+  _body: any,
+): Promise<NextResponse> {
   return NextResponse.json({ changeSet: { id: "mock-id" } }, { status: 201 });
 }
 

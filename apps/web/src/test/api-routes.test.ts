@@ -7,16 +7,14 @@ import {
   InMemoryAuditStore,
   TIER_SCOPES,
 } from "@wpi/audit-pipeline";
-import { InMemoryAuthService, RateLimiter } from "@wpi/auth";
+import { InMemoryAuthService } from "@wpi/auth";
+import { StubEmailService } from "@wpi/email";
+import { InMemoryRateLimiter } from "@wpi/rate-limiter";
 import { NextRequest } from "next/server";
-import { GET as statusGET } from "../app/api/audits/[id]/status/route";
-import { DELETE as auditDELETE } from "../app/api/audits/[id]/route";
+import { GET as statusGET, DELETE as auditDELETE } from "../app/api/audits/route";
 import { GET as exportGET, POST as exportPOST } from "../app/api/export/route";
 import { authorizeRecord } from "../services/access";
-import {
-  setAuditServicesForTests,
-  type AuditServices,
-} from "../services/container";
+import { setAuditServicesForTests, type AuditServices } from "../services/container";
 
 const CONTEXT: AuditContext = {
   organization: "Example Corp",
@@ -48,15 +46,17 @@ function makeServices(store: AuditStore): AuditServices {
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",
     auth: new InMemoryAuthService(),
-    rateLimiter: new RateLimiter(),
+    rateLimiter: new InMemoryRateLimiter(),
     validateUrl: async () => ({ ok: true }),
     outputDir: "./output",
     geminiApiKey: undefined,
+    emailService: new StubEmailService(),
   };
 }
 
 function statusRequest(id: string, secret?: string): NextRequest {
-  const url = new URL(`http://localhost:3000/api/audits/${id}/status`);
+  const url = new URL("http://localhost:3000/api/audits");
+  url.searchParams.set("id", id);
   if (secret !== undefined) {
     url.searchParams.set("s", secret);
   }
@@ -64,7 +64,8 @@ function statusRequest(id: string, secret?: string): NextRequest {
 }
 
 function deleteRequest(id: string, secret?: string): NextRequest {
-  const url = new URL(`http://localhost:3000/api/audits/${id}`);
+  const url = new URL("http://localhost:3000/api/audits");
+  url.searchParams.set("id", id);
   if (secret !== undefined) {
     url.searchParams.set("s", secret);
   }
@@ -78,19 +79,19 @@ afterEach(() => {
 describe("authorizeRecord", () => {
   it("returns not_found for an unknown id", async () => {
     const { store } = await seedStore();
-    const outcome = await authorizeRecord(store, randomUUID(), "whatever");
+    const outcome = await authorizeRecord(store, randomUUID(), "whatever", null);
     expect(outcome).toEqual({ kind: "not_found" });
   });
 
   it("returns not_found for a wrong or missing secret", async () => {
     const { store, id } = await seedStore();
-    expect(await authorizeRecord(store, id, "wrong-secret")).toEqual({ kind: "not_found" });
-    expect(await authorizeRecord(store, id, undefined)).toEqual({ kind: "not_found" });
+    expect(await authorizeRecord(store, id, "wrong-secret", null)).toEqual({ kind: "not_found" });
+    expect(await authorizeRecord(store, id, undefined, null)).toEqual({ kind: "not_found" });
   });
 
   it("authorizes the correct secret", async () => {
     const { store, id, secret } = await seedStore();
-    const outcome = await authorizeRecord(store, id, secret);
+    const outcome = await authorizeRecord(store, id, secret, null);
     expect(outcome.kind).toBe("authorized");
     if (outcome.kind === "authorized") {
       expect(outcome.record.status).toBe("QUEUED");
@@ -100,7 +101,7 @@ describe("authorizeRecord", () => {
   it("returns deleted for a soft-deleted record", async () => {
     const { store, id, secret } = await seedStore();
     await store.softDelete(id);
-    const outcome = await authorizeRecord(store, id, secret);
+    const outcome = await authorizeRecord(store, id, secret, null);
     expect(outcome).toEqual({ kind: "deleted" });
   });
 
@@ -115,19 +116,17 @@ describe("authorizeRecord", () => {
       secretHash: hashAuditSecret(secret),
       ttlDays: 0,
     });
-    const outcome = await authorizeRecord(store, record.id, secret);
+    const outcome = await authorizeRecord(store, record.id, secret, null);
     expect(outcome.kind).toBe("expired");
   });
 });
 
-describe("GET /api/audits/[id]/status", () => {
+describe("GET /api/audits?id=...", () => {
   it("returns status for the correct secret with no-index headers", async () => {
     const { store, id, secret } = await seedStore();
     setAuditServicesForTests(makeServices(store));
 
-    const response = await statusGET(statusRequest(id, secret), {
-      params: Promise.resolve({ id }),
-    });
+    const response = await statusGET(statusRequest(id, secret));
 
     expect(response.status).toBe(200);
     const body = (await response.json()) as {
@@ -147,18 +146,14 @@ describe("GET /api/audits/[id]/status", () => {
     const { store } = await seedStore();
     setAuditServicesForTests(makeServices(store));
     const unknownId = randomUUID();
-    const response = await statusGET(statusRequest(unknownId, "whatever"), {
-      params: Promise.resolve({ id: unknownId }),
-    });
+    const response = await statusGET(statusRequest(unknownId, "whatever"));
     expect(response.status).toBe(404);
   });
 
   it("returns 404 for a wrong secret", async () => {
     const { store, id } = await seedStore();
     setAuditServicesForTests(makeServices(store));
-    const response = await statusGET(statusRequest(id, "wrong-secret"), {
-      params: Promise.resolve({ id }),
-    });
+    const response = await statusGET(statusRequest(id, "wrong-secret"));
     expect(response.status).toBe(404);
   });
 });
@@ -167,9 +162,7 @@ describe("DELETE /api/audits/[id]", () => {
   it("returns 404 for a wrong secret", async () => {
     const { store, id } = await seedStore();
     setAuditServicesForTests(makeServices(store));
-    const response = await auditDELETE(deleteRequest(id, "wrong-secret"), {
-      params: Promise.resolve({ id }),
-    });
+    const response = await auditDELETE(deleteRequest(id, "wrong-secret"));
     expect(response.status).toBe(404);
   });
 
@@ -177,9 +170,7 @@ describe("DELETE /api/audits/[id]", () => {
     const { store, id, secret } = await seedStore();
     setAuditServicesForTests(makeServices(store));
 
-    const response = await auditDELETE(deleteRequest(id, secret), {
-      params: Promise.resolve({ id }),
-    });
+    const response = await auditDELETE(deleteRequest(id, secret));
 
     expect(response.status).toBe(204);
     const raw = await store.getRaw(id);
@@ -187,7 +178,11 @@ describe("DELETE /api/audits/[id]", () => {
   });
 });
 
-async function seedOwnedStore(): Promise<{ store: InMemoryAuditStore; id: string; secret: string }> {
+async function seedOwnedStore(): Promise<{
+  store: InMemoryAuditStore;
+  id: string;
+  secret: string;
+}> {
   const store = new InMemoryAuditStore();
   const secret = generateAuditSecret();
   const record = await store.create({
@@ -215,9 +210,9 @@ describe("authorizeRecord owned access", () => {
     expect(outcome.kind).toBe("not_found");
   });
 
-  it("returns not_found when userId is undefined and no secret", async () => {
+  it("returns not_found when userId is null and no secret", async () => {
     const { store, id } = await seedOwnedStore();
-    const outcome = await authorizeRecord(store, id, undefined, undefined);
+    const outcome = await authorizeRecord(store, id, undefined, null);
     expect(outcome.kind).toBe("not_found");
   });
 });

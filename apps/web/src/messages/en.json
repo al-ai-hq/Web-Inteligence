@@ -137,6 +137,12 @@
     "pipeline_error": "The audit failed unexpectedly. Please start a new audit.",
     "tier_refused": "You have used all of your free audits."
   },
+  "rateLimit": {
+    "anonymous": "Too many audits from this network. Please try again in {{minutes}} minutes.",
+    "userQuota": "You have reached your monthly audit limit ({{limit}}).",
+    "turnstileRequired": "Please complete the security check to continue.",
+    "turnstileFailed": "Security check failed. Please try again."
+  },
   "unavailable": {
     "score": "The scoring engine is not available in this release.",
     "experience_effectiveness": "The experience effectiveness panel is not available in this release.",
@@ -345,12 +351,23 @@
     "sign_in": "Sign in",
     "have_account": "Already have an account? Sign in",
     "need_account": "Need an account? Sign up",
+    "forgot_password_title": "Reset your password",
+    "forgot_password_body": "Enter your email and we will send you a reset link.",
+    "send_reset_link": "Send reset link",
+    "submitting": "Submitting...",
+    "reset_password_title": "Choose a new password",
+    "reset_password_button": "Reset password",
+    "forgot_password_link": "Forgot password?",
+    "back_to_login": "Back to login",
+    "forgot_password_sent": "Check your email for a reset link.",
+    "reset_success": "Your password has been updated. Sign in to continue.",
     "error_invalid_input": "Please check your details and try again.",
     "error_email_taken": "An account with this email already exists.",
     "error_invalid_credentials": "Incorrect email or password.",
     "error_rate_limited": "Too many attempts. Please try again later.",
     "error_generic": "Something went wrong. Please try again.",
-    "error_password_mismatch": "Passwords do not match."
+    "error_password_mismatch": "Passwords do not match.",
+    "error_invalid_token": "This reset link is invalid or has expired."
   },
   "dashboard": {
     "title": "Your audits",

@@ -1,12 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { InMemoryAuditStore } from "../src/audit-store.js";
 import type { AuditContext } from "../src/audit-context.js";
-import {
-  InProcessDispatcher,
-  scopedEnv,
-  sleep,
-  StubDispatcher,
-} from "../src/dispatcher.js";
+import { InProcessDispatcher, scopedEnv, sleep, StubDispatcher } from "../src/dispatcher.js";
 
 const AUDIT_CONTEXT: AuditContext = {
   organization: "Example Corp",

@@ -73,9 +73,7 @@ function sd(type: string, data: Record<string, unknown> = {}): JsonLdBlock {
 describe("evalGEO001 - Consistent entity name", () => {
   it("returns pass when structured data has consistent organization name", () => {
     const page = makePage({
-      structured_data: [
-        sd("Organization", { name: "Acme Corp" }),
-      ],
+      structured_data: [sd("Organization", { name: "Acme Corp" })],
       title: "Acme Corp - Home",
     });
     const bundle = makeBundle();
@@ -307,10 +305,7 @@ describe("evalGEO005 - Evidence for claims (assessed)", () => {
 describe("evalGEO006 - Source quality", () => {
   it("returns not_applicable when page has no external links (no citations)", () => {
     const page = makePage({
-      links: [
-        { href: "https://example.com/about" },
-        { href: "https://example.com/contact" },
-      ],
+      links: [{ href: "https://example.com/about" }, { href: "https://example.com/contact" }],
     });
     const bundle = makeBundle();
     const result = evalGEO006(page, bundle);
@@ -389,10 +384,7 @@ describe("evalGEO008 - Entity connections", () => {
       structured_data: [
         sd("Organization", {
           name: "Acme Corp",
-          sameAs: [
-            "https://twitter.com/acmecorp",
-            "https://www.linkedin.com/company/acmecorp",
-          ],
+          sameAs: ["https://twitter.com/acmecorp", "https://www.linkedin.com/company/acmecorp"],
         }),
       ],
     });

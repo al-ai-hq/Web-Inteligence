@@ -23,6 +23,6 @@ CREATE TABLE IF NOT EXISTS fact_sheets (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_fact_sheets_project ON fact_sheets(project_id);
-CREATE INDEX idx_fact_sheets_site_url ON fact_sheets(site_url);
-CREATE INDEX idx_fact_sheets_status ON fact_sheets(status);
+CREATE INDEX IF NOT EXISTS idx_fact_sheets_project ON fact_sheets(project_id);
+CREATE INDEX IF NOT EXISTS idx_fact_sheets_site_url ON fact_sheets(site_url);
+CREATE INDEX IF NOT EXISTS idx_fact_sheets_status ON fact_sheets(status);

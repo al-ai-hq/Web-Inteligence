@@ -13,10 +13,9 @@ describe("Ga4Client", () => {
     } as Response);
 
     const client = new Ga4Client("test-token", "123456");
-    await client.getPageMetrics(
-      { start: "2026-09-01", end: "2026-10-01" },
-      ["https://example.com/about"],
-    );
+    await client.getPageMetrics({ start: "2026-09-01", end: "2026-10-01" }, [
+      "https://example.com/about",
+    ]);
 
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining("properties/123456:runReport"),
@@ -37,10 +36,9 @@ describe("Ga4Client", () => {
 
     const client = new Ga4Client("bad-token", "123456");
     await expect(
-      client.getPageMetrics(
-        { start: "2026-09-01", end: "2026-10-01" },
-        ["https://example.com/about"],
-      ),
+      client.getPageMetrics({ start: "2026-09-01", end: "2026-10-01" }, [
+        "https://example.com/about",
+      ]),
     ).rejects.toThrow("GA4 Data API error: 403");
   });
 
@@ -51,10 +49,10 @@ describe("Ga4Client", () => {
     } as Response);
 
     const client = new Ga4Client("test-token", "123456");
-    await client.getPageMetrics(
-      { start: "2026-09-01", end: "2026-10-01" },
-      ["https://example.com/about", "https://example.com/contact"],
-    );
+    await client.getPageMetrics({ start: "2026-09-01", end: "2026-10-01" }, [
+      "https://example.com/about",
+      "https://example.com/contact",
+    ]);
 
     const callBody = JSON.parse(vi.mocked(global.fetch).mock.calls[0]![1]!.body as string);
     expect(callBody.dimensionFilter.filter.inListFilter.values).toEqual(["/about", "/contact"]);

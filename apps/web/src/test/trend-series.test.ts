@@ -30,7 +30,9 @@ describe("buildTrendSeries", () => {
     ];
     const points = buildTrendSeries(records);
     expect(points).toHaveLength(1);
-    expect(points[0]!.score).toBe(72);
+    const first = points[0];
+    if (!first) throw new Error("expected one point");
+    expect(first.score).toBe(72);
   });
 
   it("sorts ascending by date from newest-first input", () => {
@@ -45,7 +47,10 @@ describe("buildTrendSeries", () => {
       },
     ];
     const points = buildTrendSeries(records);
-    expect(points[0]!.date).toBe("2026-10-01T00:00:00Z");
-    expect(points[1]!.date).toBe("2026-10-10T00:00:00Z");
+    const first = points[0];
+    const second = points[1];
+    if (!first || !second) throw new Error("expected two points");
+    expect(first.date).toBe("2026-10-01T00:00:00Z");
+    expect(second.date).toBe("2026-10-10T00:00:00Z");
   });
 });

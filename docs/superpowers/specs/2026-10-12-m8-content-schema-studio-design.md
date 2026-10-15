@@ -93,18 +93,18 @@ interface ContentBrief {
   project_id: string;
   audit_id: string;
   status: "draft" | "approved" | "rejected";
-  
+
   // Opportunity link
   opportunity_type: "unmapped_cluster" | "low_ctr" | "visibility_gap" | "aeo_failure";
   opportunity_ref: string; // cluster_id, query_id, prompt_id, or finding_id
-  
+
   // Page definition
   page_goal: string;
   audience: string;
   target_action: string;
   target_url: string | null; // existing page to improve, or null for new page
   proposed_slug: string | null; // for new pages
-  
+
   // Target cluster
   primary_keyword: string;
   keyword_variants: { keyword: string; language: "ar" | "en"; normalized?: string }[];
@@ -115,7 +115,7 @@ interface ContentBrief {
   volume_source: string | null;
   position: number | null;
   position_source: string | null;
-  
+
   // Observations
   observations: {
     date: string;
@@ -123,59 +123,59 @@ interface ContentBrief {
     urls_examined: string[];
     notes: string;
   }[];
-  
+
   // Recommended angle
   recommended_angle: string;
-  
+
   // Outlines (separate per language)
   outlines: {
     language: "ar" | "en";
     headings: { level: 1 | 2 | 3; text: string; notes?: string }[];
   }[];
-  
+
   // Questions to answer
   questions: {
     question: string;
     source: "search_console" | "upload" | "visibility_prompt" | "manual";
   }[];
-  
+
   // Entities and terms
   entities: string[];
   terms: string[];
-  
+
   // Title and meta options
   titles: { language: "ar" | "en"; text: string }[]; // 2-3 per language
   meta_descriptions: { language: "ar" | "en"; text: string }[]; // 2 per language
-  
+
   // Facts
   fact_sheet_ids: string[]; // from M7 footprint-store
   inputs_needed: string[]; // proof points client must supply
-  
+
   // Internal links
   internal_links: { url: string; anchor: string; reason: string }[];
-  
+
   // Schema types
   schema_types: string[]; // e.g., ["Article", "FAQPage", "Product"]
-  
+
   // Length guidance
   length_guidance: {
     min_words: number;
     max_words: number;
     basis: string; // e.g., "top 3 competitors average 1,800 words"
   };
-  
+
   // CTA and conversion
   cta: string;
   conversion_notes: string;
   regulated_topic: "health" | "finance" | "legal" | null;
-  
+
   // Success measures
   success_measures: {
     metric: "impressions" | "clicks" | "average_position" | "panel_retest";
     target: string;
   }[];
   review_date: string; // ISO date
-  
+
   // Metadata
   created_by: string; // user email
   approved_by: string | null;
@@ -218,22 +218,23 @@ Arabic users often search without diacritics (ة, ى, hamza). The system normali
 ```typescript
 function normalizeArabicKeyword(keyword: string): string {
   return keyword
-    .replace(/[إأآا]/g, 'ا') // normalize alef variants
-    .replace(/ة/g, 'ه') // normalize taa marbuta
-    .replace(/ى/g, 'ي') // normalize alef maqsura
-    .replace(/[ؤئ]/g, 'و') // normalize hamza variants
-    .replace(/[\u064B-\u065F]/g, ''); // remove diacritics (tashkeel)
+    .replace(/[إأآا]/g, "ا") // normalize alef variants
+    .replace(/ة/g, "ه") // normalize taa marbuta
+    .replace(/ى/g, "ي") // normalize alef maqsura
+    .replace(/[ؤئ]/g, "و") // normalize hamza variants
+    .replace(/[\u064B-\u065F]/g, ""); // remove diacritics (tashkeel)
 }
 
 function processKeywordVariants(variants: { keyword: string; language: "ar" | "en" }[]) {
-  return variants.map(v => ({
+  return variants.map((v) => ({
     ...v,
-    normalized: v.language === 'ar' ? normalizeArabicKeyword(v.keyword) : v.keyword,
+    normalized: v.language === "ar" ? normalizeArabicKeyword(v.keyword) : v.keyword,
   }));
 }
 ```
 
 **Usage**
+
 - Store both original and normalized forms in `keyword_variants`
 - Use normalized form for matching (cannibalization checks, keyword mapping)
 - Display original form in UI
@@ -291,7 +292,7 @@ interface ContentDraft {
   brief_id: string;
   project_id: string;
   status: "drafting" | "review" | "approved" | "published";
-  
+
   // Author
   author: string; // named human author (required by spec §9)
   ai_assisted: boolean;
@@ -300,7 +301,7 @@ interface ContentDraft {
   // Client input
   client_input_received: boolean; // draft cannot start without client's first-hand input
   client_input_notes: string | null;
-  
+
   // Content by language
   content: {
     language: "ar" | "en";
@@ -309,35 +310,35 @@ interface ContentDraft {
     body: string; // HTML or Markdown
     headings: { level: 1 | 2 | 3; text: string }[];
   }[];
-  
+
   // Facts used
   facts_used: {
     fact_id: string;
     fact_sheet_id: string;
     citation: string;
   }[];
-  
+
   // Internal links
   internal_links: { url: string; anchor: string }[];
-  
+
   // Schema markup
   schema_json_ld: object | null;
-  
+
   // Metadata
   word_count: { ar: number; en: number };
   reading_time_minutes: { ar: number; en: number };
-  
+
   // Review
   arabic_reviewer: string | null; // required for Arabic drafts
   arabic_review_date: string | null;
   arabic_review_notes: string | null;
-  
+
   // Publication
   cms_draft_url: string | null;
   cms_pr_url: string | null;
   published_url: string | null;
   published_at: string | null;
-  
+
   // Timestamps
   created_at: string;
   updated_at: string;
@@ -517,7 +518,7 @@ interface FactManifest {
   id: string;
   project_id: string;
   fact_sheet_id: string; // links to M7 footprint-store
-  
+
   // Facts
   facts: {
     id: string;
@@ -534,7 +535,7 @@ interface FactManifest {
     requires_professional_review: boolean;
     expires_at: string | null;
   }[];
-  
+
   // Citations
   citations: {
     id: string;
@@ -543,7 +544,7 @@ interface FactManifest {
     citation_text: string;
     url: string | null;
   }[];
-  
+
   // Metadata
   created_by: string;
   created_at: string;
@@ -563,19 +564,19 @@ function flagRegulatedClaim(fact: Fact): {
   const healthKeywords = ["treat", "cure", "diagnose", "medicine", "drug"];
   const financeKeywords = ["invest", "return", "profit", "interest", "loan"];
   const legalKeywords = ["law", "legal", "court", "liability", "contract"];
-  
+
   const statement = fact.statement.toLowerCase();
-  
-  if (healthKeywords.some(k => statement.includes(k))) {
+
+  if (healthKeywords.some((k) => statement.includes(k))) {
     return { requires_review: true, topic: "health" };
   }
-  if (financeKeywords.some(k => statement.includes(k))) {
+  if (financeKeywords.some((k) => statement.includes(k))) {
     return { requires_review: true, topic: "finance" };
   }
-  if (legalKeywords.some(k => statement.includes(k))) {
+  if (legalKeywords.some((k) => statement.includes(k))) {
     return { requires_review: true, topic: "legal" };
   }
-  
+
   return { requires_review: false, topic: null };
 }
 ```
@@ -623,7 +624,7 @@ stateDiagram-v2
     Validated --> Previewed: per-page diff reviewed
     Previewed --> Approved: required approvers sign off
     Approved --> [*]
-    
+
     Draft --> Rejected: checks fail or approver rejects
     Validated --> Rejected: approver rejects
     Previewed --> Rejected: approver rejects
@@ -645,12 +646,12 @@ stateDiagram-v2
 
 ### Risk Tiers (from spec §10)
 
-| Tier | Examples | Approval | Rollout |
-|------|----------|----------|---------|
-| 1 – Low | Meta description, image alt, OG tags | One approver | Canary 1-2 pages, then batches (up to 25) |
-| 2 – Medium | Title, H1, JSON-LD, internal links, content blocks | One approver after per-page diff | Page by page |
-| 3 – High | robots.txt, meta robots, noindex, canonical, redirects, hreflang, sitemap, slugs, templates | Two approvers; requester cannot approve | Staging or PR, one change at a time, in change window |
-| Forbidden | Deleting pages, new pages without author, fabricated reviews/ratings/claims, hidden text, cloaking, link schemes | Never | — |
+| Tier       | Examples                                                                                                         | Approval                                | Rollout                                               |
+| ---------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ----------------------------------------------------- |
+| 1 – Low    | Meta description, image alt, OG tags                                                                             | One approver                            | Canary 1-2 pages, then batches (up to 25)             |
+| 2 – Medium | Title, H1, JSON-LD, internal links, content blocks                                                               | One approver after per-page diff        | Page by page                                          |
+| 3 – High   | robots.txt, meta robots, noindex, canonical, redirects, hreflang, sitemap, slugs, templates                      | Two approvers; requester cannot approve | Staging or PR, one change at a time, in change window |
+| Forbidden  | Deleting pages, new pages without author, fabricated reviews/ratings/claims, hidden text, cloaking, link schemes | Never                                   | —                                                     |
 
 ### Approval Record
 
@@ -659,7 +660,7 @@ interface ApprovalRecord {
   id: string;
   change_set_id: string;
   risk_tier: 1 | 2 | 3;
-  
+
   // Approvers
   approvers: {
     user_id: string;
@@ -668,19 +669,19 @@ interface ApprovalRecord {
     approved_at: string;
     is_requester: boolean;
   }[];
-  
+
   // Snapshot
   snapshot: {
     taken_at: string;
     values: Record<string, unknown>; // current values before change
   };
-  
+
   // Expiry
   expires_at: string; // approval expires after N days
-  
+
   // Status
   status: "pending" | "approved" | "rejected" | "expired";
-  
+
   // Metadata
   created_at: string;
   updated_at: string;
@@ -702,6 +703,7 @@ interface ApprovalRecord {
 Deterministic checks that must pass before a change set moves from `Draft` to `Validated`:
 
 **Length Checks**
+
 - Title: max 60 characters
 - Meta description: max 160 characters
 - H1: max 70 characters
@@ -709,21 +711,25 @@ Deterministic checks that must pass before a change set moves from `Draft` to `V
 - Open Graph description: max 200 characters
 
 **Language Validation**
+
 - Detect language (Arabic/English) using character set analysis
 - Verify content language matches declared language
 - Flag mixed-language content for review
 
 **JSON-LD Validation**
+
 - Parse as valid JSON
 - Validate against schema.org vocabulary (required properties present, property types correct)
 - No orphaned nodes (all referenced entities defined)
 
 **Allowed Fields per Risk Tier**
+
 - Tier 1: meta description, image alt, Open Graph tags
 - Tier 2: title, H1, JSON-LD, internal links, content blocks
 - Tier 3: robots.txt, meta robots, noindex, canonical, redirects, hreflang, sitemap, slugs, templates
 
 **Forbidden Patterns**
+
 - Hidden text (CSS `display: none`, `visibility: hidden`, same-color text)
 - Cloaking (different content for users and search engines)
 - Link schemes (paid links without `rel="sponsored"`, link exchanges, private blog networks)
@@ -732,6 +738,7 @@ Deterministic checks that must pass before a change set moves from `Draft` to `V
 - Doorway pages (multiple pages optimized for similar queries)
 
 **Cannibalization Check**
+
 - For title and H1 changes: verify the new title/H1 doesn't duplicate another page's title/H1 in the same project
 - Query existing pages by title and H1, flag duplicates
 
@@ -751,8 +758,8 @@ The following changes are never approved, regardless of risk tier:
 ```typescript
 function isForbidden(change: ChangeSetItem): { forbidden: boolean; reason?: string } {
   // Check for deletion
-  if (change.field_name === 'status' && change.new_value === 'deleted') {
-    return { forbidden: true, reason: 'Page deletion is forbidden; use redirects or noindex' };
+  if (change.field_name === "status" && change.new_value === "deleted") {
+    return { forbidden: true, reason: "Page deletion is forbidden; use redirects or noindex" };
   }
 
   // Check for hidden text patterns
@@ -761,13 +768,13 @@ function isForbidden(change: ChangeSetItem): { forbidden: boolean; reason?: stri
     /visibility\s*:\s*hidden/i,
     /color\s*:\s*(#fff|white|transparent)/i,
   ];
-  if (hiddenTextPatterns.some(p => p.test(change.new_value))) {
-    return { forbidden: true, reason: 'Hidden text detected' };
+  if (hiddenTextPatterns.some((p) => p.test(change.new_value))) {
+    return { forbidden: true, reason: "Hidden text detected" };
   }
 
   // Check for fabricated reviews (no real review data)
-  if (change.field_name === 'review' && !change.evidence_citation) {
-    return { forbidden: true, reason: 'Reviews must cite evidence' };
+  if (change.field_name === "review" && !change.evidence_citation) {
+    return { forbidden: true, reason: "Reviews must cite evidence" };
   }
 
   return { forbidden: false };
@@ -799,6 +806,7 @@ interface ChangeWindow {
 **Default**
 
 If no change window is defined for a project, the default is:
+
 - Day: Tuesday (day_of_week: 2)
 - Time: 10:00-12:00
 - Timezone: Project timezone (from project settings)
@@ -808,28 +816,33 @@ If no change window is defined for a project, the default is:
 The following are M9 scope and not implemented in M8:
 
 **Verification and Rollback**
+
 - Tier 1–2 writes that don't match revert automatically only when: (a) approval authorized automatic rollback, (b) rollback target matches stored snapshot, (c) connector supports reliable reversal, (d) deterministic read-back finds exact mismatch. Otherwise they pause for human review.
 - Tier 3 reverts only on human decision.
 - Verification re-fetches each changed URL and compares live values with approved ones.
 
 **Idempotency Keys**
+
 - UUIDs generated per change set item
 - Stored in connector state
 - Sent with each write attempt to prevent duplicate writes
 - Connector never retries a write without its idempotency key
 
 **Snapshots**
+
 - Captures current live values for all fields in the change set
 - Retrieved by connector before any writes
 - Stored in approval record for rollback reference
 
 **Connector Approval Model**
+
 - Which CMS connectors are approved (WordPress, Webflow, Shopify, etc.)
 - How connectors are validated (contract tests, rollback tests)
 - Connector-specific rate limits and retry logic
 - Defined in M9 connector design
 
 **Connector Writes**
+
 - Connector service is the only writer to client sites
 - M8 never writes directly to client sites
 - Approved change sets are passed to M9 connector for execution
@@ -866,6 +879,7 @@ The following are M9 scope and not implemented in M8:
 Add a `content-strategist` agent configuration in `services/agents/src/agents/`.
 
 **Tools:**
+
 - `find_opportunities` (existing, from M3)
 - `check_cannibalization` (existing, from M3)
 - `write_brief` (existing, from M3 — enhance to use `@wpi/content-briefs`)

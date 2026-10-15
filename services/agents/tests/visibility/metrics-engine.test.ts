@@ -42,7 +42,9 @@ function makeRun(overrides: Partial<PromptRun> = {}): PromptRun {
 
 describe("computeMetrics", () => {
   it("returns unavailable metrics when zero valid runs", () => {
-    const runs = [makeRun({ status: "error", counted_in_denominator: null, brand_mentioned: null })];
+    const runs = [
+      makeRun({ status: "error", counted_in_denominator: null, brand_mentioned: null }),
+    ];
     const metrics = computeMetrics(runs, 5);
     expect(metrics.mention_rate).toBeNull();
     expect(metrics.recommendation_rate).toBeNull();

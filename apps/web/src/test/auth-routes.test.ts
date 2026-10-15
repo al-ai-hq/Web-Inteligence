@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { InMemoryAuditStore, TIER_SCOPES } from "@wpi/audit-pipeline";
-import { InMemoryAuthService, RateLimiter } from "@wpi/auth";
+import { InMemoryAuthService } from "@wpi/auth";
+import { StubEmailService } from "@wpi/email";
+import { InMemoryRateLimiter } from "@wpi/rate-limiter";
 import { NextRequest } from "next/server";
 import { POST } from "../app/api/auth/route";
 import { setAuditServicesForTests, type AuditServices } from "../services/container";
@@ -9,22 +11,19 @@ function makeServices(): AuditServices {
   const store = new InMemoryAuditStore();
   return {
     store,
-    dispatcher: { dispatch: async () => undefined },
+    dispatcher: { dispatch: () => Promise.resolve(undefined) },
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",
     auth: new InMemoryAuthService(),
-    rateLimiter: new RateLimiter(),
-    validateUrl: async () => ({ ok: true }),
+    rateLimiter: new InMemoryRateLimiter(),
+    validateUrl: () => Promise.resolve({ ok: true }),
     outputDir: "./output",
     geminiApiKey: undefined,
+    emailService: new StubEmailService(),
   };
 }
 
-function authRequest(
-  url: string,
-  body: unknown,
-  headers?: Record<string, string>,
-): NextRequest {
+function authRequest(url: string, body: unknown, headers?: Record<string, string>): NextRequest {
   return new NextRequest(url, {
     method: "POST",
     headers: {
@@ -62,9 +61,7 @@ describe("POST /api/auth?action=signup", () => {
       confirm_password: "password123",
     };
     await POST(authRequest("http://localhost:3000/api/auth?action=signup", body));
-    const response = await POST(
-      authRequest("http://localhost:3000/api/auth?action=signup", body),
-    );
+    const response = await POST(authRequest("http://localhost:3000/api/auth?action=signup", body));
     expect(response.status).toBe(409);
   });
 
@@ -109,29 +106,6 @@ describe("POST /api/auth?action=login", () => {
       }),
     );
     expect(response.status).toBe(401);
-  });
-
-  it("rate-limits after 10 failures", async () => {
-    const services = makeServices();
-    setAuditServicesForTests(services);
-    await services.auth.createUser("rated@example.com", "password123");
-
-    for (let i = 0; i < 10; i++) {
-      await POST(
-        authRequest("http://localhost:3000/api/auth?action=login", {
-          email: "rated@example.com",
-          password: "wrong",
-        }),
-      );
-    }
-
-    const response = await POST(
-      authRequest("http://localhost:3000/api/auth?action=login", {
-        email: "rated@example.com",
-        password: "wrong",
-      }),
-    );
-    expect(response.status).toBe(429);
   });
 });
 

@@ -24,20 +24,25 @@
 ## File Structure
 
 **Provider Layer (services/agents/src/providers/):**
+
 - Modify: `types.ts` — add ContentPart union, optional content field on CompletionRequest
 - Modify: `gemini-adapter.ts` — build Part[] when content present
 - Modify: `model-resolver.ts` — add vision_capable tier
 
 **Evidence Types (packages/core/src/types/):**
+
 - Modify: `experience-evidence.ts` — replace string screenshot IDs with ScreenshotRef objects
 
 **Core Barrel Export (packages/core/src/):**
+
 - Create: `index.ts` — barrel export for all public types and functions
 
 **Screenshot Capture (services/crawler/src/):**
+
 - Create: `screenshot-capture.ts` — captureScreenshots(), captureViewport(), captureFullPage(), captureAboveFold()
 
 **Experience Reviewer (services/agents/src/experience-reviewer/):**
+
 - Create: `image-loader.ts` — read PNG from disk → base64 ContentPart[]
 - Create: `response-parser.ts` — parse JSON response → findings + dimension score
 - Create: `dimension-prompt.ts` — build per-dimension multimodal prompt
@@ -45,11 +50,13 @@
 - Create: `index.ts` — barrel export
 
 **Integration:**
+
 - Modify: `services/agents/src/index.ts` — export experience reviewer
 - Modify: `services/agents/package.json` — add @wpi/core workspace dependency
 - Modify: `services/crawler/package.json` — add playwright dependency
 
 **Tests:**
+
 - services/agents/tests/providers/gemini-adapter.test.ts (extend)
 - services/agents/tests/providers/model-resolver.test.ts (extend)
 - services/agents/tests/experience-reviewer/image-loader.test.ts
@@ -64,10 +71,12 @@
 ### Task 1: ContentPart Type and CompletionRequest Extension
 
 **Files:**
+
 - Modify: `services/agents/src/providers/types.ts:7-14`
 - Test: `services/agents/tests/providers/types.test.ts`
 
 **Interfaces:**
+
 - Consumes: existing CompletionRequest interface
 - Produces: ContentPart union type, CompletionRequest with optional content field
 
@@ -133,8 +142,7 @@ Edit `services/agents/src/providers/types.ts`:
 
 ```typescript
 export type ContentPart =
-  | { type: 'text'; text: string }
-  | { type: 'image'; mimeType: string; data: string };
+  { type: "text"; text: string } | { type: "image"; mimeType: string; data: string };
 
 export interface CompletionRequest {
   model: string;
@@ -169,10 +177,12 @@ git commit -m "feat(agents): add ContentPart type and optional content field to 
 ### Task 2: GeminiAdapter Multimodal Support
 
 **Files:**
+
 - Modify: `services/agents/src/providers/gemini-adapter.ts:24-51`
 - Test: `services/agents/tests/providers/gemini-adapter.test.ts`
 
 **Interfaces:**
+
 - Consumes: CompletionRequest with optional content field (Task 1)
 - Produces: GeminiAdapter that builds Part[] when content present
 
@@ -182,7 +192,9 @@ Add to `services/agents/tests/providers/gemini-adapter.test.ts`:
 
 ```typescript
 it("builds Part[] array when content field is present", async () => {
-  const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+  const { __mockGenerateContent } = (await import("@google/genai")) as {
+    __mockGenerateContent: ReturnType<typeof vi.fn>;
+  };
   __mockGenerateContent.mockResolvedValueOnce({
     text: "Evaluation complete",
     usageMetadata: {
@@ -209,12 +221,14 @@ it("builds Part[] array when content field is present", async () => {
         { text: "Evaluate the screenshots" },
         { inlineData: { mimeType: "image/png", data: "base64imagedata" } },
       ],
-    })
+    }),
   );
 });
 
 it("uses userPrompt string when content field is absent (backward compatible)", async () => {
-  const { __mockGenerateContent } = await import("@google/genai") as { __mockGenerateContent: ReturnType<typeof vi.fn> };
+  const { __mockGenerateContent } = (await import("@google/genai")) as {
+    __mockGenerateContent: ReturnType<typeof vi.fn>;
+  };
   __mockGenerateContent.mockResolvedValueOnce({
     text: "Response",
     usageMetadata: {
@@ -233,7 +247,7 @@ it("uses userPrompt string when content field is absent (backward compatible)", 
   expect(__mockGenerateContent).toHaveBeenCalledWith(
     expect.objectContaining({
       contents: "Hello",
-    })
+    }),
   );
 });
 ```
@@ -248,6 +262,7 @@ Expected: FAIL — contents is still request.userPrompt (string), not Part[]
 Edit `services/agents/src/providers/gemini-adapter.ts`:
 
 Add import at top:
+
 ```typescript
 import type { Part } from "@google/genai";
 ```
@@ -256,8 +271,8 @@ Inside `complete()` method, replace line 32 (`contents: request.userPrompt,`) wi
 
 ```typescript
 const contents: string | Part[] = request.content
-  ? request.content.map(part => {
-      if (part.type === 'text') {
+  ? request.content.map((part) => {
+      if (part.type === "text") {
         return { text: part.text };
       }
       return {
@@ -271,6 +286,7 @@ const contents: string | Part[] = request.content
 ```
 
 Then pass `contents` to generateContent:
+
 ```typescript
 const response = await this.client.models.generateContent({
   model: request.model,
@@ -303,10 +319,12 @@ git commit -m "feat(agents): GeminiAdapter builds Part[] for multimodal content"
 ### Task 3: vision_capable Model Tier
 
 **Files:**
+
 - Modify: `services/agents/src/providers/model-resolver.ts:1-5`
 - Test: `services/agents/tests/providers/model-resolver.test.ts`
 
 **Interfaces:**
+
 - Consumes: existing resolveModel() function
 - Produces: vision_capable tier resolving to gemini-2.5-pro
 
@@ -355,9 +373,11 @@ git commit -m "feat(agents): add vision_capable model tier for Gemini 2.5 Pro"
 ### Task 4: Core Barrel Export
 
 **Files:**
+
 - Create: `packages/core/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: all public types and functions from @wpi/core
 - Produces: barrel export for external consumption
 
@@ -366,21 +386,21 @@ git commit -m "feat(agents): add vision_capable model tier for Gemini 2.5 Pro"
 Create `packages/core/src/index.ts`:
 
 ```typescript
-export type { ExperienceEvidencePackage, ScreenshotRef } from './types/experience-evidence.js';
-export type { ReviewerTrace } from './types/reviewer-trace.js';
-export type { DimensionScore, ExperienceScoreResult } from './types/experience-score.js';
-export type { CategoryResult } from './types/readiness.js';
-export { loadWeightConfig, validateWeights } from './experience/weight-config.js';
-export { calculateDimensionScore, calculateOverallScore } from './experience/scoring-engine.js';
-export { loadProjectOverrides, validateOverrides } from './experience/project-overrides.js';
-export type { HeadingExtractorOutput } from './extractors/heading.js';
-export type { FormExtractorOutput } from './extractors/form.js';
-export type { ContactExtractorOutput } from './extractors/contact.js';
-export type { PolicyExtractorOutput } from './extractors/policy.js';
-export type { LanguageExtractorOutput } from './extractors/language.js';
-export type { AnalyticsExtractorOutput } from './extractors/analytics.js';
-export type { ViewportExtractorOutput } from './extractors/viewport.js';
-export type { WayfindingExtractorOutput } from './extractors/wayfinding.js';
+export type { ExperienceEvidencePackage, ScreenshotRef } from "./types/experience-evidence.js";
+export type { ReviewerTrace } from "./types/reviewer-trace.js";
+export type { DimensionScore, ExperienceScoreResult } from "./types/experience-score.js";
+export type { CategoryResult } from "./types/readiness.js";
+export { loadWeightConfig, validateWeights } from "./experience/weight-config.js";
+export { calculateDimensionScore, calculateOverallScore } from "./experience/scoring-engine.js";
+export { loadProjectOverrides, validateOverrides } from "./experience/project-overrides.js";
+export type { HeadingExtractorOutput } from "./extractors/heading.js";
+export type { FormExtractorOutput } from "./extractors/form.js";
+export type { ContactExtractorOutput } from "./extractors/contact.js";
+export type { PolicyExtractorOutput } from "./extractors/policy.js";
+export type { LanguageExtractorOutput } from "./extractors/language.js";
+export type { AnalyticsExtractorOutput } from "./extractors/analytics.js";
+export type { ViewportExtractorOutput } from "./extractors/viewport.js";
+export type { WayfindingExtractorOutput } from "./extractors/wayfinding.js";
 ```
 
 - [ ] **Step 2: Build core package**
@@ -400,10 +420,12 @@ git commit -m "feat(core): add barrel export for public API"
 ### Task 5: ScreenshotRef Type Evolution
 
 **Files:**
+
 - Modify: `packages/core/src/types/experience-evidence.ts`
 - Test: `packages/core/src/types/experience-evidence.test.ts`
 
 **Interfaces:**
+
 - Consumes: existing ExperienceEvidencePackage
 - Produces: ScreenshotRef interface, updated screenshots field
 
@@ -476,23 +498,25 @@ Expected: FAIL — ScreenshotRef not exported, screenshots field expects string 
 Edit `packages/core/src/types/experience-evidence.ts`:
 
 Add at top:
+
 ```typescript
 export interface ScreenshotRef {
   evidence_id: string;
   path: string;
-  mime_type: 'image/png';
+  mime_type: "image/png";
   width: number;
   height: number;
 }
 ```
 
 Replace the screenshots field in ExperienceEvidencePackage:
+
 ```typescript
 screenshots: {
   viewport: ScreenshotRef | null;
   full_page: ScreenshotRef | null;
   above_fold: ScreenshotRef | null;
-};
+}
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -517,17 +541,20 @@ git commit -m "feat(core): replace string screenshot IDs with ScreenshotRef obje
 ### Task 6: Screenshot Capture Module
 
 **Files:**
+
 - Create: `services/crawler/src/screenshot-capture.ts`
 - Test: `services/crawler/tests/screenshot-capture.test.ts`
 - Modify: `services/crawler/package.json` (add playwright dependency)
 
 **Interfaces:**
+
 - Consumes: Playwright Page object
 - Produces: ScreenshotResult with viewport, full_page, above_fold
 
 - [ ] **Step 1: Add playwright dependency**
 
 Edit `services/crawler/package.json`, add to dependencies:
+
 ```json
 "playwright": "^1.48.0"
 ```
@@ -564,7 +591,8 @@ describe("captureScreenshots", () => {
 
   it("returns null for viewport when capture fails", async () => {
     const page = mockPage({
-      screenshot: vi.fn()
+      screenshot: vi
+        .fn()
         .mockRejectedValueOnce(new Error("viewport failed"))
         .mockResolvedValue(Buffer.from("fake-png"))
         .mockResolvedValue(Buffer.from("fake-png")),
@@ -598,7 +626,7 @@ describe("captureScreenshots", () => {
     expect(page.screenshot).toHaveBeenCalledWith(
       expect.objectContaining({
         clip: { x: 0, y: 0, width: 1280, height: 1080 },
-      })
+      }),
     );
   });
 });
@@ -614,11 +642,11 @@ Expected: FAIL — "Cannot find module '../src/screenshot-capture.js'"
 Create `services/crawler/src/screenshot-capture.ts`:
 
 ```typescript
-import type { Page } from 'playwright';
+import type { Page } from "playwright";
 
 export interface ScreenshotImage {
   buffer: Buffer;
-  mime_type: 'image/png';
+  mime_type: "image/png";
   width: number;
   height: number;
 }
@@ -641,11 +669,11 @@ export async function captureScreenshots(page: Page): Promise<ScreenshotResult> 
 
 async function captureViewport(page: Page): Promise<ScreenshotImage | null> {
   try {
-    const buffer = await page.screenshot({ type: 'png' });
+    const buffer = await page.screenshot({ type: "png" });
     const viewport = page.viewportSize();
     return {
       buffer,
-      mime_type: 'image/png',
+      mime_type: "image/png",
       width: viewport?.width ?? 1280,
       height: viewport?.height ?? 720,
     };
@@ -656,14 +684,14 @@ async function captureViewport(page: Page): Promise<ScreenshotImage | null> {
 
 async function captureFullPage(page: Page): Promise<ScreenshotImage | null> {
   try {
-    const buffer = await page.screenshot({ type: 'png', fullPage: true });
+    const buffer = await page.screenshot({ type: "png", fullPage: true });
     const dimensions = await page.evaluate(() => ({
       width: document.documentElement.scrollWidth,
       height: document.documentElement.scrollHeight,
     }));
     return {
       buffer,
-      mime_type: 'image/png',
+      mime_type: "image/png",
       width: dimensions.width,
       height: dimensions.height,
     };
@@ -677,12 +705,12 @@ async function captureAboveFold(page: Page): Promise<ScreenshotImage | null> {
     const viewport = page.viewportSize();
     const width = viewport?.width ?? 1280;
     const buffer = await page.screenshot({
-      type: 'png',
+      type: "png",
       clip: { x: 0, y: 0, width, height: ABOVE_FOLD_HEIGHT },
     });
     return {
       buffer,
-      mime_type: 'image/png',
+      mime_type: "image/png",
       width,
       height: ABOVE_FOLD_HEIGHT,
     };
@@ -714,16 +742,19 @@ git commit -m "feat(crawler): add screenshot capture module with viewport, full-
 ### Task 7: Image Loader
 
 **Files:**
+
 - Create: `services/agents/src/experience-reviewer/image-loader.ts`
 - Test: `services/agents/tests/experience-reviewer/image-loader.test.ts`
 
 **Interfaces:**
+
 - Consumes: ScreenshotRef objects with file paths
 - Produces: ContentPart[] with base64-encoded images
 
 - [ ] **Step 1: Add @wpi/core dependency to agents service**
 
 Edit `services/agents/package.json`, add to dependencies:
+
 ```json
 "@wpi/core": "workspace:*"
 ```
@@ -853,45 +884,43 @@ Expected: FAIL — "Cannot find module"
 Create `services/agents/src/experience-reviewer/image-loader.ts`:
 
 ```typescript
-import { readFileSync } from 'node:fs';
-import type { ContentPart } from '../providers/types.js';
-import type { ScreenshotRef } from '@wpi/core';
+import { readFileSync } from "node:fs";
+import type { ContentPart } from "../providers/types.js";
+import type { ScreenshotRef } from "@wpi/core";
 
-export function loadImagesAsContent(
-  screenshots: {
-    viewport: ScreenshotRef | null;
-    full_page: ScreenshotRef | null;
-    above_fold: ScreenshotRef | null;
-  }
-): ContentPart[] {
+export function loadImagesAsContent(screenshots: {
+  viewport: ScreenshotRef | null;
+  full_page: ScreenshotRef | null;
+  above_fold: ScreenshotRef | null;
+}): ContentPart[] {
   const parts: ContentPart[] = [];
 
   if (screenshots.viewport) {
     const buffer = readFileSync(screenshots.viewport.path);
-    const base64 = buffer.toString('base64');
+    const base64 = buffer.toString("base64");
     parts.push({
-      type: 'image',
-      mimeType: 'image/png',
+      type: "image",
+      mimeType: "image/png",
       data: base64,
     });
   }
 
   if (screenshots.above_fold) {
     const buffer = readFileSync(screenshots.above_fold.path);
-    const base64 = buffer.toString('base64');
+    const base64 = buffer.toString("base64");
     parts.push({
-      type: 'image',
-      mimeType: 'image/png',
+      type: "image",
+      mimeType: "image/png",
       data: base64,
     });
   }
 
   if (parts.length === 0 && screenshots.full_page) {
     const buffer = readFileSync(screenshots.full_page.path);
-    const base64 = buffer.toString('base64');
+    const base64 = buffer.toString("base64");
     parts.push({
-      type: 'image',
-      mimeType: 'image/png',
+      type: "image",
+      mimeType: "image/png",
       data: base64,
     });
   }
@@ -917,10 +946,12 @@ git commit -m "feat(agents): add image loader for base64 encoding of screenshot 
 ### Task 8: Response Parser
 
 **Files:**
+
 - Create: `services/agents/src/experience-reviewer/response-parser.ts`
 - Test: `services/agents/tests/experience-reviewer/response-parser.test.ts`
 
 **Interfaces:**
+
 - Consumes: JSON response text from Gemini, dimension name, language, market
 - Produces: findings array + dimension score
 
@@ -955,7 +986,7 @@ describe("parseDimensionResponse", () => {
       "design_hierarchy",
       responseText,
       "en",
-      "us"
+      "us",
     );
 
     expect(findings).toHaveLength(2);
@@ -970,12 +1001,7 @@ describe("parseDimensionResponse", () => {
   });
 
   it("returns error findings when JSON parsing fails", () => {
-    const { findings } = parseDimensionResponse(
-      "design_hierarchy",
-      "not valid json",
-      "en",
-      "us"
-    );
+    const { findings } = parseDimensionResponse("design_hierarchy", "not valid json", "en", "us");
 
     expect(findings.length).toBeGreaterThan(0);
     expect(findings[0].result_state).toBe("error");
@@ -995,12 +1021,7 @@ describe("parseDimensionResponse", () => {
       ],
     });
 
-    const { findings } = parseDimensionResponse(
-      "design_hierarchy",
-      responseText,
-      "ar",
-      "sa"
-    );
+    const { findings } = parseDimensionResponse("design_hierarchy", responseText, "ar", "sa");
 
     expect(findings[0].data.reviewer_trace.language_direction).toBe("rtl");
   });
@@ -1017,50 +1038,50 @@ Expected: FAIL — "Cannot find module"
 Create `services/agents/src/experience-reviewer/response-parser.ts`:
 
 ```typescript
-import type { ReviewerTrace } from '@wpi/core';
-import { calculateDimensionScore, loadWeightConfig } from '@wpi/core';
+import type { ReviewerTrace } from "@wpi/core";
+import { calculateDimensionScore, loadWeightConfig } from "@wpi/core";
 
 interface DimensionResponse {
   criteria: Array<{
     criterion_id: string;
-    result: 'pass' | 'partial' | 'fail' | 'not_applicable';
-    confidence: 'high' | 'medium' | 'low';
+    result: "pass" | "partial" | "fail" | "not_applicable";
+    confidence: "high" | "medium" | "low";
     rationale: string;
   }>;
 }
 
 const CRITERION_NAMES: Record<string, string> = {
-  'EXP-DH-01': 'Visual hierarchy',
-  'EXP-DH-02': 'Heading structure',
-  'EXP-DH-03': 'Whitespace and grouping',
-  'EXP-DH-04': 'Color contrast',
-  'EXP-DH-05': 'Typography scale',
-  'EXP-CP-01': 'Headline clarity',
-  'EXP-CP-02': 'Value proposition',
-  'EXP-CP-03': 'Call-to-action copy',
-  'EXP-CP-04': 'Content relevance',
-  'EXP-UX-01': 'Navigation clarity',
-  'EXP-UX-02': 'Search visibility',
-  'EXP-UX-03': 'Mobile responsiveness',
-  'EXP-UX-04': 'Load time perception',
-  'EXP-UX-05': 'Interaction feedback',
-  'EXP-TP-01': 'Trust signals',
-  'EXP-TP-02': 'Social proof',
-  'EXP-TP-03': 'Credentials',
-  'EXP-TP-04': 'Transparency',
-  'EXP-TP-05': 'Security indicators',
-  'EXP-CV-01': 'Conversion path clarity',
-  'EXP-CV-02': 'Form usability',
-  'EXP-CV-03': 'Contact accessibility',
-  'EXP-CV-04': 'Measurement setup',
-  'EXP-CV-05': 'Analytics coverage',
+  "EXP-DH-01": "Visual hierarchy",
+  "EXP-DH-02": "Heading structure",
+  "EXP-DH-03": "Whitespace and grouping",
+  "EXP-DH-04": "Color contrast",
+  "EXP-DH-05": "Typography scale",
+  "EXP-CP-01": "Headline clarity",
+  "EXP-CP-02": "Value proposition",
+  "EXP-CP-03": "Call-to-action copy",
+  "EXP-CP-04": "Content relevance",
+  "EXP-UX-01": "Navigation clarity",
+  "EXP-UX-02": "Search visibility",
+  "EXP-UX-03": "Mobile responsiveness",
+  "EXP-UX-04": "Load time perception",
+  "EXP-UX-05": "Interaction feedback",
+  "EXP-TP-01": "Trust signals",
+  "EXP-TP-02": "Social proof",
+  "EXP-TP-03": "Credentials",
+  "EXP-TP-04": "Transparency",
+  "EXP-TP-05": "Security indicators",
+  "EXP-CV-01": "Conversion path clarity",
+  "EXP-CV-02": "Form usability",
+  "EXP-CV-03": "Contact accessibility",
+  "EXP-CV-04": "Measurement setup",
+  "EXP-CV-05": "Analytics coverage",
 };
 
 export function parseDimensionResponse(
   dimension: string,
   responseText: string,
   language: string,
-  market: string
+  market: string,
 ): { findings: any[]; score: any } {
   let parsed: DimensionResponse;
   try {
@@ -1072,11 +1093,11 @@ export function parseDimensionResponse(
   const config = loadWeightConfig();
   const criteria = config.criteria[dimension];
 
-  const findings = parsed.criteria.map(c => ({
+  const findings = parsed.criteria.map((c) => ({
     id: `exp_${c.criterion_id}_${Date.now()}`,
     result_state: c.result,
     confidence: c.confidence,
-    evidence_ids: ['screenshot_viewport', 'screenshot_above_fold'],
+    evidence_ids: ["screenshot_viewport", "screenshot_above_fold"],
     data: {
       reviewer_trace: {
         rubric_version: config.methodology_version,
@@ -1085,27 +1106,27 @@ export function parseDimensionResponse(
         result: c.result,
         confidence: c.confidence,
         rationale: c.rationale,
-        evidence_ids: ['screenshot_viewport', 'screenshot_above_fold'],
-        reviewer_type: 'model',
-        model_id: 'gemini-pro-vision',
-        model_version: 'gemini-2.5-pro',
+        evidence_ids: ["screenshot_viewport", "screenshot_above_fold"],
+        reviewer_type: "model",
+        model_id: "gemini-pro-vision",
+        model_version: "gemini-2.5-pro",
         language,
-        language_direction: language === 'ar' ? 'rtl' : 'ltr',
+        language_direction: language === "ar" ? "rtl" : "ltr",
         market,
         evaluated_at: new Date().toISOString(),
-        prompt_version: '0.2.0',
+        prompt_version: "0.2.0",
         limitations: [],
       } as ReviewerTrace,
     },
   }));
 
   const score = calculateDimensionScore(
-    findings.map(f => ({
+    findings.map((f) => ({
       criterion_id: f.data.reviewer_trace.criterion_id,
       result: f.data.reviewer_trace.result,
       confidence: f.data.reviewer_trace.confidence,
     })),
-    criteria
+    criteria,
   );
 
   return { findings, score };
@@ -1115,40 +1136,40 @@ function createErrorFindings(dimension: string, language: string, market: string
   const config = loadWeightConfig();
   const criteria = config.criteria[dimension];
 
-  const findings = Object.keys(criteria).map(criterionId => ({
+  const findings = Object.keys(criteria).map((criterionId) => ({
     id: `exp_${criterionId}_${Date.now()}`,
-    result_state: 'error',
-    confidence: 'low',
+    result_state: "error",
+    confidence: "low",
     evidence_ids: [],
     data: {
       reviewer_trace: {
         rubric_version: config.methodology_version,
         criterion_id: criterionId,
         criterion_name: CRITERION_NAMES[criterionId] ?? criterionId,
-        result: 'error',
-        confidence: 'low',
-        rationale: 'Failed to parse model response',
+        result: "error",
+        confidence: "low",
+        rationale: "Failed to parse model response",
         evidence_ids: [],
-        reviewer_type: 'model',
-        model_id: 'gemini-pro-vision',
-        model_version: 'gemini-2.5-pro',
+        reviewer_type: "model",
+        model_id: "gemini-pro-vision",
+        model_version: "gemini-2.5-pro",
         language,
-        language_direction: language === 'ar' ? 'rtl' : 'ltr',
+        language_direction: language === "ar" ? "rtl" : "ltr",
         market,
         evaluated_at: new Date().toISOString(),
-        prompt_version: '0.2.0',
-        limitations: ['Model response parsing failed'],
+        prompt_version: "0.2.0",
+        limitations: ["Model response parsing failed"],
       } as ReviewerTrace,
     },
   }));
 
   const score = calculateDimensionScore(
-    findings.map(f => ({
+    findings.map((f) => ({
       criterion_id: f.data.reviewer_trace.criterion_id,
       result: f.data.reviewer_trace.result,
       confidence: f.data.reviewer_trace.confidence,
     })),
-    criteria
+    criteria,
   );
 
   return { findings, score };
@@ -1172,10 +1193,12 @@ git commit -m "feat(agents): add response parser for dimension evaluation result
 ### Task 9: Dimension Prompt Builder
 
 **Files:**
+
 - Create: `services/agents/src/experience-reviewer/dimension-prompt.ts`
 - Test: `services/agents/tests/experience-reviewer/dimension-prompt.test.ts`
 
 **Interfaces:**
+
 - Consumes: dimension name, ExperienceEvidencePackage, ContentPart[] (images)
 - Produces: systemPrompt string + content array
 
@@ -1221,7 +1244,7 @@ describe("buildDimensionPrompt", () => {
     const { systemPrompt, content } = buildDimensionPrompt(
       "design_hierarchy",
       mockEvidence,
-      imageParts
+      imageParts,
     );
 
     expect(systemPrompt).toContain("Design hierarchy");
@@ -1232,13 +1255,9 @@ describe("buildDimensionPrompt", () => {
 
   it("includes extractor results in text content", () => {
     const imageParts: ContentPart[] = [];
-    const { content } = buildDimensionPrompt(
-      "design_hierarchy",
-      mockEvidence,
-      imageParts
-    );
+    const { content } = buildDimensionPrompt("design_hierarchy", mockEvidence, imageParts);
 
-    const textPart = content.find(p => p.type === "text");
+    const textPart = content.find((p) => p.type === "text");
     expect(textPart).toBeDefined();
     expect(textPart!.text).toContain("https://example.com");
     expect(textPart!.text).toContain("en");
@@ -1249,11 +1268,7 @@ describe("buildDimensionPrompt", () => {
     const imageParts: ContentPart[] = [
       { type: "image", mimeType: "image/png", data: "base64data" },
     ];
-    const { content } = buildDimensionPrompt(
-      "design_hierarchy",
-      mockEvidence,
-      imageParts
-    );
+    const { content } = buildDimensionPrompt("design_hierarchy", mockEvidence, imageParts);
 
     expect(content).toHaveLength(2);
     expect(content[0].type).toBe("text");
@@ -1272,41 +1287,41 @@ Expected: FAIL — "Cannot find module"
 Create `services/agents/src/experience-reviewer/dimension-prompt.ts`:
 
 ```typescript
-import type { ContentPart } from '../providers/types.js';
-import type { ExperienceEvidencePackage } from '@wpi/core';
-import { loadWeightConfig } from '@wpi/core';
+import type { ContentPart } from "../providers/types.js";
+import type { ExperienceEvidencePackage } from "@wpi/core";
+import { loadWeightConfig } from "@wpi/core";
 
 const CRITERION_DESCRIPTIONS: Record<string, string> = {
-  'EXP-DH-01': 'Clear visual hierarchy with dominant elements',
-  'EXP-DH-02': 'Proper heading structure (H1-H6)',
-  'EXP-DH-03': 'Effective whitespace and visual grouping',
-  'EXP-DH-04': 'Sufficient color contrast for readability',
-  'EXP-DH-05': 'Consistent typography scale',
-  'EXP-CP-01': 'Clear, compelling headline',
-  'EXP-CP-02': 'Strong value proposition above the fold',
-  'EXP-CP-03': 'Actionable call-to-action copy',
-  'EXP-CP-04': 'Content relevance to target audience',
-  'EXP-UX-01': 'Intuitive navigation structure',
-  'EXP-UX-02': 'Visible search functionality',
-  'EXP-UX-03': 'Mobile-responsive layout',
-  'EXP-UX-04': 'Fast perceived load time',
-  'EXP-UX-05': 'Clear interaction feedback',
-  'EXP-TP-01': 'Visible trust signals (certifications, awards)',
-  'EXP-TP-02': 'Social proof (testimonials, reviews)',
-  'EXP-TP-03': 'Professional credentials displayed',
-  'EXP-TP-04': 'Transparent business information',
-  'EXP-TP-05': 'Security indicators (SSL, privacy)',
-  'EXP-CV-01': 'Clear conversion path to goal',
-  'EXP-CV-02': 'User-friendly form design',
-  'EXP-CV-03': 'Easy contact access',
-  'EXP-CV-04': 'Analytics and measurement setup',
-  'EXP-CV-05': 'Comprehensive analytics coverage',
+  "EXP-DH-01": "Clear visual hierarchy with dominant elements",
+  "EXP-DH-02": "Proper heading structure (H1-H6)",
+  "EXP-DH-03": "Effective whitespace and visual grouping",
+  "EXP-DH-04": "Sufficient color contrast for readability",
+  "EXP-DH-05": "Consistent typography scale",
+  "EXP-CP-01": "Clear, compelling headline",
+  "EXP-CP-02": "Strong value proposition above the fold",
+  "EXP-CP-03": "Actionable call-to-action copy",
+  "EXP-CP-04": "Content relevance to target audience",
+  "EXP-UX-01": "Intuitive navigation structure",
+  "EXP-UX-02": "Visible search functionality",
+  "EXP-UX-03": "Mobile-responsive layout",
+  "EXP-UX-04": "Fast perceived load time",
+  "EXP-UX-05": "Clear interaction feedback",
+  "EXP-TP-01": "Visible trust signals (certifications, awards)",
+  "EXP-TP-02": "Social proof (testimonials, reviews)",
+  "EXP-TP-03": "Professional credentials displayed",
+  "EXP-TP-04": "Transparent business information",
+  "EXP-TP-05": "Security indicators (SSL, privacy)",
+  "EXP-CV-01": "Clear conversion path to goal",
+  "EXP-CV-02": "User-friendly form design",
+  "EXP-CV-03": "Easy contact access",
+  "EXP-CV-04": "Analytics and measurement setup",
+  "EXP-CV-05": "Comprehensive analytics coverage",
 };
 
 export function buildDimensionPrompt(
   dimension: string,
   evidence: ExperienceEvidencePackage,
-  imageParts: ContentPart[]
+  imageParts: ContentPart[],
 ): { systemPrompt: string; content: ContentPart[] } {
   const config = loadWeightConfig();
   const dimensionConfig = config.dimensions[dimension];
@@ -1315,7 +1330,9 @@ export function buildDimensionPrompt(
   const systemPrompt = `You are evaluating a webpage's ${dimensionConfig.title}.
 
 Criteria:
-${Object.entries(criteria).map(([id, weight]) => `- ${id} (weight: ${weight}): ${CRITERION_DESCRIPTIONS[id] ?? id}`).join('\n')}
+${Object.entries(criteria)
+  .map(([id, weight]) => `- ${id} (weight: ${weight}): ${CRITERION_DESCRIPTIONS[id] ?? id}`)
+  .join("\n")}
 
 For each criterion, respond with:
 - result: 'pass', 'partial', 'fail', or 'not_applicable'
@@ -1335,7 +1352,7 @@ Respond in JSON format:
 }`;
 
   const textContent: ContentPart = {
-    type: 'text',
+    type: "text",
     text: `URL: ${evidence.page_url}
 Language: ${evidence.language}
 Market: ${evidence.market}
@@ -1370,11 +1387,13 @@ git commit -m "feat(agents): add dimension prompt builder for vision model evalu
 ### Task 10: Experience Reviewer Orchestrator
 
 **Files:**
+
 - Create: `services/agents/src/experience-reviewer/orchestrator.ts`
 - Create: `services/agents/src/experience-reviewer/index.ts`
 - Test: `services/agents/tests/experience-reviewer/orchestrator.test.ts`
 
 **Interfaces:**
+
 - Consumes: GeminiAdapter, CostTracker, ExperienceEvidencePackage
 - Produces: findings array + ExperienceScoreResult
 
@@ -1464,7 +1483,7 @@ describe("reviewExperience", () => {
       expect.objectContaining({
         audit_id: "audit-123",
         agent_name: "experience-reviewer",
-      })
+      }),
     );
   });
 
@@ -1501,14 +1520,14 @@ Expected: FAIL — "Cannot find module"
 Create `services/agents/src/experience-reviewer/orchestrator.ts`:
 
 ```typescript
-import type { GeminiAdapter } from '../providers/gemini-adapter.js';
-import { resolveModel, getModelPricing } from '../providers/model-resolver.js';
-import type { CostTracker } from '../providers/cost-tracker.js';
-import { buildDimensionPrompt } from './dimension-prompt.js';
-import { parseDimensionResponse } from './response-parser.js';
-import { loadImagesAsContent } from './image-loader.js';
-import { calculateOverallScore, loadWeightConfig } from '@wpi/core';
-import type { ExperienceEvidencePackage, ExperienceScoreResult } from '@wpi/core';
+import type { GeminiAdapter } from "../providers/gemini-adapter.js";
+import { resolveModel, getModelPricing } from "../providers/model-resolver.js";
+import type { CostTracker } from "../providers/cost-tracker.js";
+import { buildDimensionPrompt } from "./dimension-prompt.js";
+import { parseDimensionResponse } from "./response-parser.js";
+import { loadImagesAsContent } from "./image-loader.js";
+import { calculateOverallScore, loadWeightConfig } from "@wpi/core";
+import type { ExperienceEvidencePackage, ExperienceScoreResult } from "@wpi/core";
 
 export interface OrchestratorDeps {
   adapter: GeminiAdapter;
@@ -1517,18 +1536,18 @@ export interface OrchestratorDeps {
 }
 
 const DIMENSIONS = [
-  'design_hierarchy',
-  'copy_and_positioning_clarity',
-  'ux_and_navigation',
-  'trust_and_proof',
-  'conversion_path_and_measurement',
+  "design_hierarchy",
+  "copy_and_positioning_clarity",
+  "ux_and_navigation",
+  "trust_and_proof",
+  "conversion_path_and_measurement",
 ];
 
 export async function reviewExperience(
   evidence: ExperienceEvidencePackage,
-  deps: OrchestratorDeps
+  deps: OrchestratorDeps,
 ): Promise<{ findings: any[]; score: ExperienceScoreResult }> {
-  const model = resolveModel('vision_capable');
+  const model = resolveModel("vision_capable");
   const pricing = getModelPricing(model);
 
   const allFindings = [];
@@ -1545,7 +1564,7 @@ export async function reviewExperience(
     const response = await deps.adapter.complete({
       model,
       systemPrompt: prompt.systemPrompt,
-      userPrompt: '',
+      userPrompt: "",
       content: prompt.content,
       temperature: 0.3,
     });
@@ -1556,7 +1575,7 @@ export async function reviewExperience(
 
     deps.costTracker.record({
       audit_id: deps.auditId,
-      agent_name: 'experience-reviewer',
+      agent_name: "experience-reviewer",
       model,
       tokens_in: tokensIn,
       tokens_out: tokensOut,
@@ -1567,7 +1586,7 @@ export async function reviewExperience(
       dimension,
       response.content,
       evidence.language,
-      evidence.market
+      evidence.market,
     );
 
     allFindings.push(...findings);
@@ -1576,18 +1595,19 @@ export async function reviewExperience(
 
   const config = loadWeightConfig();
   const dimensionWeights = Object.fromEntries(
-    Object.entries(config.dimensions).map(([k, v]) => [k, v.weight])
+    Object.entries(config.dimensions).map(([k, v]) => [k, v.weight]),
   );
 
   const applicableDimensions = Object.keys(dimensionScores).length;
   const coverage = applicableDimensions / DIMENSIONS.length;
-  const confidence = applicableDimensions >= 3 ? 'high' : applicableDimensions >= 1 ? 'medium' : 'low';
+  const confidence =
+    applicableDimensions >= 3 ? "high" : applicableDimensions >= 1 ? "medium" : "low";
 
   const overallScore = calculateOverallScore(
     dimensionScores,
     dimensionWeights,
     coverage,
-    confidence
+    confidence,
   );
 
   return { findings: allFindings, score: overallScore };
@@ -1599,11 +1619,11 @@ export async function reviewExperience(
 Create `services/agents/src/experience-reviewer/index.ts`:
 
 ```typescript
-export { reviewExperience } from './orchestrator.js';
-export type { OrchestratorDeps } from './orchestrator.js';
-export { buildDimensionPrompt } from './dimension-prompt.js';
-export { parseDimensionResponse } from './response-parser.js';
-export { loadImagesAsContent } from './image-loader.js';
+export { reviewExperience } from "./orchestrator.js";
+export type { OrchestratorDeps } from "./orchestrator.js";
+export { buildDimensionPrompt } from "./dimension-prompt.js";
+export { parseDimensionResponse } from "./response-parser.js";
+export { loadImagesAsContent } from "./image-loader.js";
 ```
 
 - [ ] **Step 5: Run test to verify it passes**
@@ -1628,9 +1648,11 @@ git commit -m "feat(agents): add experience reviewer orchestrator with 5-dimensi
 ### Task 11: Export from Agents Service
 
 **Files:**
+
 - Modify: `services/agents/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: experience-reviewer module
 - Produces: public API export
 

@@ -29,6 +29,7 @@
 ## File Structure
 
 ### Shared Security Package
+
 - **Create:** `packages/security/package.json` — package manifest with zod, undici dependencies
 - **Create:** `packages/security/tsconfig.json` — TypeScript config extending base
 - **Create:** `packages/security/src/dns-resolver.ts` — controlled DNS resolution with rebinding defense
@@ -42,6 +43,7 @@
 - **Test:** `packages/security/tests/sitemap-parser.test.ts`
 
 ### Crawler Service (Crawl Job)
+
 - **Modify:** `services/crawler/package.json` — add dependencies: cheerio, zod, @google-cloud/storage, yaml
 - **Modify:** `services/crawler/tsconfig.json` — add references to security package
 - **Create:** `services/crawler/src/config/schema.ts` — zod schema for crawl-limits.yaml
@@ -58,6 +60,7 @@
 - **Test:** `services/crawler/tests/render-manifest.test.ts`
 
 ### Render Job Service
+
 - **Create:** `services/render-job/package.json` — package manifest with playwright, zod dependencies
 - **Create:** `services/render-job/tsconfig.json` — TypeScript config extending base
 - **Create:** `services/render-job/src/config/schema.ts` — zod schema for render-limits.yaml
@@ -70,6 +73,7 @@
 - **Test:** `services/render-job/tests/renderer.test.ts`
 
 ### Evidence Processor Service
+
 - **Create:** `services/evidence-processor/package.json` — package manifest with zod, @google-cloud/storage dependencies
 - **Create:** `services/evidence-processor/tsconfig.json` — TypeScript config extending base
 - **Create:** `services/evidence-processor/src/hash-verifier.ts` — re-compute content hashes (AC-12)
@@ -84,10 +88,12 @@
 - **Test:** `services/evidence-processor/tests/merger.test.ts`
 
 ### Configuration Files
+
 - **Create:** `config/crawl-limits.yaml` — runtime limits for crawl job
 - **Create:** `config/render-limits.yaml` — runtime limits for render job
 
 ### Test Fixtures
+
 - **Create:** `services/crawler/tests/fixtures/server.ts` — malicious-site fixture server
 - **Create:** `services/crawler/tests/fixtures/injection-payloads.ts` — XSS, prompt injection, CSV injection payloads
 - **Create:** `services/crawler/tests/fixtures/decompression-bombs.ts` — gzip bomb generator
@@ -97,6 +103,7 @@
 - **Create:** `services/crawler/tests/integration/log-redaction.test.ts` — TS-LOGREDACT test suite
 
 ### Infrastructure
+
 - **Create:** `workflows/audit-workflow.yaml` — Cloud Workflow definition
 - **Create:** `infra/terraform/crawl-project/main.tf` — crawl project resources
 - **Create:** `infra/terraform/app-project/main.tf` — app project resources
@@ -107,6 +114,7 @@
 ### Task 1: Project Scaffolding
 
 **Files:**
+
 - Create: `packages/security/package.json`
 - Create: `packages/security/tsconfig.json`
 - Create: `packages/security/src/index.ts`
@@ -120,6 +128,7 @@
 - Modify: `services/crawler/tsconfig.json`
 
 **Interfaces:**
+
 - Consumes: Nothing (first task)
 - Produces: Three new workspace packages with TypeScript build configuration
 
@@ -207,9 +216,7 @@ export const SECURITY_VERSION = "0.0.0";
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "tests"],
-  "references": [
-    { "path": "../../packages/security" }
-  ]
+  "references": [{ "path": "../../packages/security" }]
 }
 ```
 
@@ -253,9 +260,7 @@ export const RENDER_JOB_VERSION = "0.0.0";
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "tests"],
-  "references": [
-    { "path": "../../packages/security" }
-  ]
+  "references": [{ "path": "../../packages/security" }]
 }
 ```
 
@@ -306,9 +311,7 @@ Add to `services/crawler/tsconfig.json`:
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "tests"],
-  "references": [
-    { "path": "../../packages/security" }
-  ]
+  "references": [{ "path": "../../packages/security" }]
 }
 ```
 
@@ -334,6 +337,7 @@ git commit -m "chore: scaffold M1 packages (security, render-job, evidence-proce
 ### Task 2: Configuration Schema and Defaults
 
 **Files:**
+
 - Create: `services/crawler/src/config/schema.ts`
 - Create: `services/crawler/src/config/defaults.ts`
 - Create: `services/render-job/src/config/schema.ts`
@@ -342,6 +346,7 @@ git commit -m "chore: scaffold M1 packages (security, render-job, evidence-proce
 - Create: `config/render-limits.yaml`
 
 **Interfaces:**
+
 - Consumes: Nothing
 - Produces: `CrawlConfig` and `RenderConfig` types, `loadCrawlConfig()` and `loadRenderConfig()` functions
 
@@ -421,7 +426,12 @@ export const crawlConfigSchema = z.object({
   request_timeout_seconds: z.number().int().positive(),
   concurrency: z.number().int().positive(),
   render_text_threshold_bytes: z.number().int().nonnegative(),
-  allowed_ports: z.array(z.number().int().refine((p) => p === 80 || p === 443)),
+  allowed_ports: z.array(
+    z
+      .number()
+      .int()
+      .refine((p) => p === 80 || p === 443),
+  ),
   max_response_size_bytes: z.number().int().positive(),
   max_decompressed_size_bytes: z.number().int().positive(),
 });
@@ -602,16 +612,16 @@ Expected: PASS
 ```yaml
 # config/crawl-limits.yaml
 # Crawl job limits
-max_pages: 20                    # representative sample capacity
-max_depth: 3                     # BFS depth limit
-timeout_seconds: 900             # 15 min total job timeout (state machine A5)
-request_timeout_seconds: 30      # per-request timeout
-concurrency: 5                   # parallel fetch workers
+max_pages: 20 # representative sample capacity
+max_depth: 3 # BFS depth limit
+timeout_seconds: 900 # 15 min total job timeout (state machine A5)
+request_timeout_seconds: 30 # per-request timeout
+concurrency: 5 # parallel fetch workers
 render_text_threshold_bytes: 500 # trigger render when raw HTML body < 500 bytes text
-allowed_ports:                   # AC-09 port allowlist
+allowed_ports: # AC-09 port allowlist
   - 80
   - 443
-max_response_size_bytes: 10485760      # 10 MB per response
+max_response_size_bytes: 10485760 # 10 MB per response
 max_decompressed_size_bytes: 104857600 # 100 MB decompressed
 ```
 
@@ -620,12 +630,12 @@ max_decompressed_size_bytes: 104857600 # 100 MB decompressed
 ```yaml
 # config/render-limits.yaml
 # Render job limits (Playwright/Chromium)
-per_page_timeout_seconds: 30     # AC-11 per-page timeout
-total_job_timeout_seconds: 300   # 5 min total job timeout
-max_response_size_bytes: 10485760      # 10 MB per resource
+per_page_timeout_seconds: 30 # AC-11 per-page timeout
+total_job_timeout_seconds: 300 # 5 min total job timeout
+max_response_size_bytes: 10485760 # 10 MB per resource
 max_decompressed_size_bytes: 104857600 # 100 MB decompressed
-memory_limit_mb: 512             # AC-11 memory cap
-network_idle_timeout_ms: 500     # wait for network idle before snapshot
+memory_limit_mb: 512 # AC-11 memory cap
+network_idle_timeout_ms: 500 # wait for network idle before snapshot
 ```
 
 - [ ] **Step 19: Commit**
@@ -640,10 +650,12 @@ git commit -m "feat: add config schemas and defaults for crawl and render jobs"
 ### Task 3: DNS Resolver with Rebinding Defense
 
 **Files:**
+
 - Create: `packages/security/src/dns-resolver.ts`
 - Test: `packages/security/tests/dns-resolver.test.ts`
 
 **Interfaces:**
+
 - Consumes: Nothing
 - Produces: `resolveDns(hostname: string): Promise<string[]>` function
 
@@ -775,10 +787,12 @@ git commit -m "feat: add DNS resolver with rebinding defense"
 ### Task 4: URL Validator with SSRF Defense
 
 **Files:**
+
 - Create: `packages/security/src/url-validator.ts`
 - Test: `packages/security/tests/url-validator.test.ts`
 
 **Interfaces:**
+
 - Consumes: `resolveDns()` from dns-resolver.ts
 - Produces: `validateUrl(url: string): Promise<ValidationResult>` function
 
@@ -850,7 +864,7 @@ export async function validateUrl(url: string): Promise<ValidationResult> {
     return { valid: false, reason: "credentials not allowed" };
   }
 
-  const port = parsed.port ? parseInt(parsed.port, 10) : (parsed.protocol === "https:" ? 443 : 80);
+  const port = parsed.port ? parseInt(parsed.port, 10) : parsed.protocol === "https:" ? 443 : 80;
   if (!ALLOWED_PORTS.includes(port)) {
     return { valid: false, reason: "port not allowed" };
   }
@@ -960,97 +974,118 @@ git commit -m "feat: add URL validator with SSRF defense"
 Due to the length of this plan, I'll continue with the remaining task summaries. Each task follows the same TDD pattern: write failing test, run to verify failure, implement, run to verify pass, commit.
 
 ### Task 5: Robots Parser (RFC 9309)
+
 - Test: `packages/security/tests/robots-parser.test.ts`
 - Implement: `packages/security/src/robots-parser.ts`
 - Function: `parseRobots(robotsTxt: string, userAgent: string, url: string): boolean`
 
 ### Task 6: Sitemap Parser
+
 - Test: `packages/security/tests/sitemap-parser.test.ts`
 - Implement: `packages/security/src/sitemap-parser.ts`
 - Function: `parseSitemap(sitemapXml: string): Array<{url: string, priority: number}>`
 
 ### Task 7: URL Planner
+
 - Test: `services/crawler/tests/url-planner.test.ts`
 - Implement: `services/crawler/src/url-planner.ts`
 - Functions: `planUrls()`, `bfsCrawl()`, `mergeSitemapAndBfs()`
 
 ### Task 8: Fetcher with Redirect Re-validation
+
 - Test: `services/crawler/tests/fetcher.test.ts`
 - Implement: `services/crawler/src/fetcher.ts`
 - Function: `fetchUrl(url: string, config: CrawlConfig): Promise<FetchResult>`
 
 ### Task 9: Extractor (headings, links, language, structured data)
+
 - Test: `services/crawler/tests/extractor.test.ts`
 - Implement: `services/crawler/src/extractor.ts`
 - Function: `extractContent(html: string): ExtractedContent`
 
 ### Task 10: Render Manifest Generator
+
 - Test: `services/crawler/tests/render-manifest.test.ts`
 - Implement: `services/crawler/src/render-manifest.ts`
 - Function: `shouldRender(textBytes: number, threshold: number): boolean`
 
 ### Task 11: Crawl Job Entry Point
+
 - Implement: `services/crawler/src/index.ts`
 - Orchestrate: config → URL planning → fetch → extract → write evidence
 
 ### Task 12: Request Interceptor for Renderer
+
 - Test: `services/render-job/tests/request-interceptor.test.ts`
 - Implement: `services/render-job/src/request-interceptor.ts`
 - Function: `interceptRequest(request: Request): Promise<boolean>`
 
 ### Task 13: Renderer with Playwright Isolation
+
 - Test: `services/render-job/tests/renderer.test.ts`
 - Implement: `services/render-job/src/renderer.ts`
 - Function: `renderPage(url: string, config: RenderConfig): Promise<RenderResult>`
 
 ### Task 14: Render Job Entry Point
+
 - Implement: `services/render-job/src/index.ts`
 - Orchestrate: config → read manifest → render pages → write evidence
 
 ### Task 15: Hash Verifier (AC-12)
+
 - Test: `services/evidence-processor/tests/hash-verifier.test.ts`
 - Implement: `services/evidence-processor/src/hash-verifier.ts`
 - Function: `verifyHash(content: string, expectedHash: string): boolean`
 
 ### Task 16: Injection Detector
+
 - Test: `services/evidence-processor/tests/injection-detector.test.ts`
 - Implement: `services/evidence-processor/src/injection-detector.ts`
 - Function: `detectInjection(content: string): boolean`
 
 ### Task 17: Normalizer
+
 - Test: `services/evidence-processor/tests/normalizer.test.ts`
 - Implement: `services/evidence-processor/src/normalizer.ts`
 - Function: `normalizeEvidence(raw: RawEvidence): EvidenceObject`
 
 ### Task 18: Merger (raw + rendered)
+
 - Test: `services/evidence-processor/tests/merger.test.ts`
 - Implement: `services/evidence-processor/src/merger.ts`
 - Function: `mergeEvidence(raw: RawEvidence, rendered?: RenderedEvidence): EvidenceObject`
 
 ### Task 19: Evidence Processor Entry Point
+
 - Implement: `services/evidence-processor/src/index.ts`
 - Orchestrate: read evidence → verify hash → detect injection → normalize → merge → write
 
 ### Task 20: Malicious-Site Test Fixtures
+
 - Implement: `services/crawler/tests/fixtures/server.ts`
 - Implement: fixture payloads (injection, decompression bombs, tarpits, redirect loops)
 
 ### Task 21: Integration Tests (TS-SSRF, TS-RENDER, TS-MALSITE, TS-LOGREDACT)
+
 - Implement: `services/crawler/tests/integration/ssrf-defense.test.ts`
 - Implement: `services/crawler/tests/integration/renderer-isolation.test.ts`
 - Implement: `services/crawler/tests/integration/malicious-sites.test.ts`
 - Implement: `services/crawler/tests/integration/log-redaction.test.ts`
 
 ### Task 22: Cloud Workflow Definition
+
 - Implement: `workflows/audit-workflow.yaml`
 
 ### Task 23: Terraform - Crawl Project
+
 - Implement: `infra/terraform/crawl-project/main.tf`
 
 ### Task 24: Terraform - App Project
+
 - Implement: `infra/terraform/app-project/main.tf`
 
 ### Task 25: Terraform - Cross-Project IAM
+
 - Implement: `infra/terraform/cross-project-iam/main.tf`
 
 ---

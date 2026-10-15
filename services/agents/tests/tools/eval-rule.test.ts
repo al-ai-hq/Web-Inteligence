@@ -22,7 +22,12 @@ describe("eval_rule", () => {
 
     const result = await tool.execute({ rule_id: "AEO-001", evidence_id: "ev-1" }, ctx);
     expect(result.source_tier).toBe("first_party");
-    expect(result.data).toEqual({ pass: true, score: 0.9, details: "FAQ schema present", final: true });
+    expect(result.data).toEqual({
+      pass: true,
+      score: 0.9,
+      details: "FAQ schema present",
+      final: true,
+    });
   });
 
   it("returns limitation for unknown rule", async () => {

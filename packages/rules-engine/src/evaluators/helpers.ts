@@ -8,8 +8,18 @@
  * (length > 3) from both strings, normalised by the smaller set.
  */
 export function wordOverlap(a: string, b: string): number {
-  const wordsA = new Set(a.toLowerCase().split(/\s+/).filter((w) => w.length > 3));
-  const wordsB = new Set(b.toLowerCase().split(/\s+/).filter((w) => w.length > 3));
+  const wordsA = new Set(
+    a
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 3),
+  );
+  const wordsB = new Set(
+    b
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 3),
+  );
   if (wordsA.size === 0 || wordsB.size === 0) return 0;
   let overlap = 0;
   for (const w of wordsA) {
@@ -27,8 +37,14 @@ export function wordOverlap(a: string, b: string): number {
  * This is the original algorithm used by structured-data consistency checks.
  */
 export function wordOverlapAsymmetric(a: string, b: string): number {
-  const wordsA = a.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
-  const wordsB = b.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
+  const wordsA = a
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 2);
+  const wordsB = b
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 2);
   if (wordsA.length === 0) return 0;
   let overlap = 0;
   for (const w of wordsA) {

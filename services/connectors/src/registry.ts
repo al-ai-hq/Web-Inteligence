@@ -8,12 +8,7 @@ let registry: Connector[] | null = null;
 
 export function getRegistry(): Connector[] {
   if (registry === null || registry.length === 0) {
-    registry = [
-      new PsiConnector(),
-      new CruxConnector(),
-      new GscConnector(),
-      new Ga4Connector(),
-    ];
+    registry = [new PsiConnector(), new CruxConnector(), new GscConnector(), new Ga4Connector()];
   }
   return registry;
 }

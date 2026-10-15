@@ -1,8 +1,8 @@
-import type { SchemaDiff } from './types.js';
+import type { SchemaDiff } from "./types.js";
 
 export function diffSchema(
   existing: Record<string, unknown>,
-  proposed: Record<string, unknown>
+  proposed: Record<string, unknown>,
 ): SchemaDiff {
   const added: string[] = [];
   const removed: string[] = [];

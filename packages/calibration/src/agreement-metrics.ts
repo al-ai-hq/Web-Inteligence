@@ -1,13 +1,13 @@
 interface CriterionResult {
   criterion_id: string;
-  result: 'pass' | 'partial' | 'fail' | 'not_applicable';
+  result: "pass" | "partial" | "fail" | "not_applicable";
 }
 
-const RESULT_ORDER = ['fail', 'partial', 'pass', 'not_applicable'];
+const RESULT_ORDER = ["fail", "partial", "pass", "not_applicable"];
 
 export function calculateAgreementMetrics(
   modelResults: CriterionResult[],
-  humanResults: CriterionResult[]
+  humanResults: CriterionResult[],
 ): {
   exact_match_rate: number;
   adjacent_match_rate: number;
@@ -50,7 +50,7 @@ export function calculateAgreementMetrics(
 
 function calculateWeightedKappa(
   modelResults: CriterionResult[],
-  humanResults: CriterionResult[]
+  humanResults: CriterionResult[],
 ): number {
   const total = modelResults.length;
 

@@ -2,13 +2,15 @@ import type { Tool, ToolContext, ToolResult } from "./types.js";
 
 export class ReadConfirmedFactsTool implements Tool {
   name = "read_confirmed_facts";
-  description = "Read confirmed facts from the fact sheet register. These are human-verified facts that the Fixer and brief writer may use.";
+  description =
+    "Read confirmed facts from the fact sheet register. These are human-verified facts that the Fixer and brief writer may use.";
   inputSchema = {
     type: "object",
     properties: {
       fact_sheet_id: {
         type: "string",
-        description: "Specific fact sheet ID to read from. If omitted, reads all confirmed fact sheets for the project.",
+        description:
+          "Specific fact sheet ID to read from. If omitted, reads all confirmed fact sheets for the project.",
       },
     },
   };

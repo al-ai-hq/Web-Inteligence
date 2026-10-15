@@ -1,7 +1,7 @@
 export function checkCannibalization(
   clusterId: string,
   targetUrl: string | null,
-  existingMappings: Map<string, string>
+  existingMappings: Map<string, string>,
 ): { ok: boolean; error?: string } {
   if (targetUrl !== null) {
     return { ok: true };

@@ -11,5 +11,5 @@ CREATE TABLE IF NOT EXISTS nap_observations (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_nap_obs_fact_sheet ON nap_observations(fact_sheet_id);
-CREATE INDEX idx_nap_obs_consistency ON nap_observations(consistency_score);
+CREATE INDEX IF NOT EXISTS idx_nap_obs_fact_sheet ON nap_observations(fact_sheet_id);
+CREATE INDEX IF NOT EXISTS idx_nap_obs_consistency ON nap_observations(consistency_score);

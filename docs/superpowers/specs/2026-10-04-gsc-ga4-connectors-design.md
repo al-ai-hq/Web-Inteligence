@@ -18,6 +18,7 @@ This design extends the M5 connector framework with **OAuth-dependent connectors
 - **Shared OAuth package**: `packages/oauth/` handles encryption, token storage, and retrieval
 
 **Deferred (out of scope):**
+
 - Token refresh (access tokens expire after 1 hour; manual re-connect required for now)
 - Per-site GA4 property IDs (global property ID via env var for now)
 - User authentication integration (OAuth endpoints stub userId for now)
@@ -26,6 +27,7 @@ This design extends the M5 connector framework with **OAuth-dependent connectors
 - CSRF validation in OAuth callback (state parameter generated but not validated; implementation will add session-based validation)
 
 **Constraints:**
+
 - D-011: auth provider decision resolved — Google OAuth 2.0
 - D-020: no public anonymous traffic before repo-M7 — OAuth flow behind invitation
 - OAuth tokens encrypted at rest (AES-256-GCM, `WPI_OAUTH_ENCRYPTION_KEY` env var)
@@ -39,16 +41,19 @@ This design extends the M5 connector framework with **OAuth-dependent connectors
 GSC and GA4 require OAuth 2.0 authentication. The audit pipeline needs to pass access tokens to connectors, but tokens are user-specific and site-specific. Three approaches were considered:
 
 **Approach A: Connector-specific OAuth**
+
 - Each connector (GSC, GA4) implements its own OAuth flow
 - Duplicate token storage logic
 - Harder to add more Google APIs later
 
 **Approach B: Pipeline-managed tokens**
+
 - Pipeline resolves tokens and passes them via `AuditContext`
 - Connectors remain stateless
 - Pipeline becomes aware of OAuth details
 
 **Approach C: Shared OAuth package (chosen)**
+
 - `packages/oauth/` handles encryption, storage, retrieval
 - Pipeline resolves tokens via `TokenStore` and passes them via `AuditContext`
 - Connectors remain stateless and unaware of OAuth mechanics
@@ -73,7 +78,7 @@ flowchart TB
     USER["User<br/>(Settings → Integrations)"] --> OAUTH["OAuth Flow<br/>(/api/oauth/google/*)"]
     OAUTH --> TOKEN_STORE["TokenStore<br/>(packages/oauth)"]
     TOKEN_STORE --> POSTGRES["Postgres<br/>(oauth_tokens table)"]
-    
+
     AUDIT["Audit Request"] --> PIPELINE["Pipeline<br/>(pipeline.ts)"]
     PIPELINE --> TOKEN_STORE
     TOKEN_STORE --> PIPELINE
@@ -162,13 +167,10 @@ export function encrypt(plaintext: string): Buffer {
   const key = getEncryptionKey();
   const iv = randomBytes(IV_LENGTH);
   const cipher = createCipheriv(ALGORITHM, key, iv);
-  
-  const encrypted = Buffer.concat([
-    cipher.update(plaintext, "utf8"),
-    cipher.final(),
-  ]);
+
+  const encrypted = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
   const authTag = cipher.getAuthTag();
-  
+
   return Buffer.concat([iv, authTag, encrypted]);
 }
 
@@ -177,15 +179,12 @@ export function decrypt(encrypted: Buffer): string {
   const iv = encrypted.subarray(0, IV_LENGTH);
   const authTag = encrypted.subarray(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGTH);
   const ciphertext = encrypted.subarray(IV_LENGTH + AUTH_TAG_LENGTH);
-  
+
   const decipher = createDecipheriv(ALGORITHM, key, iv);
   decipher.setAuthTag(authTag);
-  
-  const decrypted = Buffer.concat([
-    decipher.update(ciphertext),
-    decipher.final(),
-  ]);
-  
+
+  const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+
   return decrypted.toString("utf8");
 }
 ```
@@ -204,9 +203,7 @@ export class TokenStore {
 
   async save(token: OAuthToken): Promise<void> {
     const accessTokenEncrypted = encrypt(token.accessToken);
-    const refreshTokenEncrypted = token.refreshToken
-      ? encrypt(token.refreshToken)
-      : null;
+    const refreshTokenEncrypted = token.refreshToken ? encrypt(token.refreshToken) : null;
 
     await this.pool.query(
       `INSERT INTO oauth_tokens (
@@ -275,7 +272,7 @@ CREATE TABLE oauth_tokens (
   UNIQUE (user_id, provider, site_url)
 );
 
-CREATE INDEX idx_oauth_tokens_user_provider_site 
+CREATE INDEX idx_oauth_tokens_user_provider_site
   ON oauth_tokens (user_id, provider, site_url);
 ```
 
@@ -428,24 +425,18 @@ export class GscClient {
     return (await response.json()) as GscSearchAnalyticsResponse;
   }
 
-  async inspectUrl(
-    siteUrl: string,
-    inspectionUrl: string,
-  ): Promise<GscUrlInspectionResponse> {
-    const response = await fetch(
-      `${GSC_API_BASE}/urlInspection/inspect`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          siteUrl,
-          inspectionUrl,
-        }),
+  async inspectUrl(siteUrl: string, inspectionUrl: string): Promise<GscUrlInspectionResponse> {
+    const response = await fetch(`${GSC_API_BASE}/urlInspection/inspect`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        siteUrl,
+        inspectionUrl,
+      }),
+    });
     if (!response.ok) {
       throw new Error(`GSC URL Inspection API error: ${response.status}`);
     }
@@ -513,10 +504,7 @@ export class GscConnector implements Connector {
     targetUrl: string,
   ): Promise<GscData["index_coverage"]> {
     // Simple sampling: homepage + target URL
-    const importantPages = [
-      `${siteUrl}/`,
-      targetUrl,
-    ];
+    const importantPages = [`${siteUrl}/`, targetUrl];
 
     let indexedCount = 0;
     for (const page of importantPages) {
@@ -542,7 +530,7 @@ export class GscConnector implements Connector {
     dateRange: { start: string; end: string },
   ): GscData["search_analytics"] {
     const rows = response.rows ?? [];
-    
+
     const totals = rows.reduce(
       (acc, row) => ({
         queries: acc.queries + 1,
@@ -554,9 +542,10 @@ export class GscConnector implements Connector {
       { queries: 0, clicks: 0, impressions: 0, ctr: 0, average_position: 0 },
     );
     totals.ctr = totals.impressions > 0 ? totals.clicks / totals.impressions : 0;
-    totals.average_position = rows.length > 0
-      ? rows.reduce((sum, row) => sum + row.position * row.impressions, 0) / totals.impressions
-      : 0;
+    totals.average_position =
+      rows.length > 0
+        ? rows.reduce((sum, row) => sum + row.position * row.impressions, 0) / totals.impressions
+        : 0;
 
     const byPage = new Map<string, GscData["search_analytics"]["by_page"][number]>();
     const byCountry = new Map<string, GscData["search_analytics"]["by_country"][number]>();
@@ -618,14 +607,17 @@ export class GscConnector implements Connector {
 ### GSC scoring rules (from spec)
 
 **GSC-001**: URL Inspection shows at least 90% of important pages indexed (weight 5)
+
 - Connector provides `index_coverage.indexed_ratio`
 - Agent evaluates: `indexed_ratio >= 0.9` → pass, else fail
 
 **GSC-002**: Site is included in generative AI features (attested, weight 5)
+
 - Checklist attestation, not API-driven
 - Agent evaluates: manual check or client-provided attestation
 
 **GSC-003**: Generative AI impressions from client export (unscored)
+
 - Comes from client upload, not GSC API
 - `generative_ai.impressions` field in GscData is optional and populated elsewhere
 
@@ -670,36 +662,33 @@ export class Ga4Client {
     dateRange: { start: string; end: string },
     urls: string[],
   ): Promise<Ga4DataResponse> {
-    const response = await fetch(
-      `${GA4_API_BASE}/v1beta/properties/${this.propertyId}:runReport`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          dateRanges: [dateRange],
-          dimensions: [{ name: "pagePath" }],
-          metrics: [
-            { name: "screenPageViews" },
-            { name: "totalUsers" },
-            { name: "averageSessionDuration" },
-            { name: "bounceRate" },
-            { name: "entrances" },
-            { name: "exits" },
-          ],
-          dimensionFilter: {
-            filter: {
-              fieldName: "pagePath",
-              inListFilter: {
-                values: urls.map((url) => new URL(url).pathname),
-              },
+    const response = await fetch(`${GA4_API_BASE}/v1beta/properties/${this.propertyId}:runReport`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        dateRanges: [dateRange],
+        dimensions: [{ name: "pagePath" }],
+        metrics: [
+          { name: "screenPageViews" },
+          { name: "totalUsers" },
+          { name: "averageSessionDuration" },
+          { name: "bounceRate" },
+          { name: "entrances" },
+          { name: "exits" },
+        ],
+        dimensionFilter: {
+          filter: {
+            fieldName: "pagePath",
+            inListFilter: {
+              values: urls.map((url) => new URL(url).pathname),
             },
           },
-        }),
-      },
-    );
+        },
+      }),
+    });
     if (!response.ok) {
       throw new Error(`GA4 Data API error: ${response.status}`);
     }
@@ -803,6 +792,7 @@ export class Ga4Connector implements Connector {
 **Decision:** Global property ID via environment variable (`WPI_GA4_PROPERTY_ID`)
 
 **Rationale:**
+
 - Simplifies initial implementation
 - One GA4 property per WPI instance
 - Per-site property IDs deferred to future milestone
@@ -1028,10 +1018,10 @@ export async function GET(request: Request) {
 
   const pool = new Pool({ connectionString: process.env["DATABASE_URL"] });
   const tokenStore = new TokenStore(pool);
-  
+
   // TODO: Get userId from session/auth context (stubbed for now)
   const userId = "placeholder";
-  
+
   await tokenStore.save({
     userId,
     provider: "google",
@@ -1085,6 +1075,7 @@ export default function IntegrationsPage() {
 **Decision:** Stub `userId` as `"placeholder"` for now
 
 **Rationale:**
+
 - User authentication system not yet implemented
 - OAuth flow works end-to-end with stub
 - Real user auth integration deferred to future milestone
@@ -1094,21 +1085,25 @@ export default function IntegrationsPage() {
 ### Error categories
 
 **1. Missing auth token**
+
 - **Cause**: User hasn't connected Google account
 - **Behavior**: Connector returns `unavailable.auth.missing`
 - **Impact**: Audit continues without GSC/GA4 data
 
 **2. Token decryption failure**
+
 - **Cause**: Encryption key mismatch or corrupted data
 - **Behavior**: Pipeline catches error, passes `undefined` accessToken
 - **Impact**: Connectors run without auth, return `unavailable.auth.missing`
 
 **3. API errors (401, 403, 429, 500)**
+
 - **Cause**: Token expired, insufficient permissions, rate limit, server error
 - **Behavior**: Connector catches error, returns `unavailable.connector.gsc` or `unavailable.connector.ga4`
 - **Impact**: Audit continues without that connector's data
 
 **4. Missing configuration**
+
 - **Cause**: `WPI_GA4_PROPERTY_ID` not set
 - **Behavior**: GA4 connector returns `unavailable.ga4.property_not_configured`
 - **Impact**: Audit continues without GA4 data
@@ -1117,14 +1112,14 @@ export default function IntegrationsPage() {
 
 ```typescript
 // Auth
-"unavailable.auth.missing"
+"unavailable.auth.missing";
 
 // GSC
-"unavailable.connector.gsc"
+"unavailable.connector.gsc";
 
 // GA4
-"unavailable.ga4.property_not_configured"
-"unavailable.connector.ga4"
+"unavailable.ga4.property_not_configured";
+"unavailable.connector.ga4";
 ```
 
 ### i18n keys (en.json / ar.json)
@@ -1205,7 +1200,9 @@ describe("encryption", () => {
 
   it("throws if encryption key is missing", () => {
     delete process.env["WPI_OAUTH_ENCRYPTION_KEY"];
-    expect(() => encrypt("test")).toThrow("WPI_OAUTH_ENCRYPTION_KEY environment variable is required");
+    expect(() => encrypt("test")).toThrow(
+      "WPI_OAUTH_ENCRYPTION_KEY environment variable is required",
+    );
   });
 });
 ```
@@ -1275,7 +1272,7 @@ describe("pipeline with OAuth tokens", () => {
   it("resolves tokens and passes to connectors", async () => {
     const store = new InMemoryAuditStore();
     const tokenStore = new InMemoryTokenStore();
-    
+
     // Save a token
     await tokenStore.save({
       userId: "user-1",
@@ -1292,16 +1289,19 @@ describe("pipeline with OAuth tokens", () => {
     });
 
     let capturedContext: any;
-    const outcome = await runAuditPipeline({
-      store,
-      tokenStore,
-      userId: "user-1",
-      runConnectors: async (url, context) => {
-        capturedContext = context;
-        return [];
+    const outcome = await runAuditPipeline(
+      {
+        store,
+        tokenStore,
+        userId: "user-1",
+        runConnectors: async (url, context) => {
+          capturedContext = context;
+          return [];
+        },
+        // ... other deps
       },
-      // ... other deps
-    }, auditId);
+      auditId,
+    );
 
     expect(capturedContext.auth?.google?.accessToken).toBe("test-access-token");
   });
@@ -1309,7 +1309,7 @@ describe("pipeline with OAuth tokens", () => {
   it("continues when token decryption fails", async () => {
     const store = new InMemoryAuditStore();
     const tokenStore = new InMemoryTokenStore({ failDecrypt: true });
-    
+
     await tokenStore.save({
       userId: "user-1",
       provider: "google",
@@ -1325,16 +1325,19 @@ describe("pipeline with OAuth tokens", () => {
     });
 
     let capturedContext: any;
-    const outcome = await runAuditPipeline({
-      store,
-      tokenStore,
-      userId: "user-1",
-      runConnectors: async (url, context) => {
-        capturedContext = context;
-        return [];
+    const outcome = await runAuditPipeline(
+      {
+        store,
+        tokenStore,
+        userId: "user-1",
+        runConnectors: async (url, context) => {
+          capturedContext = context;
+          return [];
+        },
+        // ... other deps
       },
-      // ... other deps
-    }, auditId);
+      auditId,
+    );
 
     expect(capturedContext.auth).toBeUndefined();
     expect(outcome).toBe("completed");
@@ -1347,15 +1350,18 @@ describe("pipeline with OAuth tokens", () => {
 ### What this design provides
 
 **GSC data:**
+
 - Search Analytics: queries, clicks, impressions, CTR, average position (28-day window)
 - Breakdown by page, country, query
 - Index coverage: ratio of important pages indexed (simple sampling: homepage + target URL)
 
 **GA4 data:**
+
 - Core page metrics: pageviews, unique pageviews, avg time on page, bounce rate, entrances, exits (28-day window)
 - Timezone-aware data
 
 **OAuth:**
+
 - Full Google OAuth 2.0 flow with consent
 - Encrypted token storage (AES-256-GCM)
 - Token retrieval and decryption in pipeline
@@ -1395,6 +1401,7 @@ describe("pipeline with OAuth tokens", () => {
 ## 14. Open questions
 
 **None for this scope.** All decisions are made:
+
 - Architecture: Approach C (shared OAuth package)
 - Auth: Full OAuth 2.0 with Google
 - Token storage: Encrypted in Postgres (AES-256-GCM)
@@ -1418,6 +1425,7 @@ describe("pipeline with OAuth tokens", () => {
 ## 16. What remains after this design
 
 **Future milestones:**
+
 - Token refresh (automatic renewal before expiration)
 - Per-site GA4 property IDs (user-configurable)
 - User authentication integration (real `userId` from session)

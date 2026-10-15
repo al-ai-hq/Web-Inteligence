@@ -15,7 +15,8 @@ const inputSchema = z.object({
 export function createImportKeywordsTool(): Tool {
   return {
     name: "import_keywords",
-    description: "Imports a list of keywords with optional metrics (clicks, impressions, position).",
+    description:
+      "Imports a list of keywords with optional metrics (clicks, impressions, position).",
     inputSchema: {
       type: "object",
       properties: {

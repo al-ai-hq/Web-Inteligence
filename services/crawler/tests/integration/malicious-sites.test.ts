@@ -26,11 +26,7 @@ vi.mock("@wpi/security", () => ({
 // Imports (after mock setup)
 // ---------------------------------------------------------------------------
 import { fetchUrl } from "../../src/fetcher.js";
-import {
-  startFixtureServer,
-  stopFixtureServer,
-  getFixtureUrl,
-} from "../fixtures/server.js";
+import { startFixtureServer, stopFixtureServer, getFixtureUrl } from "../fixtures/server.js";
 
 // ---------------------------------------------------------------------------
 // Lifecycle
@@ -116,9 +112,7 @@ describe("TS-MALSITE-2: Decompression bomb handling", () => {
       max_response_size_bytes: 1,
       max_decompressed_size_bytes: 1,
     });
-    await expect(fetchUrl(`${getFixtureUrl()}/gzip-bomb`, config)).rejects.toThrow(
-      /too large/i,
-    );
+    await expect(fetchUrl(`${getFixtureUrl()}/gzip-bomb`, config)).rejects.toThrow(/too large/i);
   });
 });
 
@@ -223,9 +217,7 @@ describe("TS-MALSITE-8: Oversized content handling", () => {
       max_response_size_bytes: 1000, // 1KB limit — oversized page is >1MB
       max_decompressed_size_bytes: 1000,
     });
-    await expect(fetchUrl(`${getFixtureUrl()}/oversized`, config)).rejects.toThrow(
-      /too large/i,
-    );
+    await expect(fetchUrl(`${getFixtureUrl()}/oversized`, config)).rejects.toThrow(/too large/i);
   });
 
   it("accepts oversized content when limits are high enough", async () => {

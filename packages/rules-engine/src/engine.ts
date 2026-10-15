@@ -22,10 +22,7 @@ import { buildEvaluatorMap } from "./evaluators/index.js";
  * If an evaluator throws, the result is "error" with the error message as rationale.
  * This ensures a buggy evaluator degrades gracefully without fabricating a pass.
  */
-export function runRulesEngine(
-  bundle: EvidenceBundle,
-  catalog: RuleCatalog,
-): PageRuleResult[] {
+export function runRulesEngine(bundle: EvidenceBundle, catalog: RuleCatalog): PageRuleResult[] {
   const results: PageRuleResult[] = [];
   const evaluatorMap = buildEvaluatorMap();
   const applicableRules = catalog.getAllRules();
@@ -101,7 +98,12 @@ export function runRulesEngine(
 function safeEvaluateSite(
   getEvaluator: () => Evaluator,
   bundle: EvidenceBundle,
-): { result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error"; evidence_ids: string[]; rationale?: string; cap_trigger?: boolean } {
+): {
+  result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error";
+  evidence_ids: string[];
+  rationale?: string;
+  cap_trigger?: boolean;
+} {
   try {
     const evaluator = getEvaluator();
     return evaluator(bundle);
@@ -121,7 +123,12 @@ function safeEvaluatePage(
   evaluator: PageEvaluator,
   page: PageEvidence,
   bundle: EvidenceBundle,
-): { result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error"; evidence_ids: string[]; rationale?: string; cap_trigger?: boolean } {
+): {
+  result: "pass" | "partial" | "fail" | "not_applicable" | "unavailable" | "error";
+  evidence_ids: string[];
+  rationale?: string;
+  cap_trigger?: boolean;
+} {
   try {
     return evaluator(page, bundle);
   } catch (err) {

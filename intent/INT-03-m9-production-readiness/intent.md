@@ -1,17 +1,17 @@
 # Intent: M9 Production Readiness
 
-| Field | Value |
-| ----- | ----- |
-| ID | INT-03 |
-| Status | draft |
-| Author (originator) | <DECIDE_AT_M9: product owner name> |
-| Product owner | <DECIDE_AT_M9: name> |
-| Security engineer | <DECIDE_AT_M9: name> |
-| Milestone | M9 (docs/m9-roadmap.md Priority 1: Production Readiness) |
-| Ticket | none |
-| Created | 2026-10-14 |
-| Depends on | M8 (Content & Schema Studio) complete; User accounts and score tracking complete |
-| Risk class | high-risk: production deployment, database migration, email sending, abuse prevention |
+| Field               | Value                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------- |
+| ID                  | INT-03                                                                                |
+| Status              | draft                                                                                 |
+| Author (originator) | <DECIDE_AT_M9: product owner name>                                                    |
+| Product owner       | <DECIDE_AT_M9: name>                                                                  |
+| Security engineer   | <DECIDE_AT_M9: name>                                                                  |
+| Milestone           | M9 (docs/m9-roadmap.md Priority 1: Production Readiness)                              |
+| Ticket              | none                                                                                  |
+| Created             | 2026-10-14                                                                            |
+| Depends on          | M8 (Content & Schema Studio) complete; User accounts and score tracking complete      |
+| Risk class          | high-risk: production deployment, database migration, email sending, abuse prevention |
 
 ## Problem
 
@@ -62,6 +62,7 @@ From the M9 roadmap (docs/m9-roadmap.md Priority 1), complete and reviewed:
 **Users:** pilot users (public access, email notifications), product owner (production database management, domain setup), security engineer (rate limiting, abuse prevention, CAPTCHA).
 
 **Systems:**
+
 - `apps/web` — new API routes for email sending, rate limiting middleware, CAPTCHA integration
 - `packages/email` (new) — email service abstraction (Resend/SendGrid adapter), template rendering
 - `packages/rate-limiter` (new) — rate limiting logic (in-memory or Redis-backed), quota tracking

@@ -33,6 +33,8 @@ describe("DependencyGraph", () => {
 
     expect(graph.getReadyAgents(allAgents, [])).toEqual(["auditor"]);
     expect(graph.getReadyAgents(allAgents, ["auditor"])).toEqual(["keyword-analyst"]);
-    expect(graph.getReadyAgents(allAgents, ["auditor", "keyword-analyst"])).toEqual(["content-strategist"]);
+    expect(graph.getReadyAgents(allAgents, ["auditor", "keyword-analyst"])).toEqual([
+      "content-strategist",
+    ]);
   });
 });

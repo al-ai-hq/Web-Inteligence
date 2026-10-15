@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  agentJobSchema,
-  agentResultSchema,
-  findingSchema,
-} from "../../src/runtime/types.js";
+import { agentJobSchema, agentResultSchema, findingSchema } from "../../src/runtime/types.js";
 
 describe("runtime types", () => {
   describe("agentJobSchema", () => {

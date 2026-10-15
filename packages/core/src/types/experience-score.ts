@@ -16,7 +16,7 @@ export interface ExperienceScoreResult {
     conversion_path_and_measurement: DimensionScore;
   };
   coverage: number;
-  confidence: 'high' | 'medium' | 'low';
-  fidelity_label: 'assessed';
+  confidence: "high" | "medium" | "low";
+  fidelity_label: "assessed";
   methodology_version: string;
 }

@@ -45,7 +45,7 @@ const scoringRawSchema = z.object({
   categories: z.record(
     z.object({
       weight: z.number(),
-    })
+    }),
   ),
   rule_results: z.object({
     pass: z.object({ value: z.literal(1.0) }),
@@ -57,7 +57,7 @@ const scoringRawSchema = z.object({
       id: z.string(),
       max_overall_score: z.number().nullable(),
       related_rule_ids: z.array(z.string()),
-    })
+    }),
   ),
   confidence: z.object({
     levels: z.object({

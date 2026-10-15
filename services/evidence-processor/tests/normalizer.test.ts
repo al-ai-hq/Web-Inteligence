@@ -52,7 +52,12 @@ describe("normalizeEvidence", () => {
     });
 
     it("preserves empty arrays", () => {
-      const raw = makeRawEvidence({ redirectChain: [], links: [], headings: [], structuredData: [] });
+      const raw = makeRawEvidence({
+        redirectChain: [],
+        links: [],
+        headings: [],
+        structuredData: [],
+      });
       const result = normalizeEvidence(raw, makeOptions());
 
       expect(result.redirect_chain).toEqual([]);
@@ -113,12 +118,18 @@ describe("normalizeEvidence", () => {
     });
 
     it("propagates injectionSuspected=true", () => {
-      const result = normalizeEvidence(makeRawEvidence(), makeOptions({ injectionSuspected: true }));
+      const result = normalizeEvidence(
+        makeRawEvidence(),
+        makeOptions({ injectionSuspected: true }),
+      );
       expect(result.injection_suspected).toBe(true);
     });
 
     it("propagates injectionSuspected=false", () => {
-      const result = normalizeEvidence(makeRawEvidence(), makeOptions({ injectionSuspected: false }));
+      const result = normalizeEvidence(
+        makeRawEvidence(),
+        makeOptions({ injectionSuspected: false }),
+      );
       expect(result.injection_suspected).toBe(false);
     });
 

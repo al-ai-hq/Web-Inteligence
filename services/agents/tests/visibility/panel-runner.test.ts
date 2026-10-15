@@ -40,12 +40,21 @@ const intake: VisibilityIntake = {
 };
 
 const templates = [
-  { id: "free-discovery", panel: "free" as const, branded: false, text: "Which organizations provide {offering} for {audience} in {market}?", placeholders: ["offering", "audience", "market"] },
+  {
+    id: "free-discovery",
+    panel: "free" as const,
+    branded: false,
+    text: "Which organizations provide {offering} for {audience} in {market}?",
+    placeholders: ["offering", "audience", "market"],
+  },
 ];
 
 describe("PanelRunner", () => {
   it("executes prompts across adapters and returns results", async () => {
-    const adapters = [mockAdapter("gemini", "Acme is great."), mockAdapter("claude", "I recommend Acme.")];
+    const adapters = [
+      mockAdapter("gemini", "Acme is great."),
+      mockAdapter("claude", "I recommend Acme."),
+    ];
     const ledger = new CostLedger();
     const runner = new PanelRunner();
 
@@ -100,7 +109,11 @@ describe("PanelRunner", () => {
   it("sets state to PARTIAL when some runs fail", async () => {
     const adapters = [
       mockAdapter("gemini", "Acme is great."),
-      { name: "claude", isAvailable: () => true, complete: vi.fn().mockRejectedValue(new Error("fail")) } as unknown as ProviderAdapter,
+      {
+        name: "claude",
+        isAvailable: () => true,
+        complete: vi.fn().mockRejectedValue(new Error("fail")),
+      } as unknown as ProviderAdapter,
     ];
     const ledger = new CostLedger();
     const runner = new PanelRunner();

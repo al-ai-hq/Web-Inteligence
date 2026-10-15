@@ -9,7 +9,10 @@ import {
   verifyEligibilityCookie,
 } from "@wpi/audit-pipeline";
 import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
+import { verifyTurnstileToken } from "@wpi/rate-limiter";
+import { z } from "zod";
 import { authorizeRecord } from "../../../services/access";
+import { getClientIp } from "../../../services/client-ip";
 import { getAuditServices } from "../../../services/container";
 
 export const runtime = "nodejs";
@@ -20,6 +23,22 @@ const NO_INDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow",
   "Cache-Control": "no-store",
 } as const;
+
+const createAuditRouteSchema = createAuditRequestSchema.extend({
+  turnstileToken: z.string().max(2048).optional(),
+});
+
+function rateLimitHeaders(result: {
+  limit: number;
+  remaining: number;
+  resetAt: Date;
+}): Record<string, string> {
+  return {
+    "X-RateLimit-Limit": String(result.limit),
+    "X-RateLimit-Remaining": String(Math.max(0, result.remaining)),
+    "X-RateLimit-Reset": String(Math.floor(result.resetAt.getTime() / 1000)),
+  };
+}
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const id = request.nextUrl.searchParams.get("id");
@@ -33,9 +52,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   const services = await getAuditServices();
   const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const user = cookieValue
-    ? await services.auth.getSessionUser(hashToken(cookieValue))
-    : null;
+  const user = cookieValue ? await services.auth.getSessionUser(hashToken(cookieValue)) : null;
   const secret = request.nextUrl.searchParams.get("s") ?? undefined;
   const outcome = await authorizeRecord(services.store, id, secret, user?.id ?? null);
 
@@ -57,34 +74,84 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const services = await getAuditServices();
+  const ip = getClientIp(request);
+
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "url_invalid" }, { status: 400 });
+    const stateResult = await services.rateLimiter.anonymousState(ip);
+    return NextResponse.json(
+      { error: "url_invalid" },
+      { status: 400, headers: rateLimitHeaders(stateResult) },
+    );
   }
 
-  const parsed = createAuditRequestSchema.safeParse(body);
+  const parsed = createAuditRouteSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "url_invalid" }, { status: 400 });
+    const stateResult = await services.rateLimiter.anonymousState(ip);
+    return NextResponse.json(
+      { error: "url_invalid" },
+      { status: 400, headers: rateLimitHeaders(stateResult) },
+    );
   }
 
-  const services = await getAuditServices();
   const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const sessionTokenHash = cookieValue ? hashToken(cookieValue) : "";
-  const user = cookieValue
-    ? await services.auth.getSessionUser(sessionTokenHash)
-    : null;
-  const urlCheck = await services.validateUrl(parsed.data.url);
-  if (!urlCheck.ok) {
-    return NextResponse.json({ error: "url_invalid" }, { status: 400 });
+  const user = cookieValue ? await services.auth.getSessionUser(sessionTokenHash) : null;
+
+  const suspicious = await services.rateLimiter.isSuspicious(ip);
+  if (suspicious) {
+    const token = parsed.data.turnstileToken;
+    if (!token || !(await verifyTurnstileToken(token, ip))) {
+      const stateResult = user
+        ? await services.rateLimiter.userState(user.id, user.id)
+        : await services.rateLimiter.anonymousState(ip);
+      return NextResponse.json(
+        { error: "turnstile_required" },
+        {
+          status: 400,
+          headers: rateLimitHeaders(stateResult),
+        },
+      );
+    }
   }
 
-  const counts =
-    verifyEligibilityCookie(
-      request.cookies.get(ELIGIBILITY_COOKIE_NAME)?.value ?? "",
-      services.cookieSecret,
-    ) ?? { rich_count: 0, reduced_count: 0, preview_count: 0 };
+  const rateLimitResult = user
+    ? await services.rateLimiter.checkUser(user.id, user.id)
+    : await services.rateLimiter.checkAnonymous(ip);
+
+  if (!rateLimitResult.allowed) {
+    const retryAfter = Math.max(
+      0,
+      Math.ceil((rateLimitResult.resetAt.getTime() - Date.now()) / 1000),
+    );
+    return NextResponse.json(
+      { error: "rate_limited" },
+      {
+        status: 429,
+        headers: {
+          ...rateLimitHeaders(rateLimitResult),
+          "Retry-After": String(retryAfter),
+        },
+      },
+    );
+  }
+
+  const urlCheck = await services.validateUrl(parsed.data.url);
+  if (!urlCheck.ok) {
+    await services.rateLimiter.recordFailure(ip);
+    return NextResponse.json(
+      { error: "url_invalid" },
+      { status: 400, headers: rateLimitHeaders(rateLimitResult) },
+    );
+  }
+
+  const counts = verifyEligibilityCookie(
+    request.cookies.get(ELIGIBILITY_COOKIE_NAME)?.value ?? "",
+    services.cookieSecret,
+  ) ?? { rich_count: 0, reduced_count: 0, preview_count: 0 };
 
   const tier = decideTier(counts);
   const secret = generateAuditSecret();
@@ -101,8 +168,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   void services.dispatcher.dispatch(record.id).catch(() => undefined);
 
   const response = NextResponse.json(
-    { id: record.id, secret, status_url: `/${parsed.data.locale}/audit/${record.id}`, redirect_url: user ? `/${parsed.data.locale}/dashboard` : null },
-    { status: 201 },
+    {
+      id: record.id,
+      secret,
+      status_url: `/${parsed.data.locale}/audit/${record.id}`,
+      redirect_url: user ? `/${parsed.data.locale}/dashboard` : null,
+    },
+    { status: 201, headers: rateLimitHeaders(rateLimitResult) },
   );
   response.cookies.set(
     ELIGIBILITY_COOKIE_NAME,
@@ -130,9 +202,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 
   const services = await getAuditServices();
   const cookieValue = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const user = cookieValue
-    ? await services.auth.getSessionUser(hashToken(cookieValue))
-    : null;
+  const user = cookieValue ? await services.auth.getSessionUser(hashToken(cookieValue)) : null;
   const secret = request.nextUrl.searchParams.get("s") ?? undefined;
   const outcome = await authorizeRecord(services.store, id, secret, user?.id ?? null);
 

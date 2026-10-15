@@ -8,7 +8,10 @@ describe("generateProfileUrls", () => {
       region: "CA",
     });
     expect(urls).toContainEqual(
-      expect.objectContaining({ platform: "google", url: expect.stringContaining("google.com/maps") }),
+      expect.objectContaining({
+        platform: "google",
+        url: expect.stringContaining("google.com/maps"),
+      }),
     );
   });
 
@@ -25,7 +28,10 @@ describe("generateProfileUrls", () => {
   it("generates Facebook search URL from business name", () => {
     const urls = generateProfileUrls("Example Business", "https://example.com");
     expect(urls).toContainEqual(
-      expect.objectContaining({ platform: "facebook", url: expect.stringContaining("facebook.com") }),
+      expect.objectContaining({
+        platform: "facebook",
+        url: expect.stringContaining("facebook.com"),
+      }),
     );
   });
 

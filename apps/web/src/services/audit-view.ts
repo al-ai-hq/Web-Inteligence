@@ -1,12 +1,7 @@
 export type AuditView =
-  | { kind: "running" }
-  | { kind: "ready" }
-  | { kind: "failed"; reasonKey: string };
+  { kind: "running" } | { kind: "ready" } | { kind: "failed"; reasonKey: string };
 
-export function describeAuditView(
-  status: string,
-  failureReason: string | null,
-): AuditView {
+export function describeAuditView(status: string, failureReason: string | null): AuditView {
   if (status === "READY_COMPLETE" || status === "READY_PARTIAL") {
     return { kind: "ready" };
   }

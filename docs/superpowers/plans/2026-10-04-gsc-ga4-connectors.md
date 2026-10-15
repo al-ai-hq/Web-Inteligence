@@ -85,6 +85,7 @@ apps/web/src/app/[locale]/settings/integrations/page.tsx — NEW: Integrations U
 ### Task 1: OAuth Package Scaffolding
 
 **Files:**
+
 - Create: `packages/oauth/package.json`
 - Create: `packages/oauth/tsconfig.json`
 - Create: `packages/oauth/CLAUDE.md`
@@ -93,6 +94,7 @@ apps/web/src/app/[locale]/settings/integrations/page.tsx — NEW: Integrations U
 - Modify: `package.json` (add workspace reference if needed)
 
 **Interfaces:**
+
 - Produces: `@wpi/oauth` package with `OAuthToken` and `StoredToken` types exported
 
 - [ ] **Step 1: Create package.json**
@@ -200,11 +202,13 @@ git commit -m "feat(oauth): scaffold @wpi/oauth package"
 ### Task 2: Encryption Module (TDD)
 
 **Files:**
+
 - Create: `packages/oauth/src/encryption.ts`
 - Create: `packages/oauth/tests/encryption.test.ts`
 - Modify: `packages/oauth/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: `WPI_OAUTH_ENCRYPTION_KEY` env var
 - Produces: `encrypt(plaintext: string): Buffer` and `decrypt(encrypted: Buffer): string`
 
@@ -290,10 +294,7 @@ export function encrypt(plaintext: string): Buffer {
   const iv = randomBytes(IV_LENGTH);
   const cipher = createCipheriv(ALGORITHM, key, iv);
 
-  const encrypted = Buffer.concat([
-    cipher.update(plaintext, "utf8"),
-    cipher.final(),
-  ]);
+  const encrypted = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
   const authTag = cipher.getAuthTag();
 
   return Buffer.concat([iv, authTag, encrypted]);
@@ -308,10 +309,7 @@ export function decrypt(encrypted: Buffer): string {
   const decipher = createDecipheriv(ALGORITHM, key, iv);
   decipher.setAuthTag(authTag);
 
-  const decrypted = Buffer.concat([
-    decipher.update(ciphertext),
-    decipher.final(),
-  ]);
+  const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
 
   return decrypted.toString("utf8");
 }
@@ -342,11 +340,13 @@ git commit -m "feat(oauth): AES-256-GCM encryption module"
 ### Task 3: TokenStore (TDD)
 
 **Files:**
+
 - Create: `packages/oauth/src/token-store.ts`
 - Create: `packages/oauth/tests/token-store.test.ts`
 - Modify: `packages/oauth/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: `pg.Pool`, `OAuthToken`, `encrypt`/`decrypt`
 - Produces: `TokenStore` class with `save`, `findByUserAndSite`, `decryptAccessToken`, `delete`
 
@@ -468,9 +468,7 @@ export class TokenStore {
 
   async save(token: OAuthToken): Promise<void> {
     const accessTokenEncrypted = encrypt(token.accessToken);
-    const refreshTokenEncrypted = token.refreshToken
-      ? encrypt(token.refreshToken)
-      : null;
+    const refreshTokenEncrypted = token.refreshToken ? encrypt(token.refreshToken) : null;
 
     await this.pool.query(
       `INSERT INTO oauth_tokens (
@@ -547,9 +545,11 @@ git commit -m "feat(oauth): TokenStore with encrypted Postgres storage"
 ### Task 4: Database Migration
 
 **Files:**
+
 - Create: `packages/audit-pipeline/src/migrations/0002_create_oauth_tokens.sql`
 
 **Interfaces:**
+
 - Consumes: Postgres connection
 - Produces: `oauth_tokens` table
 
@@ -590,10 +590,12 @@ git commit -m "feat(migration): oauth_tokens table with encrypted token storage"
 ### Task 5: Extend Connector Types (AuditContext + GscData + Ga4Data)
 
 **Files:**
+
 - Modify: `services/connectors/src/types.ts`
 - Modify: `services/connectors/src/index.ts`
 
 **Interfaces:**
+
 - Consumes: existing `AuditContext`, `ConnectorData`
 - Produces: extended `AuditContext` with `auth?`, `GscData`, `Ga4Data` types
 
@@ -776,9 +778,11 @@ git commit -m "feat(connectors): extend AuditContext with auth, add GscData/Ga4D
 ### Task 6: GSC Connector Types
 
 **Files:**
+
 - Create: `services/connectors/src/gsc/types.ts`
 
 **Interfaces:**
+
 - Produces: `GscSearchAnalyticsResponse`, `GscUrlInspectionResponse` (API response shapes)
 
 - [ ] **Step 1: Create GSC API response types**
@@ -820,10 +824,12 @@ git commit -m "feat(connectors): GSC API response types"
 ### Task 7: GSC Client (TDD)
 
 **Files:**
+
 - Create: `services/connectors/src/gsc/client.ts`
 - Create: `services/connectors/tests/gsc-client.test.ts`
 
 **Interfaces:**
+
 - Consumes: access token, site URL, date range
 - Produces: `GscClient` class with `getSearchAnalytics` and `inspectUrl`
 
@@ -948,24 +954,18 @@ export class GscClient {
     return (await response.json()) as GscSearchAnalyticsResponse;
   }
 
-  async inspectUrl(
-    siteUrl: string,
-    inspectionUrl: string,
-  ): Promise<GscUrlInspectionResponse> {
-    const response = await fetch(
-      `${GSC_API_BASE}/urlInspection/inspect`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          siteUrl,
-          inspectionUrl,
-        }),
+  async inspectUrl(siteUrl: string, inspectionUrl: string): Promise<GscUrlInspectionResponse> {
+    const response = await fetch(`${GSC_API_BASE}/urlInspection/inspect`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        siteUrl,
+        inspectionUrl,
+      }),
+    });
     if (!response.ok) {
       throw new Error(`GSC URL Inspection API error: ${response.status}`);
     }
@@ -991,11 +991,13 @@ git commit -m "feat(connectors): GSC API client with search analytics and URL in
 ### Task 8: GSC Connector (TDD)
 
 **Files:**
+
 - Create: `services/connectors/src/gsc/connector.ts`
 - Create: `services/connectors/src/gsc/index.ts`
 - Create: `services/connectors/tests/gsc.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AuditContext` (with auth), `GscClient`
 - Produces: `GscConnector` implementing `Connector`
 
@@ -1191,8 +1193,7 @@ export class GscConnector implements Connector {
     totals.ctr = totals.impressions > 0 ? totals.clicks / totals.impressions : 0;
     totals.average_position =
       rows.length > 0
-        ? rows.reduce((sum, row) => sum + row.position * row.impressions, 0) /
-          totals.impressions
+        ? rows.reduce((sum, row) => sum + row.position * row.impressions, 0) / totals.impressions
         : 0;
 
     const byPage = new Map<string, GscData["search_analytics"]["by_page"][number]>();
@@ -1276,9 +1277,11 @@ git commit -m "feat(connectors): GSC connector with search analytics and index c
 ### Task 9: GA4 Connector Types
 
 **Files:**
+
 - Create: `services/connectors/src/ga4/types.ts`
 
 **Interfaces:**
+
 - Produces: `Ga4DataResponse` (API response shape)
 
 - [ ] **Step 1: Create GA4 API response types**
@@ -1318,10 +1321,12 @@ git commit -m "feat(connectors): GA4 API response types"
 ### Task 10: GA4 Client (TDD)
 
 **Files:**
+
 - Create: `services/connectors/src/ga4/client.ts`
 - Create: `services/connectors/tests/ga4-client.test.ts`
 
 **Interfaces:**
+
 - Consumes: access token, property ID, date range, URLs
 - Produces: `Ga4Client` class with `getPageMetrics`
 
@@ -1343,10 +1348,9 @@ describe("Ga4Client", () => {
     } as Response);
 
     const client = new Ga4Client("test-token", "123456");
-    await client.getPageMetrics(
-      { start: "2026-09-01", end: "2026-10-01" },
-      ["https://example.com/about"],
-    );
+    await client.getPageMetrics({ start: "2026-09-01", end: "2026-10-01" }, [
+      "https://example.com/about",
+    ]);
 
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining("properties/123456:runReport"),
@@ -1367,10 +1371,9 @@ describe("Ga4Client", () => {
 
     const client = new Ga4Client("bad-token", "123456");
     await expect(
-      client.getPageMetrics(
-        { start: "2026-09-01", end: "2026-10-01" },
-        ["https://example.com/about"],
-      ),
+      client.getPageMetrics({ start: "2026-09-01", end: "2026-10-01" }, [
+        "https://example.com/about",
+      ]),
     ).rejects.toThrow("GA4 Data API error: 403");
   });
 
@@ -1381,10 +1384,10 @@ describe("Ga4Client", () => {
     } as Response);
 
     const client = new Ga4Client("test-token", "123456");
-    await client.getPageMetrics(
-      { start: "2026-09-01", end: "2026-10-01" },
-      ["https://example.com/about", "https://example.com/contact"],
-    );
+    await client.getPageMetrics({ start: "2026-09-01", end: "2026-10-01" }, [
+      "https://example.com/about",
+      "https://example.com/contact",
+    ]);
 
     const callBody = JSON.parse(vi.mocked(global.fetch).mock.calls[0]![1]!.body as string);
     expect(callBody.dimensionFilter.filter.inListFilter.values).toEqual(["/about", "/contact"]);
@@ -1414,36 +1417,33 @@ export class Ga4Client {
     dateRange: { start: string; end: string },
     urls: string[],
   ): Promise<Ga4DataResponse> {
-    const response = await fetch(
-      `${GA4_API_BASE}/v1beta/properties/${this.propertyId}:runReport`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          dateRanges: [dateRange],
-          dimensions: [{ name: "pagePath" }],
-          metrics: [
-            { name: "screenPageViews" },
-            { name: "totalUsers" },
-            { name: "averageSessionDuration" },
-            { name: "bounceRate" },
-            { name: "entrances" },
-            { name: "exits" },
-          ],
-          dimensionFilter: {
-            filter: {
-              fieldName: "pagePath",
-              inListFilter: {
-                values: urls.map((url) => new URL(url).pathname),
-              },
+    const response = await fetch(`${GA4_API_BASE}/v1beta/properties/${this.propertyId}:runReport`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        dateRanges: [dateRange],
+        dimensions: [{ name: "pagePath" }],
+        metrics: [
+          { name: "screenPageViews" },
+          { name: "totalUsers" },
+          { name: "averageSessionDuration" },
+          { name: "bounceRate" },
+          { name: "entrances" },
+          { name: "exits" },
+        ],
+        dimensionFilter: {
+          filter: {
+            fieldName: "pagePath",
+            inListFilter: {
+              values: urls.map((url) => new URL(url).pathname),
             },
           },
-        }),
-      },
-    );
+        },
+      }),
+    });
     if (!response.ok) {
       throw new Error(`GA4 Data API error: ${response.status}`);
     }
@@ -1469,11 +1469,13 @@ git commit -m "feat(connectors): GA4 Data API client"
 ### Task 11: GA4 Connector (TDD)
 
 **Files:**
+
 - Create: `services/connectors/src/ga4/connector.ts`
 - Create: `services/connectors/src/ga4/index.ts`
 - Create: `services/connectors/tests/ga4.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AuditContext` (with auth), `Ga4Client`, `WPI_GA4_PROPERTY_ID` env var
 - Produces: `Ga4Connector` implementing `Connector`
 
@@ -1695,9 +1697,11 @@ git commit -m "feat(connectors): GA4 connector with page metrics"
 ### Task 12: Register GSC and GA4 Connectors
 
 **Files:**
+
 - Modify: `services/connectors/src/registry.ts`
 
 **Interfaces:**
+
 - Consumes: `GscConnector`, `Ga4Connector`
 - Produces: updated registry with 4 connectors
 
@@ -1744,12 +1748,7 @@ let registry: Connector[] | null = null;
 
 export function getRegistry(): Connector[] {
   if (registry === null) {
-    registry = [
-      new PsiConnector(),
-      new CruxConnector(),
-      new GscConnector(),
-      new Ga4Connector(),
-    ];
+    registry = [new PsiConnector(), new CruxConnector(), new GscConnector(), new Ga4Connector()];
   }
   return registry;
 }
@@ -1777,10 +1776,12 @@ git commit -m "feat(connectors): register GSC and GA4 connectors"
 ### Task 13: Composer CONNECTOR_SECTION Mapping
 
 **Files:**
+
 - Modify: `packages/audit-pipeline/src/composer.ts`
 - Modify: `packages/audit-pipeline/tests/composer.test.ts` (add test)
 
 **Interfaces:**
+
 - Consumes: `ConnectorResult` with connector name
 - Produces: section mapping (gsc → keywords, ga4 → performance)
 
@@ -1866,11 +1867,13 @@ git commit -m "feat(composer): CONNECTOR_SECTION mapping for gsc/ga4"
 ### Task 14: Pipeline Token Resolution
 
 **Files:**
+
 - Modify: `packages/audit-pipeline/src/pipeline.ts`
 - Modify: `packages/audit-pipeline/package.json` (add @wpi/oauth dependency)
 - Create: `packages/audit-pipeline/tests/pipeline-oauth.test.ts`
 
 **Interfaces:**
+
 - Consumes: `TokenStore` from `@wpi/oauth`, audit record with `target_url`
 - Produces: `AuditContext` with `auth.google.accessToken` populated
 
@@ -1894,11 +1897,23 @@ import type { TokenStore } from "@wpi/oauth";
 class InMemoryTokenStore {
   private tokens = new Map<string, { accessToken: string }>();
 
-  async save(opts: { userId: string; provider: string; siteUrl: string; accessToken: string; expiresAt: Date }): Promise<void> {
-    this.tokens.set(`${opts.userId}:${opts.provider}:${opts.siteUrl}`, { accessToken: opts.accessToken });
+  async save(opts: {
+    userId: string;
+    provider: string;
+    siteUrl: string;
+    accessToken: string;
+    expiresAt: Date;
+  }): Promise<void> {
+    this.tokens.set(`${opts.userId}:${opts.provider}:${opts.siteUrl}`, {
+      accessToken: opts.accessToken,
+    });
   }
 
-  async findByUserAndSite(userId: string, provider: string, siteUrl: string): Promise<{ access_token_encrypted: Buffer } | null> {
+  async findByUserAndSite(
+    userId: string,
+    provider: string,
+    siteUrl: string,
+  ): Promise<{ access_token_encrypted: Buffer } | null> {
     const key = `${userId}:${provider}:${siteUrl}`;
     const token = this.tokens.get(key);
     if (!token) return null;
@@ -2068,9 +2083,11 @@ git commit -m "feat(pipeline): resolve OAuth tokens before connectors"
 ### Task 15: Container Wiring
 
 **Files:**
+
 - Modify: `apps/web/src/services/container.ts`
 
 **Interfaces:**
+
 - Consumes: `TokenStore` from `@wpi/oauth`, `Pool` from `pg`
 - Produces: `tokenStore` and `userId` passed to `runAuditPipeline`
 
@@ -2120,9 +2137,11 @@ git commit -m "feat(web): wire TokenStore into pipeline container"
 ### Task 16: OAuth Authorize Endpoint
 
 **Files:**
+
 - Create: `apps/web/src/app/api/oauth/google/authorize/route.ts`
 
 **Interfaces:**
+
 - Consumes: `GOOGLE_OAUTH_CLIENT_ID`, `NEXT_PUBLIC_APP_URL` env vars
 - Produces: redirect to Google OAuth consent screen
 
@@ -2198,9 +2217,11 @@ git commit -m "feat(web): OAuth authorize endpoint with CSRF state cookie"
 ### Task 17: OAuth Callback Endpoint
 
 **Files:**
+
 - Create: `apps/web/src/app/api/oauth/google/callback/route.ts`
 
 **Interfaces:**
+
 - Consumes: `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `TokenStore`
 - Produces: token storage + redirect to settings
 
@@ -2315,9 +2336,11 @@ git commit -m "feat(web): OAuth callback with token exchange and CSRF validation
 ### Task 18: Settings Integrations Page
 
 **Files:**
+
 - Create: `apps/web/src/app/[locale]/settings/integrations/page.tsx`
 
 **Interfaces:**
+
 - Consumes: locale from URL params
 - Produces: Integrations UI with Google connect button
 
@@ -2350,12 +2373,9 @@ export default function IntegrationsPage({
       )}
 
       <div className="rounded-lg border p-6">
-        <h2 className="mb-2 text-lg font-semibold">
-          Google Search Console &amp; Analytics
-        </h2>
+        <h2 className="mb-2 text-lg font-semibold">Google Search Console &amp; Analytics</h2>
         <p className="mb-4 text-sm text-gray-600">
-          Connect your Google account to include search performance and
-          analytics data in audits.
+          Connect your Google account to include search performance and analytics data in audits.
         </p>
         <form action="/api/oauth/google/authorize" method="GET">
           <input
@@ -2395,10 +2415,12 @@ git commit -m "feat(web): settings integrations page with Google connect"
 ### Task 19: i18n Keys (en + ar)
 
 **Files:**
+
 - Modify: `apps/web/src/messages/en.json`
 - Modify: `apps/web/src/messages/ar.json`
 
 **Interfaces:**
+
 - Consumes: unavailability reason keys from connectors
 - Produces: bilingual translations
 
@@ -2455,9 +2477,11 @@ git commit -m "feat(i18n): bilingual unavailability keys for GSC/GA4"
 ### Task 20: Final Verification
 
 **Files:**
+
 - All files from previous tasks
 
 **Interfaces:**
+
 - Consumes: entire codebase
 - Produces: confidence that everything works together
 
@@ -2498,6 +2522,7 @@ git commit -m "chore: final verification fixes"
 ## Self-Review Notes
 
 **Spec coverage check:**
+
 1. ✅ OAuth package — encryption (Task 2), token storage (Task 3), migration (Task 4)
 2. ✅ GSC connector — types (Task 6), client (Task 7), connector (Task 8)
 3. ✅ GA4 connector — types (Task 9), client (Task 10), connector (Task 11)
