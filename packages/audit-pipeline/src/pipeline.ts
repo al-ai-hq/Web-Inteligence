@@ -217,6 +217,7 @@ export async function runAuditPipeline(
       locale: raw.locale,
       secretHash: raw.secret_hash,
       expiresAt: raw.expires_at,
+      userId: raw.user_id,
       summaryBullets: composed.summary_bullets,
       findingIds: composed.findings.map((finding) => finding.id),
       limitationsKeys,

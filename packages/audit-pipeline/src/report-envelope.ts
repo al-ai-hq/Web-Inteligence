@@ -77,7 +77,7 @@ export interface ReportModel {
   report_id: string;
   audit_id: string;
   version: number;
-  access_class: "anonymous";
+  access_class: "anonymous" | "registered";
   languages: string[];
   allowed_projections: string[];
   access: {
