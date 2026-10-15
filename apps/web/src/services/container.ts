@@ -283,10 +283,15 @@ function localValidateUrl(url: string): { ok: boolean; reason_key?: string } {
   }
 }
 
+function readDatabaseUrl(): string | undefined {
+  return process.env["DATABASE_URL"] ?? process.env["WPI_DATABASE_URL"];
+}
+
+function readCookieSecret(): string | undefined {
+  return process.env["COOKIE_SECRET"] ?? process.env["AUDIT_COOKIE_SECRET"];
+}
+
 async function buildServices(): Promise<AuditServices> {
-  // Stub is the safe default: buildServices must not require Postgres/cookie
-  // env until real dispatch is explicitly requested (matches the brief's
-  // tests, which build stub-mode services with no env set).
   const dispatchMode = process.env["WPI_DISPATCH_MODE"] ?? "stub";
 
   if (process.env["NODE_ENV"] === "production" && dispatchMode === "stub") {
@@ -309,21 +314,22 @@ async function buildServices(): Promise<AuditServices> {
     return {
       ...fields,
       dispatcher: new StubDispatcher(store),
-      cookieSecret: process.env["AUDIT_COOKIE_SECRET"] ?? "stub-cookie-secret",
+      cookieSecret: readCookieSecret() ?? "stub-cookie-secret",
       auth: new InMemoryAuthService(),
       rateLimiter: new InMemoryRateLimiter(),
     };
   }
 
-  const databaseUrl = process.env["WPI_DATABASE_URL"];
-  const cookieSecret = process.env["AUDIT_COOKIE_SECRET"];
+  const databaseUrl = readDatabaseUrl();
+  const cookieSecret = readCookieSecret();
 
-  // Support in-memory mode for demos without database
   if (dispatchMode === "memory") {
     const store = new InMemoryAuditStore();
     const fields: PipelineFields = {
       store,
-      tierScopes: loadTierScopes(join(REPO_ROOT, "config", "anonymous-eligibility.yaml")),
+      tierScopes: loadTierScopes(
+        join(REPO_ROOT, "config", "anonymous-eligibility.yaml"),
+      ),
       validateUrl: async (url) => localValidateUrl(url),
       outputDir,
       geminiApiKey: process.env["GEMINI_API_KEY"],
@@ -339,23 +345,27 @@ async function buildServices(): Promise<AuditServices> {
 
   if (databaseUrl === undefined || cookieSecret === undefined) {
     throw new Error(
-      "WPI_DATABASE_URL and AUDIT_COOKIE_SECRET are required when WPI_DISPATCH_MODE is not 'stub' or 'memory'",
+      "DATABASE_URL and COOKIE_SECRET are required when WPI_DISPATCH_MODE=in_process",
     );
   }
 
   const pool = new Pool({ connectionString: databaseUrl });
-  await applyMigrations(pool, MIGRATIONS_DIR);
+  await applyMigrations(pool);
   const store = new PostgresAuditStore(pool);
   await store.sweepExpired();
   const tokenStore = new TokenStore(pool);
 
   const fields: PipelineFields = {
     store,
-    tierScopes: loadTierScopes(join(REPO_ROOT, "config", "anonymous-eligibility.yaml")),
+    tierScopes: loadTierScopes(
+      join(REPO_ROOT, "config", "anonymous-eligibility.yaml"),
+    ),
     validateUrl: async (url) => {
       try {
         const result = await validateUrl(url);
-        return result.valid ? { ok: true } : { ok: false, reason_key: "failure.url_invalid" };
+        return result.valid
+          ? { ok: true }
+          : { ok: false, reason_key: "failure.url_invalid" };
       } catch {
         return { ok: false, reason_key: "failure.url_invalid" };
       }
@@ -368,8 +378,6 @@ async function buildServices(): Promise<AuditServices> {
 
   return {
     ...fields,
-    // InProcessDispatcher expects (jobId) => Promise<void>; runAuditPipeline
-    // resolves to PipelineOutcome, which the dispatcher contract discards.
     dispatcher: new InProcessDispatcher(async (jobId) => {
       await runAuditPipeline(buildPipeline(fields), jobId);
     }),

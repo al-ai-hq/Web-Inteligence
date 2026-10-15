@@ -5,15 +5,31 @@ const IV_LENGTH = 12;
 const AUTH_TAG_LENGTH = 16;
 
 function getEncryptionKey(): Buffer {
-  const key = process.env["WPI_OAUTH_ENCRYPTION_KEY"];
-  if (!key) {
-    throw new Error("WPI_OAUTH_ENCRYPTION_KEY environment variable is required");
+  const hexKey = process.env["ENCRYPTION_KEY"];
+  if (hexKey) {
+    const keyBuffer = Buffer.from(hexKey, "hex");
+    if (keyBuffer.length !== 32) {
+      throw new Error(
+        "ENCRYPTION_KEY must be a 32-byte hex string (64 hex characters)",
+      );
+    }
+    return keyBuffer;
   }
-  const keyBuffer = Buffer.from(key, "base64");
-  if (keyBuffer.length !== 32) {
-    throw new Error("WPI_OAUTH_ENCRYPTION_KEY must be 32 bytes (base64-encoded)");
+
+  const b64Key = process.env["WPI_OAUTH_ENCRYPTION_KEY"];
+  if (b64Key) {
+    const keyBuffer = Buffer.from(b64Key, "base64");
+    if (keyBuffer.length !== 32) {
+      throw new Error(
+        "WPI_OAUTH_ENCRYPTION_KEY must be 32 bytes (base64-encoded)",
+      );
+    }
+    return keyBuffer;
   }
-  return keyBuffer;
+
+  throw new Error(
+    "ENCRYPTION_KEY (or WPI_OAUTH_ENCRYPTION_KEY) environment variable is required",
+  );
 }
 
 export function encrypt(plaintext: string): Buffer {

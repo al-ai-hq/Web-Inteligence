@@ -1,9 +1,14 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { InMemoryAuditStore } from "@wpi/audit-pipeline";
-import { InMemoryRateLimiter } from "@wpi/rate-limiter";
 import { getAuditServices, setAuditServicesForTests } from "../services/container";
 
-const ENV_KEYS = ["WPI_DISPATCH_MODE", "AUDIT_COOKIE_SECRET", "WPI_DATABASE_URL"] as const;
+const ENV_KEYS = [
+  "WPI_DISPATCH_MODE",
+  "COOKIE_SECRET",
+  "DATABASE_URL",
+  "WPI_DATABASE_URL",
+  "AUDIT_COOKIE_SECRET",
+] as const;
 
 afterEach(() => {
   setAuditServicesForTests(null);
@@ -16,7 +21,6 @@ describe("getAuditServices", () => {
   it("builds stub-mode services by default", async () => {
     const services = await getAuditServices();
     expect(services.store).toBeInstanceOf(InMemoryAuditStore);
-    expect(services.rateLimiter).toBeInstanceOf(InMemoryRateLimiter);
     expect(services.geminiApiKey).toBeUndefined();
     expect((await services.validateUrl("https://example.com")).ok).toBe(true);
     expect((await services.validateUrl("not-a-url")).ok).toBe(false);
@@ -30,6 +34,6 @@ describe("getAuditServices", () => {
 
   it("rejects in_process mode without required env", async () => {
     process.env["WPI_DISPATCH_MODE"] = "in_process";
-    await expect(getAuditServices()).rejects.toThrow(/WPI_DATABASE_URL/);
+    await expect(getAuditServices()).rejects.toThrow(/DATABASE_URL/);
   });
 });

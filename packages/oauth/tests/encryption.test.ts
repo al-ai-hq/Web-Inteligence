@@ -1,20 +1,32 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { encrypt, decrypt } from "../src/encryption.js";
 
+const HEX_KEY = Buffer.alloc(32, "a").toString("hex");
+const B64_KEY = Buffer.alloc(32, "a").toString("base64");
+
 describe("encryption", () => {
   beforeEach(() => {
-    process.env["WPI_OAUTH_ENCRYPTION_KEY"] = Buffer.alloc(32, "a").toString("base64");
+    process.env["ENCRYPTION_KEY"] = HEX_KEY;
   });
 
   afterEach(() => {
+    delete process.env["ENCRYPTION_KEY"];
     delete process.env["WPI_OAUTH_ENCRYPTION_KEY"];
   });
 
-  it("encrypts and decrypts plaintext", () => {
+  it("encrypts and decrypts plaintext with ENCRYPTION_KEY (hex)", () => {
     const plaintext = "test-access-token";
     const encrypted = encrypt(plaintext);
     const decrypted = decrypt(encrypted);
     expect(decrypted).toBe(plaintext);
+  });
+
+  it("falls back to WPI_OAUTH_ENCRYPTION_KEY (base64)", () => {
+    delete process.env["ENCRYPTION_KEY"];
+    process.env["WPI_OAUTH_ENCRYPTION_KEY"] = B64_KEY;
+    const plaintext = "test-access-token";
+    const encrypted = encrypt(plaintext);
+    expect(decrypt(encrypted)).toBe(plaintext);
   });
 
   it("produces different ciphertexts for same plaintext (random IV)", () => {
@@ -25,16 +37,17 @@ describe("encryption", () => {
   });
 
   it("throws if encryption key is missing", () => {
+    delete process.env["ENCRYPTION_KEY"];
     delete process.env["WPI_OAUTH_ENCRYPTION_KEY"];
     expect(() => encrypt("test")).toThrow(
-      "WPI_OAUTH_ENCRYPTION_KEY environment variable is required",
+      "ENCRYPTION_KEY (or WPI_OAUTH_ENCRYPTION_KEY) environment variable is required",
     );
   });
 
-  it("throws if encryption key is wrong length", () => {
-    process.env["WPI_OAUTH_ENCRYPTION_KEY"] = Buffer.alloc(16, "a").toString("base64");
+  it("throws if ENCRYPTION_KEY is wrong length", () => {
+    process.env["ENCRYPTION_KEY"] = Buffer.alloc(16, "a").toString("hex");
     expect(() => encrypt("test")).toThrow(
-      "WPI_OAUTH_ENCRYPTION_KEY must be 32 bytes (base64-encoded)",
+      "ENCRYPTION_KEY must be a 32-byte hex string (64 hex characters)",
     );
   });
 

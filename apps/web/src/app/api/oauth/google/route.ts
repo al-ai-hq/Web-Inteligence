@@ -103,7 +103,7 @@ async function handleCallback(request: NextRequest): Promise<NextResponse> {
 
   const clientId = process.env["GOOGLE_OAUTH_CLIENT_ID"];
   const clientSecret = process.env["GOOGLE_OAUTH_CLIENT_SECRET"];
-  const databaseUrl = process.env["WPI_DATABASE_URL"];
+  const databaseUrl = process.env["DATABASE_URL"] ?? process.env["WPI_DATABASE_URL"];
 
   if (!clientId || !clientSecret || !databaseUrl) {
     return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });

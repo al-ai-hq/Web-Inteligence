@@ -11,7 +11,7 @@ export default defineConfig({
     url: "http://127.0.0.1:3100/en",
     env: {
       WPI_DISPATCH_MODE: "stub",
-      AUDIT_COOKIE_SECRET: "e2e-cookie-secret",
+      COOKIE_SECRET: "e2e-cookie-secret",
       PORT: "3100",
     },
     timeout: 120000,
