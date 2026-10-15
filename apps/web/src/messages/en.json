@@ -354,6 +354,7 @@
     "forgot_password_title": "Reset your password",
     "forgot_password_body": "Enter your email and we will send you a reset link.",
     "send_reset_link": "Send reset link",
+    "submitting": "Submitting...",
     "reset_password_title": "Choose a new password",
     "reset_password_button": "Reset password",
     "forgot_password_link": "Forgot password?",

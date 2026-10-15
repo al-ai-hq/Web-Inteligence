@@ -354,6 +354,7 @@
     "forgot_password_title": "إعادة تعيين كلمة المرور",
     "forgot_password_body": "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين.",
     "send_reset_link": "إرسال رابط إعادة التعيين",
+    "submitting": "جارٍ الإرسال...",
     "reset_password_title": "اختر كلمة مرور جديدة",
     "reset_password_button": "إعادة تعيين كلمة المرور",
     "forgot_password_link": "نسيت كلمة المرور؟",

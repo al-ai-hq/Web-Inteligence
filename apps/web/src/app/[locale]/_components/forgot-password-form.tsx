@@ -27,7 +27,6 @@ export function ForgotPasswordForm() {
       if (!response.ok) {
         const body = (await response.json().catch(() => null)) as { error?: string } | null;
         setError(t(`error_${body?.error ?? "generic"}`));
-        setSubmitting(false);
         return;
       }
       setSent(true);
