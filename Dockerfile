@@ -34,6 +34,14 @@ COPY --from=builder /app/packages/audit-pipeline/package.json ./packages/audit-p
 COPY --from=builder /app/packages/audit-pipeline/dist ./packages/audit-pipeline/dist
 COPY --from=builder /app/packages/audit-pipeline/src/migrations ./packages/audit-pipeline/src/migrations
 
+# Next's standalone trace keeps the pnpm content store under node_modules/.pnpm
+# but drops the workspace-level symlinks, so a bare `import "pg"` from the
+# migration CLI has nothing to resolve. Link pg from the store instead of
+# copying it: its transitive deps already resolve from the store's own layout.
+RUN mkdir -p /app/packages/audit-pipeline/node_modules && \
+    ln -s "$(echo /app/node_modules/.pnpm/pg@*/node_modules/pg)" \
+      /app/packages/audit-pipeline/node_modules/pg
+
 RUN chown -R nextjs:nodejs /app
 
 USER nextjs
