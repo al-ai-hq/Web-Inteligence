@@ -3,11 +3,11 @@ import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import {
   PostgresAuditStore,
-  applyMigrations,
   hashAuditSecret,
   generateAuditSecret,
   type AuditContext,
 } from "../src/index.js";
+import { resetDatabase } from "./helpers/reset-database.js";
 
 const DATABASE_URL = process.env["WPI_TEST_DATABASE_URL"];
 
@@ -26,11 +26,7 @@ describe.skipIf(!DATABASE_URL)("PostgresAuditStore ownership", () => {
 
   beforeAll(async () => {
     pool = new Pool({ connectionString: DATABASE_URL });
-    await pool.query("DROP TABLE IF EXISTS audits CASCADE");
-    await pool.query("DROP TABLE IF EXISTS sessions CASCADE");
-    await pool.query("DROP TABLE IF EXISTS users CASCADE");
-    await pool.query("DROP TABLE IF EXISTS schema_migrations");
-    await applyMigrations(pool);
+    await resetDatabase(pool);
     store = new PostgresAuditStore(pool);
   });
 

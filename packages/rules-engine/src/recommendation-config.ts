@@ -73,7 +73,8 @@ function readYaml(path: string, label: string): unknown {
   try {
     return parse(readFileSync(path, "utf-8"));
   } catch (error) {
-    throw new ConfigError(`Failed to read ${label}: ${error}`);
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new ConfigError(`Failed to read ${label}: ${reason}`);
   }
 }
 

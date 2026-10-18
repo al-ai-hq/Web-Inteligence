@@ -34,7 +34,7 @@ function record(overrides: Partial<AuditRecord> = {}): AuditRecord {
 }
 
 function storeWith(records: AuditRecord[]): AuditStore {
-  return { listByUser: async () => records } as unknown as AuditStore;
+  return { listByUser: () => Promise.resolve(records) } as unknown as AuditStore;
 }
 
 function daysAgo(days: number): string {

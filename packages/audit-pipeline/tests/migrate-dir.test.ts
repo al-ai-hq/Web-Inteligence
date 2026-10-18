@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Pool } from "pg";
 import { applyMigrations } from "../src/migrations/migrate.js";
+import { dropTestSchema } from "./helpers/reset-database.js";
 
 const DATABASE_URL = process.env["WPI_TEST_DATABASE_URL"];
 
@@ -18,8 +19,7 @@ describe.skipIf(!DATABASE_URL)("applyMigrations WPI_MIGRATIONS_DIR override", ()
       join(migrationsDir, "0001_test.sql"),
       "CREATE TABLE IF NOT EXISTS migration_dir_test (id serial PRIMARY KEY);\n-- Insert a row so the test's rowCount > 0 assertion has data to verify.\nINSERT INTO migration_dir_test DEFAULT VALUES;",
     );
-    await pool.query("DROP TABLE IF EXISTS migration_dir_test");
-    await pool.query("DROP TABLE IF EXISTS schema_migrations");
+    await dropTestSchema(pool);
     process.env["WPI_MIGRATIONS_DIR"] = migrationsDir;
   });
 

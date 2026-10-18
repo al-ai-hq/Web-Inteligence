@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { applyMigrations } from "../src/migrations/migrate.js";
 import { PostgresAuditStore } from "../src/postgres-audit-store.js";
+import { resetDatabase } from "./helpers/reset-database.js";
 
 const DATABASE_URL = process.env["WPI_TEST_DATABASE_URL"];
 
@@ -12,9 +13,7 @@ describe.skipIf(!DATABASE_URL)("PostgresAuditStore", () => {
 
   beforeAll(async () => {
     pool = new Pool({ connectionString: DATABASE_URL });
-    await pool.query("DROP TABLE IF EXISTS audits CASCADE");
-    await pool.query("DROP TABLE IF EXISTS schema_migrations");
-    await applyMigrations(pool);
+    await resetDatabase(pool);
     store = new PostgresAuditStore(pool);
   });
 

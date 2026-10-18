@@ -16,8 +16,7 @@ export function normalizeDomain(url: string): string | null {
   }
 }
 
-const SITE_STAGES = ["new", "growth", "mature"] as const;
-export type SiteStage = (typeof SITE_STAGES)[number];
+export type SiteStage = "new" | "growth" | "mature";
 
 /**
  * Position the site by the age of its oldest completed audit on the same domain.

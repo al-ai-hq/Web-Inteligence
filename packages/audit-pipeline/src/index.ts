@@ -50,6 +50,18 @@ export {
 export type { ComposeResult, RulesEngineOutput } from "./composer.js";
 export { deriveSiteStage, normalizeDomain } from "./site-identity.js";
 export type { SiteStage } from "./site-identity.js";
+export { OUTCOME_METRICS } from "./outcome-store.js";
+export type {
+  MarkAppliedInput,
+  OutcomeDelta,
+  OutcomeMetric,
+  OutcomeStore,
+  RecordDeltasInput,
+  RecommendationOutcome,
+} from "./outcome-store.js";
+export { InMemoryOutcomeStore } from "./in-memory-outcome-store.js";
+export { PostgresOutcomeStore } from "./postgres-outcome-store.js";
+export { recordOutcomeDeltas } from "./outcome-service.js";
 export { buildReportModel, validateReportModel } from "./report-model.js";
 export type { BuildReportModelParams } from "./report-model.js";
 export { M4_AGENT_NAMES, runAgentStage } from "./agent-stage.js";

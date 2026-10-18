@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
 import { Pool } from "pg";
 import { applyMigrations } from "../src/migrations/migrate.js";
+import { dropTestSchema } from "./helpers/reset-database.js";
 
 const DATABASE_URL = process.env["WPI_TEST_DATABASE_URL"];
 
@@ -9,10 +10,7 @@ describe.skipIf(!DATABASE_URL)("migrations", () => {
 
   beforeAll(async () => {
     pool = new Pool({ connectionString: DATABASE_URL });
-    await pool.query("DROP TABLE IF EXISTS password_reset_tokens CASCADE");
-    await pool.query("DROP TABLE IF EXISTS sessions CASCADE");
-    await pool.query("DROP TABLE IF EXISTS users CASCADE");
-    await pool.query("DROP TABLE IF EXISTS schema_migrations");
+    await dropTestSchema(pool);
   });
 
   afterAll(async () => {
