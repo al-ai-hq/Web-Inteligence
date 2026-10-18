@@ -125,6 +125,7 @@ export function mapPriorityItem(
     severity: item.severity as FindingSeverity,
     confidence: "high", // deterministic rules → high confidence
     source_finding_id: findingId,
+    category: item.category,
     impact_score: item.impact_score,
     effort_score: item.effort_score,
     timeline_score: item.timeline_score,
@@ -176,6 +177,7 @@ export function deriveActionItems(findings: StoredFinding[], cap: number): Store
       severity: finding.severity,
       confidence: finding.confidence,
       source_finding_id: finding.id,
+      category: null,
       impact_score: null,
       effort_score: null,
       timeline_score: null,

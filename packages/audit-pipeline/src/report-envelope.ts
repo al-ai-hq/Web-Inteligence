@@ -1,4 +1,4 @@
-import type { RecommendationBand, ScoreResult } from "@wpi/rules-engine";
+import type { RecommendationBand, RuleCategory, ScoreResult } from "@wpi/rules-engine";
 import type { SiteStage } from "./site-identity.js";
 
 export type FindingSection =
@@ -53,6 +53,8 @@ export interface StoredActionItem {
   severity: FindingSeverity;
   confidence: "high" | "medium" | "low";
   source_finding_id: string;
+  /** The rule category an "applied" mark is measured against; null for agent items. */
+  category: RuleCategory | null;
   impact_score: number | null;
   effort_score: number | null;
   timeline_score: number | null;
