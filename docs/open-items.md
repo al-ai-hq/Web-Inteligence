@@ -2,7 +2,7 @@
 
 Status: living register  
 Owner role: Product owner  
-Last updated: 2026-10-01
+Last updated: 2026-10-18
 
 Every item names what it blocks and who decides. Close an item by adding the decision to `docs/decisions.md` and writing `closed by D-xxx` here. Placeholders in files use `<DECIDE_AT_M0: ...>` (or the milestone that needs the answer); search for them with `grep -rn "DECIDE_AT" .`.
 
@@ -65,3 +65,5 @@ Every item names what it blocks and who decides. Close an item by adding the dec
 | OI-054 | Legal texts: privacy policy, terms, DPA, subprocessor list, cookie notice, gallery consent terms. Not drafted here; counsel must write them.                              | Before any public traffic | Counsel                          | `docs/legal/README.md`                          |
 | OI-055 | Phase 0: pick the 10 sites (5 client sites with written owner consent, 5 fixture sites) and run the manual audits to create the labelled evaluation set and golden files. | M2 evals onward           | SEO lead                         | 05 §13; `evals/golden/README.md`                |
 | OI-056 | Whether a site owner can ask us to delete anonymous audits of their site made by others; whether anonymous links may be shared.                                           | M3                        | Counsel, product owner           | `docs/threat-model.md`                          |
+| OI-057 | No adapter builds a real `EvidenceBundle`, and nothing passes `runRulesEngine`/`loadRulesConfig` to the pipeline, so rule findings, M10 bands, scores and outcome deltas stay dormant in production (the stub bundle at `pipeline.ts` has `homepage: null` and `pages: []`, which would fabricate a capped critical failure if wired as-is). Needs the crawler/evidence-processor output mapped onto `EvidenceBundle` fields (title, canonical, lang, word count, JSON-LD blocks). | M10 engine going live  | Tech lead, methodology owner | `packages/audit-pipeline/src/pipeline.ts`; `services/evidence-processor/src/normalizer.ts` |
+| OI-058 | The Playwright suite cannot pass as a whole in dev, for reasons that predate M10: `ANONYMOUS_CAPACITY = 5`/hour per IP is one bucket shared by `POST /api/audits` and signup, so a full run returns 429 before the last specs; `WPI_DISPATCH_MODE=stub` keeps records in an in-process `InMemoryAuditStore` that Next dev route recompiles wipe, so status and delete then 404; and three specs assert things that no longer exist (dashboard `Score: {score}` is dead copy, `/fact-sheets` was never built, the landing submit button fails axe contrast at 3.22:1). M10 journeys were verified by running `e2e/recommendation-apply.spec.ts` alone on a fresh server (2 passed). Needs per-test rate-limit isolation (unique `x-forwarded-for`) plus refreshed or retired legacy specs. | CI hardening  | Tech lead | `apps/web/playwright.config.ts`; `packages/rate-limiter/src/in-memory-rate-limiter.ts`; `apps/web/e2e/` |

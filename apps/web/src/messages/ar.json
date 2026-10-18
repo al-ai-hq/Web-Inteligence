@@ -93,6 +93,7 @@
     "confidence_high": "ثقة عالية",
     "confidence_medium": "ثقة متوسطة",
     "confidence_low": "ثقة منخفضة",
+    "summary_title": "الملخص",
     "summary_technical": "الملخص التقني",
     "summary_keywords": "ملخص الكلمات المفتاحية",
     "summary_content": "ملخص المحتوى",
@@ -388,6 +389,7 @@
   },
   "dashboard": {
     "title": "تدقيقاتك",
+    "latest_score_label": "آخر قياس لجاهزية الحضور الرقمي",
     "score": "النتيجة: {score}",
     "site": "الموقع",
     "date": "التاريخ",

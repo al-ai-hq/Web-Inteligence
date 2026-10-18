@@ -93,6 +93,7 @@
     "confidence_high": "High confidence",
     "confidence_medium": "Medium confidence",
     "confidence_low": "Low confidence",
+    "summary_title": "Summary",
     "summary_technical": "Technical summary",
     "summary_keywords": "Keyword summary",
     "summary_content": "Content summary",
@@ -388,6 +389,7 @@
   },
   "dashboard": {
     "title": "Your audits",
+    "latest_score_label": "Latest presence readiness",
     "score": "Score: {score}",
     "site": "Site",
     "date": "Date",
