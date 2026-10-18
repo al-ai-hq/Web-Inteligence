@@ -112,7 +112,24 @@
     "score_caps": "القيود الحرجة المطبقة",
     "score_caps_detail": "{cap}: حد أقصى {max}٪",
     "section_performance": "الأداء",
-    "evidence_items": "عناصر أدلة"
+    "evidence_items": "عناصر أدلة",
+    "band_quick_win": "مكسب سريع",
+    "band_strategic": "استراتيجي",
+    "band_fill_in": "إكمال",
+    "band_defer": "تأجيل",
+    "band_unscored": "توصيات أخرى",
+    "indicator_impact": "الأثر",
+    "indicator_effort": "الجهد",
+    "indicator_timeline": "المدة",
+    "mark_applied": "علِّمه كمنفَّذ",
+    "marking": "جارٍ التسجيل…",
+    "applied_pending": "تم التنفيذ — بانتظار القياس",
+    "mark_failed": "تعذّر تسجيل هذا الإجراء. حاول مرة أخرى.",
+    "recs_tuned_for": "التوصيات مخصَّصة لقطاع",
+    "recs_basis": "أساس التصنيف",
+    "site_stage_new": "موقع جديد",
+    "site_stage_growth": "موقع قيد النمو",
+    "site_stage_mature": "موقع راسخ"
   },
   "methodology_disclosure": {
     "title": "كيفية قراءة هذا التقرير",
@@ -380,7 +397,20 @@
     "empty_body": "شغّل تدقيقك الأول لتبدأ في تتبع جاهزية حضورك الرقمي بمرور الوقت.",
     "empty_cta": "شغّل تدقيقك الأول",
     "reminder": "آخر تدقيق لك كان قبل {days} يومًا — أعد التشغيل لمشاهدة تطور نتيجتك",
-    "dismiss": "تجاهل"
+    "dismiss": "تجاهل",
+    "recommendations_title": "التوصيات",
+    "recommendations_empty": "علِّم أحد التوصيات كمنفَّذ في أحدث تقرير لتبدأ بتتبع النتائج.",
+    "pending_title": "تم التنفيذ — بانتظار تدقيق جديد",
+    "quick_wins_title": "مكاسب سريعة لم تُنفَّذ بعد",
+    "deltas_title": "التغييرات المقاسة",
+    "applied_on": "تم التنفيذ في {date}",
+    "delta_line": "منذ {date}، تغيّرت {metric} من {before} إلى {after} ({delta} نقطة).",
+    "delta_no_values": "لا توجد قيمة قابلة للمقارنة لمؤشر {metric} بين التدقيقين.",
+    "delta_disclaimer": "هذه علاقة ارتباط فقط، وليست نتيجة مضمونة لأي إجراء.",
+    "fidelity": "درجة الموثوقية",
+    "fidelity_correlation_only": "ارتباط فقط",
+    "fidelity_measured": "مقيس",
+    "fidelity_inferred": "مُستنتج"
   },
   "account": {
     "report_signup_cta": "أنشئ حسابًا للاحتفاظ بتقاريرك للأبد ←"

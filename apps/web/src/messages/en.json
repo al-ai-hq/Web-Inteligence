@@ -112,7 +112,24 @@
     "score_caps": "Critical caps applied",
     "score_caps_detail": "{cap}: max {max}%",
     "section_performance": "Performance",
-    "evidence_items": "evidence items"
+    "evidence_items": "evidence items",
+    "band_quick_win": "Quick Win",
+    "band_strategic": "Strategic",
+    "band_fill_in": "Fill-In",
+    "band_defer": "Defer",
+    "band_unscored": "Other recommendations",
+    "indicator_impact": "Impact",
+    "indicator_effort": "Effort",
+    "indicator_timeline": "Timeline",
+    "mark_applied": "Mark as applied",
+    "marking": "Marking…",
+    "applied_pending": "Applied — pending measurement",
+    "mark_failed": "Could not record this. Please try again.",
+    "recs_tuned_for": "Recommendations tuned for",
+    "recs_basis": "Classification basis",
+    "site_stage_new": "New site",
+    "site_stage_growth": "Growing site",
+    "site_stage_mature": "Established site"
   },
   "methodology_disclosure": {
     "title": "How to read this report",
@@ -380,7 +397,20 @@
     "empty_body": "Run your first audit to start tracking your presence readiness over time.",
     "empty_cta": "Run your first audit",
     "reminder": "Your last audit was {days} days ago — re-run to see your trend",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "recommendations_title": "Recommendations",
+    "recommendations_empty": "Mark a recommendation as applied on your latest report to start tracking outcomes.",
+    "pending_title": "Applied — waiting for a new audit",
+    "quick_wins_title": "Quick wins not yet applied",
+    "deltas_title": "Measured changes",
+    "applied_on": "Applied on {date}",
+    "delta_line": "Since {date}, {metric} moved from {before} to {after} ({delta} points).",
+    "delta_no_values": "{metric} has no comparable metric between the two audits.",
+    "delta_disclaimer": "This is a correlation, not a guaranteed result of any action.",
+    "fidelity": "Fidelity",
+    "fidelity_correlation_only": "correlation only",
+    "fidelity_measured": "measured",
+    "fidelity_inferred": "inferred"
   },
   "account": {
     "report_signup_cta": "Sign up to keep reports forever →"

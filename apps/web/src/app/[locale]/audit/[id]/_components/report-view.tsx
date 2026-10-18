@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { AuditRecord, StoredFinding, StoredReportEnvelope } from "@wpi/audit-pipeline";
 import { Link } from "../../../../../i18n/navigation";
+import { ActionBoard } from "./action-board";
 import { DeleteButton } from "./delete-button";
 import { MethodologyDisclosure } from "./methodology-disclosure";
 import { ScoreCard } from "./score-card";
@@ -67,10 +68,14 @@ export async function ReportView({
   record,
   locale,
   secret,
+  isOwner,
+  appliedRuleIds,
 }: {
   record: AuditRecordWithReport;
   locale: string;
   secret: string;
+  isOwner: boolean;
+  appliedRuleIds: string[];
 }) {
   const t = await getTranslations({ locale, namespace: "report" });
   const tUnavailable = await getTranslations({ locale, namespace: "unavailable" });
@@ -185,22 +190,25 @@ export async function ReportView({
       {envelope.action_board.length > 0 ? (
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-surface-900">{t("action_board_title")}</h2>
-          <ol className="space-y-3">
-            {envelope.action_board.map((item, index) => (
-              <li
-                key={item.source_finding_id}
-                className="flex gap-4 rounded-2xl border border-surface-200 bg-white p-5 shadow-sm"
-              >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-sm font-bold text-brand-600">
-                  {index + 1}
-                </span>
-                <div>
-                  <p className="font-semibold text-surface-900">{item.title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-surface-700">{item.detail}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
+          {envelope.recommendations ? (
+            <p className="flex flex-wrap items-center gap-x-2 text-sm text-surface-700">
+              <span>{t("recs_tuned_for")}:</span>
+              <bdi className="font-medium text-surface-900">
+                {envelope.recommendations.industry}
+              </bdi>
+              <span aria-hidden="true">&middot;</span>
+              <span>{t(`site_stage_${envelope.recommendations.site_stage}`)}</span>
+              <span aria-hidden="true">&middot;</span>
+              <span>{t("recs_basis")}:</span>
+              <bdi className="font-medium text-surface-900">{envelope.recommendations.basis}</bdi>
+            </p>
+          ) : null}
+          <ActionBoard
+            items={envelope.action_board}
+            auditId={record.id}
+            isOwner={isOwner}
+            appliedRuleIds={appliedRuleIds}
+          />
         </section>
       ) : null}
 

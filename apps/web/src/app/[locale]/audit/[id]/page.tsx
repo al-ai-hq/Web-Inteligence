@@ -85,9 +85,27 @@ export default async function AuditPage({
 
   const tAccount = await getTranslations({ locale, namespace: "account" });
 
+  // Only the signed-in owner may mark recommendations applied, and their
+  // existing marks prefill the board so a reload does not reset it.
+  const ownerId = user?.id ?? null;
+  const isOwner = ownerId !== null && outcome.record.user_id === ownerId;
+  let appliedRuleIds: string[] = [];
+  if (isOwner && ownerId !== null) {
+    const outcomes = await services.outcomeStore.listForAudit(id);
+    appliedRuleIds = outcomes
+      .filter((o) => o.audit_id_applied === id && o.user_id === ownerId)
+      .map((o) => o.rule_id);
+  }
+
   return (
     <>
-      <ReportView record={{ ...safeRecord, report }} locale={locale} secret={s ?? ""} />
+      <ReportView
+        record={{ ...safeRecord, report }}
+        locale={locale}
+        secret={s ?? ""}
+        isOwner={isOwner}
+        appliedRuleIds={appliedRuleIds}
+      />
       {user === null ? (
         <p className="mt-6 text-center">
           <Link href="/signup" className="underline">

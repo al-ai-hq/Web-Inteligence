@@ -1,11 +1,14 @@
 import { cookies } from "next/headers";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { hashToken, SESSION_COOKIE_NAME } from "@wpi/auth";
+import type { RecommendationOutcome } from "@wpi/audit-pipeline";
 import { Link, redirect } from "../../../i18n/navigation";
 import { getAuditServices } from "../../../services/container";
 import { TrendChart } from "../_components/trend-chart";
 import { AuditList } from "../_components/audit-list";
 import { ReminderBanner } from "../_components/reminder-banner";
+import { RecommendationsPanel } from "./_components/recommendations-panel";
+import { openQuickWins } from "../../../services/recommendation-view";
 
 export const dynamic = "force-dynamic";
 
@@ -74,9 +77,29 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const latestCompleted = records.find((r) => r.report?.score?.presence_readiness != null);
   const latestScore = latestCompleted?.report?.score?.presence_readiness ?? null;
 
-  const daysSinceLastAudit = Math.floor(
-    (Date.now() - new Date((latestCompleted ?? records[0])!.created_at).getTime()) / DAY_MS,
+  // Pending marks span every site, while measured deltas only exist once a
+  // later audit of the same site closes them out.
+  const outcomeRows = new Map<string, RecommendationOutcome>();
+  for (const row of await services.outcomeStore.listPendingForUser(user.id)) {
+    outcomeRows.set(row.id, row);
+  }
+  if (latestCompleted) {
+    for (const row of await services.outcomeStore.listForAudit(latestCompleted.id)) {
+      if (row.user_id === user.id) {
+        outcomeRows.set(row.id, row);
+      }
+    }
+  }
+  const outcomes = [...outcomeRows.values()];
+  const appliedTitles = new Set(
+    outcomes.filter((row) => row.audit_id_measured === null).map((row) => row.rule_id),
   );
+  const quickWins = openQuickWins(latestCompleted?.report?.action_board ?? [], appliedTitles);
+
+  const referenceAudit = latestCompleted ?? records.at(-1);
+  const daysSinceLastAudit = referenceAudit
+    ? Math.floor((Date.now() - new Date(referenceAudit.created_at).getTime()) / DAY_MS)
+    : 0;
 
   return (
     <div className="space-y-8 py-8">
@@ -121,6 +144,13 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
       <div className="rounded-2xl border border-surface-200 bg-white p-6 shadow-sm">
         <TrendChart records={records} locale={locale} />
       </div>
+
+      <RecommendationsPanel
+        outcomes={outcomes}
+        quickWins={quickWins}
+        auditId={latestCompleted?.id ?? null}
+        locale={locale}
+      />
 
       <div className="rounded-2xl border border-surface-200 bg-white shadow-sm">
         <AuditList records={records} locale={locale} />
