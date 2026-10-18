@@ -45,10 +45,28 @@ export type {
   ScoringContext,
 } from "./types.js";
 export { generateFindings } from "./findings.js";
-export type { Finding, Severity, EvidenceState } from "./types.js";
-export { calculatePriority } from "./priority.js";
-export type { PriorityItem, PriorityGroup, Horizon, DisplayBand } from "./types.js";
+export { calculatePriority, compareRecommendations } from "./priority.js";
 export type { PriorityOptions } from "./priority.js";
+export { loadRecommendationConfig } from "./recommendation-config.js";
+export { assignBand, compareByBand } from "./recommendation-band.js";
+export { applyPlaybook } from "./playbook-overlay.js";
+export { classifyIndustry } from "./industry-classifier.js";
+export type {
+  Industry,
+  IndustryClassification,
+  IndustrySignals,
+} from "./industry-classifier.js";
+export type {
+  Finding,
+  Severity,
+  EvidenceState,
+  RecommendationBand,
+  RecommendationPriorityItem,
+  RecommendationScoringConfig,
+  RecommendationConfig,
+  IndustryPlaybook,
+  PlaybookEntry,
+} from "./types.js";
 export { EVALUATOR_REGISTRY, buildEvaluatorMap } from "./evaluators/index.js";
 export type { EvaluatorEntry } from "./evaluators/index.js";
 export {

@@ -5,13 +5,23 @@ import type { TierName, TierScope } from "./eligibility.js";
 import { REPO_ROOT } from "./paths.js";
 import { buildReportModel, validateReportModel } from "./report-model.js";
 import type { ComposerAgentOutcome } from "./report-envelope.js";
+import { deriveSiteStage } from "./site-identity.js";
 import type { ConnectorResult, AuditContext } from "@wpi/connectors";
 import type { TokenStore } from "@wpi/oauth";
-import type { EvidenceBundle, LoadedRule, PageRuleResult, ScoringConfig } from "@wpi/rules-engine";
+import type {
+  EvidenceBundle,
+  LoadedRule,
+  PageRuleResult,
+  RecommendationConfig,
+  ScoringConfig,
+} from "@wpi/rules-engine";
 import {
   aggregateToSite,
+  applyPlaybook,
   calculatePriority,
   calculateScore,
+  classifyIndustry,
+  compareRecommendations,
   generateFindings,
   RuleCatalog,
 } from "@wpi/rules-engine";
@@ -36,7 +46,12 @@ export interface PipelineDeps {
   processEvidence: (record: AuditRecord) => Promise<string[]>;
   enrichFootprint?: (record: AuditRecord, projectId?: string) => Promise<void>;
   runRulesEngine?: (bundle: EvidenceBundle) => Promise<PageRuleResult[]>;
-  loadRulesConfig?: () => { rules: LoadedRule[]; scoring: ScoringConfig; catalog: RuleCatalog };
+  loadRulesConfig?: () => {
+    rules: LoadedRule[];
+    scoring: ScoringConfig;
+    catalog: RuleCatalog;
+    recommendation: RecommendationConfig;
+  };
   runAgents: (
     record: AuditRecord,
     evidenceIds: string[],
@@ -151,7 +166,7 @@ export async function runAuditPipeline(
     // Process rules engine results if config is available
     let rulesOutput: RulesEngineOutput | undefined;
     if (pageRuleResults.length > 0 && deps.loadRulesConfig) {
-      const { rules, scoring, catalog } = deps.loadRulesConfig();
+      const { rules, scoring, catalog, recommendation } = deps.loadRulesConfig();
       const siteResults = aggregateToSite(pageRuleResults, {
         methodology_version: "2.0.0",
         tier: raw.tier as "rich" | "reduced" | "preview",
@@ -168,10 +183,19 @@ export async function runAuditPipeline(
         connectors: {},
       });
       const reFindings = generateFindings(siteResults, rules);
-      const priorityItems = calculatePriority(reFindings, rules, {
-        confidence_level: "medium",
-        pages_checked: evidenceIds.length || 1,
+      const industry = classifyIndustry({ business_type: raw.context.business_type });
+      const siteStage = await deriveSiteStage(deps.store, raw.user_id, raw.target_url, auditId);
+      const scored = calculatePriority(reFindings, rules, recommendation.scoring, {
+        industry: industry.industry,
+        siteStage,
       });
+      const playbook = recommendation.playbooks.find(
+        (entry) => entry.playbook_id === industry.industry,
+      );
+      // Boosts move items across band boundaries, so the board is re-ordered after them.
+      const priorityItems = (
+        playbook ? applyPlaybook(scored, playbook, recommendation.scoring) : scored
+      ).sort(compareRecommendations);
       const scoreResult = calculateScore(siteResults, rules, scoring, {
         pages_inspected: evidenceIds.length,
         critical_stages_completed: ["VALIDATING", "CRAWLING", "EXTRACTING", "AUDITING"],

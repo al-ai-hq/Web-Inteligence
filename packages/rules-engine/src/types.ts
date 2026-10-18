@@ -22,6 +22,8 @@ export interface LoadedRule {
   applicability: string;
   standards: { pass?: string; partial?: string; fail?: string; report?: string };
   fidelity_label: string;
+  /** Weeks to remediate (1-10). Falls back to the per-category config default. */
+  recommendation_timeline?: number;
 }
 
 export interface ScoringConfig {
@@ -179,17 +181,7 @@ export interface Finding {
   };
 }
 
-// ─── Priority types ──────────────────────────────────────────────────────────
-
-/** Priority group assignment (spec §8.2, precedence order). */
-export type PriorityGroup =
-  "critical_blocker" | "measurement_fix" | "quick_win" | "strategic_opportunity" | "polish";
-
-/** Horizon bucket for remediation timeline (spec §8.2). */
-export type Horizon = "0-30d" | "31-60d" | "61-90d";
-
-/** Display band for UI rendering (spec §8.2). */
-export type DisplayBand = 1 | 2 | 3 | 4;
+// ─── Recommendation scoring types (M10) ──────────────────────────────────────
 
 export interface RecommendationScoringConfig {
   methodology_version: string;
@@ -220,29 +212,29 @@ export interface RecommendationConfig {
   playbooks: IndustryPlaybook[];
 }
 
-/** A prioritized item for the action board. */
-export interface PriorityItem {
-  rule_id: string;
-  severity: Severity;
-  priority_value: number;
-  group: PriorityGroup;
-  horizon: Horizon;
-  display_band: DisplayBand;
-  category: RuleCategory;
-  evidence_ids: string[];
-  rationale?: string;
-}
-
-// ─── Recommendation scoring types (M10) ──────────────────────────────────────
-
 /** Outcome band assigned by the M10 impact/effort/timeline scorer. */
 export type RecommendationBand = "quick_win" | "strategic" | "fill_in" | "defer";
 
-/** A PriorityItem enriched with the four M10 scores and playbook provenance. */
-export interface RecommendationPriorityItem extends PriorityItem {
+/**
+ * A ranked action-board entry (M10 spec FR-1/FR-2).
+ *
+ * Replaces the M2 `PriorityItem`; its `priority_value`, `group`, `horizon` and
+ * `display_band` fields are dropped because the four-band model carries that
+ * positioning directly.
+ */
+export interface RecommendationPriorityItem {
+  rule_id: string;
+  severity: Severity;
+  category: RuleCategory;
+  evidence_ids: string[];
+  rationale?: string;
+  /** 1-10, derived from the rule's importance_weight. */
   impact_score: number;
+  /** 1-10, from the per-category config. */
   effort_score: number;
+  /** 1-10, weeks to remediate. */
   timeline_score: number;
+  /** -18..+18. */
   priority_score: number;
   band: RecommendationBand;
   playbook_id: string | null;

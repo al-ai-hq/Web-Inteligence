@@ -1,4 +1,4 @@
-import type { ScoreResult } from "@wpi/rules-engine";
+import type { RecommendationBand, ScoreResult } from "@wpi/rules-engine";
 
 export type FindingSection =
   "technical" | "keywords" | "content" | "performance" | "experience" | "entity";
@@ -42,12 +42,22 @@ export interface StoredCosts {
   total_usd: number;
 }
 
+/**
+ * An action-board row. Rule-derived rows carry the M10 scores; agent-derived rows
+ * carry nulls rather than invented numbers, so the UI can tell the two apart.
+ */
 export interface StoredActionItem {
   title: string;
   detail: string;
   severity: FindingSeverity;
   confidence: "high" | "medium" | "low";
   source_finding_id: string;
+  impact_score: number | null;
+  effort_score: number | null;
+  timeline_score: number | null;
+  priority_score: number | null;
+  band: RecommendationBand | null;
+  playbook_note_key: string | null;
 }
 
 export interface ComposerFinding {

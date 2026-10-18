@@ -1,6 +1,11 @@
 import { randomUUID } from "node:crypto";
 import type { ConnectorResult } from "@wpi/connectors";
-import type { Finding, PriorityItem, RuleCategory, ScoreResult } from "@wpi/rules-engine";
+import type {
+  Finding,
+  RecommendationPriorityItem,
+  RuleCategory,
+  ScoreResult,
+} from "@wpi/rules-engine";
 import type { TierScope } from "./eligibility.js";
 import type {
   ComposerAgentOutcome,
@@ -60,7 +65,7 @@ export const CATEGORY_TO_SECTION: Record<RuleCategory, FindingSection> = {
 
 export interface RulesEngineOutput {
   findings: Finding[];
-  priority_items: PriorityItem[];
+  priority_items: RecommendationPriorityItem[];
   score: ScoreResult | null;
   unavailable_categories: RuleCategory[];
 }
@@ -110,13 +115,22 @@ function mapRulesFinding(f: Finding): StoredFinding {
   };
 }
 
-function mapPriorityItem(item: PriorityItem, findingIdMap: Map<string, string>): StoredActionItem {
+export function mapPriorityItem(
+  item: RecommendationPriorityItem,
+  findingId: string,
+): StoredActionItem {
   return {
     title: item.rule_id,
     detail: item.rationale ?? item.rule_id,
     severity: item.severity as FindingSeverity,
     confidence: "high", // deterministic rules → high confidence
-    source_finding_id: findingIdMap.get(item.rule_id) ?? "",
+    source_finding_id: findingId,
+    impact_score: item.impact_score,
+    effort_score: item.effort_score,
+    timeline_score: item.timeline_score,
+    priority_score: item.priority_score,
+    band: item.band,
+    playbook_note_key: item.playbook_note_key,
   };
 }
 
@@ -162,6 +176,12 @@ export function deriveActionItems(findings: StoredFinding[], cap: number): Store
       severity: finding.severity,
       confidence: finding.confidence,
       source_finding_id: finding.id,
+      impact_score: null,
+      effort_score: null,
+      timeline_score: null,
+      priority_score: null,
+      band: null,
+      playbook_note_key: null,
     });
   }
   items.sort((a, b) => {
@@ -333,7 +353,7 @@ export function composeSections(
   const actionBoard: StoredActionItem[] = [];
   if (rulesOutput?.priority_items) {
     for (const pi of rulesOutput.priority_items) {
-      actionBoard.push(mapPriorityItem(pi, findingIdByRuleId));
+      actionBoard.push(mapPriorityItem(pi, findingIdByRuleId.get(pi.rule_id) ?? ""));
     }
   }
   const agentItems = deriveActionItems(findings, scope.actionBoardCap);

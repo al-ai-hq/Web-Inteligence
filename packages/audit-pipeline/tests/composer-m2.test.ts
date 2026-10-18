@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { composeSections } from "../src/composer.js";
 import type { ComposerAgentOutcome } from "../src/report-envelope.js";
 import type { RulesEngineOutput } from "../src/composer.js";
-import type { Finding, PriorityItem, ScoreResult } from "@wpi/rules-engine";
+import type { Finding, RecommendationPriorityItem, ScoreResult } from "@wpi/rules-engine";
 import { TIER_SCOPES } from "../src/eligibility.js";
 
 /* ---------------------------------------------------------------------------
@@ -25,6 +25,27 @@ function rulesEngineOutput(overrides: Partial<RulesEngineOutput> = {}): RulesEng
     priority_items: [],
     score: null,
     unavailable_categories: [],
+    ...overrides,
+  };
+}
+
+function priorityItem(
+  overrides: Partial<RecommendationPriorityItem> = {},
+): RecommendationPriorityItem {
+  return {
+    rule_id: "CRW-001",
+    severity: "critical",
+    category: "crawlability",
+    evidence_ids: [],
+    impact_score: 10,
+    effort_score: 3,
+    timeline_score: 3,
+    priority_score: 14,
+    band: "quick_win",
+    playbook_id: null,
+    playbook_note_key: null,
+    industry_classification: "generic",
+    site_stage: "growth",
     ...overrides,
   };
 }
@@ -243,18 +264,12 @@ describe("composeSections with rules engine unavailable categories", () => {
  * ------------------------------------------------------------------------- */
 
 describe("composeSections with rules engine priority items", () => {
-  it("maps PriorityItem → StoredActionItem", () => {
-    const priorityItem: PriorityItem = {
+  it("maps RecommendationPriorityItem → StoredActionItem", () => {
+    const item = priorityItem({
       rule_id: "CRW-001",
-      severity: "critical",
-      priority_value: 12.5,
-      group: "critical_blocker",
-      horizon: "0-30d",
-      display_band: 1,
-      category: "crawlability",
       evidence_ids: ["ev-1"],
       rationale: "Fix robots.txt",
-    };
+    });
 
     // Need a finding so source_finding_id can be set
     const reFinding: Finding = {
@@ -272,7 +287,7 @@ describe("composeSections with rules engine priority items", () => {
       TIER_SCOPES.rich,
       rulesEngineOutput({
         findings: [reFinding],
-        priority_items: [priorityItem],
+        priority_items: [item],
       }),
     );
 
@@ -299,17 +314,11 @@ describe("composeSections with rules engine priority items", () => {
       ],
     });
 
-    const priorityItem: PriorityItem = {
+    const item = priorityItem({
       rule_id: "CRW-003",
-      severity: "critical",
-      priority_value: 15,
-      group: "critical_blocker",
-      horizon: "0-30d",
-      display_band: 1,
-      category: "crawlability",
       evidence_ids: ["ev-r"],
       rationale: "Sitemap missing",
-    };
+    });
 
     const reFinding: Finding = {
       rule_id: "CRW-003",
@@ -326,7 +335,7 @@ describe("composeSections with rules engine priority items", () => {
       TIER_SCOPES.rich,
       rulesEngineOutput({
         findings: [reFinding],
-        priority_items: [priorityItem],
+        priority_items: [item],
       }),
     );
 

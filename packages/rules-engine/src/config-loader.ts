@@ -34,6 +34,7 @@ const ruleSchema = z.object({
     report: z.string().optional(),
   }),
   fidelity_label: z.string(),
+  recommendation_timeline: z.number().int().min(1).max(10).optional(),
 });
 
 const ruleFileSchema = z.object({

@@ -1,485 +1,200 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+import { calculatePriority } from "../src/priority.js";
 import type {
   Finding,
-  RuleResult,
   LoadedRule,
+  RecommendationScoringConfig,
   RuleCategory,
-  ConfidenceLevel,
+  Severity,
 } from "../src/types.js";
-import { calculatePriority } from "../src/priority.js";
 
-// ─── Test Helpers ─────────────────────────────────────────────────────────────
+const config: RecommendationScoringConfig = {
+  methodology_version: "0.1.0-m10",
+  bandThresholds: { quickWin: 8, strategic: 3, fillIn: -3 },
+  maxPlaybookBoost: 3,
+  effortByCategory: {
+    crawlability: 4,
+    on_page: 3,
+    structured_data: 5,
+    aeo: 5,
+    geo: 7,
+    i18n_accessibility: 4,
+    performance_security: 6,
+  },
+  timelineDefaultByCategory: {
+    crawlability: 4,
+    on_page: 3,
+    structured_data: 5,
+    aeo: 6,
+    geo: 7,
+    i18n_accessibility: 4,
+    performance_security: 5,
+  },
+};
 
-function makeRule(overrides: Partial<LoadedRule> = {}): LoadedRule {
+function rule(
+  id: string,
+  importance_weight: number,
+  category: RuleCategory,
+  extra: Partial<LoadedRule> = {},
+): LoadedRule {
   return {
-    id: "CRW-001",
-    category: "crawlability",
-    title: "Test rule",
-    importance_weight: 3,
+    id,
+    category,
+    title: id,
+    importance_weight,
     scored: true,
     evaluation: "deterministic",
     connected_tier_only: false,
-    applicability: "All audits",
-    standards: { pass: "pass", fail: "fail" },
+    applicability: "All",
+    standards: {},
     fidelity_label: "computed",
-    ...overrides,
+    ...extra,
   };
 }
 
-function makeFinding(overrides: Partial<Finding> = {}): Finding {
+function finding(
+  rule_id: string,
+  category: RuleCategory,
+  severity: Severity = "high",
+): Finding {
   return {
-    rule_id: "CRW-001",
-    severity: "high",
-    evidence_ids: ["e1"],
-    category: "crawlability",
+    rule_id,
+    severity,
+    evidence_ids: [`ev-${rule_id}`],
+    rationale: `rationale for ${rule_id}`,
+    category,
     evidence_state: "verified",
-    affected_scope: { sampled: true, urls: ["https://example.com/"] },
-    ...overrides,
+    affected_scope: { sampled: true, urls: ["/a"] },
   };
 }
 
-function makeRuleResult(overrides: Partial<RuleResult> = {}): RuleResult {
-  return {
-    rule_id: "CRW-001",
-    result: "pass",
-    evidence_ids: ["e1"],
-    scope: "site",
-    affected_urls: [],
-    ...overrides,
-  };
-}
-
-// ─── Priority Value Calculation (spec §8.2) ──────────────────────────────────
+const options = { industry: "generic", siteStage: "growth" } as const;
 
 describe("calculatePriority", () => {
-  describe("priority_value formula", () => {
-    it("calculates priority_value = impact * reach * confidence_factor / effort", () => {
-      const rule = makeRule({ id: "CRW-001", importance_weight: 4, category: "crawlability" });
-      const finding = makeFinding({
-        rule_id: "CRW-001",
-        severity: "critical",
-        category: "crawlability",
-        affected_scope: { sampled: true, urls: ["u1", "u2", "u3", "u4"] },
-      });
-      // impact=4, reach=ceil(5*4/10)=2, confidence_factor=1.0 (high), effort=2 (crawlability)
-      // priority_value = 4 * 2 * 1.0 / 2 = 4.0
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 10,
-      });
-      expect(items).toHaveLength(1);
-      expect(items[0].priority_value).toBe(4);
-    });
-
-    it("uses medium confidence_factor of 0.75", () => {
-      const rule = makeRule({ id: "SEO-001", importance_weight: 3, category: "on_page" });
-      const finding = makeFinding({
-        rule_id: "SEO-001",
-        severity: "high",
-        category: "on_page",
-        affected_scope: { sampled: true, urls: ["u1", "u2", "u3", "u4", "u5"] },
-      });
-      // impact=3, reach=ceil(5*5/10)=3, confidence_factor=0.75, effort=2 (on_page)
-      // priority_value = 3 * 3 * 0.75 / 2 = 3.375
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "medium",
-        pages_checked: 10,
-      });
-      expect(items[0].priority_value).toBeCloseTo(3.375);
-    });
-
-    it("uses low confidence_factor of 0.5", () => {
-      const rule = makeRule({ id: "GEO-001", importance_weight: 5, category: "geo" });
-      const finding = makeFinding({
-        rule_id: "GEO-001",
-        severity: "critical",
-        category: "geo",
-        affected_scope: { sampled: true, urls: ["u1", "u2"] },
-      });
-      // impact=5, reach=ceil(5*2/10)=1, confidence_factor=0.5, effort=4 (geo)
-      // priority_value = 5 * 1 * 0.5 / 4 = 0.625
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "low",
-        pages_checked: 10,
-      });
-      expect(items[0].priority_value).toBeCloseTo(0.625);
-    });
-
-    it("clamps reach to minimum 1", () => {
-      const rule = makeRule({ id: "CRW-001", importance_weight: 3, category: "crawlability" });
-      const finding = makeFinding({
-        rule_id: "CRW-001",
-        severity: "high",
-        category: "crawlability",
-        affected_scope: { sampled: true, urls: [] },
-      });
-      // 0 affected pages → reach should be 1 (minimum)
-      // impact=3, reach=1, confidence_factor=1.0, effort=2
-      // priority_value = 3 * 1 * 1.0 / 2 = 1.5
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 10,
-      });
-      expect(items[0].priority_value).toBe(1.5);
-    });
-
-    it("clamps reach to maximum 5", () => {
-      const rule = makeRule({ id: "CRW-001", importance_weight: 3, category: "crawlability" });
-      const finding = makeFinding({
-        rule_id: "CRW-001",
-        severity: "high",
-        category: "crawlability",
-        affected_scope: { sampled: true, urls: Array.from({ length: 20 }, (_, i) => `u${i}`) },
-      });
-      // 20 affected out of 10 checked → ceil(5*20/10) = 10 → clamped to 5
-      // impact=3, reach=5, confidence_factor=1.0, effort=2
-      // priority_value = 3 * 5 * 1.0 / 2 = 7.5
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 10,
-      });
-      expect(items[0].priority_value).toBe(7.5);
-    });
+  it("scores (impact x 2) - effort - timeline with impact = weight x 2", () => {
+    // weight 5 -> impact 10; on_page effort 3, timeline 3 -> 20 - 3 - 3 = 14
+    const items = calculatePriority([finding("R-1", "on_page")], [rule("R-1", 5, "on_page")], config, options);
+    expect(items).toHaveLength(1);
+    expect(items[0].impact_score).toBe(10);
+    expect(items[0].effort_score).toBe(3);
+    expect(items[0].timeline_score).toBe(3);
+    expect(items[0].priority_score).toBe(14);
+    expect(items[0].band).toBe("quick_win");
   });
 
-  describe("effort per category", () => {
-    it("uses effort=2 for crawlability", () => {
-      const rule = makeRule({ id: "CRW-001", importance_weight: 2, category: "crawlability" });
-      const finding = makeFinding({ rule_id: "CRW-001", category: "crawlability" });
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      // impact=2, reach=ceil(5*1/5)=1, effort=2 → 2*1*1.0/2 = 1.0
-      expect(items[0].priority_value).toBe(1.0);
-    });
-
-    it("uses effort=2 for on_page", () => {
-      const rule = makeRule({ id: "SEO-001", importance_weight: 2, category: "on_page" });
-      const finding = makeFinding({ rule_id: "SEO-001", category: "on_page" });
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      expect(items[0].priority_value).toBe(1.0);
-    });
-
-    it("uses effort=3 for structured_data", () => {
-      const rule = makeRule({ id: "STR-001", importance_weight: 3, category: "structured_data" });
-      const finding = makeFinding({ rule_id: "STR-001", category: "structured_data" });
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      // impact=3, reach=1, effort=3 → 3*1*1.0/3 = 1.0
-      expect(items[0].priority_value).toBe(1.0);
-    });
-
-    it("uses effort=3 for aeo", () => {
-      const rule = makeRule({ id: "AEO-001", importance_weight: 3, category: "aeo" });
-      const finding = makeFinding({ rule_id: "AEO-001", category: "aeo" });
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      expect(items[0].priority_value).toBe(1.0);
-    });
-
-    it("uses effort=4 for geo", () => {
-      const rule = makeRule({ id: "GEO-001", importance_weight: 4, category: "geo" });
-      const finding = makeFinding({ rule_id: "GEO-001", category: "geo" });
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      // impact=4, reach=1, effort=4 → 4*1*1.0/4 = 1.0
-      expect(items[0].priority_value).toBe(1.0);
-    });
-
-    it("uses effort=3 for i18n_accessibility", () => {
-      const rule = makeRule({
-        id: "I18N-001",
-        importance_weight: 3,
-        category: "i18n_accessibility",
-      });
-      const finding = makeFinding({ rule_id: "I18N-001", category: "i18n_accessibility" });
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      expect(items[0].priority_value).toBe(1.0);
-    });
-
-    it("uses effort=3 for performance_security", () => {
-      const rule = makeRule({
-        id: "PRF-001",
-        importance_weight: 3,
-        category: "performance_security",
-      });
-      const finding = makeFinding({ rule_id: "PRF-001", category: "performance_security" });
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      expect(items[0].priority_value).toBe(1.0);
-    });
+  it("stays inside the documented -18..+18 range at both extremes", () => {
+    // Highest this config can produce: on_page (effort 3, timeline 3) at weight 5.
+    const max = calculatePriority([finding("R-1", "on_page")], [rule("R-1", 5, "on_page")], config, options);
+    // Lowest: geo (effort 7) with a slow 10-week timeline at weight 1.
+    const min = calculatePriority(
+      [finding("R-1", "geo")],
+      [rule("R-1", 1, "geo", { recommendation_timeline: 10 })],
+      config,
+      options,
+    );
+    expect(max[0].priority_score).toBe(14);
+    expect(min[0].priority_score).toBe(-13);
+    expect(max[0].priority_score).toBeLessThanOrEqual(18);
+    expect(min[0].priority_score).toBeGreaterThanOrEqual(-18);
   });
 
-  describe("group assignment", () => {
-    it("assigns critical_blocker for critical severity findings", () => {
-      const rule = makeRule({ id: "CRW-001", importance_weight: 4 });
-      const finding = makeFinding({ rule_id: "CRW-001", severity: "critical" });
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      expect(items[0].group).toBe("critical_blocker");
-    });
-
-    it("assigns quick_win when effort<=2 and impact>=3", () => {
-      const rule = makeRule({ id: "CRW-001", importance_weight: 3, category: "crawlability" });
-      const finding = makeFinding({ rule_id: "CRW-001", severity: "high" });
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      // effort=2 (crawlability), impact=3 → quick_win
-      expect(items[0].group).toBe("quick_win");
-    });
-
-    it("assigns strategic_opportunity when effort>=4", () => {
-      const rule = makeRule({ id: "GEO-001", importance_weight: 2, category: "geo" });
-      const finding = makeFinding({ rule_id: "GEO-001", severity: "medium", category: "geo" });
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      // effort=4 (geo) → strategic_opportunity
-      expect(items[0].group).toBe("strategic_opportunity");
-    });
-
-    it("assigns polish for remaining findings", () => {
-      const rule = makeRule({ id: "STR-001", importance_weight: 2, category: "structured_data" });
-      const finding = makeFinding({ rule_id: "STR-001", severity: "low" });
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      // effort=3, impact=2 → not quick_win (impact<3), not strategic (effort<4) → polish
-      expect(items[0].group).toBe("polish");
-    });
-
-    it("assigns measurement_fix for unavailable results", () => {
-      const rule = makeRule({ id: "GSC-001", importance_weight: 3, category: "crawlability" });
-      const unavailableResult = makeRuleResult({
-        rule_id: "GSC-001",
-        result: "unavailable",
-      });
-      const items = calculatePriority([], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-        unavailable_results: [unavailableResult],
-      });
-      expect(items).toHaveLength(1);
-      expect(items[0].group).toBe("measurement_fix");
-    });
+  it("uses the rule-level recommendation_timeline when present", () => {
+    const items = calculatePriority(
+      [finding("R-1", "aeo")],
+      [rule("R-1", 3, "aeo", { recommendation_timeline: 9 })],
+      config,
+      options,
+    );
+    expect(items[0].timeline_score).toBe(9);
   });
 
-  describe("display band assignment", () => {
-    it("assigns band 1 for priority_value >= 10", () => {
-      const rule = makeRule({ id: "CRW-001", importance_weight: 5, category: "crawlability" });
-      const finding = makeFinding({
-        rule_id: "CRW-001",
-        severity: "critical",
-        affected_scope: { sampled: true, urls: Array.from({ length: 10 }, (_, i) => `u${i}`) },
-      });
-      // impact=5, reach=5, effort=2, confidence=high → 5*5*1.0/2 = 12.5 → band 1
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 10,
-      });
-      expect(items[0].display_band).toBe(1);
-    });
-
-    it("assigns band 2 for priority_value >= 6 and < 10", () => {
-      const rule = makeRule({ id: "SEO-001", importance_weight: 4, category: "on_page" });
-      const finding = makeFinding({
-        rule_id: "SEO-001",
-        severity: "high",
-        affected_scope: { sampled: true, urls: ["u1", "u2", "u3"] },
-      });
-      // impact=4, reach=ceil(5*3/10)=2, effort=2 → 4*2*1.0/2 = 4.0
-      // That's band 3. Let me adjust for band 2.
-      // Need >=6: impact=4, reach=ceil(5*5/5)=5, effort=2 → 4*5*1.0/2 = 10 → band 1
-      // Try: impact=3, reach=5, effort=2 → 3*5*1.0/2 = 7.5 → band 2
-      const rule2 = makeRule({ id: "SEO-001", importance_weight: 3, category: "on_page" });
-      const finding2 = makeFinding({
-        rule_id: "SEO-001",
-        severity: "high",
-        affected_scope: { sampled: true, urls: ["u1", "u2", "u3", "u4", "u5"] },
-      });
-      const items = calculatePriority([finding2], [rule2], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      expect(items[0].display_band).toBe(2);
-    });
-
-    it("assigns band 3 for priority_value >= 3 and < 6", () => {
-      const rule = makeRule({ id: "CRW-001", importance_weight: 3, category: "crawlability" });
-      const finding = makeFinding({
-        rule_id: "CRW-001",
-        severity: "high",
-        affected_scope: { sampled: true, urls: ["u1", "u2"] },
-      });
-      // impact=3, reach=ceil(5*2/5)=2, effort=2 → 3*2*1.0/2 = 3.0 → band 3
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      expect(items[0].display_band).toBe(3);
-    });
-
-    it("assigns band 4 for priority_value < 3", () => {
-      const rule = makeRule({ id: "STR-001", importance_weight: 1, category: "structured_data" });
-      const finding = makeFinding({
-        rule_id: "STR-001",
-        severity: "low",
-        affected_scope: { sampled: true, urls: ["u1"] },
-      });
-      // impact=1, reach=1, effort=3 → 1*1*1.0/3 = 0.333 → band 4
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      expect(items[0].display_band).toBe(4);
-    });
+  it("falls back to the category default timeline when the rule has none", () => {
+    const items = calculatePriority([finding("R-1", "aeo")], [rule("R-1", 3, "aeo")], config, options);
+    expect(items[0].timeline_score).toBe(config.timelineDefaultByCategory.aeo);
   });
 
-  describe("horizon assignment", () => {
-    it("assigns 0-30d for critical display band", () => {
-      const rule = makeRule({ id: "CRW-001", importance_weight: 5, category: "crawlability" });
-      const finding = makeFinding({
-        rule_id: "CRW-001",
-        severity: "critical",
-        affected_scope: { sampled: true, urls: Array.from({ length: 10 }, (_, i) => `u${i}`) },
-      });
-      // priority_value = 5*5*1.0/2 = 12.5 → band 1 → 0-30d
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 10,
-      });
-      expect(items[0].horizon).toBe("0-30d");
-    });
+  it("assigns each band at its inclusive threshold", () => {
+    const bandFor = (weight: number, category: RuleCategory, timeline?: number) =>
+      calculatePriority(
+        [finding("R-1", category)],
+        [rule("R-1", weight, category, timeline === undefined ? {} : { recommendation_timeline: timeline })],
+        config,
+        options,
+      )[0].band;
 
-    it("assigns 0-30d for critical_blocker group regardless of band", () => {
-      const rule = makeRule({ id: "CRW-001", importance_weight: 4, category: "crawlability" });
-      const finding = makeFinding({
-        rule_id: "CRW-001",
-        severity: "critical",
-        affected_scope: { sampled: true, urls: [] },
-      });
-      // Even with low reach, critical_blocker → 0-30d
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "low",
-        pages_checked: 10,
-      });
-      expect(items[0].group).toBe("critical_blocker");
-      expect(items[0].horizon).toBe("0-30d");
-    });
-
-    it("assigns 31-60d for high or medium display band", () => {
-      const rule = makeRule({ id: "SEO-001", importance_weight: 3, category: "on_page" });
-      const finding = makeFinding({
-        rule_id: "SEO-001",
-        severity: "high",
-        affected_scope: { sampled: true, urls: ["u1", "u2"] },
-      });
-      // impact=3, reach=2, effort=2 → 3*2*1.0/2 = 3.0 → band 3 → 31-60d
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      expect(items[0].display_band).toBe(3);
-      expect(items[0].horizon).toBe("31-60d");
-    });
-
-    it("assigns 61-90d for low display band", () => {
-      const rule = makeRule({ id: "STR-001", importance_weight: 1, category: "structured_data" });
-      const finding = makeFinding({
-        rule_id: "STR-001",
-        severity: "low",
-        affected_scope: { sampled: true, urls: ["u1"] },
-      });
-      // impact=1, reach=1, effort=3 → 0.333 → band 4 → 61-90d
-      const items = calculatePriority([finding], [rule], {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      expect(items[0].display_band).toBe(4);
-      expect(items[0].horizon).toBe("61-90d");
-    });
+    expect(bandFor(5, "on_page")).toBe("quick_win"); // 20-3-3 = 14
+    expect(bandFor(4, "on_page")).toBe("quick_win"); // 16-3-3 = 10
+    expect(bandFor(4, "structured_data")).toBe("strategic"); // 16-5-5 = 6
+    expect(bandFor(3, "performance_security")).toBe("fill_in"); // 12-6-5 = 1
+    expect(bandFor(2, "performance_security")).toBe("fill_in"); // 8-6-5 = -3
+    expect(bandFor(1, "geo")).toBe("defer"); // 4-7-7 = -10
   });
 
-  describe("sorting", () => {
-    it("sorts by priority_value descending", () => {
-      const rules = [
-        makeRule({ id: "CRW-001", importance_weight: 5, category: "crawlability" }),
-        makeRule({ id: "SEO-001", importance_weight: 2, category: "on_page" }),
-        makeRule({ id: "STR-001", importance_weight: 3, category: "structured_data" }),
-      ];
-      const findings = [
-        makeFinding({ rule_id: "SEO-001", severity: "medium", category: "on_page" }),
-        makeFinding({ rule_id: "CRW-001", severity: "critical", category: "crawlability" }),
-        makeFinding({ rule_id: "STR-001", severity: "high", category: "structured_data" }),
-      ];
-      const items = calculatePriority(findings, rules, {
-        confidence_level: "high",
-        pages_checked: 5,
-      });
-      // CRW-001: 5*1*1.0/2 = 2.5 (critical_blocker)
-      // STR-001: 3*1*1.0/3 = 1.0 (polish)
-      // SEO-001: 2*1*1.0/2 = 1.0 (polish)
-      // But critical_blockers sort first, then by priority_value
-      expect(items[0].rule_id).toBe("CRW-001");
-      expect(items[0].group).toBe("critical_blocker");
-      // Remaining sorted by priority_value desc
-      expect(items[1].priority_value).toBeGreaterThanOrEqual(items[2].priority_value);
-    });
-
-    it("sorts measurement_fix items after critical_blockers", () => {
-      const rules = [
-        makeRule({ id: "CRW-001", importance_weight: 5, category: "crawlability" }),
-        makeRule({ id: "GSC-001", importance_weight: 3, category: "crawlability" }),
-      ];
-      const findings = [
-        makeFinding({ rule_id: "CRW-001", severity: "critical", category: "crawlability" }),
-      ];
-      const unavailable = [makeRuleResult({ rule_id: "GSC-001", result: "unavailable" })];
-      const items = calculatePriority(findings, rules, {
-        confidence_level: "high",
-        pages_checked: 5,
-        unavailable_results: unavailable,
-      });
-      // critical_blocker first, then measurement_fix
-      expect(items[0].group).toBe("critical_blocker");
-      expect(items[1].group).toBe("measurement_fix");
-    });
+  it("carries finding evidence and rationale through unchanged", () => {
+    const items = calculatePriority([finding("R-1", "on_page")], [rule("R-1", 5, "on_page")], config, options);
+    expect(items[0].evidence_ids).toEqual(["ev-R-1"]);
+    expect(items[0].rationale).toBe("rationale for R-1");
+    expect(items[0].severity).toBe("high");
+    expect(items[0].category).toBe("on_page");
   });
 
-  describe("measurement_fix priority_value", () => {
-    it("calculates with impact=weight, reach=5, effort=1", () => {
-      const rule = makeRule({ id: "GSC-001", importance_weight: 3, category: "crawlability" });
-      const unavailable = makeRuleResult({ rule_id: "GSC-001", result: "unavailable" });
-      const items = calculatePriority([], [rule], {
-        confidence_level: "high",
-        pages_checked: 10,
-        unavailable_results: [unavailable],
-      });
-      // impact=3, reach=5, effort=1, confidence_factor=1.0
-      // priority_value = 3 * 5 * 1.0 / 1 = 15
-      expect(items[0].priority_value).toBe(15);
-      expect(items[0].group).toBe("measurement_fix");
+  it("records the industry classification and site stage as provenance", () => {
+    const items = calculatePriority([finding("R-1", "on_page")], [rule("R-1", 5, "on_page")], config, {
+      industry: "saas",
+      siteStage: "launch",
     });
+    expect(items[0].industry_classification).toBe("saas");
+    expect(items[0].site_stage).toBe("launch");
+    expect(items[0].playbook_id).toBeNull();
+    expect(items[0].playbook_note_key).toBeNull();
+  });
+
+  it("skips findings whose rule is not in the catalog", () => {
+    const items = calculatePriority(
+      [finding("R-1", "on_page"), finding("UNKNOWN", "on_page")],
+      [rule("R-1", 5, "on_page")],
+      config,
+      options,
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0].rule_id).toBe("R-1");
+  });
+
+  it("returns an empty board for no findings", () => {
+    expect(calculatePriority([], [rule("R-1", 5, "on_page")], config, options)).toEqual([]);
+  });
+
+  it("orders bands quick win -> strategic -> fill-in -> defer", () => {
+    const findings = [
+      finding("DEFER", "geo"),
+      finding("FILLIN", "performance_security"),
+      finding("QUICK", "on_page"),
+      finding("STRAT", "structured_data"),
+    ];
+    const rules = [
+      rule("DEFER", 1, "geo"),
+      rule("FILLIN", 2, "performance_security"),
+      rule("QUICK", 5, "on_page"),
+      rule("STRAT", 4, "structured_data"),
+    ];
+    const items = calculatePriority(findings, rules, config, options);
+    expect(items.map((i) => i.band)).toEqual(["quick_win", "strategic", "fill_in", "defer"]);
+  });
+
+  it("orders by severity then score inside a band", () => {
+    // Both land in quick_win: 14 and 13. The lower-scoring item is more severe.
+    const findings = [finding("LOWW", "on_page", "low"), finding("CRIT", "on_page", "critical")];
+    const rules = [rule("LOWW", 5, "on_page"), rule("CRIT", 4, "crawlability")];
+    const items = calculatePriority(findings, rules, config, options);
+    expect(items.map((i) => i.rule_id)).toEqual(["CRIT", "LOWW"]);
+  });
+
+  it("clamps impact into its documented 1..10 input domain", () => {
+    // importance_weight is meant to be 1..5; a malformed 0 or 9 must not escape the domain.
+    const low = calculatePriority([finding("R-1", "on_page")], [rule("R-1", 0, "on_page")], config, options);
+    expect(low[0].impact_score).toBe(1);
+    const high = calculatePriority([finding("R-1", "on_page")], [rule("R-1", 9, "on_page")], config, options);
+    expect(high[0].impact_score).toBe(10);
   });
 });

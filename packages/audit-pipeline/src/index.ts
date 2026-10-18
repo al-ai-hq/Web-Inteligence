@@ -43,10 +43,13 @@ export type { MigrationResult } from "./migrations/migrate.js";
 export {
   composeSections,
   deriveActionItems,
+  mapPriorityItem,
   deriveSeverity,
   deriveUnavailable,
 } from "./composer.js";
-export type { ComposeResult } from "./composer.js";
+export type { ComposeResult, RulesEngineOutput } from "./composer.js";
+export { deriveSiteStage, normalizeDomain } from "./site-identity.js";
+export type { SiteStage } from "./site-identity.js";
 export { buildReportModel, validateReportModel } from "./report-model.js";
 export type { BuildReportModelParams } from "./report-model.js";
 export { M4_AGENT_NAMES, runAgentStage } from "./agent-stage.js";

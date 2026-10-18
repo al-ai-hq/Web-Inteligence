@@ -34,17 +34,13 @@ function item(rule_id: string, priority_score: number): RecommendationPriorityIt
   return {
     rule_id,
     severity: "medium",
-    priority_value: priority_score,
-    priority_score,
+    category: "aeo",
+    evidence_ids: [],
     impact_score: 5,
     effort_score: 5,
     timeline_score: 5,
+    priority_score,
     band: "strategic",
-    group: "strategic_opportunity",
-    horizon: "31-60d",
-    display_band: 3,
-    category: "aeo",
-    evidence_ids: [],
     playbook_id: null,
     playbook_note_key: null,
     industry_classification: "generic",
@@ -79,7 +75,7 @@ describe("applyPlaybook", () => {
     expect(result[0].priority_score).toBe(9);
   });
 
-  test("re-derives the band and its presentation from the boosted score", () => {
+  test("re-derives the band from the boosted score", () => {
     const result = applyPlaybook(
       [item("AEO-003", 6)],
       playbook([{ rule_id: "AEO-003", boost: 2, note_key: null }]),
@@ -87,9 +83,6 @@ describe("applyPlaybook", () => {
     );
     expect(result[0].priority_score).toBe(8);
     expect(result[0].band).toBe("quick_win");
-    expect(result[0].group).toBe("quick_win");
-    expect(result[0].horizon).toBe("0-30d");
-    expect(result[0].display_band).toBe(1);
   });
 
   test("never boosts a negative score toward a higher band", () => {

@@ -1,4 +1,4 @@
-import { assignPresentation } from "./recommendation-band.js";
+import { assignBand } from "./recommendation-band.js";
 import type {
   IndustryPlaybook,
   RecommendationPriorityItem,
@@ -9,7 +9,7 @@ import type {
  * Apply an industry playbook's per-rule boosts onto already-scored items.
  *
  * The boost is capped by the config so a mis-edited YAML cannot outrank the
- * deterministic scoring, and presentation is re-derived from the new score.
+ * deterministic scoring, and the band is re-derived from the boosted score.
  */
 export function applyPlaybook(
   items: RecommendationPriorityItem[],
@@ -28,8 +28,7 @@ export function applyPlaybook(
     return {
       ...item,
       priority_score: score,
-      priority_value: score,
-      ...assignPresentation(score, config.bandThresholds),
+      band: assignBand(score, config.bandThresholds),
       playbook_id: playbook.playbook_id,
       playbook_note_key: entry.note_key,
     };
