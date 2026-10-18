@@ -34,6 +34,7 @@ export type {
   StoredCostLine,
   StoredCosts,
   StoredFinding,
+  StoredRecommendationProvenance,
   StoredReportEnvelope,
   UnavailableBlock,
 } from "./report-envelope.js";

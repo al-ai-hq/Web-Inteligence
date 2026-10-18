@@ -3,9 +3,11 @@ import { join } from "node:path";
 import { CostTracker } from "@wpi/agents";
 import {
   InMemoryAuditStore,
+  InMemoryOutcomeStore,
   InProcessDispatcher,
   M4_AGENT_NAMES,
   PostgresAuditStore,
+  PostgresOutcomeStore,
   REPO_ROOT,
   runAgentStage,
   runAuditPipeline,
@@ -18,6 +20,7 @@ import {
   type AuditStore,
   type ComposerAgentOutcome,
   type JobDispatcher,
+  type OutcomeStore,
   type TierName,
   type TierScope,
 } from "@wpi/audit-pipeline";
@@ -40,6 +43,7 @@ import { Pool } from "pg";
 
 export interface AuditServices {
   store: AuditStore;
+  outcomeStore: OutcomeStore;
   dispatcher: JobDispatcher;
   tierScopes: Record<Exclude<TierName, "refused">, TierScope>;
   cookieSecret: string;
@@ -83,7 +87,7 @@ export async function getAuditServices(): Promise<AuditServices> {
 
 type PipelineFields = Pick<
   AuditServices,
-  "store" | "tierScopes" | "validateUrl" | "outputDir" | "geminiApiKey" | "pool"
+  "store" | "outcomeStore" | "tierScopes" | "validateUrl" | "outputDir" | "geminiApiKey" | "pool"
 > & {
   tokenStore?: TokenStore;
 };
@@ -91,6 +95,7 @@ type PipelineFields = Pick<
 function buildPipeline(fields: PipelineFields) {
   return {
     store: fields.store,
+    outcomeStore: fields.outcomeStore,
     tierScopes: fields.tierScopes,
     validateUrl: fields.validateUrl,
     outputDir: fields.outputDir,
@@ -330,6 +335,7 @@ async function buildServices(): Promise<AuditServices> {
     const store = new InMemoryAuditStore();
     const fields: PipelineFields = {
       store,
+      outcomeStore: new InMemoryOutcomeStore(),
       tierScopes: TIER_SCOPES,
       validateUrl: async (url) => localValidateUrl(url),
       outputDir,
@@ -352,6 +358,7 @@ async function buildServices(): Promise<AuditServices> {
     const store = new InMemoryAuditStore();
     const fields: PipelineFields = {
       store,
+      outcomeStore: new InMemoryOutcomeStore(),
       tierScopes: loadTierScopes(join(REPO_ROOT, "config", "anonymous-eligibility.yaml")),
       validateUrl: async (url) => localValidateUrl(url),
       outputDir,
@@ -381,6 +388,7 @@ async function buildServices(): Promise<AuditServices> {
 
   const fields: PipelineFields = {
     store,
+    outcomeStore: new PostgresOutcomeStore(pool),
     tierScopes: loadTierScopes(join(REPO_ROOT, "config", "anonymous-eligibility.yaml")),
     validateUrl: async (url) => {
       try {

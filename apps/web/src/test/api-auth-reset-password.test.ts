@@ -1,5 +1,5 @@
 import { describe, expect, it, afterEach } from "vitest";
-import { InMemoryAuditStore, TIER_SCOPES } from "@wpi/audit-pipeline";
+import { InMemoryAuditStore, InMemoryOutcomeStore, TIER_SCOPES } from "@wpi/audit-pipeline";
 import { InMemoryAuthService } from "@wpi/auth";
 import { InMemoryRateLimiter } from "@wpi/rate-limiter";
 import { StubEmailService } from "@wpi/email";
@@ -10,6 +10,7 @@ import { setAuditServicesForTests, type AuditServices } from "../services/contai
 function makeServices(): AuditServices {
   return {
     store: new InMemoryAuditStore(),
+    outcomeStore: new InMemoryOutcomeStore(),
     dispatcher: { dispatch: () => Promise.resolve(undefined) },
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",

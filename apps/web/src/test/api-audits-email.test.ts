@@ -1,6 +1,7 @@
 import { describe, expect, it, afterEach } from "vitest";
 import {
   InMemoryAuditStore,
+  InMemoryOutcomeStore,
   TIER_SCOPES,
   runAuditPipeline,
   type PipelineDeps,
@@ -25,6 +26,7 @@ const CONTEXT: AuditContext = {
 function makeServices(): AuditServices {
   return {
     store: new InMemoryAuditStore(),
+    outcomeStore: new InMemoryOutcomeStore(),
     dispatcher: { dispatch: () => Promise.resolve(undefined) },
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",

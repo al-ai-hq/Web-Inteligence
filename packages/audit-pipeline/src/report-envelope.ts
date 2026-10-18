@@ -1,4 +1,5 @@
 import type { RecommendationBand, ScoreResult } from "@wpi/rules-engine";
+import type { SiteStage } from "./site-identity.js";
 
 export type FindingSection =
   "technical" | "keywords" | "content" | "performance" | "experience" | "entity";
@@ -58,6 +59,16 @@ export interface StoredActionItem {
   priority_score: number | null;
   band: RecommendationBand | null;
   playbook_note_key: string | null;
+}
+
+/**
+ * Which industry the playbooks were applied for, and the signal that decided it,
+ * so the UI can show provenance instead of presenting the classification as fact.
+ */
+export interface StoredRecommendationProvenance {
+  industry: string;
+  basis: string;
+  site_stage: SiteStage;
 }
 
 export interface ComposerFinding {
@@ -127,4 +138,6 @@ export interface StoredReportEnvelope {
   action_board: StoredActionItem[];
   costs: StoredCosts;
   score: ScoreResult | null;
+  /** Absent on reports stored before M10, and on reports with no rule output. */
+  recommendations?: StoredRecommendationProvenance;
 }

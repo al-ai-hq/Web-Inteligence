@@ -4,7 +4,7 @@ import { composeSections } from "./composer.js";
 import type { TierName, TierScope } from "./eligibility.js";
 import { REPO_ROOT } from "./paths.js";
 import { buildReportModel, validateReportModel } from "./report-model.js";
-import type { ComposerAgentOutcome } from "./report-envelope.js";
+import type { ComposerAgentOutcome, StoredRecommendationProvenance } from "./report-envelope.js";
 import { deriveSiteStage } from "./site-identity.js";
 import type { ConnectorResult, AuditContext } from "@wpi/connectors";
 import type { TokenStore } from "@wpi/oauth";
@@ -26,6 +26,8 @@ import {
   RuleCatalog,
 } from "@wpi/rules-engine";
 import type { RulesEngineOutput } from "./composer.js";
+import type { OutcomeStore } from "./outcome-store.js";
+import { recordOutcomeDeltas } from "./outcome-service.js";
 
 export const BASE_LIMITATION_KEYS = ["limitation.external_api_tools_unavailable"] as const;
 
@@ -60,6 +62,7 @@ export interface PipelineDeps {
   runConnectors: (url: string, context: AuditContext) => Promise<ConnectorResult[]>;
   tierScopes: Record<Exclude<TierName, "refused">, TierScope>;
   tokenStore?: TokenStore;
+  outcomeStore?: OutcomeStore;
   userId?: string;
   projectId?: string;
   onComplete?: (record: AuditRecord) => Promise<void> | void;
@@ -165,6 +168,7 @@ export async function runAuditPipeline(
 
     // Process rules engine results if config is available
     let rulesOutput: RulesEngineOutput | undefined;
+    let provenance: StoredRecommendationProvenance | undefined;
     if (pageRuleResults.length > 0 && deps.loadRulesConfig) {
       const { rules, scoring, catalog, recommendation } = deps.loadRulesConfig();
       const siteResults = aggregateToSite(pageRuleResults, {
@@ -206,6 +210,11 @@ export async function runAuditPipeline(
         score: scoreResult,
         unavailable_categories: scoreResult.unavailable_categories,
       };
+      provenance = {
+        industry: industry.industry,
+        basis: industry.basis,
+        site_stage: siteStage,
+      };
     }
 
     const [outcomes, connectorResults] = await Promise.all([
@@ -239,6 +248,8 @@ export async function runAuditPipeline(
       findings: composed.findings,
     });
     validateReportModel(report, join(REPO_ROOT, "schemas"));
+    const to =
+      composed.findings.length > 0 ? ("READY_COMPLETE" as const) : ("READY_PARTIAL" as const);
     const envelope = {
       report,
       findings: composed.findings,
@@ -246,10 +257,18 @@ export async function runAuditPipeline(
       action_board: composed.action_board,
       costs: composed.costs,
       score: composed.score,
+      recommendations: provenance,
     };
-    const to =
-      composed.findings.length > 0 ? ("READY_COMPLETE" as const) : ("READY_PARTIAL" as const);
     const record = await deps.store.setOutcome(auditId, to, envelope, envelope.costs);
+    // Closing last week's applied marks is bookkeeping, not report generation:
+    // a failure here must not cost the user the report they waited for.
+    if (deps.outcomeStore && record.user_id) {
+      try {
+        await recordOutcomeDeltas(deps.outcomeStore, deps.store, record);
+      } catch (error) {
+        console.warn(`Outcome delta recording failed for audit ${auditId}:`, error);
+      }
+    }
     if (deps.onComplete) {
       try {
         await deps.onComplete(record);

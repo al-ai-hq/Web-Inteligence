@@ -5,6 +5,7 @@ import {
   generateAuditSecret,
   hashAuditSecret,
   InMemoryAuditStore,
+  InMemoryOutcomeStore,
   TIER_SCOPES,
 } from "@wpi/audit-pipeline";
 import { InMemoryAuthService } from "@wpi/auth";
@@ -42,6 +43,7 @@ async function seedStore(): Promise<{ store: InMemoryAuditStore; id: string; sec
 function makeServices(store: AuditStore): AuditServices {
   return {
     store,
+    outcomeStore: new InMemoryOutcomeStore(),
     dispatcher: { dispatch: async () => undefined },
     tierScopes: TIER_SCOPES,
     cookieSecret: "test-cookie-secret",
