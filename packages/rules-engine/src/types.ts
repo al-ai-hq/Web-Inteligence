@@ -191,6 +191,35 @@ export type Horizon = "0-30d" | "31-60d" | "61-90d";
 /** Display band for UI rendering (spec §8.2). */
 export type DisplayBand = 1 | 2 | 3 | 4;
 
+export interface RecommendationScoringConfig {
+  methodology_version: string;
+  bandThresholds: {
+    quickWin: number;
+    strategic: number;
+    fillIn: number;
+  };
+  maxPlaybookBoost: number;
+  effortByCategory: Record<RuleCategory, number>;
+  timelineDefaultByCategory: Record<RuleCategory, number>;
+}
+
+export interface PlaybookEntry {
+  rule_id: string;
+  boost: number;
+  note_key: string | null;
+}
+
+export interface IndustryPlaybook {
+  playbook_id: string;
+  display_name: Record<string, string>;
+  entries: PlaybookEntry[];
+}
+
+export interface RecommendationConfig {
+  scoring: RecommendationScoringConfig;
+  playbooks: IndustryPlaybook[];
+}
+
 /** A prioritized item for the action board. */
 export interface PriorityItem {
   rule_id: string;
@@ -202,4 +231,22 @@ export interface PriorityItem {
   category: RuleCategory;
   evidence_ids: string[];
   rationale?: string;
+}
+
+// ─── Recommendation scoring types (M10) ──────────────────────────────────────
+
+/** Outcome band assigned by the M10 impact/effort/timeline scorer. */
+export type RecommendationBand = "quick_win" | "strategic" | "fill_in" | "defer";
+
+/** A PriorityItem enriched with the four M10 scores and playbook provenance. */
+export interface RecommendationPriorityItem extends PriorityItem {
+  impact_score: number;
+  effort_score: number;
+  timeline_score: number;
+  priority_score: number;
+  band: RecommendationBand;
+  playbook_id: string | null;
+  playbook_note_key: string | null;
+  industry_classification: string;
+  site_stage: string;
 }

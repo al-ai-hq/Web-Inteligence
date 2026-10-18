@@ -1,0 +1,24 @@
+methodology_version: "0.1.0-m10"
+scoring:
+  formula: "(impact_score * 2) - effort_score - timeline_score"
+  band_thresholds:
+    quick_win: 8
+    strategic: 3
+    fill_in: -3
+  max_playbook_boost: 3
+effort_by_category:
+  crawlability: 4
+  on_page: 3
+  structured_data: 5
+  aeo: 5
+  geo: 7
+  i18n_accessibility: 4
+  performance_security: 6
+timeline_default_by_category:
+  crawlability: 4
+  on_page: 3
+  structured_data: 5
+  aeo: 6
+  geo: 7
+  i18n_accessibility: 4
+  performance_security: 5

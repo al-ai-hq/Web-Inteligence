@@ -1,0 +1,45 @@
+playbooks:
+  - playbook_id: saas
+    display_name:
+      en: SaaS
+      ar: SaaS
+    entries:
+      - rule_id: AEO-003
+        boost: 2
+        note_key: playbook_saas_aeo_003
+      - rule_id: PRF-002
+        boost: 1
+  - playbook_id: ecommerce
+    display_name:
+      en: E-commerce
+      ar: التجارة الإلكترونية
+    entries:
+      - rule_id: STR-001
+        boost: 2
+        note_key: playbook_ecommerce_str_001
+  - playbook_id: local
+    display_name:
+      en: Local business
+      ar: نشاط تجاري محلي
+    entries:
+      - rule_id: GEO-001
+        boost: 2
+  - playbook_id: publisher
+    display_name:
+      en: Publisher
+      ar: ناشر محتوى
+    entries:
+      - rule_id: AEO-001
+        boost: 2
+  - playbook_id: professional_services
+    display_name:
+      en: Professional services
+      ar: خدمات مهنية
+    entries:
+      - rule_id: AEO-002
+        boost: 1
+  - playbook_id: generic
+    display_name:
+      en: Generic
+      ar: عام
+    entries: []
