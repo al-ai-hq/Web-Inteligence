@@ -88,6 +88,10 @@ CORE_AGENT_TOOLS = {
 LATER_AGENTS = {
     "intake-coordinator", "commerce-analyst", "local-analyst", "entity-analyst", "architecture-strategist",
     "backlink-analyst", "comparison-reviewer", "programmatic-governor", "change-monitor",
+    # Not in the 02-DETAILED-SPECIFICATION §13 nine-agent table, and their allowlists are not yet enforced
+    # in code (no runtime path loads the file and calls the tool registry), so they stay in this regime:
+    # status: draft and the §13 exact-allowlist comparison do not apply to them.
+    "experience-reviewer",
 }
 AGENT_KEYS = {"name", "milestone", "reads_untrusted_content", "model_tier", "tools", "forbidden_tools"}
 

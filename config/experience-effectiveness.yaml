@@ -1,3 +1,11 @@
+# Purpose: Experience Effectiveness rubric: the five scored dimensions, their weights, the per-dimension
+#          criteria and the bilingual display names. Reported separately from Presence Readiness.
+# Owner role: Methodology owner (SEO lead), with the Arabic editorial owner for the AR strings
+# Source sections: docs/rubrics/experience-effectiveness.md;
+#                  docs/superpowers/specs/2026-10-07-m5-experience-effectiveness-design.md;
+#                  docs/open-items.md OI-050 (weights and calibration still <DECIDE_AT_M5>);
+#                  docs/decisions.md D-012 (kept separate from the Presence Readiness score)
+# Status: draft for review
 methodology_version: "0.1.0-draft"
 score_name: experience_effectiveness
 display_name:

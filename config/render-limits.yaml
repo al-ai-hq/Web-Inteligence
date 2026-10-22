@@ -1,4 +1,12 @@
-# config/render-limits.yaml
+# Purpose: Runtime limits for the render job (headless Chromium): per-page and total job timeouts,
+#          per-resource and decompressed size caps, the memory ceiling, and the network-idle wait
+#          before a snapshot is taken.
+# Owner role: Security engineer, with the tech lead
+# Source sections: docs/threat-model.md AC-11 (renderer escape and resource exhaustion);
+#                  docs/superpowers/specs/2026-10-01-m1-secure-crawler-evidence-capture-design.md;
+#                  docs/open-items.md OI-053
+# Status: draft for review
+#
 # Render job limits (Playwright/Chromium)
 per_page_timeout_seconds: 30 # AC-11 per-page timeout
 total_job_timeout_seconds: 300 # 5 min total job timeout

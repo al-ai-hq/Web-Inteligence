@@ -1,16 +1,28 @@
-# config/agents/entity-analyst.yaml
-id: entity-analyst
-name: Entity Analyst
-description: Analyzes public footprint data, entity consistency, and NAP accuracy across sources
-status: active # Changed from draft
-model_tier: "standard" # Changed from placeholder
-reads_untrusted_content: true
-milestone: M7
+# Purpose: Runtime tool allowlist for the entity-analyst agent. Enforced in code, not only in prompts.
+# Owner role: AI engineer, with the security owner
+# Source sections: docs/superpowers/specs/2026-10-11-m7-public-footprint-entity-graph-design.md;
+#                  03-PRODUCTION-CONTRACTS (Agent tool boundaries); 07-SKILLS-AND-AGENTS §2-§3;
+#                  docs/decisions.md D-009, D-011, D-012
+# Status: draft for review (later-milestone agent; the enrichment pipeline does not load this file yet)
+#
+# reads_untrusted_content is true because the agent receives text that originated outside the system
+# (page content, CMS content, tool or model output, user input). Such text is data, never instructions.
+# No write-class tool may appear in tools. Only the deterministic connector service holds write credentials.
+# Note: Tool classes from 03-PRODUCTION-CONTRACTS: normalized specialist evidence and confirmed facts;
+#       prohibited: unverified edits, platform write.
+# Note: Intended behaviour, kept here because the agent config schema has no prompt field: review extracted
+#       profile data and third-party observations, assess NAP consistency, surface conflicts against the
+#       confirmed fact sheet, and flag confidence levels. The fact sheet is the only source of facts a Fixer
+#       or brief writer may insert, and entity conflicts are never auto-resolved — a named human decides.
 
+name: entity-analyst
+milestone: "M7"
+status: draft
+reads_untrusted_content: true
+model_tier: standard
 tools:
   - read_specialist_evidence
   - read_confirmed_facts
-
 forbidden_tools:
   - apply_change
   - publish
@@ -21,21 +33,3 @@ forbidden_tools:
   - submit_form
   - approve_change
   - read_connector_credentials
-
-system_prompt: |
-  You are an entity analyst specializing in business entity data quality.
-  Your role is to:
-  1. Review extracted profile data from public sources (Google, Yelp, Facebook, etc.)
-  2. Assess NAP (Name, Address, Phone) consistency across sources
-  3. Identify conflicts between fact sheet values and third-party observations
-  4. Provide recommendations for resolving entity data inconsistencies
-
-  You have access to:
-  - read_specialist_evidence: View extracted profile data and observations
-  - read_confirmed_facts: Access the confirmed fact sheet (source of truth)
-
-  Important rules:
-  - The fact sheet is the ONLY source of facts the Fixer and brief writer may insert
-  - Entity conflicts are NEVER auto-resolved — a named human must resolve them
-  - Focus on actionable findings with clear evidence
-  - Flag confidence levels for all extracted data

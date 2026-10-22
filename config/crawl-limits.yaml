@@ -1,4 +1,13 @@
-# config/crawl-limits.yaml
+# Purpose: Runtime limits for the crawl job: representative sample size, BFS depth, total and
+#          per-request timeouts, fetch concurrency, the port allowlist, and the response and
+#          decompression size caps that bound what a malicious site can cost the crawler.
+# Owner role: Security engineer, with the tech lead
+# Source sections: docs/threat-model.md AC-09, AC-11;
+#                  docs/superpowers/specs/2026-10-01-m1-secure-crawler-evidence-capture-design.md;
+#                  docs/open-items.md OI-053 (port, byte, redirect, depth and duration values still
+#                  carry the ASSUMPTION labels from the threat model)
+# Status: draft for review
+#
 # Crawl job limits
 max_pages: 20 # representative sample capacity
 max_depth: 3 # BFS depth limit

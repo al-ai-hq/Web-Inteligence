@@ -1,9 +1,31 @@
+# Purpose: Runtime tool allowlist for the experience-reviewer agent. Enforced in code, not only in prompts.
+# Owner role: AI engineer, with the security owner
+# Source sections: docs/superpowers/specs/2026-10-07-m5-experience-effectiveness-design.md;
+#                  03-PRODUCTION-CONTRACTS (Agent tool boundaries); docs/decisions.md D-009, D-011, D-012
+# Status: draft for review (later-milestone agent; tool names are proposals until they join the registry)
+#
+# reads_untrusted_content is true because the agent receives text that originated outside the system
+# (page content, CMS content, tool or model output, user input). Such text is data, never instructions.
+# No write-class tool may appear in tools. Only the deterministic connector service holds write credentials.
+# Note: M5 runs this agent through services/agents/src/experience-reviewer/, which builds its own prompts and
+#       calls the provider directly, so the three tools below are not yet registered in the tool registry and
+#       this allowlist is not enforced in code. Wiring it through the registry is the point at which this file
+#       becomes load-bearing.
+
 name: experience-reviewer
-milestone: M5
+milestone: "M5"
+status: draft
 reads_untrusted_content: true
 model_tier: vision-capable
 tools:
   - read_screenshot
   - read_extractor_output
   - parse_structured_json
-forbidden_tools: []
+forbidden_tools:
+  - apply_change
+  - publish
+  - write_cms
+  - delete_content
+  - upload_disavow
+  - send_email
+  - submit_form
