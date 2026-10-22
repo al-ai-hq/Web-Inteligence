@@ -1,3 +1,11 @@
+# Purpose: Industry playbooks that annotate and reorder rule-produced recommendations. Each playbook
+#          lists rule IDs with an optional priority boost and bilingual display names; playbooks never
+#          create findings.
+# Owner role: Methodology owner (SEO lead)
+# Source sections: docs/superpowers/specs/2026-10-15-m10-recommendations-engine-design.md
+#                  FR-3 (industry classification and playbooks),
+#                  Architecture §Industry classification, §Playbook overlay
+# Status: draft for review
 playbooks:
   - playbook_id: saas
     display_name:

@@ -1,3 +1,11 @@
+# Purpose: Priority-scoring policy for the M10 recommendations engine: the impact/effort/timeline
+#          formula, the four band thresholds (quick win, strategic, fill-in, defer), the per-category
+#          effort and timeline defaults, and the cap on industry-playbook score boosts.
+# Owner role: Methodology owner (SEO lead)
+# Source sections: docs/superpowers/specs/2026-10-15-m10-recommendations-engine-design.md
+#                  FR-1 (priority scoring replaces the existing formula), FR-2 (action board bands),
+#                  Architecture §Playbook overlay (boost cap semantics)
+# Status: draft for review
 methodology_version: "0.1.0-m10"
 scoring:
   formula: "(impact_score * 2) - effort_score - timeline_score"
