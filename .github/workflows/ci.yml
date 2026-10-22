@@ -7,7 +7,7 @@
 # Jobs:
 #   governance - hook tests, validator regression tests, schema check, config check
 #   secrets    - gitleaks over the full history
-#   app        - lint, typecheck, unit tests, SSRF suite (Node 22 LTS, pnpm)
+#   app        - package build, lint, typecheck, unit tests, SSRF suite (Node 22 LTS, pnpm)
 name: ci
 
 on:
@@ -70,6 +70,10 @@ jobs:
           cache: pnpm
       - name: Install
         run: pnpm install --frozen-lockfile
+      # Type-aware linting resolves workspace imports through each package's
+      # emitted d.ts, so the libraries must be built before eslint runs.
+      - name: Build workspace packages
+        run: pnpm -r --filter='./packages/*' --filter='./services/*' build
       - name: Lint
         run: pnpm lint
       - name: Typecheck
